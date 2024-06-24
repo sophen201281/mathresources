@@ -1,0 +1,708 @@
+main{
+  width: 1200px; margin: 5px auto; 
+  height: 600px;
+  border:1px solid grey;
+  display: grid; color: white;
+  grid-template-rows: 1px 599px;
+  grid-template-columns: repeat(12, 1fr);
+  grid-gap: 2px;
+  
+ }
+ 
+ .container1{ background-color: whitesmoke; 
+  grid-row:1/6;
+   grid-column: 1/12;
+  width: 1200px;
+  height: 1px;
+ }
+ 
+  .div2{ background-color: white; 
+   grid-row:2/2;
+    grid-column: 1/12;
+   width: 1200px;
+   height: 600px;
+  }
+     
+     
+
+      .container {
+        display: fixed;
+      }
+      
+      .drawing-area {
+        box-shadow: 0 0 6px 0 #999;
+        background-color: transparent;
+        
+      }
+      
+      .rectangle1{
+        width: 850px;
+        height: 200px;
+        position: fixed;
+       
+        margin-left:-400px;
+        margin-top: 30px;
+        display: grid;
+        grid-template-columns: repeat(2,200px);
+        grid-column-end: inherit;
+        background-image: url(images/2.gif);
+        
+      }
+      .halfrectangle1{
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+        width: 200px;
+        height: 200px;
+        background-color: #118DFF;
+       
+        
+      }
+      .halfrectangle2{
+        width: 200px;
+        height: 200px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+      }
+     
+      
+      
+
+      .rectangle2{
+        width: 800px;
+        height: 200px;
+        position: fixed;
+        
+        display: grid;
+        grid-template-columns: repeat(3,134px);
+        gap: 0px;
+        background-image: url(images/3.gif);
+        margin-left:-400px;
+        margin-top: 30px;
+        
+      }
+      .part1{
+        width: 134px;
+        height: 200px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       
+       }
+       .part2{
+        width: 134px;
+        height: 200px;
+         border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       
+        background-color: #118DFF;
+       }
+       .part3{
+        width: 134px;
+        height: 200px;
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }
+      
+      
+
+       .button2{
+        width: 100px;
+        height: 50px;
+        background-color: #118DFF;
+        border-radius: 5px;
+        color: white;
+        font-size: larger;
+        text-align: center;
+        background-image: url(images/dice.png);
+       
+      }
+      .button2:hover{
+        width: 100px;
+        height: 60px;
+        background-color: greenyellow;
+        border-radius: 5px;
+        color:black;
+        font-size: larger;
+        align-content: center;
+      }
+      .button1{
+        width: 80px;
+        height: 50px;
+        background-color: #8cc04d;
+        border-radius: 5px;
+        color: white;
+        font-size: larger;
+        text-align: center;
+       
+      }
+      .button1:hover{
+        width: 80px;
+        height: 50px;
+        background-color: greenyellow;
+        border-radius: 5px;
+        color:black;
+        font-size: larger;
+        align-content: center;
+      }
+    
+  
+      .rectangle3{
+        width: 750px;
+        height: 200px;
+        position: fixed;
+        display: grid;
+        grid-template-columns: repeat(2,200px);
+        gap: 0px;
+        background-image: url(images/4.gif);
+        margin-left:-400px;
+        margin-top: 30px;
+        
+      }
+      .part4{
+        width: 200px;
+        height: 100px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }
+       .part5{
+        width: 200px;
+        height: 100px;
+         border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       
+        background-color: #118DFF;
+       }
+       .part6{
+        width: 200px;
+        height: 100px;
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }
+       .part7{
+        width: 200px;
+        height: 100px;
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }
+      
+       .rectangle4{
+        width: 700px;
+        height: 200px;
+        position: fixed;
+        display: grid;
+        grid-template-columns: repeat(5,80px);
+        gap: 0px;
+        background-image: url(images/5.gif);
+        margin-left:-400px;
+        margin-top: 30px;
+        
+      }
+      .part8{
+        width: 80px;
+        height: 200px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }
+       .part9{
+        width: 80px;
+        height: 200px;
+         border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       
+        background-color: #118DFF;
+       }
+       .part10{
+        width: 80px;
+        height: 200px;
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }
+       .part11{
+        width: 80px;
+        height: 200px;
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }
+       .part12{
+        width: 80px;
+        height: 200px;
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }
+
+       .rectangle5{
+        width: 650px;
+        height: 200px;
+        position: fixed;
+        display: grid;
+        grid-template-columns: repeat(3,133.33px);
+        gap: 0px;
+        background-image: url(images/6.gif);
+        margin-left:-400px;
+        margin-top: 30px;
+        
+      }
+      .part13{
+        width: 133.33px;
+        height: 100px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }
+       .part14{
+        width: 133.33px;
+        height: 100px;
+       
+         border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       
+        background-color: #118DFF;
+       }
+       .part15{
+        width: 133.33px;
+        height: 100px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }
+       .part16{
+        width: 133.33px;
+        height: 100px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }
+       .part17{
+        width: 133.33px;
+        height: 100px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }
+       .part18{
+        width: 133.33px;
+        height: 100px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }
+      
+       .rectangle6{
+        width: 600px;
+        height: 200px;
+        position: fixed;
+        display: grid;
+        grid-template-columns: repeat(7,58px);
+        gap: 0px;
+        background-image: url(images/7.gif);
+        margin-left:-400px;
+        margin-top: 30px;
+        
+      }
+      .part19{
+        width: 58px;
+        height: 200px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }
+       .part20{
+        width: 58px;
+        height: 200px;
+       
+         border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       
+        background-color: #118DFF;
+       }
+       .part21{
+        width: 58px;
+        height: 200px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }
+       .part22{
+        width: 58px;
+        height: 200px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }
+       .part23{
+        width: 58px;
+        height: 200px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }
+       .part24{
+        width: 58px;
+        height: 200px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }
+       .part25{
+        width: 58px;
+        height: 200px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }
+      
+       
+   .rectangle7{
+        width: 550px;
+        height: 200px;
+        position: fixed;
+        display: grid;
+        grid-template-columns: repeat(4,100px);
+        gap: 0px;
+        background-image: url(images/8.gif);
+        margin-left:-400px;
+        margin-top: 30px;
+        
+      }
+      .part26{
+        width: 100px;
+        height: 100px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }
+       .part27{
+        width: 100px;
+        height: 100px;
+       
+         border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       
+        background-color: #118DFF;
+       }
+       .part28{
+        width: 100px;
+        height: 100px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }
+       .part29{
+        width: 100px;
+        height: 100px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }
+       .part30{
+        width: 100px;
+        height: 100px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }
+       .part31{
+        width: 100px;
+        height: 100px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }
+       .part32{
+        width: 100px;
+        height: 100px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }
+       .part33{
+        width: 100px;
+        height: 100px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }
+       .rectangle8{
+        width: 500px;
+        height: 200px;
+        position: fixed;
+        display: grid;
+        grid-template-columns: repeat(9,45px);
+        gap: 0px;
+        background-image: url(images/9.gif);
+        margin-left:-400px;
+        margin-top: 30px;
+        
+      }
+      .part34{
+        width: 45px;
+        height: 200px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }
+       .part35{
+        width: 45px;
+        height: 200px;
+       
+         border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       
+        background-color: #118DFF;
+       }
+       .part36{
+        width: 45px;
+        height: 200px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }
+       .part37{
+        width: 45px;
+        height: 200px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }
+       .part38{
+        width: 45px;
+        height: 200px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }
+       .part39{
+        width: 45px;
+        height: 200px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }
+       .part40{
+        width: 45px;
+        height: 200px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }
+       .part41{
+        width: 45px;
+        height: 200px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }     
+       .part42{
+        width: 45px;
+        height: 200px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }     
+
+       
+       .rectangle9{
+        width: 450px;
+        height: 200px;
+        position: fixed;
+        display: grid;
+        grid-template-columns: repeat(5,80px);
+        gap: 0px;
+        background-image: url(images/10.gif);
+        margin-left:-400px;
+        margin-top: 30px;
+        
+      }
+      .part43{
+        width: 80px;
+        height: 100px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }
+       .part44{
+        width: 80px;
+        height: 100px;
+       
+         border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       
+        background-color: #118DFF;
+       }
+       .part45{
+        width: 80px;
+        height: 100px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }
+       .part46{
+        width: 80px;
+        height: 100px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }
+       .part47{
+        width: 80px;
+        height: 100px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }
+       .part48{
+        width: 80px;
+        height: 100px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }
+       .part49{
+        width: 80px;
+        height: 100px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }
+       .part50{
+        width: 80px;
+        height: 100px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }     
+       .part51{
+        width: 80px;
+        height: 100px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       }     
+       .part52{
+        width: 80px;
+        height: 100px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+       
+       }     
+
+
+       .color{
+        width: 50px;
+        height: 50px;
+      }
+      .color1{
+        width: 80px;
+        height: 50px;
+      }
+
+      .color:hover{
+        width: 50px;
+        height: 50px;
+        background-color: greenyellow;
+        border-radius: 50%;
+        border-color: aqua;
+      }

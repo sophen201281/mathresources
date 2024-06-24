@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="dotschartStyle.css">
+    <link rel="stylesheet" type="text/css" href="resizable-style.css">
+    <link rel="stylesheet" href="dotschartdivgrid.css">
+     <!--fount for teblet-->
+     <link rel="stylesheet" media="handheld" href="css/handheld.css?v=2">
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+     
+     <link href="https://fonts.googleapis.com/css2?family=Battambang&display=swap" rel="stylesheet">
+    <title>សម្ភារគណិតវិទ្យា</title>
+</head>
+<body>
+  
+    <!-- Navbar -->
+    <div class="navbar">
+      <div class="container flex">
+        
+          <h1 class="logo" >ចំណុច១០០</h1>
+          <button class="button1" style="font-family:'Battambang', cursive; font-size: 20px;" onClick="document.location.reload(true)">សារដើម</button>
+          <button class="button1" style="font-family:'Battambang', cursive; font-size: 20px;" onclick="Restore()" >ថយក្រោយ</button>
+          <button class="button1" style="font-family:'Battambang', cursive; font-size: 20px;" onclick="Clear()">លុប</button>
+          
+          <div  class="color" onclick="change_color(this)" style="background:red"  class="stroke-color"></div>
+          <div class="color" onclick="change_color(this)" style="background:blue" class="stroke-color"></div>
+          <input class="color" type="color" oninput="stroke_color = this.value" placeholder="Colors">
+        
+          <input class="color1" type="range" min="1" max="100" oninput="stroke_width = this.value">
+          <nav>
+          <ul>
+
+       
+            <li><a href="../index.html" style="font-family:'Battambang', cursive; font-size: 20px;">ទំព័រដើម</a></li>
+      
+         
+        
+  </ul>
+          
+      </nav>
+        
+    </div>
+    
+</div>
+    
+    <script src="resizable.js"></script>
+    <div class="main">
+        <div class="inner" id="container" >               
+          <canvas id="canvas" style="background-image:url(images/P.png) ;"></canvas>
+        </div> 
+
+          <div class="main" id="box">
+            <div class="resizable-left" id="win1">
+              <div class="resizable-top" id="win3">
+                <div class="dot">
+                  <button class="button"   id="button1"></button>
+                  <button class="button"   id="button2"></button>
+                  <button class="button"   id="button3"></button>
+                  <button class="button"   id="button4"></button>
+                  <button class="button"   id="button5"></button>
+                  <button class="button"   id="button6"></button>
+                  <button class="button"   id="button7"></button>
+                  <button class="button"   id="button8"></button>
+                  <button class="button"   id="button9"></button>
+                  <button class="button"   id="button10"></button>
+                
+             
+                <button class="button"   id="button11"></button>
+                <button class="button"   id="button12"></button>
+                <button class="button"   id="button13"></button>
+                <button class="button"   id="button14"></button>
+                <button class="button"   id="button15"></button>
+                <button class="button"   id="button16"></button>
+                <button class="button"   id="button17"></button>
+                <button class="button"   id="button18"></button>
+                <button class="button"   id="button19"></button>
+                <button class="button"   id="button20"></button>
+              
+                <button class="button"   id="button21"></button>
+                <button class="button"   id="button22"></button>
+                <button class="button"   id="button23"></button>
+                <button class="button"   id="button24"></button>
+                <button class="button"   id="button25"></button>
+                <button class="button"   id="button26"></button>
+                <button class="button"   id="button27"></button>
+                <button class="button"   id="button28"></button>
+                <button class="button"   id="button29"></button>
+                <button class="button"   id="button30"></button>
+              
+             
+                <button class="button"   id="button31"></button>
+                <button class="button"   id="button32"></button>
+                <button class="button"   id="button33"></button>
+                <button class="button"   id="button34"></button>
+                <button class="button"   id="button35"></button>
+                <button class="button"   id="button36"></button>
+                <button class="button"   id="button37"></button>
+                <button class="button"   id="button38"></button>
+                <button class="button"   id="button39"></button>
+                <button class="button"   id="button40"></button>
+              
+             
+                <button class="button"   id="button41"></button>
+                <button class="button"   id="button42"></button>
+                <button class="button"   id="button43"></button>
+                <button class="button"   id="button44"></button>
+                <button class="button"   id="button45"></button>
+                <button class="button"   id="button46"></button>
+                <button class="button"   id="button47"></button>
+                <button class="button"   id="button48"></button>
+                <button class="button"   id="button49"></button>
+                <button class="button"   id="button50"></button>
+              
+             
+                <button class="button"   id="button51"></button>
+                <button class="button"   id="button52"></button>
+                <button class="button"   id="button53"></button>
+                <button class="button"   id="button54"></button>
+                <button class="button"   id="button55"></button>
+                <button class="button"   id="button56"></button>
+                <button class="button"   id="button57"></button>
+                <button class="button"   id="button58"></button>
+                <button class="button"   id="button59"></button>
+                <button class="button"   id="button60"></button>
+            
+                <button class="button"   id="button61"></button>
+                <button class="button"   id="button62"></button>
+                <button class="button"   id="button63"></button>
+                <button class="button"   id="button64"></button>
+                <button class="button"   id="button65"></button>
+                <button class="button"   id="button66"></button>
+                <button class="button"   id="button67"></button>
+                <button class="button"   id="button68"></button>
+                <button class="button"   id="button69"></button>
+                <button class="button"   id="button70"></button>
+              
+            
+                <button class="button"   id="button71"></button>
+                <button class="button"   id="button72"></button>
+                <button class="button"   id="button73"></button>
+                <button class="button"   id="button74"></button>
+                <button class="button"   id="button75"></button>
+                <button class="button"   id="button76"></button>
+                <button class="button"   id="button77"></button>
+                <button class="button"   id="button78"></button>
+                <button class="button"   id="button79"></button>
+                <button class="button"   id="button80"></button>
+              
+             
+                <button class="button"   id="button81"></button>
+                <button class="button"   id="button82"></button>
+                <button class="button"   id="button83"></button>
+                <button class="button"   id="button84"></button>
+                <button class="button"   id="button85"></button>
+                <button class="button"   id="button86"></button>
+                <button class="button"   id="button87"></button>
+                <button class="button"   id="button88"></button>
+                <button class="button"   id="button89"></button>
+                <button class="button"   id="button90"></button>
+              
+            
+                <button class="button"   id="button91"></button>
+                <button class="button"   id="button92"></button>
+                <button class="button"   id="button93"></button>
+                <button class="button"   id="button94"></button>
+                <button class="button"   id="button95"></button>
+                <button class="button"   id="button96"></button>
+                <button class="button"   id="button97"></button>
+                <button class="button"   id="button98"></button>
+                <button class="button"   id="button99"></button>
+                <button class="button"   id="button100"></button>
+              </div>
+            </div>
+              <div class="resizable-bottom" id="win4"></div>
+            </div>
+           
+            <div class="resizable-right" id="win2"></div>
+          </div>   
+        </div>
+      </div>
+    </div>
+         
+    
+     
+   
+       
+     <script src="dotsdrawing.js"></script>
+     <script src="dotshighlight.js"></script>
+
+
+</html>
+
+  
+    

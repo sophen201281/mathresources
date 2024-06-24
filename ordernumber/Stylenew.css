@@ -1,0 +1,133 @@
+body {
+  background-color: #ccf;
+}
+.list {
+position: relative;
+margin: auto;
+}
+.list-column {
+position: absolute;
+left: 0;
+right: 0;
+width: 100%;
+padding: 3px;
+margin: 0 auto;
+background: #ddf;
+box-sizing: border-box;
+border-radius: 0px;
+box-shadow: 0 0px 10px #77f;
+z-index: 1;
+}
+@media screen and (max-width: 600px) {
+.list-column {
+  width: 100%;
+}
+}
+.list-column.muuri-item-releasing {
+z-index: 2;
+}
+.list-column.muuri-item-dragging {
+z-index: 3;
+cursor: move;
+}
+.list-column-header {
+position: relative;
+height: 50px;
+line-height: 2px;
+overflow: hidden;
+padding: 0 20px;
+text-align: center;
+background: #333;
+color: #aaf;
+outline: 2px dotted #ccf;
+outline-offset: -10px;
+border-radius: 0px;
+box-shadow: 0 5px 10px #00f;
+text-shadow: 2px 1.5px 2px #fff;
+
+}
+@media (max-width: 600px) {
+.list-column-header {
+  text-indent: 0px;
+  box-shadow: 0 5px 10px #00f;
+}
+}
+.list-column.list .list-column-header {
+background: linear-gradient(#00f, #00a, #007);
+}
+
+/* This is the secret sauce,
+ always use a wrapper for setting
+ the "overflow: scroll/auto" */
+.list-column-content-wrapper {
+position: relative;
+min-height: 600px;
+overflow-y: auto;
+}
+/* Never ever set "overflow: auto/scroll"
+ to the muuri element, stuff will break */
+.list-column-content {
+position: relative;
+border: 10px solid transparent;
+min-height: 120px;
+}
+.list-item {
+position: absolute;
+
+
+margin: 5px 0;
+}
+.list-item.muuri-item-releasing {
+z-index: 9998;
+}
+.list-item.muuri-item-dragging {
+z-index: 9999;
+cursor: move;
+}
+.list-item.muuri-item-hidden {
+z-index: 0;
+}
+.list-item-content {
+position: relative;
+padding: 20px;
+background: linear-gradient(#eef, #ccf, #aaf);
+border-radius: 0px;
+font-size: 17px;
+cursor: pointer;
+outline: 0;
+-webkit-box-shadow: 0px 1px 3px 0 rgba(0,62,0,0.5);
+box-shadow: 0px 3px 3px 0 rgba(0,0,255,0.5);
+}
+@media (max-width: 600px) {
+.list-item-content {
+  text-align: left;
+}
+.list-item-content span {
+  display: block;
+}
+}
+[type=text] {
+  width: 600px;
+  padding: 5px;
+  background-color: #ffe;
+  border: 2px dotted #0a0;
+  border-radius: 4px;
+  -webkit-box-shadow: 0px 1px 3px 0 rgba(0,175,0,0.5);
+  box-shadow: 0px 3px 3px 0 rgba(0,175,0,0.5);
+}
+/* button {
+  float: right;
+  padding: 5px 20px;
+  margin-right: 10px;
+  background: linear-gradient(#0f0, #0a0, #070);
+  color: #ffd;
+  font-weight: 900;
+  border: 2px solid #060;
+  border-radius: 6px;
+  outline: 0;
+  box-shadow: 0 5px #030;
+}
+button:active {
+  box-shadow: 0 2px #030;
+  transform: translatey(+3px);
+} */

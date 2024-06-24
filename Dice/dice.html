@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="Style.css">
+    <link rel="stylesheet" href="dicegrid.css">
+    <link rel="stylesheet" href="dicestyle.css">
+     <!--fount for teblet-->
+     <link rel="stylesheet" media="handheld" href="css/handheld.css?v=2">
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+     <link href="https://fonts.googleapis.com/css2?family=Battambang&display=swap" rel="stylesheet">
+    <title>សម្ភារគណិតវិទ្យា</title>
+</head>
+<body>
+    <!-- Navbar -->
+    <div class="navbar">
+      <div class="container flex">
+        
+          <h1 class="logo" style="font-family:'Battambang', cursive;">គ្រាប់ឡុកឡាក់</h1>
+          <button class="button01"><a href="../Dice/no table/dice.html" style="font-family:'Battambang',cursive; font-size: 20px;">គ្មានតារាង</a> </button>
+            <button class="button1" style="font-family:'Battambang', cursive; font-size: 20px;" onClick="document.location.reload(true)">សារដើម</button>
+            <button class="button1" style="font-family:'Battambang', cursive; font-size: 20px;" onclick="Restore()" >ថយក្រោយ</button>
+            <button class="button1" style="font-family:'Battambang', cursive; font-size: 20px;" onclick="Clear()">លុប</button>
+            
+            <div  class="color" onclick="change_color(this)" style="background:red"  class="stroke-color"></div>
+            <div class="color" onclick="change_color(this)" style="background:blue" class="stroke-color"></div>
+            <input class="color" type="color" oninput="stroke_color = this.value" placeholder="Colors">
+          
+            <input class="color1" type="range" min="1" max="100" oninput="stroke_width = this.value">
+            <nav>
+            <ul>
+
+         
+                <li><a href="../index.html" style="font-family:'Battambang', cursive; font-size: 20px;">ទំព័រដើម</a></li>
+        
+           
+          
+    </ul>
+            
+        </nav>
+          
+      </div>
+      
+  </div>
+      
+      
+   
+     
+        
+       
+    <main >
+      <div class="div2" div id="container" class="container"> 
+        
+        <canvas id="canvas" style="background-image:url(images/P.png) ;"></canvas>
+    </div>
+
+        <div  id="container1" >  
+          
+            <!-- <div class="placevaluechart"></div>
+            <div class="placevaluechart"></div>
+            <div class="placevaluechart"></div> -->
+            <div class="button2" style="font-family:'Battambang', cursive;"id="diceResult">សូមចុចលើគ្រាប់ឡុកឡាក់!</div> 
+         
+            <div>
+              
+              <button class="buttoncounter" style="background-color:yellow ;" id="button1"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button2"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button3"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button4"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button5"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button6"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button7"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button8"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button9"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button10"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button11"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button12"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button13"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button14"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button15"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button16"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button17"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button18"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button19"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button20"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button21"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button22"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button23"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button24"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button25"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button26"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button27"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button28"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button29"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button30"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button31"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button32"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button33"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button34"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button35"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button36"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button37"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button38"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button39"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button40"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button41"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button42"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button43"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button44"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button45"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button46"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button47"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button48"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button49"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="butto50"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button51"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button52"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button53"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button54"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button55"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button56"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button57"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button58"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button59"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button60"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button61"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button62"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button63"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button64"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button65"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button66"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button67"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button68"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button69"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button70"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button71"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button72"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button73"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button74"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button75"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button76"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button77"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button78"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button79"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button80"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button81"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button82"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button83"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button84"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button85"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button86"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button87"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button88"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button89"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button90"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button91"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button92"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button93"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button94"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button95"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button96"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button97"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button98"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button99"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button100"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button101"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button102"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button103"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button104"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button105"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button106"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button107"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button108"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button109"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button110"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button111"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button112"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button113"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button114"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button115"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button116"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button117"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button118"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button119"></button>
+              <button class="buttoncounter" style="background-color:yellow ;" id="button120"></button>
+              </div>
+              <div>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button121"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button122"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button123"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button124"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button125"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button126"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button127"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button128"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button129"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button130"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button131"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button132"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button133"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button134"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button135"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button136"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button137"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button138"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button139"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button140"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button141"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button142"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button143"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button144"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button145"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button146"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button147"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button148"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button149"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button150"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button151"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button152"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button153"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button154"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button155"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button156"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button157"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button158"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button159"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button160"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button161"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button162"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button163"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button164"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button165"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button166"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button167"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button168"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button169"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button170"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button171"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button172"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button173"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button174"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button175"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button176"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button177"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button178"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button179"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button180"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button181"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button182"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button183"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button184"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button185"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button186"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button187"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button188"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button189"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button190"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button191"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button192"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button193"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button194"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button195"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button196"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button197"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button198"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button199"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button200"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button201"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button202"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button203"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button204"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button205"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button206"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button207"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button208"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button209"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button210"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button211"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button212"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button213"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button214"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button215"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button216"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button217"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button218"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button219"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button220"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button221"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button222"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button223"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button224"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button225"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button226"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button227"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button228"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button229"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button230"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button231"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button232"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button233"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button234"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button235"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button236"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button237"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button238"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button239"></button>
+                  <button class="buttoncounter1" style="background-color:yellow ;" id="button240"></button>
+                 
+          </div> 
+          
+            
+       
+    </div>
+    
+    
+    <div id="dice" data-side="1">
+      <div class="sides side-1">
+          <span class="dot dot-1"></span>
+      </div>
+      <div class="sides side-2">
+          <span class="dot dot-1"></span>
+          <span class="dot dot-2"></span>
+      </div>
+      <div class="sides side-3">
+          <span class="dot dot-1"></span>
+          <span class="dot dot-2"></span>  
+          <span class="dot dot-3"></span>
+      </div>
+      <div class="sides side-4">
+          <span class="dot dot-1"></span>
+          <span class="dot dot-2"></span>  
+          <span class="dot dot-3"></span>
+          <span class="dot dot-4"></span>
+      </div>
+      <div class="sides side-5">
+          <span class="dot dot-1"></span>
+          <span class="dot dot-2"></span>  
+          <span class="dot dot-3"></span>
+          <span class="dot dot-4"></span>
+          <span class="dot dot-5"></span>
+      </div>
+      <div class="sides side-6">
+          <span class="dot dot-1"></span>
+          <span class="dot dot-2"></span>  
+          <span class="dot dot-3"></span>
+          <span class="dot dot-4"></span>
+          <span class="dot dot-5"></span>
+          <span class="dot dot-6"></span>
+      </div>
+      
+  </div>
+     </div>
+     
+    </div> 
+    
+       </main>
+       
+       </body>
+              
+<script src="dice.js"></script>
+<script src="dice1.js"></script> 
+<script src="dice2.js"></script> 
+<script src="dice3.js"></script> 
+<script src="dice4.js"></script> 
+<script src="dice5.js"></script> 
+<script src="dice6.js"></script> 
+<script src="dice7.js"></script> 
+<script src="dice8.js"></script> 
+<script src="dice9.js"></script> 
+<script src="dice10.js"></script> 
+<script src="diceapp.js"></script>
+
+</html>

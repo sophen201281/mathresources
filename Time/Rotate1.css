@@ -1,0 +1,151 @@
+.scn {
+    display: block;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    
+    position: absolute;
+    margin-top: 20px;
+      margin-left: 30px;
+   
+    background-image:url(image/scn.png) ;
+  }
+  
+  .mn {
+      display: block;
+      width: 400px;
+      height: 400px;
+      border-radius: 50%;
+      
+      position: absolute;
+      margin-top: 20px;
+      margin-left: 30px;
+     
+      background-image:url(image/mn.png) ;
+    }
+    .hr {
+      
+      width: 400px;
+      height: 400px;
+      border-radius: 50%;
+      
+      position: absolute;
+      margin-top: 20px;
+      margin-left: 30px;
+     
+      background-image:url(image/hour.png) ;
+    }
+    .circle {
+      
+      width: 400px;
+      height: 400px;
+      border-radius: 50%;
+      
+      position: absolute;
+      margin-top: 20px;
+      margin-left: 30px;
+     
+      background-image:url(image/circle.png) ;
+    }
+    #HR{
+      width: 50px;
+      height: 50px;
+      background-image: url(image/hr.png);
+      border-radius: 50%;
+      border: none;
+    }
+    #HL{
+      width: 50px;
+      height: 50px;
+      background-image: url(image/HL.png);
+      border-radius: 50%;
+      border: none;
+    }
+    #MR{
+      width: 50px;
+      height: 50px;
+      background-image: url(image/MR.png);
+      border-radius: 50%;
+      border: none;
+    }
+    #ML{
+      width: 50px;
+      height: 50px;
+      background-image: url(image/ML.png);
+      border-radius: 50%;
+      border: none;
+    }
+    #SR{
+      width: 50px;
+      height: 50px;
+      background-image: url(image/SR.png);
+      border-radius: 50%;
+      border: none;
+    }
+    #SL{
+      width: 50px;
+      height: 50px;
+      background-image: url(image/SL.png);
+      border-radius: 50%;
+      border: none;
+    }
+  
+    .color{
+      width: 50px;
+      height: 50px;
+    }
+    .color1{
+      width: 80px;
+      height: 50px;
+    }
+  
+    .color:hover{
+      width: 50px;
+      height: 50px;
+      background-color: greenyellow;
+      border-radius: 50%;
+      border-color: aqua;
+    }
+    #HR:hover{
+      width: 50px;
+      height: 50px;
+      background-color: greenyellow;
+      border-radius: 50%;
+      border-color: aqua;
+    }
+    #HL:hover{
+      width: 50px;
+      height: 50px;
+      background-color: greenyellow;
+      border-radius: 50%;
+      border-color: aqua;
+    }
+    #MR:hover{
+      width: 50px;
+      height: 50px;
+      background-color: greenyellow;
+      border-radius: 50%;
+      border-color: aqua;
+    }
+    #ML:hover{
+      width: 50px;
+      height: 50px;
+      background-color: greenyellow;
+      border-radius: 50%;
+      border-color: aqua;
+    }
+    #SR:hover{
+      width: 50px;
+      height: 50px;
+      background-color: greenyellow;
+      border-radius: 50%;
+      border-color: aqua;
+    }
+    #SL:hover{
+      width: 50px;
+      height: 50px;
+      background-color: greenyellow;
+      border-radius: 50%;
+      border-color: aqua;
+    }
+    

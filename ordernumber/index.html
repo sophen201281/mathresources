@@ -1,0 +1,777 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="dotschartStyle.css">
+
+    <link rel="stylesheet" href="dotschartdivgrid.css">
+    <link rel="stylesheet" href="Style.css">
+     <!--fount for teblet-->
+     <link rel="stylesheet" media="handheld" href="css/handheld.css?v=2">
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+     
+     <link href="https://fonts.googleapis.com/css2?family=Battambang&display=swap" rel="stylesheet">
+    <title>សម្ភារគណិតវិទ្យា</title>
+</head>
+<body>
+  
+    <!-- Navbar -->
+    <div class="navbar">
+      <div class="container flex">
+        
+          <h1 class="logo" >រាប់ចំនួន</h1>
+          <button class="button1" style="font-family:'Battambang', cursive; font-size: 20px;" onClick="document.location.reload(true)">សារដើម</button>
+          <button class="button1" style="font-family:'Battambang', cursive; font-size: 20px;" onclick="Restore()" >ថយក្រោយ</button>
+          <button class="button1" style="font-family:'Battambang', cursive; font-size: 20px;" onclick="Clear()">លុប</button>
+          
+          <div  class="color" onclick="change_color(this)" style="background:red"  class="stroke-color"></div>
+          <div class="color" onclick="change_color(this)" style="background:blue" class="stroke-color"></div>
+          <input class="color" type="color" oninput="stroke_color = this.value" placeholder="Colors">
+        
+          <input class="color1" type="range" min="1" max="100" oninput="stroke_width = this.value">
+          <nav>
+          <ul>
+
+       
+            <li><a href="../index.html" style="font-family:'Battambang', cursive; font-size: 20px;">ទំព័រដើម</a></li>
+      
+         
+        
+  </ul>
+          
+      </nav>
+        
+    </div>
+    
+</div>
+   
+ 
+ 
+ 
+   
+<main >
+  <div class="div2" div id="container" class=" list-column-content"> 
+        
+    <canvas id="canvas" style="background-color: aliceblue;"></canvas>
+  </div>
+
+   
+     
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/web-animations/2.3.1/web-animations.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+      <script src="https://unpkg.com/muuri@0.6.3/dist/muuri.min.js"></script>
+     
+        <div class="list-column list " >
+          <!-- <div class="list-column-header" style="font-family:'Battambang', cursive;" ><h1>តម្រៀបព្យព្ជានៈ</h1></div> -->
+         
+      <div class="list">
+      
+            <div class="list-column-content-wrapper">
+              
+             
+              <div class="list-column-content ">
+              
+                <div class="list-item"><div class="list-item-content" style="background-image: url(./Numbers/0.gif);width: 98px; height:120px;"><span id="span0"></span></div></div>
+                <div class="list-item"><div class="list-item-content" style="background-image: url(./Numbers/1.gif);width: 98px; height:120px;"><span id="span1"></span></div></div>
+                <div class="list-item"><div class="list-item-content" style="background-image: url(./Numbers/2.gif);width: 98px; height:120px;"><span id="span2"></span></div></div>
+                <div class="list-item"><div class="list-item-content" style="background-image: url(./Numbers/3.gif);width: 98px; height:120px;"><span id="span3"></span></div></div>
+                <div class="list-item"><div class="list-item-content" style="background-image: url(./Numbers/4.gif);width: 98px; height:120px;"><span id="span4"></span></div></div>
+                <div class="list-item"><div class="list-item-content" style="background-image: url(./Numbers/5.gif);width: 98px; height:120px;"><span id="span5"></span></div></div>
+                <div class="list-item"><div class="list-item-content" style="background-image: url(./Numbers/6.gif);width: 98px; height:120px;"><span id="span6"></span></div></div>
+                <div class="list-item"><div class="list-item-content" style="background-image: url(./Numbers/7.gif);width: 98px; height:120px;"><span id="span7"></span></div></div>
+                <div class="list-item"><div class="list-item-content" style="background-image: url(./Numbers/8.gif);width: 98px; height:120px;"><span id="span8"></span></div></div>
+                <div class="list-item"><div class="list-item-content" style="background-image: url(./Numbers/9.gif);width: 98px; height:120px;"><span id="span9"></span></div></div>
+                <div class="list-item"><div class="list-item-content" style="background-image: url(./Numbers/10.gif);width: 98px; height:120px;"><span id="span10"></span></div></div>
+                  </div>
+                  </div>   
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="container1">
+          <div>
+            <button class="number" style="background-image: url(./Numbers/0.gif);"></button>
+            <button class="number" style="background-image: url(./Numbers/1.gif);"></button>
+            <button class="number" style="background-image: url(./Numbers/2.gif);"></button>
+            <button class="number" style="background-image: url(./Numbers/3.gif);"></button>
+            <button class="number" style="background-image: url(./Numbers/4.gif);"></button>
+            <button class="number" style="background-image: url(./Numbers/5.gif);"></button>
+            <button class="number" style="background-image: url(./Numbers/6.gif);"></button>
+            <button class="number" style="background-image: url(./Numbers/7.gif);"></button>
+            <button class="number" style="background-image: url(./Numbers/8.gif);"></button>
+            <button class="number" style="background-image: url(./Numbers/9.gif);"></button>
+            <button class="number" style="background-image: url(./Numbers/10.gif);"></button>
+          
+          </div>
+          <div>
+            <button class="buttoncounter" style="background-color:blue ;" id="button1"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button2"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button3"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button4"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button5"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button6"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button7"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button8"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button9"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button10"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button11"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button12"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button13"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button14"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button15"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button16"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button17"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button18"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button19"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button20"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button21"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button22"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button23"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button24"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button25"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button26"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button27"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button28"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button29"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button30"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button31"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button32"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button33"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button34"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button35"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button36"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button37"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button38"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button39"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button40"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button41"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button42"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button43"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button44"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button45"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button46"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button47"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button48"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button49"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="butto50"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button51"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button52"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button53"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button54"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button55"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button56"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button57"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button58"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button59"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button60"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button61"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button62"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button63"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button64"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button65"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button66"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button67"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button68"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button69"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button70"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button71"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button72"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button73"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button74"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button75"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button76"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button77"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button78"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button79"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button80"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button81"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button82"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button83"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button84"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button85"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button86"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button87"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button88"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button89"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button90"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button91"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button92"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button93"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button94"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button95"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button96"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button97"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button98"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button99"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button100"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button101"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button102"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button103"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button104"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button105"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button106"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button107"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button108"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button109"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button110"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button111"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button112"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button113"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button114"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button115"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button116"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button117"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button118"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button119"></button>
+            <button class="buttoncounter" style="background-color:blue ;" id="button120"></button>
+          </div>
+          <div>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+            <button class="egg"></button>
+          </div>
+          <div>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+            <button class="stone"></button>
+          </div>
+          <div>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+            <button class="fish"></button>
+          </div>
+          <div>
+            <button class="dot" style="background-image: url(Numbers/10dot.png);"></button>
+            <button class="dot" style="background-image: url(Numbers/9dot.png);"></button>
+            <button class="dot" style="background-image: url(Numbers/8dot.png);"></button>
+            <button class="dot" style="background-image: url(Numbers/7dot.png);"></button>
+            <button class="dot" style="background-image: url(Numbers/6dot.png);"></button>
+            <button class="dot" style="background-image: url(Numbers/5dot.png);"></button>
+            <button class="dot" style="background-image: url(Numbers/4dot.png);"></button>
+            <button class="dot" style="background-image: url(Numbers/3dot.png);"></button>
+            <button class="dot" style="background-image: url(Numbers/2dot.png);"></button>
+            <button class="dot" style="background-image: url(Numbers/1dot.png);"></button>
+          
+          </div>
+          <div>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+            <button class="pig"></button>
+          </div>
+          <div>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+            <button class="orange"></button>
+          </div>
+          <div>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+            <button class="stick"></button>
+          </div>
+
+        </div>
+        
+      </body>  
+     
+       <script src="jigsaw.js"></script>
+       <script src="drawing.js"></script>
+  
+ 
+
+
+
+
+

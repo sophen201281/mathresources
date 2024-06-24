@@ -1,0 +1,127 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.wrapper {
+margin:auto;
+
+  display: grid;
+
+grid-template-columns:1fr; /* only one column */
+grid-template-rows:1fr auto; /* 2 rows */
+
+  }
+.a,
+.b,.c {
+grid-column:1; /* first-column */
+grid-row:1; /* first row */
+}
+
+.c {
+width:120px;
+height:150px;
+grid-column:1;/* bottom of column */
+justify-self: initial; /* right of row */
+margin:1em;
+margin-top: 400px;
+border: none;
+}
+
+.b {
+width:400px;
+height:400px;
+grid-column:1; /* bottom of column */
+justify-self: start; /* left of row */
+margin:0.5em;
+border: none;
+
+}
+
+
+    main{
+      width: 1250px; margin: 5px auto; 
+      height: 600px;
+      border:1px solid grey;
+      display:grid ;
+      grid-template-columns: repeat(2,1fr);
+      background-color: white;
+      
+     }
+     
+   
+     
+        
+      
+      .button1{
+        width: 80px;
+        height: 50px;
+        background-color: #118DFF;
+        border-radius: 5px;
+        color: white;
+        font-size: larger;
+        text-align: center;
+      }
+      .button1:hover{
+        width: 80px;
+        height: 50px;
+        background-color: greenyellow;
+        border-radius: 5px;
+        color:black;
+        font-size: larger;
+        align-content: center;
+      }
+    
+      .buttoncounter{
+        width: 50px;
+        height: 50px;
+        position: fixed;
+        margin-left: 0px;
+        
+      }
+      .buttoncounter1{
+        width: 50px;
+        height: 50px;
+        position: fixed;
+        margin-left: 600px;
+        
+      }
+
+      #button{
+        width: 120px;
+        height: 50px;
+        background-color: #118DFF;
+        border-radius: 5px;
+        color: white;
+        font-size: larger;
+        text-align: center;
+      }
+      #button:hover{
+        width: 120px;
+        height: 50px;
+        background-color: greenyellow;
+        border-radius: 5px;
+        color:black;
+        font-size: larger;
+        align-content: center;
+      }
+
+      #button0{
+        width: 80px;
+        height: 50px;
+        background-color: #118DFF;
+        border-radius: 5px;
+        color: white;
+        font-size: larger;
+        text-align: center;
+      }
+      #button0:hover{
+        width: 80px;
+        height: 50px;
+        background-color: greenyellow;
+        border-radius: 5px;
+        color:black;
+        font-size: larger;
+        align-content: center;
+      }
+    

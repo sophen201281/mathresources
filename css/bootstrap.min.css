@@ -1,0 +1,13 @@
+.gridbox{ 
+    display: grid; 
+    row-gap: 5px; 
+    column-gap: 5px; 
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr; 
+    background-color:  rgb(186, 226, 186); 
+    padding: 2px; 
+    border: 2px solid rgb(177, 206, 177); 
+} 
+.divclass{ 
+    border: 2px solid green; 
+    text-align: center; 
+}

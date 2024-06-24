@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="Style.css">
+    <link rel="stylesheet" href="squaregrid.css">
+   
+     <!--fount for teblet-->
+     <link rel="stylesheet" media="handheld" href="css/handheld.css?v=2">
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+     <link href="https://fonts.googleapis.com/css2?family=Battambang&display=swap" rel="stylesheet">
+    <title>សម្ភារគណិតវិទ្យា</title>
+</head>
+<body>
+    <!-- Navbar -->
+    <div class="navbar">
+      <div class="container flex">
+          <h1 class="logo" style="font-family:'Battambang', cursive;">ការេ</h1>
+          <button class="button1" style="font-family:'Battambang', cursive; font-size: 20px;" onclick="Restore()" >ថយក្រោយ</button>
+          <button class="button1" style="font-family:'Battambang', cursive; font-size: 20px;" onclick="Clear()">លុប</button>
+          
+          <div  class="color" onclick="change_color(this)" style="background:red"  class="stroke-color"></div>
+          <div class="color" onclick="change_color(this)" style="background:blue" class="stroke-color"></div>
+          <input class="color" type="color" oninput="stroke_color = this.value" placeholder="Colors">
+        
+          <input class="color1" type="range" min="1" max="100" oninput="stroke_width = this.value">
+          <nav>
+          <ul>
+           
+              <li><a href="Fractionhomepage.html" style="font-family:'Battambang', cursive;">ទំព័រដើមប្រភាគ</a></li>
+          
+             
+            
+      </ul>
+              
+          </nav>
+            
+        </div>
+        
+    </div>
+
+    
+    <main >
+      <div class="div2" div id="container" class="container"> 
+            
+        <canvas id="canvas" style="background-image:url(images/P.png) ;"></canvas>
+      </div>
+      <div  id="container1" >  
+      
+       
+            <div class="square1">
+              <div class="halfsquare1" id="button1"></div>
+              <div class="halfsquare2" id="button2"></div>
+            </div>
+          
+            <div class="square2">
+              <div class="part1" id="button3"></div>
+              <div class="part2" id="button4"></div>
+              <div class="part3" id="button5"></div>
+              
+            </div>
+            <div class="square3">
+              <div class="quarter1" id="button6"></div>
+              <div class="quarter2" id="button7"></div>
+              <div class="quarter3" id="button8"></div>
+              <div class="quarter4" id="button9"></div>
+            </div>
+          
+
+            
+         
+    </div>
+   
+   
+    </div> 
+       
+       </main>
+      
+       </body>
+              
+<script src="fraction.js"></script>
+<script src="fraction1.js"></script> 
+<script src="fraction2.js"></script> 
+<script src="fraction3.js"></script> 
+<script src="fraction4.js"></script> 
+<script src="fraction5.js"></script> 
+<script src="fraction6.js"></script> 
+<script src="fraction7.js"></script> 
+<script src="fraction8.js"></script> 
+<script src="fraction9.js"></script> 
+<script src="fraction10.js"></script> 
+<script src="fractionapp.js"></script>
+
+</html>

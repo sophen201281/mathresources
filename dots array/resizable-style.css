@@ -1,0 +1,51 @@
+
+  
+  .resizer{
+    position: absolute;
+    z-index: 100;
+    
+    background-color: #ee712a;
+  }
+  
+  .verticalResizer{
+    cursor: ns-resize;
+  }
+  
+  .horizontalResizer{
+    cursor: ew-resize;
+  }
+ 
+  #win1{
+    background-color: white;
+   
+}
+ #win4{
+    background-color: #009ed6;
+}
+ #win6{
+    background-color: #e8f0f0;
+}
+#win2{
+    background-color: #009ed6;
+}
+.dot{
+    display: grid;
+    grid-template-columns: repeat(10,30px);
+    gap: 5px 50px;
+    padding: 25px;
+   
+}
+.button{
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color:  #009ed6;
+
+    
+}
+
+div{
+    font-family:'Battambang', cursive;
+}
+
+

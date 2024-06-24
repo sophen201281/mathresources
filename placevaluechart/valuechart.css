@@ -1,0 +1,555 @@
+.ones{
+    width: 50px;
+    height: 50px;
+    background-image: url(images/one.png);
+    background-color: transparent ;
+    position: fixed;
+    margin-top: -20px;
+    margin-left: 260px;
+    border: none;
+    
+}
+.tens{
+    width: 100px;
+    height: 40px;
+    background-image: url(images/Tens.png);
+    background-color: transparent ;
+    position: fixed;
+    margin-top: 20px;
+    margin-left: 270px;
+    border: none;
+}
+.hundreds{
+    width: 100px;
+    height: 100px;
+    background-image: url(images/H.png);
+    background-color: transparent ;
+    position: fixed;
+    margin-top: 60px;
+    margin-left: 270px;;
+    border: none;
+}
+.Thousands{
+  width: 120px;
+  height: 120px;
+  background-image: url(images/Th.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: 170px;
+  margin-left: 270px;
+  border: none;
+}
+.color{
+    width: 50px;
+    height: 50px;
+  }
+  .color1{
+    width: 80px;
+    height: 50px;
+  }
+
+  .color:hover{
+    width: 50px;
+    height: 50px;
+    background-color: greenyellow;
+    border-radius: 50%;
+    border-color: aqua;
+  }
+
+  .Zeo{
+    width: 50px;
+    height: 50px;
+    background-image: url(images/01.png);
+    background-color: transparent ;
+    position: fixed;
+    margin-top: 230px;
+    margin-left: 400px;
+    border: none;
+    
+}
+.១{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/១.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: 180px;
+  margin-left: 400px;
+  border: none;
+  
+}
+.២{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/២.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: 130px;
+  margin-left: 400px;
+  border: none;
+  
+}
+.៣{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/៣.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: 80px;
+  margin-left: 400px;
+  border: none;
+  
+}
+.៤{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/៤.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: 30px;
+  margin-left: 400px;
+  border: none;
+  
+}
+.៥{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/៥.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: -20px;
+  margin-left: 400px;
+  border: none;
+  
+}
+.៦{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/៦.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: -70px;
+  margin-left: 400px;
+  border: none;
+  
+}
+.៧{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/៧.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: -120px;
+  margin-left: 400px;
+  border: none;
+  
+}
+.៨{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/៨.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: -170px;
+  margin-left: 400px;
+  border: none;
+  
+}
+.៩{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/៩.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: -220px;
+  margin-left: 400px;
+  border: none;
+  
+}
+.N0{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/N0.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: 230px;
+  margin-left: 400px;
+  border: none;
+  
+}
+
+.N1{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/1.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: 180px;
+  margin-left: 400px;
+  border: none;
+  
+}
+.N2{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/2.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: 130px;
+  margin-left: 400px;
+  border: none;
+  
+}
+.N3{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/3.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: 80px;
+  margin-left: 400px;
+  border: none;
+  
+}
+.N4{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/4.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: 30px;
+  margin-left: 400px;
+  border: none;
+  
+}
+.N5{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/5.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: -20px;
+  margin-left: 400px;
+  border: none;
+  
+}
+.N6{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/6.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: -70px;
+  margin-left: 400px;
+  border: none;
+  
+}
+.N7{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/7.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: -120px;
+  margin-left: 400px;
+  border: none;
+  
+}
+.N8{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/8.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: -170px;
+  margin-left: 400px;
+  border: none;
+  
+}
+.N9{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/9.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: -220px;
+  margin-left: 400px;
+  border: none;
+  
+}
+
+
+
+
+
+.NL0{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/N0.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: 230px;
+  margin-left: -800px;
+  border: none;
+  
+}
+
+.NL1{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/1.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: 180px;
+  margin-left: -800px;
+  border: none;
+  
+}
+.NL2{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/2.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: 130px;
+  margin-left: -800px;
+  border: none;
+  
+}
+.NL3{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/3.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: 80px;
+  margin-left: -800px;
+  border: none;
+  
+}
+.NL4{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/4.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: 30px;
+  margin-left: -800px;
+  border: none;
+  
+}
+.NL5{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/5.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: -20px;
+  margin-left: -800px;
+  border: none;
+  
+}
+.NL6{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/6.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: -70px;
+  margin-left: -800px;
+  border: none;
+  
+}
+.NL7{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/7.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: -120px;
+  margin-left: -800px;
+  border: none;
+  
+}
+.NL8{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/8.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: -170px;
+  margin-left: -800px;
+  border: none;
+  
+}
+.NL9{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/9.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: -220px;
+  margin-left: -800px;
+  border: none;
+  
+}
+
+.dot0{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/dot0.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: 230px;
+  margin-left: -700px;
+  border: none;
+  
+}
+.dot1{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/dot1.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: 230px;
+  margin-left: -650px;
+  border: none;
+  
+}
+.dot2{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/dot2.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: 230px;
+  margin-left: -600px;
+  border: none;
+  
+}
+.dot3{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/dot3.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: 230px;
+  margin-left: -550px;
+  border: none;
+  
+}
+.dot4{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/dot4.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: 230px;
+  margin-left: -500px;
+  border: none;
+  
+}
+.dot5{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/dot5.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: 230px;
+  margin-left: -450px;
+  border: none;
+  
+}
+.frog{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/frog.gif);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: 230px;
+  margin-left: -400px;
+  border: none;
+  
+}
+
+
+.egg{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/egg.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: 230px;
+  margin-left: -350px;
+  border: none;
+  
+}
+.stone{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/stone.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: 230px;
+  margin-left: -300px;
+  border: none;
+  
+}
+
+.leave{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/leave.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: 230px;
+  margin-left: -250px;
+  border: none;
+  
+}
+.fish{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/fish.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: 230px;
+  margin-left: -200px;
+  border: none;
+  
+}
+
+.duck{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/duck.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: 230px;
+  margin-left: -150px;
+  border: none;
+  
+}
+
+.counter{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/counter.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: 230px;
+  margin-left: -100px;
+  border: none;
+  
+}
+.counter1{
+  width: 50px;
+  height: 50px;
+  background-image: url(images/counter1.png);
+  background-color: transparent ;
+  position: fixed;
+  margin-top: 230px;
+  margin-left: -50px;
+  border: none;
+  
+}

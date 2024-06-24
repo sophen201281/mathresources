@@ -1,0 +1,292 @@
+*{margin: 0; padding: 0; 
+    box-sizing: border-box; text-align: left; 
+    font-family: 'Gugi', cursive;}
+    
+    main{
+      width: 100%; margin: 5px auto; 
+      border:1px solid grey;
+      display: grid; color: white;
+      grid-template-rows: 0px 300px 300px;
+      grid-template-columns: repeat(12, 1fr);
+      grid-gap: 2px;
+      
+     }
+     
+      .container1{ background-color: whitesmoke; 
+       grid-column: 1/12;
+       grid-row:3/6;
+       width: 1200px;
+       
+      }
+     
+      .div2{ background-color: whitesmoke; 
+       grid-row:2/6;
+        grid-column: 1/12;
+       width: 1200px;
+      }
+     
+     
+
+      .container {
+        display: fixed;
+      }
+      
+      .drawing-area {
+        box-shadow: 0 0 6px 0 #999;
+        background-color: transparent;
+        
+      }
+      
+      .square1{
+        width: 260px;
+        height: 200px;
+        position: fixed;
+       
+        margin-left:20px;
+        margin-top: 30px;
+        display: grid;
+        grid-template-columns: repeat(2,100px);
+        
+      }
+      .halfsquare1{
+        border-width: 2px;
+        border-color: black;
+        border-style: solid;
+        width: 105px;
+        height: 200px;
+        background-color: #118DFF;
+       
+        
+      }
+      .halfsquare2{
+        width: 105px;
+        height: 200px;
+       
+        background-color: #118DFF;
+        border-width: 2px;
+        border-color: black;
+        border-style: solid;
+      }
+     
+      
+      
+
+      .square3{
+        width: 260px;
+        height: 210px;
+        position: fixed;
+        margin-left:20px;
+        margin-top: 300px;
+        display: grid;
+        grid-template-columns: repeat(2,100px);
+        gap: 0px;
+        
+      }
+      
+      .quarter1{
+        border-width: 2px;
+        border-color: black;
+        border-style: solid;
+        height: 105px;
+        width: 110px;
+        background-color: #118DFF;
+       }
+       .quarter2{
+        border-width: 2px;
+        border-color: black;
+        border-style: solid;
+        height: 105px;
+        width: 110px;
+        background-color: #118DFF;
+       }
+       .quarter3{
+        border-width: 2px;
+        border-color: black;
+        border-style: solid;
+        height: 105px;
+        width: 110px;
+        background-color: #118DFF;
+       }
+       .quarter4{
+        border-width: 2px;
+        border-color: black;
+        border-style: solid;
+        height: 105px;
+        width: 110px;
+        background-color: #118DFF;
+       }
+
+       .circle{
+        width: 240px;
+        height: 240px;
+        margin-left:80px;
+        margin-top: 280px;
+        display: grid;
+        grid-template-columns: repeat(2,100px);
+        
+       }
+       .right{
+        width: 100px;
+        height: 200px;
+        border-radius: 100% / 50%;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        background-color: #118DFF;
+
+       }
+       .left{
+        width: 100px;
+        height: 200px;
+        border-radius: 100% / 50%;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+        background-color: #118DFF;
+
+       }
+       
+       .circle1{
+       
+        width: 240px;
+        height: 200px;
+        margin-left:400px;
+        margin-top: 0px;
+        display: grid;
+        grid-template-columns: repeat(2,100px);
+        
+       }
+       .right1{
+        width: 100px;
+        height: 100px;
+        border-top-right-radius:0;
+        border-top-left-radius:0;
+        border-bottom-right-radius:0;
+        border-bottom-left-radius:100%;
+        background-color: #118DFF;
+
+       }
+       .right2{
+        width: 100px;
+        height: 100px;
+        border-top-right-radius:0;
+        border-top-left-radius:0;
+        border-bottom-right-radius:100%;
+        border-bottom-left-radius:0%;
+        background-color: #118DFF;
+
+       }
+       .left1{
+        width: 100px;
+        height: 100px;
+        border-top-right-radius:0;
+        border-top-left-radius:100%;
+        border-bottom-right-radius:0%;
+        border-bottom-left-radius:0%;
+        background-color: #118DFF;
+
+       }
+
+       .left2{
+        width: 100px;
+        height: 100px;
+        border-top-right-radius:100%;
+        border-top-left-radius:0%;
+        border-bottom-right-radius:0%;
+        border-bottom-left-radius:0%;
+        background-color: #118DFF;
+
+       }
+
+       .button2{
+        width: 100px;
+        height: 50px;
+        background-color: #118DFF;
+        border-radius: 5px;
+        color: white;
+        font-size: larger;
+        text-align: center;
+        background-image: url(images/dice.png);
+       
+      }
+      .button2:hover{
+        width: 100px;
+        height: 60px;
+        background-color: greenyellow;
+        border-radius: 5px;
+        color:black;
+        font-size: larger;
+        align-content: center;
+      }
+      .button1{
+        width: 80px;
+        height: 50px;
+        background-color: #118DFF;
+        border-radius: 5px;
+        color: white;
+        font-size: larger;
+        text-align: center;
+       
+      }
+      .button1:hover{
+        width: 80px;
+        height: 50px;
+        background-color: greenyellow;
+        border-radius: 5px;
+        color:black;
+        font-size: larger;
+        align-content: center;
+      }
+    
+      .buttoncounter{
+        width: 35px;
+        height: 350px;
+        position: fixed;
+        margin-left:10px;
+        margin-top: 10px;
+        background-image: url(images/Ten.png);
+      }
+      .buttoncounter1{
+        width: 35px;
+        height: 35px;
+        position: fixed;
+        margin-left:100px;
+        margin-top: 10px;
+        
+      }
+
+      .square2{
+        width: 260px;
+        height: 200px;
+        position: fixed;
+        margin-left:300px;
+        margin-top: 30px;
+        display: grid;
+        grid-template-columns: repeat(3,70px);
+        gap: 0px;
+        
+      }
+      
+      .part1{
+        height: 210px;
+        width: 70px;
+        background-color: #118DFF;
+        border-width: 2px;
+        border-color: black;
+        border-style: solid;
+       }
+       .part2{
+         border-width: 2px;
+        border-color: black;
+        border-style: solid;
+        height: 210px;
+        width: 70px;
+        background-color: #118DFF;
+       }
+       .part3{
+        height: 210px;
+        width: 70px;
+        background-color: #118DFF;
+        border-width: 2px;
+        border-color: black;
+        border-style: solid;
+       }
+       

@@ -1,0 +1,522 @@
+main{
+  width: 1200px; margin: 5px auto; 
+  height: 600px;
+  border:1px solid grey;
+  display: grid; color: white;
+  grid-template-rows: 1px 599px;
+  grid-template-columns: repeat(12, 1fr);
+  grid-gap: 2px;
+  
+ }
+ 
+ .container1{ background-color: whitesmoke; 
+  grid-row:1/6;
+   grid-column: 1/12;
+  width: 1200px;
+  height: 1px;
+ }
+ 
+  .div2{ background-color: white; 
+   grid-row:2/2;
+    grid-column: 1/12;
+   width: 1200px;
+   height: 600px;
+  }
+     
+     
+
+      .container {
+        display: fixed;
+      }
+      
+      .drawing-area {
+        box-shadow: 0 0 6px 0 #999;
+        background-color: transparent;
+        
+      }
+      .button1{
+        width: 80px;
+        height: 50px;
+        background-color: #118DFF;
+        border-radius: 5px;
+        color: white;
+        font-size: larger;
+        text-align: center;
+       
+      }
+      .button1:hover{
+        width: 80px;
+        height: 50px;
+        background-color: greenyellow;
+        border-radius: 5px;
+        color:black;
+        font-size: larger;
+        align-content: center;
+      }
+      .card0{
+        width: 124px;
+        height: 60px;
+        position: fixed;
+        margin-left:800px;
+        margin-top: 80px;
+        background-image: url(images/0.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+      .card1{
+        width: 124px;
+        height: 60px;
+        position: fixed;
+        margin-left:800px;
+        margin-top: 80px;
+        background-image: url(images/1.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+      .card2{
+        width: 124px;
+        height: 60px;
+        position: fixed;
+        margin-left:800px;
+        margin-top: 80px;
+        background-image: url(images/2.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+      .card3{
+        width: 124px;
+        height: 60px;
+        position: fixed;
+        margin-left:800px;
+        margin-top: 80px;
+        background-image: url(images/3.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+      .card4{
+        width: 124px;
+        height: 60px;
+        position: fixed;
+        margin-left:800px;
+        margin-top: 80px;
+        background-image: url(images/4.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+      .card5{
+        width: 124px;
+        height: 60px;
+        position: fixed;
+        margin-left:800px;
+        margin-top: 80px;
+        background-image: url(images/5.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+      .card6{
+        width: 124px;
+        height: 60px;
+        position: fixed;
+        margin-left:800px;
+        margin-top: 80px;
+        background-image: url(images/6.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+      .card7{
+        width: 124px;
+        height: 60px;
+        position: fixed;
+        margin-left:800px;
+        margin-top: 80px;
+        background-image: url(images/7.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+      .card8{
+        width: 124px;
+        height: 60px;
+        position: fixed;
+        margin-left:800px;
+        margin-top: 80px;
+        background-image: url(images/8.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+      .card9{
+        width: 124px;
+        height: 60px;
+        position: fixed;
+        margin-left:800px;
+        margin-top: 80px;
+        background-image: url(images/9.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+
+
+
+
+
+
+
+
+      .card00{
+        width: 188px;
+        height: 60px;
+        position: fixed;
+        margin-left:590px;
+        margin-top: 80px;
+        background-image: url(images/00.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+      .card10{
+        width: 188px;
+        height: 60px;
+        position: fixed;
+        margin-left:590px;
+        margin-top: 80px;
+        background-image: url(images/10.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+      .card20{
+        width: 188px;
+        height: 60px;
+        position: fixed;
+        margin-left:590px;
+        margin-top: 80px;
+        background-image: url(images/20.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+      .card30{
+        width: 188px;
+        height: 60px;
+        position: fixed;
+        margin-left:590px;
+        margin-top: 80px;
+        background-image: url(images/30.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+      .card40{
+        width: 188px;
+        height: 60px;
+        position: fixed;
+        margin-left:590px;
+        margin-top: 80px;
+        background-image: url(images/40.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+      .card50{
+        width: 188px;
+        height: 60px;
+        position: fixed;
+        margin-left:590px;
+        margin-top: 80px;
+        background-image: url(images/50.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+      .card60{
+        width: 188px;
+        height: 60px;
+        position: fixed;
+        margin-left:590px;
+        margin-top: 80px;
+        background-image: url(images/60.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+      .card70{
+        width: 188px;
+        height: 60px;
+        position: fixed;
+        margin-left:590px;
+        margin-top: 80px;
+        background-image: url(images/70.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+      .card80{
+        width: 188px;
+        height: 60px;
+        position: fixed;
+        margin-left:590px;
+        margin-top: 80px;
+        background-image: url(images/80.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+      .card90{
+        width: 188px;
+        height: 60px;
+        position: fixed;
+        margin-left:590px;
+        margin-top: 80px;
+        background-image: url(images/90.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+      .card000{
+        width: 248px;
+        height: 60px;
+        position: fixed;
+         margin-left:330px;
+        margin-top: 80px;
+        background-image: url(images/000.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+      .card100{
+        width: 248px;
+        height: 60px;
+        position: fixed;
+        margin-left:330px;
+        margin-top: 80px;
+        background-image: url(images/100.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+      .card200{
+        width: 248px;
+        height: 60px;
+        position: fixed;
+        margin-left:330px;
+        margin-top: 80px;
+        background-image: url(images/200.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+      .card300{
+        width: 248px;
+        height: 60px;
+        position: fixed;
+        margin-left:330px;
+        margin-top: 80px;
+        background-image: url(images/300.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+      .card400{
+        width: 248px;
+        height: 60px;
+        position: fixed;
+        margin-left:330px;
+        margin-top: 80px;
+        background-image: url(images/400.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+      .card500{
+        width: 248px;
+        height: 60px;
+        position: fixed;
+        margin-left:330px;
+        margin-top: 80px;
+        background-image: url(images/500.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+      .card600{
+        width: 248px;
+        height: 60px;
+        position: fixed;
+        margin-left:330px;
+        margin-top: 80px;
+        background-image: url(images/600.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+      .card700{
+        width: 248px;
+        height: 60px;
+        position: fixed;
+        margin-left:330px;
+        margin-top: 80px;
+        background-image: url(images/700.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+      .card800{
+        width: 248px;
+        height: 60px;
+        position: fixed;
+        margin-left:330px;
+        margin-top: 80px;
+        background-image: url(images/800.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+      .card900{
+        width: 248px;
+        height: 60px;
+        position: fixed;
+        margin-left:330px;
+        margin-top: 80px;
+        background-image: url(images/900.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+
+      .card0000{
+        width: 310px;
+        height: 60px;
+        position: fixed;
+        margin-left:10px;
+        margin-top: 80px;
+        background-image: url(images/0000.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+      .card1000{
+        width: 310px;
+        height: 60px;
+        position: fixed;
+        margin-left:10px;
+        margin-top: 80px;
+        background-image: url(images/1000.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+      .card2000{
+        width: 310px;
+        height: 60px;
+        position: fixed;
+        margin-left:10px;
+        margin-top: 80px;
+        background-image: url(images/2000.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+      .card3000{
+        width: 310px;
+        height: 60px;
+        position: fixed;
+        margin-left:10px;
+        margin-top: 80px;
+        background-image: url(images/3000.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+      .card4000{
+        width: 310px;
+        height: 60px;
+        position: fixed;
+        margin-left:10px;
+        margin-top: 80px;
+        background-image: url(images/4000.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+      .card5000{
+        width: 310px;
+        height: 60px;
+        position: fixed;
+        margin-left:10px;
+        margin-top: 80px;
+        background-image: url(images/5000.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+      .card6000{
+        width: 310px;
+        height: 60px;
+        position: fixed;
+        margin-left:10px;
+        margin-top: 80px;
+        background-image: url(images/6000.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+      .card7000{
+        width: 310px;
+        height: 60px;
+        position: fixed;
+        margin-left:10px;
+        margin-top: 80px;
+        background-image: url(images/7000.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+      .card8000{
+        width: 310px;
+        height: 60px;
+        position: fixed;
+        margin-left:10px;
+        margin-top: 80px;
+        background-image: url(images/8000.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+      .card9000{
+        width: 310px;
+        height: 60px;
+        position: fixed;
+        margin-left:10px;
+        margin-top: 80px;
+        background-image: url(images/9000.png);
+        border: none;
+        background-color: transparent;
+        
+      }
+
+
+      .color{
+        width: 50px;
+        height: 50px;
+      }
+      .color1{
+        width: 80px;
+        height: 50px;
+      }
+
+      .color:hover{
+        width: 50px;
+        height: 50px;
+        background-color: greenyellow;
+        border-radius: 50%;
+        border-color: aqua;
+      }

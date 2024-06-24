@@ -1,0 +1,217 @@
+*{margin: 0; padding: 0; 
+    box-sizing: border-box; text-align: left; 
+    font-family: 'Gugi', cursive;}
+   
+     
+    
+    .button2:hover{
+      width: 100px;
+      height: 60px;
+      background-color: greenyellow;
+      border-radius: 5px;
+      color:black;
+      font-size: larger;
+      align-content: center;
+    }
+    .button1{
+      width: 90px;
+      height: 50px;
+      background-color: #118DFF;
+      border-radius: 5px;
+      color: white;
+      
+      text-align: center;
+     
+    }
+    .button1:hover{
+      width: 90px;
+      height: 50px;
+      background-color: greenyellow;
+      border-radius: 5px;
+      color:black;
+      
+      align-content: center;
+    }
+    
+    
+    main{
+      width: 1200px; margin: 5px auto; 
+      height: 600px;
+      border:1px solid grey;
+      display: grid; color: white;
+      grid-template-rows: 1px 599px;
+      grid-template-columns: repeat(12, 1fr);
+      grid-gap: 2px;
+      
+     }
+     
+     .container1{ background-color: whitesmoke; 
+      grid-row:1/6;
+       grid-column: 1/12;
+      width: 1200px;
+      height: 1px;
+     }
+     
+      .div2{ background-color: white; 
+       grid-row:2/2;
+        grid-column: 1/12;
+       width: 1200px;
+       height: 600px;
+      }
+     
+     
+
+      .container {
+        display: fixed;
+      }
+      
+      .drawing-area {
+        box-shadow: 0 0 6px 0 #999;
+        background-color: transparent;
+        
+      }
+      
+      .square1{
+        width: 480px;
+        height: 300px;
+        position: fixed;
+       
+        margin-left:-300px;
+        margin-top: 20px;
+        display: grid;
+        grid-template-columns: repeat(2,150px);
+        grid-column-end: inherit;
+        background-image: url(images/square1.gif);
+        
+      }
+      .halfsquare1{
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+        width: 150px;
+        height: 300px;
+        background-color: #118DFF;
+       
+        
+      }
+      .halfsquare2{
+        width: 150px;
+        height: 300px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+      }
+     
+      .square2{
+        width: 420px;
+        height: 300px;
+        position: fixed;
+       
+        margin-left:-300px;
+        margin-top: 20px;
+        display: grid;
+        grid-template-columns: repeat(3,100px);
+        grid-column-end: inherit;
+        background-image: url(images/square2.gif);
+        
+      }
+      .part1{
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+        width: 100px;
+        height: 300px;
+        background-color: #118DFF;
+       
+        
+      }
+      .part2{
+        width: 100px;
+        height: 300px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+      }
+      .part3{
+        width: 100px;
+        height: 300px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+      }
+      
+      .square3{
+        width: 360px;
+        height: 300px;
+        position: fixed;
+       
+        margin-left:-300px;
+        margin-top: 20px;
+        display: grid;
+        grid-template-columns: repeat(2,150px);
+        grid-column-end: inherit;
+        background-image: url(images/square3.gif);
+        
+      }
+      .quarter1{
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+        width: 150px;
+        height: 150px;
+        background-color: #118DFF;
+       
+        
+      }
+      .quarter2{
+        width: 150px;
+        height: 150px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+      }
+      .quarter3{
+        width: 150px;
+        height: 150px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+      }
+      .quarter4{
+        width: 150px;
+        height: 150px;
+       
+        background-color: #118DFF;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+      }
+      
+      
+
+      .color{
+        width: 50px;
+        height: 50px;
+      }
+      .color1{
+        width: 80px;
+        height: 50px;
+      }
+
+      .color:hover{
+        width: 50px;
+        height: 50px;
+        background-color: greenyellow;
+        border-radius: 50%;
+        border-color: aqua;
+      }

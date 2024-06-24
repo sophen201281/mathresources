@@ -1,0 +1,46 @@
+{
+	"folders": [
+		{
+			"path": "../Dice"
+		},
+		{
+			"path": "../dots array"
+		},
+		{
+			"path": "../Expanded form"
+		},
+		{
+			"path": "../Five and Ten frames"
+		},
+		{
+			"path": "../Fraction"
+		},
+		{
+			"path": "../New Counters"
+		},
+		{
+			"path": "."
+		},
+		{
+			"path": "../patterning"
+		},
+		{
+			"path": "../placevaluechart"
+		},
+		{
+			"path": "../scale"
+		},
+		{
+			"path": "../Time"
+		},
+		{
+			"path": "../100chart"
+		},
+		{
+			"path": "../All in one"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "All in one"
+	}
+}

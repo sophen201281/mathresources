@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="100chartStyle.css">
+    <link rel="stylesheet" href="100chartdivgrid.css">
+   
+     <!--fount for teblet-->
+     <link rel="stylesheet" media="handheld" href="css/handheld.css?v=2">
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+     <link href="https://fonts.googleapis.com/css2?family=Battambang&display=swap" rel="stylesheet">
+    <title>សម្ភារគណិតវិទ្យា</title>
+</head>
+<body>
+    <!-- Navbar -->
+    <div class="navbar">
+      <div class="container flex">
+        <button class="button1"><a href="100Engchart.html" style="font-family:'Battambang', cursive;">ការេ100</a></button>
+        <button class="button1"><a href="100chart.html" style="font-family:'Battambang', cursive;">ការេ១០០</a></button>
+          <h1 class="logo" style="font-family:'Battambang', cursive;">ផ្ទាំងការេ100</h1>
+         
+          <button class="button1" style="font-family:'Battambang', cursive; font-size: 20px;" onClick="document.location.reload(true)">សារដើម</button>
+          <button class="button1" style="font-family:'Battambang', cursive; font-size: 20px;" onclick="Restore()" >ថយក្រោយ</button>
+          <button class="button1" style="font-family:'Battambang', cursive; font-size: 20px;" onclick="Clear()">លុប</button>
+          
+          <div  class="color" onclick="change_color(this)" style="background:red"  class="stroke-color"></div>
+          <div class="color" onclick="change_color(this)" style="background:blue" class="stroke-color"></div>
+          <input class="color" type="color" oninput="stroke_color = this.value" placeholder="Colors">
+        
+          <input class="color1" type="range" min="1" max="100" oninput="stroke_width = this.value">
+          <nav>
+          <ul>
+
+           
+              <li><a href="../index.html" style="font-family:'Battambang', cursive; font-size: 20px;">ទំព័រដើម</a></li>
+          
+             
+            
+      </ul>
+              
+          </nav>
+            
+        </div>
+        
+    </div>
+        
+    <main >     
+     
+        <div class="div1" div id="container" class="container"> 
+          
+          <canvas id="canvas" style="background-image:url(images/P.png) ;"></canvas>
+        </div>
+      
+      <div class="div2" >
+          <button class="button" style="font-family:'Battambang', cursive;" onclick="playAudio1()" onClick(this) id="button1">1</button>
+          <button class="button" style="font-family:'Battambang', cursive;" onclick="playAudio2()" onClick(this) id="button2">2</button>
+          <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button3">3</button>
+          <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button4">4</button>
+          <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button5">5</button>
+          <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button6">6</button>
+          <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button7">7</button>
+          <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button8">8</button>
+          <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button9">9</button>
+          <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button10">10</button>
+        
+     
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button11">11</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button12">12</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button13">13</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button14">14</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button15">15</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button16">16</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button17">17</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button18">18</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button19">19</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button20">20</button>
+      
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button21">21</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button22">22</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button23">23</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button24">24</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button25">25</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button26">26</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button27">27</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button28">28</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button29">29</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button30">30</button>
+      
+     
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button31">31</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button32">32</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button33">33</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button34">34</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button35">35</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button36">36</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button37">37</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button38">38</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button39">39</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button40">40</button>
+      
+     
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button41">41</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button42">42</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button43">43</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button44">44</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button45">45</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button46">46</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button47">47</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button48">48</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button49">49</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button50">50</button>
+      
+     
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button51">51</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button52">52</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button53">53</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button54">54</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button55">55</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button56">56</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button57">57</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button58">58</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button59">59</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button60">60</button>
+   
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button61">61</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button62">62</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button63">63</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button64">64</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button65">65</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button66">66</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button67">67</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button68">68</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button69">69</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button70">70</button>
+    
+    
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button71">71</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button72">72</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button73">73</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button74">74</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button75">75</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button76">76</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button77">77</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button78">78</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button79">79</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button80">80</button>
+      
+     
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button81">81</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button82">82</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button83">83</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button84">84</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button85">85</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button86">86</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button87">87</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button88">88</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button89">89</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button90">90</button>
+      
+    
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button91">91</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button92">92</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button93">93</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button94">94</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button95">95</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button96">96</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button97">97</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button98">98</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button99">99</button>
+        <button class="button" style="font-family:'Battambang', cursive;" onclick="onClick(this)" id="button100">100</button>
+        
+        </div> 
+    </div>      
+          
+  </div>
+
+
+     </main>
+    
+     </body>
+       
+     <script src="100drawing.js"></script>
+     <script src="100highlight.js"></script>
+
+
+</html>
+
+  
+    
