@@ -99,12 +99,12 @@
         position:absolute;
         left:50%;
         top:50%;
-        width: 30px;
-        height: 30px;
+        width: 40px;
+        height: 40px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size:38px;
+        font-size:32px; /* Slightly adjusted to cleanly display double-digit 10 without clipping */
         font-weight:bold;
         color:#333;
     }
@@ -143,7 +143,7 @@
         position:absolute;
         width:100%;
         text-align:center;
-        bottom:100px; /* Shifted up slightly so numbers don't overlay the readout text */
+        bottom:65px; /* Centered in the lower inner-half of the dial */
         font-size:26px;
         font-weight:bold;
     }
@@ -179,26 +179,33 @@ const workspace = document.getElementById("workspace");
 let totalWeight = 0;
 
 /* ================= CREATE SCALE NUMBERS & TICKS ================= */
-// Changed loop to 0-9 to avoid rendering a duplicate "0" directly over itself at the top marker
-for(let i=0; i<10; i++){
+// Set loop to <= 10 so both 0 and 10 are created at the same 12 o'clock coordinate slot
+for(let i=0; i<=10; i++){
     const angle = (360/10) * i;
     
-    // Ticks: Anchored at center, translated upwards along Y-axis, then rotated around center
+    // Ticks: Pushed outward right next to the dial border edge
     const tick = document.createElement("div");
-    const tickRadius = 125; // Adjusted to sit cleanly inside the dial border
+    const tickRadius = 142; 
     tick.className = "tick";
     tick.style.transform = `translate(-50%, -50%) rotate(${angle}deg) translateY(-${tickRadius}px)`;
     dial.appendChild(tick);
 
-    // Numbers: Placed strictly on exact geometry paths around the center point
+    // Numbers: Pushed close to the outer border, just underneath the ticks
     const num = document.createElement("div");
     num.className = "number";
     num.innerText = i;
-    const numRadius = 95; // Placed comfortably inside the tick marks
+    
+    // Layering logic: Give 0 a higher z-index stack layer than 10
+    if (i === 0) {
+        num.style.zIndex = "2";
+    } else if (i === 10) {
+        num.style.zIndex = "1";
+    }
+
+    const numRadius = 110; 
     const x = Math.cos((angle - 90) * Math.PI / 180) * numRadius;
     const y = Math.sin((angle - 90) * Math.PI / 180) * numRadius;
     
-    // First center the element block on layout, then translate outward by X/Y coordinates
     num.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
     dial.appendChild(num);
 }
