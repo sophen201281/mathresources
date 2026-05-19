@@ -169,8 +169,8 @@
         <div class="template" data-weight="2" data-img="./image/chicken.svg"><img src="./image/chicken.svg" alt="chicken"></div>
         <div class="template" data-weight="1" data-img="./image/fish.svg"><img src="./image/fish.svg" alt="fish"></div>
         <div class="template" data-weight="4" data-img="./image/pumpkin.svg"><img src="./image/pumpkin.svg" alt="pumpkin"></div>
-        </div>
-    </div>
+    </div> <!-- FIXED: Kept the toolbox container closed correctly -->
+    
     <div class="scale">
         <div class="tray" id="tray"></div>
         <div class="stand"></div>
@@ -180,7 +180,8 @@
             <div class="display" id="display">0 kg</div>
         </div>
     </div>
-</div>
+</div> <!-- This correctly closes the #workspace container at the very end -->
+
 <script>
 const dial = document.getElementById("dial");
 const needle = document.getElementById("needle");
@@ -223,7 +224,6 @@ for(let i=0; i<=10; i++){
 
 /* ================= UPDATE SCALE ================= */
 function updateScale(){
-    // Cap visual scale rendering to 10kg max, but preserve true programmatic total weight calculation
     let displayWeight = totalWeight > 10 ? 10 : (totalWeight < 0 ? 0 : totalWeight);
     display.innerText = displayWeight + " kg";
     let angle = (displayWeight / 10) * 360;
@@ -239,12 +239,10 @@ document.querySelectorAll(".template").forEach(template=>{
         item.dataset.weight = template.dataset.weight;
         item.dataset.img = template.dataset.img;
         
-        // Spawn item centered on mouse down layout position
-        item.style.left = e.pageX - 75 + "px"; // Fixed centering offset relative to item dimension (150px / 2 = 75px)
+        item.style.left = e.pageX - 75 + "px"; 
         item.style.top = e.pageY - 75 + "px";
         workspace.appendChild(item);
         
-        // Pass 75 as fixed template offset radius parameters
         dragItem(item, e, 75, 75);
     });
 });
@@ -292,14 +290,14 @@ function dragItem(el, startEvent, initialOffsetX, initialOffsetY){
                 updateScale();
             }
             el.remove();
-            return; // Element destroyed, break event re-attachment sequence
+            return; 
         }
         
         el.addEventListener("pointerdown", startAgain);
     }
     
     function startAgain(ev){
-        ev.stopPropagation(); // Avoid triggering document layer clicks concurrently
+        ev.stopPropagation(); 
         if(el.dataset.onTray === "true"){
             totalWeight -= Number(el.dataset.weight);
             updateScale();
