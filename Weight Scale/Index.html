@@ -104,7 +104,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size:32px; /* Slightly adjusted to cleanly display double-digit 10 without clipping */
+        font-size:32px;
         font-weight:bold;
         color:#333;
     }
@@ -143,7 +143,7 @@
         position:absolute;
         width:100%;
         text-align:center;
-        bottom:65px; /* Centered in the lower inner-half of the dial */
+        bottom:65px;
         font-size:26px;
         font-weight:bold;
     }
@@ -179,32 +179,32 @@ const workspace = document.getElementById("workspace");
 let totalWeight = 0;
 
 /* ================= CREATE SCALE NUMBERS & TICKS ================= */
-// Set loop to <= 10 so both 0 and 10 are created at the same 12 o'clock coordinate slot
 for(let i=0; i<=10; i++){
     const angle = (360/10) * i;
     
-    // Ticks: Pushed outward right next to the dial border edge
+    // Ticks
     const tick = document.createElement("div");
     const tickRadius = 142; 
     tick.className = "tick";
     tick.style.transform = `translate(-50%, -50%) rotate(${angle}deg) translateY(-${tickRadius}px)`;
     dial.appendChild(tick);
 
-    // Numbers: Pushed close to the outer border, just underneath the ticks
+    // Numbers
     const num = document.createElement("div");
     num.className = "number";
     num.innerText = i;
     
-    // Layering logic: Give 0 a higher z-index stack layer than 10
-    if (i === 0) {
-        num.style.zIndex = "2";
-    } else if (i === 10) {
-        num.style.zIndex = "1";
+    let currentRadius = 110; 
+
+    // Adjust 10 to shift directly down below the 0 marker
+    if (i === 10) {
+        currentRadius = currentRadius - 28; 
+        num.style.fontSize = "22px";
+        num.style.color = "#777";
     }
 
-    const numRadius = 110; 
-    const x = Math.cos((angle - 90) * Math.PI / 180) * numRadius;
-    const y = Math.sin((angle - 90) * Math.PI / 180) * numRadius;
+    const x = Math.cos((angle - 90) * Math.PI / 180) * currentRadius;
+    const y = Math.sin((angle - 90) * Math.PI / 180) * currentRadius;
     
     num.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
     dial.appendChild(num);
