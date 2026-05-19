@@ -98,7 +98,11 @@
         position:absolute;
         left:50%;
         top:50%;
-        transform-origin:center center;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         font-size:24px;
         font-weight:bold;
         color:#333;
@@ -110,7 +114,6 @@
         width:4px;
         height:16px;
         background:#555;
-        transform-origin:center -120px;
     }
     .needle{
         position:absolute;
@@ -139,7 +142,7 @@
         position:absolute;
         width:100%;
         text-align:center;
-        bottom:20px;
+        bottom:40px; /* Shifted up slightly so numbers don't overlay the readout text */
         font-size:26px;
         font-weight:bold;
     }
@@ -150,26 +153,10 @@
 <div id="workspace">
     <!-- TOOLBOX -->
     <div class="toolbox">
-        <div class="template"
-             data-weight="1"
-             data-emoji="🍎">
-             🍎
-        </div>
-        <div class="template"
-             data-weight="2"
-             data-emoji="🍌">
-             🍌
-        </div>
-        <div class="template"
-             data-weight="3"
-             data-emoji="🐟">
-             🐟
-        </div>
-        <div class="template"
-             data-weight="4"
-             data-emoji="🍉">
-             🍉
-        </div>
+        <div class="template" data-weight="1" data-emoji="🍎">🍎</div>
+        <div class="template" data-weight="2" data-emoji="🍌">🍌</div>
+        <div class="template" data-weight="3" data-emoji="🐟">🐟</div>
+        <div class="template" data-weight="4" data-emoji="🍉">🍉</div>
     </div>
     <!-- SCALE -->
     <div class="scale">
@@ -178,9 +165,7 @@
         <div class="dial" id="dial">
             <div class="needle" id="needle"></div>
             <div class="center"></div>
-            <div class="display" id="display">
-                0 kg
-            </div>
+            <div class="display" id="display">0 kg</div>
         </div>
     </div>
 </div>
@@ -191,42 +176,39 @@ const display = document.getElementById("display");
 const tray = document.getElementById("tray");
 const workspace = document.getElementById("workspace");
 let totalWeight = 0;
-/* ================= CREATE SCALE NUMBERS ================= */
-/*
-0 to 10 around full 360 degrees
-0 and 10 meet together
-*/
-for(let i=0;i<=10;i++){
+
+/* ================= CREATE SCALE NUMBERS & TICKS ================= */
+// Changed loop to 0-9 to avoid rendering a duplicate "0" directly over itself at the top marker
+for(let i=0; i<10; i++){
     const angle = (360/10) * i;
-    // number
+    
+    // Ticks: Anchored at center, translated upwards along Y-axis, then rotated around center
+    const tick = document.createElement("div");
+    const tickRadius = 125; // Adjusted to sit cleanly inside the dial border
+    tick.className = "tick";
+    tick.style.transform = `translate(-50%, -50%) rotate(${angle}deg) translateY(-${tickRadius}px)`;
+    dial.appendChild(tick);
+
+    // Numbers: Placed strictly on exact geometry paths around the center point
     const num = document.createElement("div");
     num.className = "number";
-    num.innerText = i % 10;
-    const radius = 130;
-    const x =
-        Math.cos((angle-90) * Math.PI/180) * radius;
-    const y =
-        Math.sin((angle-90) * Math.PI/180) * radius;
-    num.style.transform =
-        `translate(${x}px, ${y}px)`;
+    num.innerText = i;
+    const numRadius = 95; // Placed comfortably inside the tick marks
+    const x = Math.cos((angle - 90) * Math.PI / 180) * numRadius;
+    const y = Math.sin((angle - 90) * Math.PI / 180) * numRadius;
+    
+    // First center the element block on layout, then translate outward by X/Y coordinates
+    num.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
     dial.appendChild(num);
-    // tick mark
-    const tick = document.createElement("div");
-    tick.className = "tick";
-    tick.style.transform =
-        `translate(-50%, -50%) rotate(${angle}deg)`;
-    dial.appendChild(tick);
 }
+
 /* ================= UPDATE SCALE ================= */
 function updateScale(){
     display.innerText = totalWeight + " kg";
-    /*
-    0-10 mapped to full 360 degrees
-    */
     let angle = (totalWeight / 10) * 360;
-    needle.style.transform =
-        `translate(-50%, -100%) rotate(${angle}deg)`;
+    needle.style.transform = `translate(-50%, -100%) rotate(${angle}deg)`;
 }
+
 /* ================= CREATE ITEMS ================= */
 document.querySelectorAll(".template").forEach(template=>{
     template.addEventListener("pointerdown", e=>{
@@ -240,6 +222,7 @@ document.querySelectorAll(".template").forEach(template=>{
         dragItem(item, e);
     });
 });
+
 /* ================= DRAGGING ================= */
 function dragItem(el, startEvent){
     let offsetX = 35;
@@ -299,4 +282,3 @@ updateScale();
 </script>
 </body>
 </html>
-
