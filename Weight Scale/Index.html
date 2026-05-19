@@ -3,357 +3,300 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Analog Weighing Scale</title>
-
+<title>360° Analog Weight Scale</title>
 <style>
-    *{
-        box-sizing:border-box;
-        user-select:none;
-    }
-
     body{
         margin:0;
-        font-family:Arial, sans-serif;
-        background:#eef3f7;
-        display:flex;
-        flex-direction:column;
-        align-items:center;
-        padding:20px;
+        background:#eef2f7;
+        font-family:Arial,sans-serif;
+        overflow:hidden;
+        touch-action:none;
     }
-
-    h1{
-        margin-bottom:10px;
-    }
-
-    .instruction{
-        margin-bottom:20px;
-        color:#444;
+    h2{
         text-align:center;
+        margin:10px;
     }
-
-    .items{
-        display:flex;
-        gap:20px;
-        margin-bottom:10px;
-        flex-wrap:wrap;
-        justify-content:center;
-    }
-
-    .item{
-        width:90px;
-        height:90px;
-        border-radius:12px;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        font-size:60px;
-        cursor:grab;
-        background:white;
-        box-shadow:0 4px 8px rgba(0,0,0,0.15);
-        transition:0.2s;
-    }
-
-    .item:hover{
-        transform:scale(1.05);
-    }
-
-    /* SCALE CONTAINER */
-    .scale-area{
+    #workspace{
+        width:100vw;
+        height:100vh;
         position:relative;
-        width:400px;
-        height:350px; /* Increased height slightly to accommodate the tray on top */
-        margin-top: 20px;
     }
-
-    /* TRAY - Now positioned relative to .scale-area and sits perfectly on top */
-    .tray{
+    /* ================= TOOLBOX ================= */
+    .toolbox{
         position:absolute;
-        width:340px;
+        top:10px;
+        left:10px;
+        display:flex;
+        gap:12px;
+        z-index:100;
+    }
+    .template{
+        width:70px;
         height:70px;
         background:white;
-        border-radius:5px;
-        top:0px; /* Sits at the very top of the scale area container */
+        border:2px solid #bbb;
+        border-radius:14px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-size:40px;
+        user-select:none;
+        cursor:pointer;
+    }
+    .item{
+        position:absolute;
+        width:70px;
+        height:70px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-size:40px;
+        user-select:none;
+        touch-action:none;
+    }
+    /* ================= SCALE ================= */
+    .scale{
+        position:absolute;
+        left:50%;
+        bottom:20px;
+        transform:translateX(-50%);
+        width:420px;
+        height:470px;
+    }
+    .tray{
+        position:absolute;
+        top:0;
         left:50%;
         transform:translateX(-50%);
-        border:5px solid #444;
-        z-index: 10; /* Ensures items don't hide behind anything */
-        display:flex;
-        flex-wrap:wrap;
-        gap:5px;
-        justify-content:center;
-        align-items:center;
-        padding:1px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        width:260px;
+        height:38px;
+        background:#666;
+        border-radius:12px;
     }
-
-    .tray.highlight{
-        background:#7ecb7e;
-    }
-
-    /* SCALE BODY - Pushed down so it rests perfectly underneath the tray */
-    .scale{
-        width:100%;
-        height:280px; /* Adjusted height */
-        background:white;
-        border-radius:5%;
-        border:10px solid white;
+    .stand{
         position:absolute;
-        bottom: 0; /* Aligned to the bottom of the scale-area */
-        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        top:38px;
+        left:50%;
+        transform:translateX(-50%);
+        width:18px;
+        height:80px;
+        background:#777;
     }
-
-    /* DIAL */
     .dial{
         position:absolute;
-        width:240px;
-        height:240px;
-        background:white;
-        border-radius:50%;
-        top:50%;
+        bottom:0;
         left:50%;
-        transform:translate(-50%, -50%);
-        border:4px solid #555;
+        transform:translateX(-50%);
+        width:320px;
+        height:320px;
+        border-radius:50%;
+        background:white;
+        border:10px solid #444;
+        box-shadow:0 5px 12px rgba(0,0,0,0.2);
     }
-
-    /* NEEDLE */
+    .number{
+        position:absolute;
+        left:50%;
+        top:50%;
+        transform-origin:center center;
+        font-size:24px;
+        font-weight:bold;
+        color:#333;
+    }
+    .tick{
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:4px;
+        height:16px;
+        background:#555;
+        transform-origin:center -120px;
+    }
     .needle{
         position:absolute;
-        width:8px;
-        height:85px;
-        background:green;
         left:50%;
-        bottom:50%;
+        top:50%;
+        width:6px;
+        height:120px;
+        background:red;
         transform-origin:bottom center;
-        transform:translateX(-50%) rotate(0deg);
-        border-radius:4px;
-        transition:transform 0.5s ease;
-        z-index: 2;
+        transform:translate(-50%, -100%) rotate(0deg);
+        border-radius:10px;
+        z-index:5;
     }
-
-    .center-dot{
+    .center{
         position:absolute;
         width:18px;
         height:18px;
         background:#222;
         border-radius:50%;
+        left:50%;
         top:50%;
-        left:50%;
-        transform:translate(-50%, -50%);
-        z-index: 3;
+        transform:translate(-50%,-50%);
+        z-index:10;
     }
-
-    /* MARKS */
-    .mark{
+    .display{
         position:absolute;
-        width:6px;
-        height:10px;
-        background:#333;
-        left:50%;
-        top:8px;
-        transform-origin:center 108px; /* Fixed offset to stay concentric within the smaller dial */
-    }
-
-    .weight-display{
-        margin-top:20px;
-        font-size:24px;
+        width:100%;
+        text-align:center;
+        bottom:20px;
+        font-size:26px;
         font-weight:bold;
-        color:#222;
-    }
-
-    .delete-zone{
-        margin-top:20px;
-        width:240px;
-        height:80px;
-        background:#ffb3b3;
-        border:4px dashed #cc0000;
-        border-radius:16px;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        font-size:22px;
-        font-weight:bold;
-        color:#aa0000;
-    }
-
-    .small-item{
-        font-size:45px; /* Scaled down slightly to fit inside the tray smoothly */
-        cursor:grab;
     }
 </style>
 </head>
-
 <body>
-
-<h1>ជញ្ជីងថ្លឹងទម្ងន់</h1>
-
-<div class="instruction">
-    ទាញរូបធាតុដាក់លើចានជញ្ជីងដើម្បីថ្លឹង
-</div>
-
-<!-- ITEMS -->
-<div class="items">
-    <div class="item" draggable="true" data-weight="2" data-emoji="🍎">🍎</div>
-    <div class="item" draggable="true" data-weight="3" data-emoji="🍌">🍌</div>
-    <div class="item" draggable="true" data-weight="5" data-emoji="🐟">🐟</div>
-    <div class="item" draggable="true" data-weight="4" data-emoji="🍉">🍉</div>
-</div>
-
-<!-- SCALE -->
-<div class="scale-area">
-
-    <!-- TRAY (Moved outside of the scale body) -->
-    <div class="tray" id="tray"></div>
-
-    <!-- SCALE BODY -->
-    <div class="scale">
-        <!-- DIAL -->
-        <div class="dial" id="dial">
-            <div class="needle" id="needle"></div>
-            <div class="center-dot"></div>
+<h2>⚖️ 360° Analog Weight Scale</h2>
+<div id="workspace">
+    <!-- TOOLBOX -->
+    <div class="toolbox">
+        <div class="template"
+             data-weight="1"
+             data-emoji="🍎">
+             🍎
+        </div>
+        <div class="template"
+             data-weight="2"
+             data-emoji="🍌">
+             🍌
+        </div>
+        <div class="template"
+             data-weight="3"
+             data-emoji="🐟">
+             🐟
+        </div>
+        <div class="template"
+             data-weight="4"
+             data-emoji="🍉">
+             🍉
         </div>
     </div>
-
+    <!-- SCALE -->
+    <div class="scale">
+        <div class="tray" id="tray"></div>
+        <div class="stand"></div>
+        <div class="dial" id="dial">
+            <div class="needle" id="needle"></div>
+            <div class="center"></div>
+            <div class="display" id="display">
+                0 kg
+            </div>
+        </div>
+    </div>
 </div>
-
-<div class="weight-display">
-    ទម្ងន់: <span id="weight">0</span> kg
-</div>
-
-<div class="delete-zone" id="deleteZone">
-    🗑 ទាញដើម្បីលុប
-</div>
-
 <script>
-    const tray = document.getElementById("tray");
-    const weightDisplay = document.getElementById("weight");
-    const needle = document.getElementById("needle");
-    const deleteZone = document.getElementById("deleteZone");
-
-    let totalWeight = 0;
-
-    // Create dial marks
-    const dial = document.getElementById("dial");
-
-    for(let i = 0; i <= 9; i++){
-        const mark = document.createElement("div");
-        mark.className = "mark";
-
-        const angle = i * 36; // Cleaned up the negative rotation math
-
-        mark.style.transform = `translateX(-50%) rotate(${angle}deg)`;
-        dial.appendChild(mark);
-
-        // numbers
-        const number = document.createElement("div");
-        number.innerText = i;
-
-        number.style.position = "absolute";
-        number.style.left = "50%";
-        number.style.top = "50%";
-        number.style.transform =
-            `translate(-50%, -50%) 
-             rotate(${angle}deg)
-             translateY(-90px)
-             rotate(${-angle}deg)`;
-
-        number.style.fontSize = "16px";
-        number.style.fontWeight = "bold";
-
-        dial.appendChild(number);
+const dial = document.getElementById("dial");
+const needle = document.getElementById("needle");
+const display = document.getElementById("display");
+const tray = document.getElementById("tray");
+const workspace = document.getElementById("workspace");
+let totalWeight = 0;
+/* ================= CREATE SCALE NUMBERS ================= */
+/*
+0 to 10 around full 360 degrees
+0 and 10 meet together
+*/
+for(let i=0;i<=10;i++){
+    const angle = (360/10) * i;
+    // number
+    const num = document.createElement("div");
+    num.className = "number";
+    num.innerText = i % 10;
+    const radius = 130;
+    const x =
+        Math.cos((angle-90) * Math.PI/180) * radius;
+    const y =
+        Math.sin((angle-90) * Math.PI/180) * radius;
+    num.style.transform =
+        `translate(${x}px, ${y}px)`;
+    dial.appendChild(num);
+    // tick mark
+    const tick = document.createElement("div");
+    tick.className = "tick";
+    tick.style.transform =
+        `translate(-50%, -50%) rotate(${angle}deg)`;
+    dial.appendChild(tick);
+}
+/* ================= UPDATE SCALE ================= */
+function updateScale(){
+    display.innerText = totalWeight + " kg";
+    /*
+    0-10 mapped to full 360 degrees
+    */
+    let angle = (totalWeight / 10) * 360;
+    needle.style.transform =
+        `translate(-50%, -100%) rotate(${angle}deg)`;
+}
+/* ================= CREATE ITEMS ================= */
+document.querySelectorAll(".template").forEach(template=>{
+    template.addEventListener("pointerdown", e=>{
+        const item = document.createElement("div");
+        item.className = "item";
+        item.innerHTML = template.dataset.emoji;
+        item.dataset.weight = template.dataset.weight;
+        item.style.left = e.pageX - 35 + "px";
+        item.style.top = e.pageY - 35 + "px";
+        workspace.appendChild(item);
+        dragItem(item, e);
+    });
+});
+/* ================= DRAGGING ================= */
+function dragItem(el, startEvent){
+    let offsetX = 35;
+    let offsetY = 35;
+    function move(e){
+        el.style.left = (e.pageX - offsetX) + "px";
+        el.style.top = (e.pageY - offsetY) + "px";
     }
-
-    // DRAG START FROM MENU
-    document.querySelectorAll(".item").forEach(item => {
-        item.addEventListener("dragstart", e => {
-            e.dataTransfer.setData(
-                "text/plain",
-                JSON.stringify({
-                    weight: item.dataset.weight,
-                    emoji: item.dataset.emoji
-                })
-            );
-        });
-    });
-
-    // ALLOW DROP
-    tray.addEventListener("dragover", e => {
-        e.preventDefault();
-        tray.classList.add("highlight");
-    });
-
-    tray.addEventListener("dragleave", () => {
-        tray.classList.remove("highlight");
-    });
-
-    // DROP INTO SCALE
-    tray.addEventListener("drop", e => {
-        e.preventDefault();
-        tray.classList.remove("highlight");
-
-        try {
-            const rawData = e.dataTransfer.getData("text/plain");
-            if (!rawData) return;
-            const data = JSON.parse(rawData);
-            if (data.emoji && data.weight) {
-                addItemToScale(data.emoji, Number(data.weight));
+    function up(){
+        document.removeEventListener("pointermove", move);
+        document.removeEventListener("pointerup", up);
+        const trayRect = tray.getBoundingClientRect();
+        const rect = el.getBoundingClientRect();
+        const centerX = rect.left + rect.width/2;
+        const centerY = rect.top + rect.height/2;
+        const insideTray =
+            centerX > trayRect.left &&
+            centerX < trayRect.right &&
+            centerY > trayRect.top &&
+            centerY < trayRect.bottom + 80;
+        if(insideTray){
+            if(el.dataset.onTray !== "true"){
+                totalWeight += Number(el.dataset.weight);
+                if(totalWeight > 10){
+                    totalWeight = 10;
+                }
+                el.dataset.onTray = "true";
+                updateScale();
             }
-        } catch(err) {
-            // Ignore if dropping an intra-scale element incorrectly
+        }else{
+            if(el.dataset.onTray === "true"){
+                totalWeight -= Number(el.dataset.weight);
+                if(totalWeight < 0){
+                    totalWeight = 0;
+                }
+                updateScale();
+            }
+            el.remove();
         }
-    });
-
-    function addItemToScale(emoji, weight){
-        const newItem = document.createElement("div");
-        newItem.className = "small-item";
-        newItem.innerText = emoji;
-        newItem.draggable = true;
-        newItem.dataset.weight = weight;
-
-        const uniqueId = "item-" + Date.now();
-        newItem.id = uniqueId;
-
-        // Drag existing item out
-        newItem.addEventListener("dragstart", e => {
-            e.dataTransfer.setData("removeWeight", weight);
-            e.dataTransfer.setData("removeElementId", uniqueId);
-        });
-
-        tray.appendChild(newItem);
-        totalWeight += weight;
-        updateScale();
+        el.addEventListener("pointerdown", startAgain);
     }
-
-    // DELETE ZONE
-    deleteZone.addEventListener("dragover", e => {
-        e.preventDefault();
-    });
-
-    deleteZone.addEventListener("drop", e => {
-        e.preventDefault();
-        const elementId = e.dataTransfer.getData("removeElementId");
-        const weight = Number(e.dataTransfer.getData("removeWeight"));
-        const dragged = document.getElementById(elementId);
-
-        if(dragged){
-            dragged.remove();
-            totalWeight -= weight;
-            if(totalWeight < 0) totalWeight = 0;
+    function startAgain(ev){
+        if(el.dataset.onTray === "true"){
+            totalWeight -= Number(el.dataset.weight);
+            if(totalWeight < 0){
+                totalWeight = 0;
+            }
             updateScale();
+            el.dataset.onTray = "false";
         }
-    });
-
-    function updateScale(){
-        weightDisplay.innerText = totalWeight;
-
-        // 10kg scale max: each kg is 36 degrees of rotation
-        let angle = totalWeight * 36;
-        if(angle > 360) angle = 360;
-
-        needle.style.transform = `translateX(-50%) rotate(${angle}deg)`;
+        dragItem(el, ev);
     }
+    document.addEventListener("pointermove", move);
+    document.addEventListener("pointerup", up);
+}
+updateScale();
 </script>
-
 </body>
 </html>
 
-  
