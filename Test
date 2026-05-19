@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Magnetic Base Ten Blocks</title>
+<style>
+    *{
+        box-sizing:border-box;
+        margin:0;
+        padding:0;
+    }
+    body{
+        overflow:hidden;
+        font-family:Arial, sans-serif;
+        background:#eef2f7;
+        touch-action:none;
+    }
+    canvas{
+        background:white;
+        display:block;
+    }
+    .toolbar{
+        position:fixed;
+        top:10px;
+        left:10px;
+        z-index:100;
+        display:flex;
+        gap:10px;
+    }
+    button{
+        padding:10px 16px;
+        border:none;
+        border-radius:10px;
+        background:#1976d2;
+        color:white;
+        font-size:16px;
+        cursor:pointer;
+    }
+    button:hover{
+        opacity:0.9;
+    }
+</style>
+</head>
+<body>
+<div class="toolbar">
+    <button id="addOneBtn">➕ Add One</button>
+    <button id="deleteBtn">🗑 Delete Selected</button>
+</div>
+<canvas id="canvas"></canvas>
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+function resizeCanvas(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
+const BOX_SIZE = 40;
+const magneticBox = {
+    x: window.innerWidth - 240,
+    y: 120,
+    width: 200,
+    height: 500
+};
+let blocks = [];
+let selected = null;
+let dragging = false;
+let offsetX = 0;
+let offsetY = 0;
+class OneBlock{
+    constructor(x,y){
+        this.type = "one";
+        this.x = x;
+        this.y = y;
+        this.size = BOX_SIZE;
+        this.selected = false;
+    }
+    draw(){
+        ctx.fillStyle = this.selected ? "#ff9800" : "#4caf50";
+        ctx.fillRect(
+            this.x,
+            this.y,
+            this.size,
+            this.size
+        );
+        ctx.strokeStyle = "#222";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(
+            this.x,
+            this.y,
+            this.size,
+            this.size
+        );
+    }
+    contains(px,py){
+        return (
+            px >= this.x &&
+            px <= this.x + this.size &&
+            py >= this.y &&
+            py <= this.y + this.size
+        );
+    }
+}
+class TenStick{
+    constructor(x,y){
+        this.type = "ten";
+        this.x = x;
+        this.y = y;
+        this.width = BOX_SIZE;
+        this.height = BOX_SIZE * 10;
+        this.selected = false;
+    }
+    draw(){
+        for(let i=0;i<10;i++){
+            ctx.fillStyle = this.selected ? "#ff9800" : "#2196f3";
+            ctx.fillRect(
+                this.x,
+                this.y + i * BOX_SIZE,
+                this.width,
+                BOX_SIZE
+            );
+            ctx.strokeStyle = "#222";
+            ctx.lineWidth = 2;
+            ctx.strokeRect(
+                this.x,
+                this.y + i * BOX_SIZE,
+                this.width,
+                BOX_SIZE
+            );
+        }
+    }
+    contains(px,py){
+        return (
+            px >= this.x &&
+            px <= this.x + this.width &&
+            py >= this.y &&
+            py <= this.y + this.height
+        );
+    }
+}
+function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    drawMagneticBox();
+    blocks.forEach(block=>{
+        block.draw();
+    });
+    requestAnimationFrame(draw);
+}
+function drawMagneticBox(){
+    ctx.strokeStyle = "#777";
+    ctx.lineWidth = 4;
+    ctx.strokeRect(
+        magneticBox.x,
+        magneticBox.y,
+        magneticBox.width,
+        magneticBox.height
+    );
+    ctx.fillStyle = "#666";
+    ctx.font = "22px Arial";
+    ctx.fillText(
+        "MAGNET BOX",
+        magneticBox.x + 18,
+        magneticBox.y - 20
+    );
+}
+draw();
+document.getElementById("addOneBtn").addEventListener("click",()=>{
+    blocks.push(
+        new OneBlock(
+            80 + Math.random()*100,
+            120 + Math.random()*100
+        )
+    );
+});
+function getPointer(e){
+    const rect = canvas.getBoundingClientRect();
+    return {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+    };
+}
+canvas.addEventListener("pointerdown",(e)=>{
+    const p = getPointer(e);
+    dragging = false;
+    selected = null;
+    for(let i=blocks.length-1;i>=0;i--){
+        if(blocks[i].contains(p.x,p.y)){
+            selected = blocks[i];
+            blocks.forEach(b=>b.selected=false);
+            selected.selected = true;
+            dragging = true;
+            offsetX = p.x - selected.x;
+            offsetY = p.y - selected.y;
+            break;
+        }
+    }
+    if(!selected){
+        blocks.forEach(b=>b.selected=false);
+    }
+});
+canvas.addEventListener("pointermove",(e)=>{
+    if(!dragging || !selected) return;
+    const p = getPointer(e);
+    selected.x = p.x - offsetX;
+    selected.y = p.y - offsetY;
+});
+canvas.addEventListener("pointerup",()=>{
+    dragging = false;
+    combineOnesToTen();
+});
+function combineOnesToTen(){
+    const onesInside = blocks.filter(block=>{
+        return (
+            block.type === "one" &&
+            block.x > magneticBox.x &&
+            block.x < magneticBox.x + magneticBox.width &&
+            block.y > magneticBox.y &&
+            block.y < magneticBox.y + magneticBox.height
+        );
+    });
+    if(onesInside.length >= 10){
+        for(let i=0;i<10;i++){
+            const index = blocks.indexOf(onesInside[i]);
+            if(index !== -1){
+                blocks.splice(index,1);
+            }
+        }
+        blocks.push(
+            new TenStick(
+                magneticBox.x + 80,
+                magneticBox.y + 40
+            )
+        );
+    }
+}
+let lastTap = 0;
+canvas.addEventListener("pointerup",(e)=>{
+    const currentTime = new Date().getTime();
+    const tapLength = currentTime - lastTap;
+    if(tapLength < 300 && tapLength > 0){
+        const p = getPointer(e);
+        for(let i=blocks.length-1;i>=0;i--){
+            const block = blocks[i];
+            if(
+                block.type === "ten" &&
+                block.contains(p.x,p.y)
+            ){
+                blocks.splice(i,1);
+                for(let n=0;n<10;n++){
+                    blocks.push(
+                        new OneBlock(
+                            block.x + (n % 2) * 50,
+                            block.y + Math.floor(n / 2) * 50
+                        )
+                    );
+                }
+                break;
+            }
+        }
+    }
+    lastTap = currentTime;
+});
+document.getElementById("deleteBtn").addEventListener("click",()=>{
+    if(selected){
+        const index = blocks.indexOf(selected);
+        if(index !== -1){
+            blocks.splice(index,1);
+        }
+        selected = null;
+    }
+});
+</script>
+</body>
+</html>
+
