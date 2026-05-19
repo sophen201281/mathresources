@@ -49,6 +49,33 @@
         object-fit: contain;
         pointer-events: none; 
     }
+    /* ================= HOME BUTTON ================= */
+    .home-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 10px 20px;
+        background: white;
+        border: 2px solid #bbb;
+        border-radius: 14px;
+        font-size: 16px;
+        font-weight: bold;
+        color: #333;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        z-index: 100;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        transition: background 0.2s, transform 0.1s;
+    }
+    .home-btn:hover {
+        background: #f5f7fa;
+    }
+    .home-btn:active {
+        transform: scale(0.95);
+    }
+    /* ================= DRAGGABLE ITEM ================= */
     .item{
         position:absolute;
         width:150px;
@@ -164,6 +191,7 @@
 <body>
 <h2>⚖️ 360° Analog Weight Scale</h2>
 <div id="workspace">
+    <!-- TOOLBOX ON THE LEFT -->
     <div class="toolbox">
         <div class="template" data-weight="1" data-img="./image/Apple.svg"><img src="./image/Apple.svg" alt="Apple"></div>
         <div class="template" data-weight="2" data-img="./image/chicken.svg"><img src="./image/chicken.svg" alt="chicken"></div>
@@ -171,6 +199,10 @@
         <div class="template" data-weight="4" data-img="./image/pumpkin.svg"><img src="./image/pumpkin.svg" alt="pumpkin"></div>
     </div> 
     
+    <!-- HOME BUTTON ON THE RIGHT -->
+    <a href="index.html" class="home-btn">🏠 Home</a>
+    
+    <!-- MAIN SCALE -->
     <div class="scale">
         <div class="tray" id="tray"></div>
         <div class="stand"></div>
@@ -180,7 +212,7 @@
             <div class="display" id="display">0 kg</div>
         </div>
     </div>
-</div> <!-- This correctly closes the #workspace container at the very end -->
+</div>
 
 <script>
 const dial = document.getElementById("dial");
