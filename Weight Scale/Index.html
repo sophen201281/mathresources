@@ -24,7 +24,7 @@
     /* ================= TOOLBOX ================= */
     .toolbox{
         position:absolute;
-        top:20px;
+        top:10px;
         left:10px;
         display:flex;
         gap:12px;
@@ -39,9 +39,15 @@
         display:flex;
         align-items:center;
         justify-content:center;
-        font-size:60px;
         user-select:none;
         cursor:pointer;
+        overflow: hidden;
+    }
+    .template img {
+        width: 80%;
+        height: 80%;
+        object-fit: contain;
+        pointer-events: none; /* Prevents native image dragging breaking custom logic */
     }
     .item{
         position:absolute;
@@ -50,9 +56,14 @@
         display:flex;
         align-items:center;
         justify-content:center;
-        font-size:60px;
         user-select:none;
         touch-action:none;
+    }
+    .item img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        pointer-events: none;
     }
     /* ================= SCALE ================= */
     .scale{
@@ -121,7 +132,7 @@
         left:50%;
         top:50%;
         width:6px;
-        height:100px;
+        height:120px;
         background:red;
         transform-origin:bottom center;
         transform:translate(-50%, -100%) rotate(0deg);
@@ -150,17 +161,25 @@
 </style>
 </head>
 <body>
-<h2>Analog Weight Scale</h2>
+<h2>⚖️ 360° Analog Weight Scale</h2>
 <div id="workspace">
-    <!-- TOOLBOX -->
     <div class="toolbox">
-        <div class="template" data-weight="1" data-emoji="🍎">🍎</div>
-        <div class="template" data-weight="1" data-emoji="🍌">🍌</div>
-        <div class="template" data-weight="2" data-emoji="🐟">🐟</div>
-        <div class="template" data-weight="1" data-emoji="🍉">🍉</div>
-        <div class="template" data-weight="2" data-emoji="🐔">🐔</div>
+        <div class="template" data-weight="1" data-img="https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=120&auto=format&fit=crop">
+            <img src="https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=120&auto=format&fit=crop" alt="Apple">
+        </div>
+        <div class="template" data-weight="2" data-img="https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=120&auto=format&fit=crop">
+            <img src="https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=120&auto=format&fit=crop" alt="Banana">
+        </div>
+        <div class="template" data-weight="3" data-img="https://images.unsplash.com/photo-1534604973900-c43ab4c2e0ab?w=120&auto=format&fit=crop">
+            <img src="https://images.unsplash.com/photo-1534604973900-c43ab4c2e0ab?w=120&auto=format&fit=crop" alt="Fish">
+        </div>
+        <div class="template" data-weight="4" data-img="https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=120&auto=format&fit=crop">
+            <img src="https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=120&auto=format&fit=crop" alt="Watermelon">
+        </div>
+        <div class="template" data-weight="2" data-img="https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=120&auto=format&fit=crop">
+            <img src="https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=120&auto=format&fit=crop" alt="Chicken">
+        </div>
     </div>
-    <!-- SCALE -->
     <div class="scale">
         <div class="tray" id="tray"></div>
         <div class="stand"></div>
@@ -200,7 +219,7 @@ for(let i=0; i<=10; i++){
     // Adjust 10 to shift directly down below the 0 marker
     if (i === 10) {
         currentRadius = currentRadius - 28; 
-        num.style.fontSize = "32px";
+        num.style.fontSize = "22px";
         num.style.color = "#777";
     }
 
@@ -223,8 +242,10 @@ document.querySelectorAll(".template").forEach(template=>{
     template.addEventListener("pointerdown", e=>{
         const item = document.createElement("div");
         item.className = "item";
-        item.innerHTML = template.dataset.emoji;
+        // Generates an image tag utilizing the saved string source link
+        item.innerHTML = `<img src="${template.dataset.img}" alt="scaled item">`;
         item.dataset.weight = template.dataset.weight;
+        item.dataset.img = template.dataset.img;
         item.style.left = e.pageX - 35 + "px";
         item.style.top = e.pageY - 35 + "px";
         workspace.appendChild(item);
