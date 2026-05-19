@@ -47,7 +47,7 @@
         width: 80%;
         height: 80%;
         object-fit: contain;
-        pointer-events: none; /* Prevents native image dragging breaking custom logic */
+        pointer-events: none; 
     }
     .item{
         position:absolute;
@@ -58,6 +58,7 @@
         justify-content:center;
         user-select:none;
         touch-action:none;
+        z-index:10;
     }
     .item img {
         width: 100%;
@@ -242,37 +243,53 @@ document.querySelectorAll(".template").forEach(template=>{
     template.addEventListener("pointerdown", e=>{
         const item = document.createElement("div");
         item.className = "item";
-        // Generates an image tag utilizing the saved string source link
         item.innerHTML = `<img src="${template.dataset.img}" alt="scaled item">`;
         item.dataset.weight = template.dataset.weight;
         item.dataset.img = template.dataset.img;
+        
+        // Spawn item centered on mouse down layout position
         item.style.left = e.pageX - 35 + "px";
         item.style.top = e.pageY - 35 + "px";
         workspace.appendChild(item);
-        dragItem(item, e);
+        
+        // Pass 35 as fixed template offset radius parameters
+        dragItem(item, e, 35, 35);
     });
 });
 
 /* ================= DRAGGING ================= */
-function dragItem(el, startEvent){
-    let offsetX = 35;
-    let offsetY = 35;
+function dragItem(el, startEvent, initialOffsetX, initialOffsetY){
+    // If offsets aren't passed (meaning we clicked an element sitting on the tray), 
+    // calculate where the cursor clicked it relative to its bounding box to avoid visual jumping.
+    let offsetX = initialOffsetX;
+    let offsetY = initialOffsetY;
+    
+    if (offsetX === undefined || offsetY === undefined) {
+        const rect = el.getBoundingClientRect();
+        offsetX = startEvent.clientX - rect.left;
+        offsetY = startEvent.clientY - rect.top;
+    }
+
     function move(e){
         el.style.left = (e.pageX - offsetX) + "px";
         el.style.top = (e.pageY - offsetY) + "px";
     }
+    
     function up(){
         document.removeEventListener("pointermove", move);
         document.removeEventListener("pointerup", up);
+        
         const trayRect = tray.getBoundingClientRect();
         const rect = el.getBoundingClientRect();
         const centerX = rect.left + rect.width/2;
         const centerY = rect.top + rect.height/2;
+        
         const insideTray =
             centerX > trayRect.left &&
             centerX < trayRect.right &&
             centerY > trayRect.top &&
             centerY < trayRect.bottom + 80;
+            
         if(insideTray){
             if(el.dataset.onTray !== "true"){
                 totalWeight += Number(el.dataset.weight);
@@ -291,10 +308,14 @@ function dragItem(el, startEvent){
                 updateScale();
             }
             el.remove();
+            return; // Element destroyed, break event re-attachment sequence
         }
+        
         el.addEventListener("pointerdown", startAgain);
     }
+    
     function startAgain(ev){
+        ev.stopPropagation(); // Avoid triggering document layer clicks concurrently
         if(el.dataset.onTray === "true"){
             totalWeight -= Number(el.dataset.weight);
             if(totalWeight < 0){
@@ -305,9 +326,11 @@ function dragItem(el, startEvent){
         }
         dragItem(el, ev);
     }
+    
     document.addEventListener("pointermove", move);
     document.addEventListener("pointerup", up);
 }
+
 updateScale();
 </script>
 </body>
