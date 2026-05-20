@@ -4,121 +4,392 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA==" crossorigin="anonymous" />
-    <link rel="stylesheet" href="Style.css">
-    <link rel="stylesheet" href="divgrid.css">
-     <!--fount for teblet-->
-     <link rel="stylesheet" media="handheld" href="css/handheld.css?v=2">
-     <link rel="preconnect" href="https://fonts.googleapis.com">
-     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-     <link href="https://fonts.googleapis.com/css2?family=Battambang&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Battambang&display=swap" rel="stylesheet">
     <title>សម្ភារបង្រៀនគណិតវិទ្យា</title>
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Battambang', cursive, sans-serif;
+        }
+
+        body {
+            background-color: #f4f4f9;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Navbar Layout */
+        .navbar {
+            background: #ffffff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 10px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar .container {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 24px;
+            color: #2c3e50;
+            margin-right: auto;
+        }
+
+        /* Controls styling */
+        .button1 {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px !important;
+            transition: background 0.2s;
+        }
+
+        .button1:hover {
+            background: #2980b9;
+        }
+
+        .color-picker-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .color-preset {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid #ddd;
+        }
+
+        .color-preset.active {
+            border-color: #333;
+        }
+
+        input[type="color"] {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background: transparent;
+        }
+
+        input[type="range"] {
+            width: 100px;
+            cursor: pointer;
+        }
+
+        nav ul {
+            list-style: none;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #34495e;
+            font-weight: bold;
+            font-size: 16px !important;
+        }
+
+        /* Main Workspace Structure */
+        main {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            flex: 1;
+        }
+
+        /* Canvas Wrapper */
+        .canvas-container {
+            width: 100%;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: center;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            aspect-ratio: 16 / 9;
+            background-color: #fafafa;
+            /* Fallback background image can be re-enabled here */
+            /* background-image: url('images/P.png'); */
+            background-size: cover;
+            touch-action: none; /* Prevents screen scrolling while drawing on mobile */
+        }
+
+        /* Number Cards Row Grids */
+        .cards-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .card-row {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 6px;
+        }
+
+        .card-row button {
+            width: 100%;
+            aspect-ratio: 1.5;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform 0.1s, opacity 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-row button:hover {
+            transform: scale(1.05);
+            opacity: 0.9;
+        }
+
+        /* Distinct color theme layers for place values */
+        .row-thousands button { background: #e74c3c; }
+        .row-hundreds button { background: #e67e22; }
+        .row-tens button { background: #2ecc71; }
+        .row-ones button { background: #9b59b6; }
+
+        /* Media Queries for Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .navbar .container {
+                justify-content: space-between;
+            }
+            .logo {
+                width: 100%;
+                text-align: center;
+                margin-bottom: 5px;
+            }
+            .card-row {
+                grid-template-columns: repeat(5, 1fr); /* 5x2 row grid layout on small viewports */
+            }
+            .card-row button {
+                font-size: 12px;
+            }
+        }
+    </style>
 </head>
 <body>
+
     <!-- Navbar -->
     <div class="navbar">
-      <div class="container flex">
-          <h1 class="logo" style="font-family:'Battambang', cursive;">ទម្រង់ពង្រាយ</h1>
-          <button class="button1" style="font-family:'Battambang', cursive; font-size: 20px;" onClick="document.location.reload(true)">សារដើម</button>
-            <button class="button1" style="font-family:'Battambang', cursive; font-size: 20px;" onclick="Restore()" >ថយក្រោយ</button>
-            <button class="button1" style="font-family:'Battambang', cursive; font-size: 20px;" onclick="Clear()">លុប</button>
+        <div class="container">
+            <h1 class="logo">ទម្រង់ពង្រាយ</h1>
+            <button class="button1" onClick="window.location.reload()">សារដើម</button>
+            <button class="button1" onclick="restore()">ថយក្រោយ</button>
+            <button class="button1" onclick="clearCanvas()">លុប</button>
             
-            <div  class="color" onclick="change_color(this)" style="background:red"  class="stroke-color"></div>
-            <div class="color" onclick="change_color(this)" style="background:blue" class="stroke-color"></div>
-            <input class="color" type="color" oninput="stroke_color = this.value" placeholder="Colors">
-          
-            <input class="color1" type="range" min="1" max="100" oninput="stroke_width = this.value">
+            <div class="color-picker-wrapper">
+                <div class="color-preset" onclick="changeColor('red', this)" style="background:red"></div>
+                <div class="color-preset" onclick="changeColor('blue', this)" style="background:blue"></div>
+                <input type="color" value="#000000" oninput="changeColor(this.value)">
+            </div>
+            
+            <input type="range" min="1" max="50" value="5" oninput="changeWidth(this.value)">
+            
             <nav>
-            <ul>
-
-         
-              <li><a href="../index.html" style="font-family:'Battambang', cursive; font-size: 20px;">ទំព័រដើម</a></li>
-        
-           
-          
-    </ul>
-            
-        </nav>
-          
-      </div>
-      
-  </div>
-    
-    <main >
-      <div class="div2" div id="container" class="container"> 
-            
-        <canvas id="canvas" style="background-image:url(images/P.png) ;"></canvas>
-</div>
-        <div  id="container1" >  
-         
-            
-          <div>
-            <button class="card9000"  ></button>
-            <button class="card8000" ></button>
-            <button class="card7000"  ></button>
-            <button class="card6000"  ></button>
-            <button class="card5000" ></button>
-            <button class="card4000"  ></button>
-            <button class="card3000"  ></button>
-            <button class="card2000"  ></button>
-            <button class="card1000"  ></button>
-            <button class="card0000"  ></button>
-    
-          <div>
-            <div>
-              <button class="card900"  ></button>
-              <button class="card800" ></button>
-              <button class="card700"  ></button>
-              <button class="card600"  ></button>
-              <button class="card500" ></button>
-              <button class="card400"  ></button>
-              <button class="card300"  ></button>
-              <button class="card200"  ></button>
-              <button class="card100"  ></button>
-              <button class="card000"  ></button>
-      </div> 
-      <div>
-        <button class="card90"  ></button>
-        <button class="card80" ></button>
-        <button class="card70"  ></button>
-        <button class="card60"  ></button>
-        <button class="card50" ></button>
-        <button class="card40"  ></button>
-        <button class="card30"  ></button>
-        <button class="card20"  ></button>
-        <button class="card10"  ></button>
-        <button class="card00"  ></button>
-</div>    
-<div>
-        <button class="card9" ></button>
-        <button class="card8" ></button>
-        <button class="card7" ></button>
-        <button class="card6" ></button>
-        <button class="card5" ></button>
-        <button class="card4" ></button>
-        <button class="card3" ></button>
-        <button class="card2" ></button>
-        <button class="card1" ></button>
-        <button class="card0" ></button>
-</div>    
-    
-          
-       
+                <ul>
+                    <li><a href="../index.html">ទំព័រដើម</a></li>
+                </ul>
+            </nav>
+        </div>
     </div>
-       
-       </main>
-      
-       </body>
-              
-<script src="expanded.js"></script>
-<!-- <script src="expanded1.js"></script> 
-<script src="expanded2.js"></script> 
-<script src="expanded3.js"></script> 
-<script src="expanded4.js"></script> 
-<script src="expanded5.js"></script> 
-<script src="expanded6.js"></script> 
-<script src="expanded7.js"></script> 
-<script src="expanded8.js"></script> 
-<script src="expanded9.js"></script> 
-<script src="expanded10.js"></script>  -->
+    
+    <!-- Main Content Grid -->
+    <main>
+        <!-- Drawing Board Area -->
+        <div class="canvas-container" id="container"> 
+            <canvas id="canvas"></canvas>
+        </div>
 
+        <!-- Math Interactive Cards Area -->
+        <div class="cards-container"> 
+            <!-- Thousands (9000-0000) -->
+            <div class="card-row row-thousands">
+                <button onclick="handleCardClick(9000)">9000</button>
+                <button onclick="handleCardClick(8000)">8000</button>
+                <button onclick="handleCardClick(7000)">7000</button>
+                <button onclick="handleCardClick(6000)">6000</button>
+                <button onclick="handleCardClick(5000)">5000</button>
+                <button onclick="handleCardClick(4000)">4000</button>
+                <button onclick="handleCardClick(3000)">3000</button>
+                <button onclick="handleCardClick(2000)">2000</button>
+                <button onclick="handleCardClick(1000)">1000</button>
+                <button onclick="handleCardClick(0000)">0000</button>
+            </div> 
+
+            <!-- Hundreds (900-000) -->
+            <div class="card-row row-hundreds">
+                <button onclick="handleCardClick(900)">900</button>
+                <button onclick="handleCardClick(800)">800</button>
+                <button onclick="handleCardClick(700)">700</button>
+                <button onclick="handleCardClick(600)">600</button>
+                <button onclick="handleCardClick(500)">500</button>
+                <button onclick="handleCardClick(400)">400</button>
+                <button onclick="handleCardClick(300)">300</button>
+                <button onclick="handleCardClick(200)">200</button>
+                <button onclick="handleCardClick(100)">100</button>
+                <button onclick="handleCardClick(000)">000</button>
+            </div> 
+
+            <!-- Tens (90-00) -->
+            <div class="card-row row-tens">
+                <button onclick="handleCardClick(90)">90</button>
+                <button onclick="handleCardClick(80)">80</button>
+                <button onclick="handleCardClick(70)">70</button>
+                <button onclick="handleCardClick(60)">60</button>
+                <button onclick="handleCardClick(50)">50</button>
+                <button onclick="handleCardClick(40)">40</button>
+                <button onclick="handleCardClick(30)">30</button>
+                <button onclick="handleCardClick(20)">20</button>
+                <button onclick="handleCardClick(10)">10</button>
+                <button onclick="handleCardClick(00)">00</button>
+            </div>    
+
+            <!-- Ones (9-0) -->
+            <div class="card-row row-ones">
+                <button onclick="handleCardClick(9)">9</button>
+                <button onclick="handleCardClick(8)">8</button>
+                <button onclick="handleCardClick(7)">7</button>
+                <button onclick="handleCardClick(6)">6</button>
+                <button onclick="handleCardClick(5)">5</button>
+                <button onclick="handleCardClick(4)">4</button>
+                <button onclick="handleCardClick(3)">3</button>
+                <button onclick="handleCardClick(2)">2</button>
+                <button onclick="handleCardClick(1)">1</button>
+                <button onclick="handleCardClick(0)">0</button>
+            </div>    
+        </div>
+    </main>
+
+    <!-- Canvas Drawing Script Implementation -->
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let drawing = false;
+        let strokeColor = '#000000';
+        let strokeWidth = 5;
+        let restoreHistory = [];
+
+        // Scale canvas internal resolution to match displayed viewport sizes safely
+        function resizeCanvas() {
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.width * (9 / 16); // Forces crisp 16:9 ratio grid mapping
+            clearCanvas();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        window.addEventListener('DOMContentLoaded', resizeCanvas);
+
+        // Capture Drawing Events (Mouse and Touch Screen compatible)
+        function getCoordinates(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
+        }
+
+        function startDrawing(e) {
+            drawing = true;
+            // Capture canvas state snapshot before new brush path for instant single-step history undos
+            restoreHistory.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+            draw(e);
+        }
+
+        function stopDrawing() {
+            drawing = false;
+            ctx.beginPath();
+        }
+
+        function draw(e) {
+            if (!drawing) return;
+            e.preventDefault();
+            const coords = getCoordinates(e);
+
+            ctx.lineWidth = strokeWidth;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.strokeStyle = strokeColor;
+
+            ctx.lineTo(coords.x, coords.y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(coords.x, coords.y);
+        }
+
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mousemove', draw);
+
+        canvas.addEventListener('touchstart', startDrawing, { passive: false });
+        canvas.addEventListener('touchend', stopDrawing);
+        canvas.addEventListener('touchmove', draw, { passive: false });
+
+        // Utility Canvas Actions
+        function changeColor(color, element) {
+            strokeColor = color;
+            document.querySelectorAll('.color-preset').forEach(el => el.classList.remove('active'));
+            if(element) element.classList.add('active');
+        }
+
+        function changeWidth(width) {
+            strokeWidth = width;
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function restore() {
+            if (restoreHistory.length > 0) {
+                ctx.putImageData(restoreHistory.pop(), 0, 0);
+            }
+        }
+
+        // Placeholder handler logic for math card buttons selection 
+        function handleCardClick(value) {
+            console.log("Card value chosen:", value);
+            // Feel free to integrate custom math puzzle algorithms here or draw onto the board directly
+        }
+    </script>
+</body>
 </html>
