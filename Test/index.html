@@ -28,6 +28,22 @@
         display:flex;
         gap:10px;
     }
+    /* Fixed and styled the Home button to stay top-right */
+    .home-btn {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        z-index: 101;
+        padding: 10px 16px;
+        background: #fff;
+        border: 2px solid #1976d2;
+        border-radius: 10px;
+        color: #1976d2;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
     button{
         padding:10px 16px;
         border:none;
@@ -37,16 +53,18 @@
         font-size:16px;
         cursor:pointer;
     }
-    button:hover{
+    button:hover, .home-btn:hover{
         opacity:0.9;
     }
 </style>
 </head>
-    <!-- HOME BUTTON ON THE RIGHT -->
-    <a href="../index.html" class="home-btn" style="font-family:'Battambang', cursive; font-size: 20px;">
-        🏡 Home
-    </a>
 <body>
+
+<!-- HOME BUTTON IS NOW INSIDE BODY AND PROPERLY CLASS-STYLED -->
+<a href="../index.html" class="home-btn" style="font-family:'Battambang', cursive; font-size: 20px;">
+    🏡 Home
+</a>
+
 <div class="toolbar">
     <button id="addOneBtn">➕ វត្ថុសម្រាប់រាប់</button>
     <button id="deleteBtn">🗑 លុប</button>
@@ -278,4 +296,3 @@ document.getElementById("deleteBtn").addEventListener("click",()=>{
 </script>
 </body>
 </html>
-
