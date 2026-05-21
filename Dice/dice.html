@@ -3,341 +3,398 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Arrow Place Value Cards + Drawing</title>
+<title>Base Ten Blocks + Drawing Canvas</title>
 <style>
-body{
-    margin:0;
-    overflow:hidden;
-    font-family:Arial, sans-serif;
-    background:#eef3ff;
-    touch-action:none;
-}
-h2{
-    position:fixed;
-    top:0;
-    width:100%;
-    text-align:center;
-    margin:6px 0;
-    z-index:3000;
-    pointer-events:none;
-    font-size:22px;
-}
-/* ---------- TOOLBAR ---------- */
-#toolbar{
-    position:fixed;
-    top:40px;
-    left:8px;
-    z-index:3000;
-    background:white;
-    padding:8px;
-    border-radius:10px;
-    box-shadow:0 2px 8px rgba(0,0,0,0.2);
-    max-width:190px;
-}
-button{
-    margin:3px;
-    padding:6px 9px;
-    border:none;
-    border-radius:7px;
-    cursor:pointer;
-    font-size:12px;
-    font-weight:bold;
-}
-input{
-    width:70px;
-    padding:5px;
-    margin:3px;
-    border-radius:6px;
-    border:1px solid #aaa;
-    font-size:14px;
-}
-.onesBtn{ background:#ffd966; }
-.tensBtn{ background:#93c47d; color:white; }
-.hundredsBtn{ background:#6fa8dc; color:white; }
-.thousandsBtn{ background:#8e7cc3; color:white; }
-.drawBtn{
-    background:#ff8c42;
-    color:white;
-}
-.eraseBtn{
-    background:#e06666;
-    color:white;
-}
-.clearBtn{
-    background:#5c6bc0;
-    color:white;
-}
-.homeBtn{
-    background:#26a69a;
-    color:white;
-}
-/* ---------- CANVAS ---------- */
-#drawCanvas{
-    position:absolute;
-    inset:0;
-    width:100%;
-    height:100%;
-    z-index:1;
-    touch-action:none;
-}
-/* ---------- PLAY AREA ---------- */
-#playArea{
-    position:absolute;
-    inset:0;
-    z-index:5;
-    pointer-events:none;
-}
-/* ---------- CARDS ---------- */
-.card{
-    position:absolute;
-    height:52px;
-    border-radius:8px;
-    display:flex;
-    align-items:center;
-    justify-content:flex-start;
-    padding-left:12px;
-    font-size:24px;
-    font-weight:bold;
-    user-select:none;
-    cursor:grab;
-    box-shadow:0 3px 8px rgba(0,0,0,0.2);
-    border:2px solid rgba(0,0,0,0.15);
-    pointer-events:auto;
-}
-.card::after{
-    content:"";
-    position:absolute;
-    right:-22px;
-    top:0;
-    width:0;
-    height:0;
-    border-top:26px solid transparent;
-    border-bottom:26px solid transparent;
-}
-/* ---------- CARD SIZES ---------- */
-.ones{
-    width:60px;
-    background:#ffd966;
-    z-index:4;
-}
-.ones::after{
-    border-left:22px solid #ffd966;
-}
-.tens{
-    width:92px;
-    background:#93c47d;
-    color:white;
-    z-index:3;
-}
-.tens::after{
-    border-left:22px solid #93c47d;
-}
-.hundreds{
-    width:125px;
-    background:#6fa8dc;
-    color:white;
-    z-index:2;
-}
-.hundreds::after{
-    border-left:22px solid #6fa8dc;
-}
-.thousands{
-    width:158px;
-    background:#8e7cc3;
-    color:white;
-    z-index:1;
-}
-.thousands::after{
-    border-left:22px solid #8e7cc3;
-}
-.number{
-    letter-spacing:10px;
-}
+    *{
+        box-sizing:border-box;
+        touch-action:none;
+    }
+    body{
+        margin:0;
+        overflow:hidden;
+        font-family:Arial, sans-serif;
+        background:#eef3f8;
+    }
+    #toolbar{
+        position:fixed;
+        top:0;
+        left:0;
+        right:0;
+        min-height:75px;
+        background:white;
+        display:flex;
+        align-items:center;
+        gap:10px;
+        padding:10px;
+        z-index:10;
+        box-shadow:0 2px 10px rgba(0,0,0,0.15);
+        flex-wrap:wrap;
+    }
+    button{
+        padding:10px 14px;
+        border:none;
+        border-radius:10px;
+        background:#2f80ed;
+        color:white;
+        font-size:16px;
+        cursor:pointer;
+    }
+    button:active{
+        transform:scale(0.95);
+    }
+    #canvas{
+        position:absolute;
+        top:80px;
+        left:0;
+        background:white;
+    }
 </style>
 </head>
 <body>
-<h2>🔢 Arrow Place Value Cards</h2>
 <div id="toolbar">
-    <!-- NUMBER INPUTS -->
-    <div>
-        <input id="onesInput" type="number" min="0" max="9" value="0">
-        <button class="onesBtn" onclick="createCard('ones')">
-            Ones
-        </button>
-    </div>
-    <div>
-        <input id="tensInput" type="number" min="0" max="9" value="1">
-        <button class="tensBtn" onclick="createCard('tens')">
-            Tens
-        </button>
-    </div>
-    <div>
-        <input id="hundredsInput" type="number" min="0" max="9" value="4">
-        <button class="hundredsBtn" onclick="createCard('hundreds')">
-            Hundreds
-        </button>
-    </div>
-    <div>
-        <input id="thousandsInput" type="number" min="0" max="9" value="3">
-        <button class="thousandsBtn" onclick="createCard('thousands')">
-            Thousands
-        </button>
-    </div>
-    <hr>
-    <button class="drawBtn" onclick="setTool('draw')">
-        ✏️ Draw
+    <button onclick="addOne()">➕ One</button>
+    <button onclick="duplicateSelected()">
+        📄 Copy
     </button>
-    <button class="eraseBtn" onclick="setTool('erase')">
-        🩹 Erase
+    <button onclick="deleteSelected()">
+        🗑 Delete
     </button>
-    <button class="clearBtn" onclick="clearCanvas()">
-        🧹 Clear
+    <button onclick="toggleDrawMode()">
+        ✏️ Draw Mode
     </button>
-    <button class="homeBtn" onclick="goHome()">
-        🏠 Home
+    <button onclick="clearDrawing()">
+        🧹 Clear Drawing
     </button>
+     <a href="../index.html" class="home-btn">
+        🏡 Home
+    </a>
+    <div id="status">
+        Ones: 0 | Tens: 0 | Hundreds: 0
+    </div>
 </div>
-<canvas id="drawCanvas"></canvas>
-<div id="playArea"></div>
+<canvas id="canvas"></canvas>
 <script>
-/* ---------- CANVAS ---------- */
-const canvas = document.getElementById("drawCanvas");
+const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 function resizeCanvas(){
     canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    canvas.height = window.innerHeight - 80;
 }
 resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
-let currentTool = "draw";
+// SMALLER SIZE (50%)
+const SIZE = 20;
+let blocks = [];
+let selected = null;
+let dragOffsetX = 0;
+let dragOffsetY = 0;
+let drawMode = false;
 let drawing = false;
-function setTool(tool){
-    currentTool = tool;
+let drawings = [];
+function updateStatus(){
+    const ones =
+        blocks.filter(b=>b.type==="one").length;
+    const tens =
+        blocks.filter(b=>b.type==="ten").length;
+    const hundreds =
+        blocks.filter(b=>b.type==="hundred").length;
+    document.getElementById("status").innerHTML =
+        `Ones: ${ones} | Tens: ${tens} | Hundreds: ${hundreds}`;
 }
-function clearCanvas(){
+function toggleDrawMode(){
+    drawMode = !drawMode;
+    if(drawMode){
+        alert("✏️ Drawing Mode ON");
+    }else{
+        alert("🖐️ Move Mode ON");
+    }
+}
+function clearDrawing(){
+    drawings = [];
+}
+function addOne(x=80,y=120){
+    blocks.push({
+        type:"one",
+        x,
+        y,
+        w:SIZE,
+        h:SIZE,
+        color:"#ffd166"
+    });
+    combineBlocks();
+}
+function combineBlocks(){
+    // 10 ONES -> 1 TEN
+    let ones = blocks.filter(b=>b.type==="one");
+    while(ones.length >= 10){
+        let first = ones[0];
+        let removed = 0;
+        blocks = blocks.filter(b=>{
+            if(b.type==="one" && removed < 10){
+                removed++;
+                return false;
+            }
+            return true;
+        });
+        blocks.push({
+            type:"ten",
+            x:first.x,
+            y:first.y,
+            w:SIZE*10,
+            h:SIZE,
+            color:"#06d6a0"
+        });
+        ones = blocks.filter(b=>b.type==="one");
+    }
+    // 10 TENS -> 1 HUNDRED
+    let tens = blocks.filter(b=>b.type==="ten");
+    while(tens.length >= 10){
+        let first = tens[0];
+        let removed = 0;
+        blocks = blocks.filter(b=>{
+            if(b.type==="ten" && removed < 10){
+                removed++;
+                return false;
+            }
+            return true;
+        });
+        blocks.push({
+            type:"hundred",
+            x:first.x,
+            y:first.y,
+            w:SIZE*10,
+            h:SIZE*10,
+            color:"#ef476f"
+        });
+        tens = blocks.filter(b=>b.type==="ten");
+    }
+    updateStatus();
+}
+function drawScene(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
-}
-canvas.addEventListener("pointerdown",(e)=>{
-    drawing = true;
-    ctx.beginPath();
-    ctx.moveTo(e.clientX, e.clientY);
-});
-canvas.addEventListener("pointermove",(e)=>{
-    if(!drawing) return;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-    if(currentTool === "erase"){
-        ctx.lineWidth = 35;
-        ctx.globalCompositeOperation = "destination-out";
-    }
-    else{
-        ctx.lineWidth = 4;
-        ctx.globalCompositeOperation = "source-over";
-        ctx.strokeStyle = "black";
-    }
-    ctx.lineTo(e.clientX, e.clientY);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(e.clientX, e.clientY);
-});
-function stopDrawing(){
-    drawing = false;
-    ctx.beginPath();
-}
-canvas.addEventListener("pointerup", stopDrawing);
-canvas.addEventListener("pointerleave", stopDrawing);
-/* ---------- PLAY AREA ---------- */
-const playArea = document.getElementById("playArea");
-/* ---------- GET USER VALUES ---------- */
-function getValue(type){
-    if(type === "ones"){
-        return document.getElementById("onesInput").value;
-    }
-    if(type === "tens"){
-        return document.getElementById("tensInput").value + "0";
-    }
-    if(type === "hundreds"){
-        return document.getElementById("hundredsInput").value + "00";
-    }
-    if(type === "thousands"){
-        return document.getElementById("thousandsInput").value + "000";
-    }
-}
-/* ---------- CREATE CARD ---------- */
-function createCard(type){
-    const card = document.createElement("div");
-    card.className = `card ${type}`;
-    const number = document.createElement("div");
-    number.className = "number";
-    number.innerText = getValue(type);
-    card.appendChild(number);
-    /* TOP CENTER */
-    const centerX = window.innerWidth / 2 - 80;
-    card.style.left = centerX + "px";
-    card.style.top = "90px";
-    playArea.appendChild(card);
-    makeDraggable(card);
-}
-/* ---------- MANUAL CARD ---------- */
-function createManualCard(value,type,x,y){
-    const card = document.createElement("div");
-    card.className = `card ${type}`;
-    const number = document.createElement("div");
-    number.className = "number";
-    number.innerText = value;
-    card.appendChild(number);
-    card.style.left = x + "px";
-    card.style.top = y + "px";
-    playArea.appendChild(card);
-    makeDraggable(card);
-}
-/* ---------- HOME BUTTON ---------- */
-function goHome(){
-    const cards = document.querySelectorAll(".card");
-    let startX = window.innerWidth / 2 - 120;
-    cards.forEach((card,index)=>{
-        card.style.left = (startX + index * 35) + "px";
-        card.style.top = "220px";
-    });
-}
-/* ---------- DRAG + DOUBLE TAP DELETE ---------- */
-function makeDraggable(card){
-    let dragging = false;
-    let offsetX = 0;
-    let offsetY = 0;
-    let lastTap = 0;
-    card.addEventListener("pointerdown",(e)=>{
-        /* DOUBLE TAP DELETE */
-        const currentTime = new Date().getTime();
-        const tapLength = currentTime - lastTap;
-        if(tapLength < 300 && tapLength > 0){
-            card.remove();
-            return;
+    // DRAW LINES
+    for(let line of drawings){
+        ctx.beginPath();
+        for(let i=0;i<line.points.length;i++){
+            const p = line.points[i];
+            if(i===0){
+                ctx.moveTo(p.x,p.y);
+            }else{
+                ctx.lineTo(p.x,p.y);
+            }
         }
-        lastTap = currentTime;
-        /* DRAGGING */
-        dragging = true;
-        offsetX = e.clientX - card.offsetLeft;
-        offsetY = e.clientY - card.offsetTop;
-        card.style.cursor = "grabbing";
-        card.setPointerCapture(e.pointerId);
-        e.stopPropagation();
-    });
-    card.addEventListener("pointermove",(e)=>{
-        if(!dragging) return;
-        card.style.left = (e.clientX - offsetX) + "px";
-        card.style.top = (e.clientY - offsetY) + "px";
-    });
-    card.addEventListener("pointerup",()=>{
-        dragging = false;
-        card.style.cursor = "grab";
-    });
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 3;
+        ctx.lineCap = "round";
+        ctx.stroke();
+    }
+    // DRAW BLOCKS
+    for(let b of blocks){
+        if(b.type==="one"){
+            ctx.fillStyle = b.color;
+            ctx.fillRect(
+                b.x,
+                b.y,
+                b.w,
+                b.h
+            );
+            ctx.strokeStyle="#333";
+            ctx.strokeRect(
+                b.x,
+                b.y,
+                b.w,
+                b.h
+            );
+        }
+        else if(b.type==="ten"){
+            for(let i=0;i<10;i++){
+                ctx.fillStyle = b.color;
+                ctx.fillRect(
+                    b.x + i*SIZE,
+                    b.y,
+                    SIZE,
+                    SIZE
+                );
+                ctx.strokeStyle="#333";
+                ctx.strokeRect(
+                    b.x + i*SIZE,
+                    b.y,
+                    SIZE,
+                    SIZE
+                );
+            }
+        }
+        else if(b.type==="hundred"){
+            for(let r=0;r<10;r++){
+                for(let c=0;c<10;c++){
+                    ctx.fillStyle = b.color;
+                    ctx.fillRect(
+                        b.x + c*SIZE,
+                        b.y + r*SIZE,
+                        SIZE,
+                        SIZE
+                    );
+                    ctx.strokeStyle="#333";
+                    ctx.strokeRect(
+                        b.x + c*SIZE,
+                        b.y + r*SIZE,
+                        SIZE,
+                        SIZE
+                    );
+                }
+            }
+        }
+        // Selection Border
+        if(selected === b){
+            ctx.strokeStyle = "blue";
+            ctx.lineWidth = 3;
+            ctx.strokeRect(
+                b.x - 3,
+                b.y - 3,
+                b.w + 6,
+                b.h + 6
+            );
+        }
+    }
+    requestAnimationFrame(drawScene);
 }
-/* ---------- START EXAMPLE ---------- */
-createManualCard("3000","thousands",210,220);
-createManualCard("400","hundreds",245,220);
-createManualCard("10","tens",280,220);
-createManualCard("0","ones",315,220);
+drawScene();
+function pointerPos(e){
+    const rect = canvas.getBoundingClientRect();
+    let clientX, clientY;
+    if(e.touches){
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+    }else{
+        clientX = e.clientX;
+        clientY = e.clientY;
+    }
+    return {
+        x:clientX - rect.left,
+        y:clientY - rect.top
+    };
+}
+function getBlock(x,y){
+    for(let i=blocks.length-1;i>=0;i--){
+        const b = blocks[i];
+        if(
+            x >= b.x &&
+            x <= b.x + b.w &&
+            y >= b.y &&
+            y <= b.y + b.h
+        ){
+            return b;
+        }
+    }
+    return null;
+}
+let lastTap = 0;
+function startAction(e){
+    const pos = pointerPos(e);
+    // DRAW MODE
+    if(drawMode){
+        drawing = true;
+        drawings.push({
+            points:[{
+                x:pos.x,
+                y:pos.y
+            }]
+        });
+        return;
+    }
+    // MOVE MODE
+    const block = getBlock(pos.x,pos.y);
+    if(block){
+        selected = block;
+        dragOffsetX = pos.x - block.x;
+        dragOffsetY = pos.y - block.y;
+        // bring to front
+        blocks = blocks.filter(b=>b!==block);
+        blocks.push(block);
+        // DOUBLE TAP
+        const now = Date.now();
+        if(now - lastTap < 300){
+            splitBlock(block);
+        }
+        lastTap = now;
+    }else{
+        selected = null;
+    }
+}
+function moveAction(e){
+    const pos = pointerPos(e);
+    // DRAW
+    if(drawMode && drawing){
+        drawings[drawings.length-1]
+            .points
+            .push({
+                x:pos.x,
+                y:pos.y
+            });
+        return;
+    }
+    // MOVE BLOCK
+    if(selected){
+        selected.x = pos.x - dragOffsetX;
+        selected.y = pos.y - dragOffsetY;
+    }
+}
+function endAction(){
+    drawing = false;
+}
+function splitBlock(block){
+    // TEN -> ONES
+    if(block.type==="ten"){
+        blocks = blocks.filter(b=>b!==block);
+        for(let i=0;i<10;i++){
+            blocks.push({
+                type:"one",
+                x:block.x + i*(SIZE+4),
+                y:block.y,
+                w:SIZE,
+                h:SIZE,
+                color:"#ffd166"
+            });
+        }
+    }
+    // HUNDRED -> TENS
+    else if(block.type==="hundred"){
+        blocks = blocks.filter(b=>b!==block);
+        for(let i=0;i<10;i++){
+            blocks.push({
+                type:"ten",
+                x:block.x,
+                y:block.y + i*(SIZE+5),
+                w:SIZE*10,
+                h:SIZE,
+                color:"#06d6a0"
+            });
+        }
+    }
+    updateStatus();
+}
+canvas.addEventListener("mousedown",startAction);
+canvas.addEventListener("mousemove",moveAction);
+canvas.addEventListener("mouseup",endAction);
+canvas.addEventListener("touchstart",startAction);
+canvas.addEventListener("touchmove",moveAction);
+canvas.addEventListener("touchend",endAction);
+function duplicateSelected(){
+    if(!selected) return;
+    blocks.push({
+        ...selected,
+        x:selected.x + 25,
+        y:selected.y + 25
+    });
+    combineBlocks();
+}
+function deleteSelected(){
+    if(!selected) return;
+    blocks = blocks.filter(b=>b!==selected);
+    selected = null;
+    updateStatus();
+}
+updateStatus();
 </script>
 </body>
 </html>
