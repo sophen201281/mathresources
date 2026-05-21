@@ -40,11 +40,13 @@ h2{
     display:flex;
     flex-wrap:wrap;
     justify-content:center;
+    align-items:center;
     gap:8px;
     margin-bottom:10px;
 }
 
-button{
+button,
+.home-btn{
     padding:10px 14px;
     border:none;
     border-radius:10px;
@@ -53,14 +55,23 @@ button{
     color:white;
     font-weight:bold;
     font-size:14px;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
 }
 
-button:hover{
+button:hover,
+.home-btn:hover{
     opacity:0.9;
 }
 
 #deleteCloudBtn{
     background:#d9534f;
+}
+
+.home-btn{
+    background:#28a745;
 }
 
 .canvasWrap{
@@ -85,10 +96,7 @@ canvas{
 }
 </style>
 </head>
-  <!-- HOME BUTTON ON THE RIGHT -->
-    <a href="../index.html" class="home-btn" style="font-family:'Battambang', cursive; font-size: 20px;">
-        🏡 Home
-    </a>
+
 <body>
 
 <div class="container">
@@ -100,6 +108,11 @@ canvas{
         <button id="cloudBtn">🌧 បន្ថែមពពក</button>
         <button id="deleteCloudBtn">❌ ដកពពក</button>
         <button id="clearBtn">🗑 សម្អាត</button>
+
+        <!-- HOME BUTTON NEXT TO CLEAR -->
+        <a href="../index.html" class="home-btn">
+            🏡 Home
+        </a>
     </div>
 
     <div class="canvasWrap">
@@ -440,7 +453,6 @@ function startAction(e){
 
     const pos = getPos(e);
 
-    // CLOUD
     const cloudIndex = hitCloud(pos.x,pos.y);
 
     if(cloudIndex !== -1){
@@ -452,7 +464,6 @@ function startAction(e){
         return;
     }
 
-    // MAN
     if(hitMan(pos.x,pos.y)){
 
         man.dragging = true;
@@ -461,14 +472,12 @@ function startAction(e){
         return;
     }
 
-    // ERASE
     if(eraseMode){
 
         eraseAt(pos.x,pos.y);
         return;
     }
 
-    // DRAW
     drawing = true;
 
     currentLine = [{
@@ -482,7 +491,6 @@ function moveAction(e){
 
     const pos = getPos(e);
 
-    // MOVE CLOUD
     if(draggingCloud !== null){
 
         clouds[draggingCloud].x = pos.x;
@@ -494,7 +502,6 @@ function moveAction(e){
         return;
     }
 
-    // MOVE MAN
     if(man.dragging){
 
         if(pos.x > man.lastX + 1){
@@ -514,7 +521,6 @@ function moveAction(e){
         return;
     }
 
-    // ERASE
     if(eraseMode){
 
         eraseAt(pos.x,pos.y);
@@ -523,7 +529,6 @@ function moveAction(e){
         return;
     }
 
-    // DRAW
     if(drawing){
 
         currentLine.push({
