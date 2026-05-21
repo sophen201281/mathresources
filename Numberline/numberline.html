@@ -33,6 +33,7 @@ body{
 
 h2{
     margin-top:0;
+    margin-bottom:8px; /* Reduced margin to bring buttons closer to the title */
     font-size:clamp(20px,4vw,32px);
 }
 
@@ -92,11 +93,12 @@ canvas{
 
     <h2>បន្ទាត់លេខ</h2>
 
+    <!-- Buttons rearranged below -->
     <div class="toolbar">
         <button id="eraserModeBtn">🩹 លុប</button>
         <button id="cloudBtn">🌧 បន្ថែមពពក</button>
-        <button id="deleteCloudBtn">❌ ដកពពក</button>
         <button id="clearBtn">🗑 សម្អាត</button>
+        <button id="deleteCloudBtn">❌ ដកពពក</button>
     </div>
 
     <div class="canvasWrap">
@@ -202,7 +204,7 @@ document.getElementById("deleteCloudBtn").onclick = ()=>{
         selectedCloudIndex !== null &&
         selectedCloudIndex >= 0 &&
         selectedCloudIndex < clouds.length
-    ){
+    ):
 
         clouds.splice(selectedCloudIndex,1);
         selectedCloudIndex = null;
