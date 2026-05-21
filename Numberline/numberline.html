@@ -101,11 +101,11 @@ canvas{
     <h2>Interactive Number Line + Rain Clouds</h2>
 
     <div class="toolbar">
-        <button id="drawModeBtn">✏️ Draw</button>
-        <button id="eraserModeBtn">🩹 Eraser</button>
-        <button id="cloudBtn">🌧 Add Cloud</button>
-        <button id="deleteCloudBtn">❌ Delete Selected Cloud</button>
-        <button id="clearBtn">🗑 Clear Drawings</button>
+        <button id="drawModeBtn">✏️ គូរ</button>
+        <button id="eraserModeBtn">🩹 លុប</button>
+        <button id="cloudBtn">🌧បន្ថែមពពក</button>
+        <button id="deleteCloudBtn">❌ ដកពពក</button>
+        <button id="clearBtn">🗑 សម្អាត</button>
     </div>
 
     <div class="modeText" id="modeText">
@@ -187,12 +187,12 @@ const modeText = document.getElementById("modeText");
 // BUTTONS
 document.getElementById("drawModeBtn").onclick = ()=>{
     mode = "draw";
-    modeText.innerHTML = "Current Mode: Draw";
+    modeText.innerHTML = "ពេលនេះ: គូ";
 };
 
 document.getElementById("eraserModeBtn").onclick = ()=>{
     mode = "erase";
-    modeText.innerHTML = "Current Mode: Eraser";
+    modeText.innerHTML = "ពេលនេះ:​លុប";
 };
 
 document.getElementById("cloudBtn").onclick = ()=>{
