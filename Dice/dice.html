@@ -3,116 +3,191 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Base Ten Blocks + Drawing Canvas</title>
+<title>តម្លៃលេខតាមខ្ទង់</title>
+
 <style>
-    *{
-        box-sizing:border-box;
-        touch-action:none;
-    }
-    body{
-        margin:0;
-        overflow:hidden;
-        font-family:Arial, sans-serif;
-        background:#eef3f8;
-    }
-    #toolbar{
-        position:fixed;
-        top:0;
-        left:0;
-        right:0;
-        min-height:75px;
-        background:white;
-        display:flex;
-        align-items:center;
-        gap:10px;
-        padding:10px;
-        z-index:10;
-        box-shadow:0 2px 10px rgba(0,0,0,0.15);
-        flex-wrap:wrap;
-    }
-    button{
-        padding:10px 14px;
-        border:none;
-        border-radius:10px;
-        background:#2f80ed;
-        color:white;
-        font-size:16px;
-        cursor:pointer;
-    }
-    button:active{
-        transform:scale(0.95);
-    }
-    #canvas{
-        position:absolute;
-        top:80px;
-        left:0;
-        background:white;
-    }
+*{
+    box-sizing:border-box;
+    touch-action:none;
+}
+
+body{
+    margin:0;
+    overflow:hidden;
+    font-family:Arial,sans-serif;
+    background:#eef3f8;
+}
+
+#toolbar{
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    min-height:75px;
+    background:white;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px;
+    z-index:10;
+    box-shadow:0 2px 10px rgba(0,0,0,0.15);
+    flex-wrap:wrap;
+}
+
+button,
+.home-btn{
+    padding:10px 14px;
+    border:none;
+    border-radius:10px;
+    background:#2f80ed;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+    text-decoration:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+button:active,
+.home-btn:active{
+    transform:scale(0.95);
+}
+
+#eraserBtn{
+    background:#e76f51;
+}
+
+.home-btn{
+    background:#27ae60;
+}
+
+#status{
+    font-weight:bold;
+    color:#333;
+}
+
+#canvas{
+    position:absolute;
+    top:80px;
+    left:0;
+    background:white;
+}
 </style>
 </head>
+
 <body>
+
 <div id="toolbar">
-    <button onclick="addOne()">➕ One</button>
+
+    <button onclick="addOne()">➕រាយ</button>
+
     <button onclick="duplicateSelected()">
         📄 Copy
     </button>
+
     <button onclick="deleteSelected()">
-        🗑 Delete
+        🗑 លុប
     </button>
-    <button onclick="toggleDrawMode()">
-        ✏️ Draw Mode
+
+    <button id="eraserBtn" onclick="toggleEraserMode()">
+        🩹ជ័រលុប
     </button>
+
     <button onclick="clearDrawing()">
-        🧹 Clear Drawing
+        🧹សម្អាត
     </button>
-     <a href="../index.html" class="home-btn">
+
+    <a href="../index.html" class="home-btn">
         🏡 Home
     </a>
+
     <div id="status">
         Ones: 0 | Tens: 0 | Hundreds: 0
     </div>
+
 </div>
+
 <canvas id="canvas"></canvas>
+
 <script>
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
+
+// RESIZE
 function resizeCanvas(){
+
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight - 80;
 }
+
 resizeCanvas();
+
 window.addEventListener("resize", resizeCanvas);
-// SMALLER SIZE (50%)
+
+// SIZE
 const SIZE = 20;
+
+// DATA
 let blocks = [];
 let selected = null;
+
 let dragOffsetX = 0;
 let dragOffsetY = 0;
-let drawMode = false;
+
 let drawing = false;
+let eraseMode = false;
+
 let drawings = [];
+
+let isDragging = false;
+
+let lastTap = 0;
+
+// STATUS
 function updateStatus(){
+
     const ones =
         blocks.filter(b=>b.type==="one").length;
+
     const tens =
         blocks.filter(b=>b.type==="ten").length;
+
     const hundreds =
         blocks.filter(b=>b.type==="hundred").length;
+
     document.getElementById("status").innerHTML =
         `Ones: ${ones} | Tens: ${tens} | Hundreds: ${hundreds}`;
 }
-function toggleDrawMode(){
-    drawMode = !drawMode;
-    if(drawMode){
-        alert("✏️ Drawing Mode ON");
+
+// TOGGLE ERASER
+function toggleEraserMode(){
+
+    eraseMode = !eraseMode;
+
+    if(eraseMode){
+
+        document.getElementById(
+            "eraserBtn"
+        ).innerHTML = "✏️ Draw";
+
     }else{
-        alert("🖐️ Move Mode ON");
+
+        document.getElementById(
+            "eraserBtn"
+        ).innerHTML = "🩹 Eraser";
     }
 }
+
+// CLEAR DRAWINGS
 function clearDrawing(){
+
     drawings = [];
 }
+
+// ADD ONE
 function addOne(x=80,y=120){
+
     blocks.push({
         type:"one",
         x,
@@ -121,21 +196,38 @@ function addOne(x=80,y=120){
         h:SIZE,
         color:"#ffd166"
     });
+
     combineBlocks();
 }
+
+// COMBINE BLOCKS
 function combineBlocks(){
-    // 10 ONES -> 1 TEN
-    let ones = blocks.filter(b=>b.type==="one");
+
+    // 10 ONES => TEN
+
+    let ones = blocks.filter(
+        b=>b.type==="one"
+    );
+
     while(ones.length >= 10){
+
         let first = ones[0];
+
         let removed = 0;
+
         blocks = blocks.filter(b=>{
-            if(b.type==="one" && removed < 10){
+
+            if(
+                b.type==="one" &&
+                removed < 10
+            ){
                 removed++;
                 return false;
             }
+
             return true;
         });
+
         blocks.push({
             type:"ten",
             x:first.x,
@@ -144,20 +236,37 @@ function combineBlocks(){
             h:SIZE,
             color:"#06d6a0"
         });
-        ones = blocks.filter(b=>b.type==="one");
+
+        ones = blocks.filter(
+            b=>b.type==="one"
+        );
     }
-    // 10 TENS -> 1 HUNDRED
-    let tens = blocks.filter(b=>b.type==="ten");
+
+    // 10 TENS => HUNDRED
+
+    let tens = blocks.filter(
+        b=>b.type==="ten"
+    );
+
     while(tens.length >= 10){
+
         let first = tens[0];
+
         let removed = 0;
+
         blocks = blocks.filter(b=>{
-            if(b.type==="ten" && removed < 10){
+
+            if(
+                b.type==="ten" &&
+                removed < 10
+            ){
                 removed++;
                 return false;
             }
+
             return true;
         });
+
         blocks.push({
             type:"hundred",
             x:first.x,
@@ -166,39 +275,71 @@ function combineBlocks(){
             h:SIZE*10,
             color:"#ef476f"
         });
-        tens = blocks.filter(b=>b.type==="ten");
+
+        tens = blocks.filter(
+            b=>b.type==="ten"
+        );
     }
+
     updateStatus();
 }
+
+// DRAW EVERYTHING
 function drawScene(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    // DRAW LINES
+
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    // DRAWINGS
+
     for(let line of drawings){
+
+        if(line.points.length < 2)
+            continue;
+
         ctx.beginPath();
+
         for(let i=0;i<line.points.length;i++){
+
             const p = line.points[i];
+
             if(i===0){
                 ctx.moveTo(p.x,p.y);
-            }else{
+            }
+            else{
                 ctx.lineTo(p.x,p.y);
             }
         }
+
         ctx.strokeStyle = "black";
         ctx.lineWidth = 3;
         ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+
         ctx.stroke();
     }
-    // DRAW BLOCKS
+
+    // BLOCKS
+
     for(let b of blocks){
+
         if(b.type==="one"){
+
             ctx.fillStyle = b.color;
+
             ctx.fillRect(
                 b.x,
                 b.y,
                 b.w,
                 b.h
             );
+
             ctx.strokeStyle="#333";
+
             ctx.strokeRect(
                 b.x,
                 b.y,
@@ -206,16 +347,22 @@ function drawScene(){
                 b.h
             );
         }
+
         else if(b.type==="ten"){
+
             for(let i=0;i<10;i++){
+
                 ctx.fillStyle = b.color;
+
                 ctx.fillRect(
                     b.x + i*SIZE,
                     b.y,
                     SIZE,
                     SIZE
                 );
+
                 ctx.strokeStyle="#333";
+
                 ctx.strokeRect(
                     b.x + i*SIZE,
                     b.y,
@@ -224,17 +371,24 @@ function drawScene(){
                 );
             }
         }
+
         else if(b.type==="hundred"){
+
             for(let r=0;r<10;r++){
+
                 for(let c=0;c<10;c++){
+
                     ctx.fillStyle = b.color;
+
                     ctx.fillRect(
                         b.x + c*SIZE,
                         b.y + r*SIZE,
                         SIZE,
                         SIZE
                     );
+
                     ctx.strokeStyle="#333";
+
                     ctx.strokeRect(
                         b.x + c*SIZE,
                         b.y + r*SIZE,
@@ -244,10 +398,14 @@ function drawScene(){
                 }
             }
         }
-        // Selection Border
+
+        // SELECT BORDER
+
         if(selected === b){
+
             ctx.strokeStyle = "blue";
             ctx.lineWidth = 3;
+
             ctx.strokeRect(
                 b.x - 3,
                 b.y - 3,
@@ -256,27 +414,52 @@ function drawScene(){
             );
         }
     }
+
     requestAnimationFrame(drawScene);
 }
+
 drawScene();
+
+// POINTER POSITION
 function pointerPos(e){
-    const rect = canvas.getBoundingClientRect();
-    let clientX, clientY;
-    if(e.touches){
+
+    const rect =
+        canvas.getBoundingClientRect();
+
+    let clientX;
+    let clientY;
+
+    if(
+        e.touches &&
+        e.touches.length > 0
+    ){
+
         clientX = e.touches[0].clientX;
         clientY = e.touches[0].clientY;
-    }else{
+    }
+    else{
+
         clientX = e.clientX;
         clientY = e.clientY;
     }
+
     return {
         x:clientX - rect.left,
         y:clientY - rect.top
     };
 }
+
+// GET BLOCK
 function getBlock(x,y){
-    for(let i=blocks.length-1;i>=0;i--){
+
+    for(
+        let i=blocks.length-1;
+        i>=0;
+        i--
+    ){
+
         const b = blocks[i];
+
         if(
             x >= b.x &&
             x <= b.x + b.w &&
@@ -286,67 +469,172 @@ function getBlock(x,y){
             return b;
         }
     }
+
     return null;
 }
-let lastTap = 0;
-function startAction(e){
-    const pos = pointerPos(e);
-    // DRAW MODE
-    if(drawMode){
-        drawing = true;
-        drawings.push({
-            points:[{
-                x:pos.x,
-                y:pos.y
-            }]
-        });
-        return;
-    }
-    // MOVE MODE
-    const block = getBlock(pos.x,pos.y);
-    if(block){
-        selected = block;
-        dragOffsetX = pos.x - block.x;
-        dragOffsetY = pos.y - block.y;
-        // bring to front
-        blocks = blocks.filter(b=>b!==block);
-        blocks.push(block);
-        // DOUBLE TAP
-        const now = Date.now();
-        if(now - lastTap < 300){
-            splitBlock(block);
+
+// ERASE
+function eraseAt(x,y){
+
+    drawings = drawings.filter(line=>{
+
+        for(let point of line.points){
+
+            const dx = point.x - x;
+            const dy = point.y - y;
+
+            const dist =
+                Math.sqrt(dx*dx + dy*dy);
+
+            if(dist < 20){
+                return false;
+            }
         }
-        lastTap = now;
-    }else{
-        selected = null;
-    }
+
+        return true;
+    });
 }
-function moveAction(e){
+
+// START
+function startAction(e){
+
+    e.preventDefault();
+
     const pos = pointerPos(e);
-    // DRAW
-    if(drawMode && drawing){
-        drawings[drawings.length-1]
-            .points
-            .push({
-                x:pos.x,
-                y:pos.y
-            });
+
+    isDragging = false;
+
+    // ERASER MODE
+
+    if(eraseMode){
+
+        eraseAt(pos.x,pos.y);
         return;
     }
+
+    // CHECK BLOCK FIRST
+
+    const block = getBlock(
+        pos.x,
+        pos.y
+    );
+
+    if(block){
+
+        selected = block;
+
+        dragOffsetX =
+            pos.x - block.x;
+
+        dragOffsetY =
+            pos.y - block.y;
+
+        // BRING TO FRONT
+
+        blocks = blocks.filter(
+            b=>b!==block
+        );
+
+        blocks.push(block);
+
+        drawing = false;
+
+        return;
+    }
+
+    // DRAW ON EMPTY SPACE
+
+    selected = null;
+
+    drawing = true;
+
+    drawings.push({
+        points:[{
+            x:pos.x,
+            y:pos.y
+        }]
+    });
+}
+
+// MOVE
+function moveAction(e){
+
+    e.preventDefault();
+
+    const pos = pointerPos(e);
+
+    // ERASER
+
+    if(eraseMode){
+
+        eraseAt(pos.x,pos.y);
+        return;
+    }
+
     // MOVE BLOCK
+
     if(selected){
-        selected.x = pos.x - dragOffsetX;
-        selected.y = pos.y - dragOffsetY;
+
+        isDragging = true;
+
+        selected.x =
+            pos.x - dragOffsetX;
+
+        selected.y =
+            pos.y - dragOffsetY;
+
+        return;
+    }
+
+    // DRAW
+
+    if(drawing){
+
+        drawings[
+            drawings.length - 1
+        ].points.push({
+
+            x:pos.x,
+            y:pos.y
+        });
     }
 }
+
+// END
 function endAction(){
+
     drawing = false;
+
+    // DOUBLE TAP SPLIT
+
+    if(selected && !isDragging){
+
+        const now = Date.now();
+
+        if(now - lastTap < 300){
+
+            splitBlock(selected);
+        }
+
+        lastTap = now;
+    }
+
+    isDragging = false;
 }
+
+// SPLIT BLOCKS
 function splitBlock(block){
-    // TEN -> ONES
+
+    // TEN => ONES
+
     if(block.type==="ten"){
-        blocks = blocks.filter(b=>b!==block);
+
+        blocks = blocks.filter(
+            b=>b!==block
+        );
+
         for(let i=0;i<10;i++){
+
             blocks.push({
                 type:"one",
                 x:block.x + i*(SIZE+4),
@@ -357,10 +645,19 @@ function splitBlock(block){
             });
         }
     }
-    // HUNDRED -> TENS
-    else if(block.type==="hundred"){
-        blocks = blocks.filter(b=>b!==block);
+
+    // HUNDRED => TENS
+
+    else if(
+        block.type==="hundred"
+    ){
+
+        blocks = blocks.filter(
+            b=>b!==block
+        );
+
         for(let i=0;i<10;i++){
+
             blocks.push({
                 type:"ten",
                 x:block.x,
@@ -371,31 +668,88 @@ function splitBlock(block){
             });
         }
     }
+
     updateStatus();
 }
-canvas.addEventListener("mousedown",startAction);
-canvas.addEventListener("mousemove",moveAction);
-canvas.addEventListener("mouseup",endAction);
-canvas.addEventListener("touchstart",startAction);
-canvas.addEventListener("touchmove",moveAction);
-canvas.addEventListener("touchend",endAction);
+
+// EVENTS
+
+canvas.addEventListener(
+    "mousedown",
+    startAction
+);
+
+canvas.addEventListener(
+    "mousemove",
+    moveAction
+);
+
+canvas.addEventListener(
+    "mouseup",
+    endAction
+);
+
+canvas.addEventListener(
+    "touchstart",
+    startAction,
+    {passive:false}
+);
+
+canvas.addEventListener(
+    "touchmove",
+    moveAction,
+    {passive:false}
+);
+
+canvas.addEventListener(
+    "touchend",
+    endAction,
+    {passive:false}
+);
+
+// COPY
 function duplicateSelected(){
+
     if(!selected) return;
-    blocks.push({
-        ...selected,
+
+    const copy = {
+
+        type:selected.type,
+
         x:selected.x + 25,
-        y:selected.y + 25
-    });
-    combineBlocks();
-}
-function deleteSelected(){
-    if(!selected) return;
-    blocks = blocks.filter(b=>b!==selected);
-    selected = null;
+        y:selected.y + 25,
+
+        w:selected.w,
+        h:selected.h,
+
+        color:selected.color
+    };
+
+    blocks.push(copy);
+
+    selected = copy;
+
     updateStatus();
 }
+
+// DELETE
+function deleteSelected(){
+
+    if(!selected) return;
+
+    blocks = blocks.filter(
+        b => b !== selected
+    );
+
+    selected = null;
+
+    updateStatus();
+}
+
+// START
 updateStatus();
+
 </script>
+
 </body>
 </html>
-
