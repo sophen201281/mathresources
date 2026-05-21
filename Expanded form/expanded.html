@@ -120,7 +120,11 @@ input{
 
 }
 
-.onesBtn{ background:#ffd966; }
+.onesBtn{
+
+    background:#ffd966;
+
+}
 
 .tensBtn{
 
@@ -460,53 +464,115 @@ let currentTool = "draw";
 
 let drawing = false;
 
-/* SAVE DRAWING WHEN ROTATE */
+/* SAVE DRAWING */
 
-let savedImage = null;
+let savedCanvas = document.createElement("canvas");
+
+/* ---------- RESIZE ---------- */
 
 function resizeCanvas(){
 
     /* SAVE OLD DRAWING */
 
-    if(canvas.width > 0 && canvas.height > 0){
+    savedCanvas.width = canvas.width;
 
-        savedImage = ctx.getImageData(0,0,canvas.width,canvas.height);
+    savedCanvas.height = canvas.height;
 
-    }
+    const savedCtx = savedCanvas.getContext("2d");
 
-    canvas.width = window.innerWidth;
+    savedCtx.clearRect(
 
-    canvas.height = window.innerHeight;
+        0,
+
+        0,
+
+        savedCanvas.width,
+
+        savedCanvas.height
+
+    );
+
+    savedCtx.drawImage(canvas,0,0);
+
+    /* DEVICE PIXEL RATIO */
+
+    const dpr = window.devicePixelRatio || 1;
+
+    canvas.width = window.innerWidth * dpr;
+
+    canvas.height = window.innerHeight * dpr;
+
+    canvas.style.width = window.innerWidth + "px";
+
+    canvas.style.height = window.innerHeight + "px";
+
+    /* RESET SCALE */
+
+    ctx.setTransform(1,0,0,1,0,0);
+
+    /* SCALE */
+
+    ctx.scale(dpr,dpr);
 
     /* RESTORE DRAWING */
 
-    if(savedImage){
+    ctx.drawImage(
 
-        ctx.putImageData(savedImage,0,0);
+        savedCanvas,
 
-    }
+        0,
+
+        0,
+
+        savedCanvas.width,
+
+        savedCanvas.height,
+
+        0,
+
+        0,
+
+        window.innerWidth,
+
+        window.innerHeight
+
+    );
+
+    ctx.lineCap = "round";
+
+    ctx.lineJoin = "round";
 
 }
 
 resizeCanvas();
 
+/* FIX ROTATION */
+
+let resizeTimeout;
+
 window.addEventListener("resize",()=>{
 
-    resizeCanvas();
+    clearTimeout(resizeTimeout);
+
+    resizeTimeout = setTimeout(()=>{
+
+        resizeCanvas();
+
+    },150);
 
 });
 
-/* FIX POINTER POSITION */
+/* ---------- POSITION ---------- */
 
 function getCanvasPos(e){
 
     const rect = canvas.getBoundingClientRect();
 
-    return {
+    return{
 
-        x: (e.clientX - rect.left) * (canvas.width / rect.width),
+        x:e.clientX - rect.left,
 
-        y: (e.clientY - rect.top) * (canvas.height / rect.height)
+        y:e.clientY - rect.top
 
     };
 
@@ -520,9 +586,21 @@ function setTool(tool){
 
 function clearCanvas(){
 
-    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.clearRect(
+
+        0,
+
+        0,
+
+        canvas.width,
+
+        canvas.height
+
+    );
 
 }
+
+/* ---------- DRAW ---------- */
 
 canvas.addEventListener("pointerdown",(e)=>{
 
@@ -532,7 +610,9 @@ canvas.addEventListener("pointerdown",(e)=>{
 
     ctx.beginPath();
 
-    ctx.moveTo(pos.x, pos.y);
+    ctx.moveTo(pos.x,pos.y);
+
+    canvas.setPointerCapture(e.pointerId);
 
 });
 
@@ -541,10 +621,6 @@ canvas.addEventListener("pointermove",(e)=>{
     if(!drawing) return;
 
     const pos = getCanvasPos(e);
-
-    ctx.lineCap = "round";
-
-    ctx.lineJoin = "round";
 
     if(currentTool === "erase"){
 
@@ -562,13 +638,9 @@ canvas.addEventListener("pointermove",(e)=>{
 
     }
 
-    ctx.lineTo(pos.x, pos.y);
+    ctx.lineTo(pos.x,pos.y);
 
     ctx.stroke();
-
-    ctx.beginPath();
-
-    ctx.moveTo(pos.x, pos.y);
 
 });
 
@@ -580,11 +652,17 @@ function stopDrawing(){
 
 }
 
-canvas.addEventListener("pointerup", stopDrawing);
+canvas.addEventListener("pointerup",stopDrawing);
 
-canvas.addEventListener("pointercancel", stopDrawing);
+canvas.addEventListener("pointercancel",stopDrawing);
 
-canvas.addEventListener("pointerleave", stopDrawing);
+canvas.addEventListener("pointerleave",(e)=>{
+
+    if(e.buttons === 1) return;
+
+    stopDrawing();
+
+});
 
 /* =========================================================
 
@@ -630,11 +708,11 @@ function getValue(type){
 
 /* =========================================================
 
-   CREATE CARD NEAR BUTTON
+   CREATE CARD
 
 ========================================================= */
 
-function createCard(type, buttonElement){
+function createCard(type,buttonElement){
 
     const card = document.createElement("div");
 
@@ -650,15 +728,11 @@ function createCard(type, buttonElement){
 
     playArea.appendChild(card);
 
-    /* APPEAR BESIDE BUTTON */
-
     const rect = buttonElement.getBoundingClientRect();
 
     let x = rect.right + 18;
 
     let y = rect.top;
-
-    /* KEEP INSIDE SCREEN */
 
     const cardWidth = card.offsetWidth;
 
@@ -680,25 +754,25 @@ function createCard(type, buttonElement){
 
 document.getElementById("onesBtn").onclick = function(){
 
-    createCard("ones", this);
+    createCard("ones",this);
 
 };
 
 document.getElementById("tensBtn").onclick = function(){
 
-    createCard("tens", this);
+    createCard("tens",this);
 
 };
 
 document.getElementById("hundredsBtn").onclick = function(){
 
-    createCard("hundreds", this);
+    createCard("hundreds",this);
 
 };
 
 document.getElementById("thousandsBtn").onclick = function(){
 
-    createCard("thousands", this);
+    createCard("thousands",this);
 
 };
 
@@ -788,11 +862,21 @@ function makeDraggable(card){
 
         let y = e.clientY - offsetY;
 
-        /* KEEP INSIDE SCREEN */
+        x = Math.max(
 
-        x = Math.max(0, Math.min(window.innerWidth - card.offsetWidth, x));
+            0,
 
-        y = Math.max(0, Math.min(window.innerHeight - card.offsetHeight, y));
+            Math.min(window.innerWidth - card.offsetWidth,x)
+
+        );
+
+        y = Math.max(
+
+            0,
+
+            Math.min(window.innerHeight - card.offsetHeight,y)
+
+        );
 
         card.style.left = x + "px";
 
@@ -829,4 +913,3 @@ createManualCard("0","ones",315,220);
 </body>
 
 </html>
-
