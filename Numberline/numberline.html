@@ -1,9 +1,110 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Claim offer
+
+
+
+fix the eraser by don't show the current erase or draw
+
+Replace this part:
+
+// MODES
+let mode = "draw";
+with this:
+
+// MODES
+let eraseMode = false;
+Then replace this whole button code:
+
+document.getElementById("eraserModeBtn").onclick = ()=>{
+    if(mode === "draw"){
+        mode = "erase";
+        modeText.innerHTML = "🩹 ពេលនេះ: លុប";
+    } else {
+        mode = "draw";
+        modeText.innerHTML = "✏️ ពេលនេះ: គូរ";
+    }
+};
+with this cleaner version:
+
+document.getElementById("eraserModeBtn").onclick = ()=>{
+
+    eraseMode = !eraseMode;
+
+    if(eraseMode){
+        document.getElementById("eraserModeBtn").innerHTML = "✏️ គូរ";
+    }else{
+        document.getElementById("eraserModeBtn").innerHTML = "🩹 លុប";
+    }
+};
+Now delete this entire section:
+
+<div class="modeText" id="modeText">
+    ✏️ គូរបានភ្លាមៗ
+</div>
+Then remove this line too:
+
+const modeText = document.getElementById("modeText");
+Now replace ALL:
+
+mode === "erase"
+with:
+
+eraseMode
+And replace ALL:
+
+mode === "draw"
+with:
+
+!eraseMode
+✨ Result:
+
+No “Current Mode” text shown
+
+Eraser button itself changes between ✏️ and 🩹
+
+Drawing still works normally
+
+Cleaner interface 🎉
+
+
+completed codes
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Interactive Number Line + Rain Clouds</title>
+<title>បន្ទាត់លេខ</title>
 
 <style>
 *{
@@ -59,16 +160,8 @@ button:hover{
     opacity:0.9;
 }
 
-/* Style for the new delete button */
-#deleteCloudBtn {
-    background: #d9534f;
-}
-
-.modeText{
-    margin-bottom:10px;
-    font-weight:bold;
-    color:#333;
-    font-size:16px;
+#deleteCloudBtn{
+    background:#d9534f;
 }
 
 .canvasWrap{
@@ -101,15 +194,10 @@ canvas{
     <h2>Interactive Number Line + Rain Clouds</h2>
 
     <div class="toolbar">
-        <button id="drawModeBtn">✏️ គូរ</button>
         <button id="eraserModeBtn">🩹 លុប</button>
-        <button id="cloudBtn">🌧បន្ថែមពពក</button>
+        <button id="cloudBtn">🌧 បន្ថែមពពក</button>
         <button id="deleteCloudBtn">❌ ដកពពក</button>
         <button id="clearBtn">🗑 សម្អាត</button>
-    </div>
-
-    <div class="modeText" id="modeText">
-        Current Mode: Draw
     </div>
 
     <div class="canvasWrap">
@@ -117,7 +205,7 @@ canvas{
     </div>
 
     <div class="instructions">
-        ✏️ Draw • 🩹 Erase drawings by touching them • 🚶 Drag walking man or 🌧 Drag clouds anytime • Click a cloud to select and hit ❌ to delete • Double tap/click a cloud to copy
+        ✏️ Draw directly • 🩹 Erase • 🚶 Drag walking man • 🌧 Drag clouds • Double tap cloud to copy
     </div>
 
 </div>
@@ -127,6 +215,7 @@ const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
 function resizeCanvas(){
+
     const maxWidth = Math.min(window.innerWidth - 30, 1000);
 
     canvas.width = maxWidth;
@@ -142,16 +231,19 @@ window.addEventListener("resize", resizeCanvas);
 let startX, endX, lineY, totalSteps, stepX;
 
 function updateNumberLine(){
+
     startX = canvas.width * 0.08;
     endX = canvas.width * 0.92;
     lineY = canvas.height * 0.55;
+
     totalSteps = 10;
     stepX = (endX - startX) / totalSteps;
+
     man.y = lineY - canvas.height * 0.12;
 }
 
-// MODES
-let mode = "draw";
+// ERASER MODE
+let eraseMode = false;
 
 // WALKING MAN
 const man = {
@@ -174,49 +266,54 @@ let clouds = [
 ];
 
 let draggingCloud = null;
-let selectedCloudIndex = null; // Track selected cloud for deletion
+let selectedCloudIndex = null;
 
 // DRAWINGS
 let drawings = [];
 let currentLine = [];
 let drawing = false;
 
-// MODE TEXT
-const modeText = document.getElementById("modeText");
-
 // BUTTONS
-document.getElementById("drawModeBtn").onclick = ()=>{
-    mode = "draw";
-    modeText.innerHTML = "ពេលនេះ: គូ";
-};
-
 document.getElementById("eraserModeBtn").onclick = ()=>{
-    mode = "erase";
-    modeText.innerHTML = "ពេលនេះ:​លុប";
+
+    eraseMode = !eraseMode;
+
+    if(eraseMode){
+        document.getElementById("eraserModeBtn").innerHTML = "✏️ គូរ";
+    }else{
+        document.getElementById("eraserModeBtn").innerHTML = "🩹 លុប";
+    }
 };
 
 document.getElementById("cloudBtn").onclick = ()=>{
+
     clouds.push({
         x:150 + Math.random()*300,
         y:60 + Math.random()*120,
         emoji:"🌧",
         size:Math.max(35, canvas.width * 0.05)
     });
+
     draw();
 };
 
-// Delete Selected Cloud handler
 document.getElementById("deleteCloudBtn").onclick = ()=>{
-    if (selectedCloudIndex !== null && selectedCloudIndex >= 0 && selectedCloudIndex < clouds.length) {
-        clouds.splice(selectedCloudIndex, 1);
-        selectedCloudIndex = null; // Reset selection after deleting
+
+    if(
+        selectedCloudIndex !== null &&
+        selectedCloudIndex >= 0 &&
+        selectedCloudIndex < clouds.length
+    ){
+
+        clouds.splice(selectedCloudIndex,1);
+        selectedCloudIndex = null;
+
         draw();
-    } else {
-        alert("Please tap or click on a cloud first to select it for deletion.");
     }
 };
 
 document.getElementById("clearBtn").onclick = ()=>{
+
     drawings = [];
     draw();
 };
@@ -228,7 +325,9 @@ function stepToX(step){
 
 // X TO STEP
 function xToStep(x){
+
     let step = Math.round((x - startX) / stepX);
+
     return Math.max(0, Math.min(10, step));
 }
 
@@ -239,31 +338,39 @@ function getLabel(step){
 
 // DRAW NUMBER LINE
 function drawNumberLine(){
+
     ctx.beginPath();
     ctx.moveTo(startX - 20, lineY);
     ctx.lineTo(endX + 20, lineY);
+
     ctx.lineWidth = 4;
     ctx.strokeStyle = "#222";
     ctx.stroke();
 
     for(let i=0;i<=10;i++){
+
         const x = stepToX(i);
+
         ctx.beginPath();
         ctx.moveTo(x, lineY - 12);
         ctx.lineTo(x, lineY + 12);
+
         ctx.lineWidth = 2;
         ctx.stroke();
 
         ctx.font = `${Math.max(14, canvas.width*0.02)}px Arial`;
         ctx.fillStyle = "#222";
         ctx.textAlign = "center";
+
         ctx.fillText(getLabel(i), x, lineY + 35);
     }
 }
 
 // DRAW MAN
 function drawMan(){
+
     const x = stepToX(man.step);
+
     man.x = x;
 
     ctx.save();
@@ -276,62 +383,77 @@ function drawMan(){
     ctx.font = `${Math.max(35, canvas.width*0.05)}px Arial`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
+
     ctx.fillText("🚶",0,0);
+
     ctx.restore();
 }
 
 // DRAW CLOUDS
 function drawClouds(){
-    clouds.forEach((cloud, index)=>{
-        ctx.save();
 
-        // Draw a visual indicator ring if this specific cloud is selected
-        if (index === selectedCloudIndex) {
+    clouds.forEach((cloud,index)=>{
+
+        if(index === selectedCloudIndex){
+
             ctx.beginPath();
             ctx.arc(cloud.x, cloud.y, cloud.size * 0.7, 0, 2 * Math.PI);
-            ctx.strokeStyle = "rgba(217, 83, 79, 0.6)";
+
+            ctx.strokeStyle = "rgba(217,83,79,0.6)";
             ctx.lineWidth = 3;
-            ctx.setLineDash([6, 4]); // Dashed selection border
+
+            ctx.setLineDash([6,4]);
             ctx.stroke();
+            ctx.setLineDash([]);
         }
 
         ctx.font = `${cloud.size}px Arial`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
+
         ctx.fillText(cloud.emoji, cloud.x, cloud.y);
-        ctx.restore();
     });
 }
 
 // DRAW LINES
 function drawLines(){
+
     ctx.strokeStyle = "#1976d2";
     ctx.lineWidth = 3;
     ctx.lineCap = "round";
 
     drawings.forEach(line=>{
+
         if(line.length < 2) return;
+
         ctx.beginPath();
         ctx.moveTo(line[0].x,line[0].y);
+
         for(let i=1;i<line.length;i++){
             ctx.lineTo(line[i].x,line[i].y);
         }
+
         ctx.stroke();
     });
 
     if(currentLine.length > 1){
+
         ctx.beginPath();
         ctx.moveTo(currentLine[0].x,currentLine[0].y);
+
         for(let i=1;i<currentLine.length;i++){
             ctx.lineTo(currentLine[i].x,currentLine[i].y);
         }
+
         ctx.stroke();
     }
 }
 
 // MAIN DRAW
 function draw(){
+
     ctx.clearRect(0,0,canvas.width,canvas.height);
+
     drawLines();
     drawClouds();
     drawNumberLine();
@@ -340,13 +462,17 @@ function draw(){
 
 // GET POSITION
 function getPos(e){
+
     const rect = canvas.getBoundingClientRect();
+
     if(e.touches && e.touches.length > 0){
+
         return {
             x:(e.touches[0].clientX - rect.left) * (canvas.width / rect.width),
             y:(e.touches[0].clientY - rect.top) * (canvas.height / rect.height)
         };
     }
+
     return {
         x:(e.clientX - rect.left) * (canvas.width / rect.width),
         y:(e.clientY - rect.top) * (canvas.height / rect.height)
@@ -355,6 +481,7 @@ function getPos(e){
 
 // HIT MAN
 function hitMan(x,y){
+
     return (
         x > man.x - 35 &&
         x < man.x + 35 &&
@@ -365,8 +492,11 @@ function hitMan(x,y){
 
 // HIT CLOUD
 function hitCloud(x,y){
+
     for(let i=clouds.length-1;i>=0;i--){
+
         const c = clouds[i];
+
         if(
             x > c.x - 40 &&
             x < c.x + 40 &&
@@ -376,184 +506,242 @@ function hitCloud(x,y){
             return i;
         }
     }
+
     return -1;
 }
 
 // ERASER
 function eraseAt(x,y){
+
     drawings = drawings.filter(line=>{
+
         for(let point of line){
+
             const dx = point.x - x;
             const dy = point.y - y;
+
             const dist = Math.sqrt(dx*dx + dy*dy);
+
             if(dist < 18){
                 return false;
             }
         }
+
         return true;
     });
+
     draw();
 }
 
 // START ACTION
 function startAction(e){
+
     const pos = getPos(e);
 
-    // CLOUD TARGETING & SELECTION
+    // CLOUD
     const cloudIndex = hitCloud(pos.x,pos.y);
+
     if(cloudIndex !== -1){
+
         draggingCloud = cloudIndex;
-        selectedCloudIndex = cloudIndex; // Select it for potential deletion
+        selectedCloudIndex = cloudIndex;
+
         draw();
         return;
     }
 
-    // INTERACTIVE MAN DRAG (Always active if grabbed)
+    // MAN
     if(hitMan(pos.x,pos.y)){
+
         man.dragging = true;
         man.lastX = pos.x;
+
         return;
     }
 
-    // ERASER
-    if(mode === "erase"){
+    // ERASE
+    if(eraseMode){
+
         eraseAt(pos.x,pos.y);
         return;
     }
 
     // DRAW
-    if(mode === "draw"){
-        drawing = true;
-        currentLine = [{
-            x:pos.x,
-            y:pos.y
-        }];
-        draw();
-    }
+    drawing = true;
+
+    currentLine = [{
+        x:pos.x,
+        y:pos.y
+    }];
 }
 
 // MOVE ACTION
 function moveAction(e){
+
     const pos = getPos(e);
 
     // MOVE CLOUD
     if(draggingCloud !== null){
+
         clouds[draggingCloud].x = pos.x;
         clouds[draggingCloud].y = pos.y;
+
         draw();
+
         e.preventDefault();
         return;
     }
 
     // MOVE MAN
     if(man.dragging){
+
         if(pos.x > man.lastX + 1){
             man.facingRight = true;
         }
         else if(pos.x < man.lastX - 1){
             man.facingRight = false;
         }
+
         man.lastX = pos.x;
+
         man.step = xToStep(pos.x);
+
         draw();
+
         e.preventDefault();
         return;
     }
 
     // ERASE
-    if(mode === "erase"){
+    if(eraseMode){
+
         eraseAt(pos.x,pos.y);
+
         e.preventDefault();
         return;
     }
 
     // DRAW
     if(drawing){
+
         currentLine.push({
             x:pos.x,
             y:pos.y
         });
+
         draw();
+
         e.preventDefault();
     }
 }
 
 // END ACTION
 function endAction(){
+
     if(currentLine.length > 0){
         drawings.push(currentLine);
     }
+
     currentLine = [];
     drawing = false;
+
     man.dragging = false;
     draggingCloud = null;
+
     draw();
 }
 
 // DOUBLE TAP
 let lastTap = 0;
+
 function handleDoubleTap(e){
+
     const currentTime = new Date().getTime();
     const tapLength = currentTime - lastTap;
+
     const pos = getPos(e);
 
     if(tapLength < 300 && tapLength > 0){
+
         const cloudIndex = hitCloud(pos.x,pos.y);
+
         if(cloudIndex !== -1){
+
             const c = clouds[cloudIndex];
+
             clouds.push({
                 x:c.x + 60,
                 y:c.y,
                 emoji:"🌧",
                 size:c.size
             });
-            selectedCloudIndex = clouds.length - 1; // Auto select the clone
+
+            selectedCloudIndex = clouds.length - 1;
+
             draw();
         }
     }
+
     lastTap = currentTime;
 }
 
 // EVENTS
 canvas.addEventListener("mousedown", startAction);
 canvas.addEventListener("mousemove", moveAction);
+
 window.addEventListener("mouseup", endAction);
 
 canvas.addEventListener("touchstart",(e)=>{
+
     startAction(e);
     handleDoubleTap(e);
+
 },{passive:false});
 
 canvas.addEventListener("touchmove", moveAction,{passive:false});
+
 window.addEventListener("touchend", endAction);
 
 // DOUBLE CLICK
 canvas.addEventListener("dblclick",(e)=>{
+
     const pos = getPos(e);
+
     const cloudIndex = hitCloud(pos.x,pos.y);
+
     if(cloudIndex !== -1){
+
         const c = clouds[cloudIndex];
+
         clouds.push({
             x:c.x + 60,
             y:c.y,
             emoji:"🌧",
             size:c.size
         });
-        selectedCloudIndex = clouds.length - 1; // Auto select the clone
+
+        selectedCloudIndex = clouds.length - 1;
+
         draw();
     }
 });
 
 // KEYBOARD
 window.addEventListener("keydown",(e)=>{
+
     if(e.key === "ArrowRight"){
+
         man.facingRight = true;
         man.step = Math.min(10, man.step + 1);
+
         draw();
     }
+
     else if(e.key === "ArrowLeft"){
+
         man.facingRight = false;
         man.step = Math.max(0, man.step - 1);
+
         draw();
     }
 });
@@ -564,3 +752,6 @@ resizeCanvas();
 
 </body>
 </html>
+
+
+
