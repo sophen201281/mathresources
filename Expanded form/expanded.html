@@ -1,124 +1,344 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA==" crossorigin="anonymous" />
-    <link rel="stylesheet" href="Style.css">
-    <link rel="stylesheet" href="divgrid.css">
-     <!--fount for teblet-->
-     <link rel="stylesheet" media="handheld" href="css/handheld.css?v=2">
-     <link rel="preconnect" href="https://fonts.googleapis.com">
-     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-     <link href="https://fonts.googleapis.com/css2?family=Battambang&display=swap" rel="stylesheet">
-    <title>សម្ភារបង្រៀនគណិតវិទ្យា</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Arrow Place Value Cards + Drawing</title>
+<style>
+body{
+    margin:0;
+    overflow:hidden;
+    font-family:Arial, sans-serif;
+    background:#eef3ff;
+    touch-action:none;
+}
+h2{
+    position:fixed;
+    top:0;
+    width:100%;
+    text-align:center;
+    margin:6px 0;
+    z-index:3000;
+    pointer-events:none;
+    font-size:22px;
+}
+/* ---------- TOOLBAR ---------- */
+#toolbar{
+    position:fixed;
+    top:40px;
+    left:8px;
+    z-index:3000;
+    background:white;
+    padding:8px;
+    border-radius:10px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.2);
+    max-width:190px;
+}
+button{
+    margin:3px;
+    padding:6px 9px;
+    border:none;
+    border-radius:7px;
+    cursor:pointer;
+    font-size:12px;
+    font-weight:bold;
+}
+input{
+    width:70px;
+    padding:5px;
+    margin:3px;
+    border-radius:6px;
+    border:1px solid #aaa;
+    font-size:14px;
+}
+.onesBtn{ background:#ffd966; }
+.tensBtn{ background:#93c47d; color:white; }
+.hundredsBtn{ background:#6fa8dc; color:white; }
+.thousandsBtn{ background:#8e7cc3; color:white; }
+.drawBtn{
+    background:#ff8c42;
+    color:white;
+}
+.eraseBtn{
+    background:#e06666;
+    color:white;
+}
+.clearBtn{
+    background:#5c6bc0;
+    color:white;
+}
+.homeBtn{
+    background:#26a69a;
+    color:white;
+}
+/* ---------- CANVAS ---------- */
+#drawCanvas{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    z-index:1;
+    touch-action:none;
+}
+/* ---------- PLAY AREA ---------- */
+#playArea{
+    position:absolute;
+    inset:0;
+    z-index:5;
+    pointer-events:none;
+}
+/* ---------- CARDS ---------- */
+.card{
+    position:absolute;
+    height:52px;
+    border-radius:8px;
+    display:flex;
+    align-items:center;
+    justify-content:flex-start;
+    padding-left:12px;
+    font-size:24px;
+    font-weight:bold;
+    user-select:none;
+    cursor:grab;
+    box-shadow:0 3px 8px rgba(0,0,0,0.2);
+    border:2px solid rgba(0,0,0,0.15);
+    pointer-events:auto;
+}
+.card::after{
+    content:"";
+    position:absolute;
+    right:-22px;
+    top:0;
+    width:0;
+    height:0;
+    border-top:26px solid transparent;
+    border-bottom:26px solid transparent;
+}
+/* ---------- CARD SIZES ---------- */
+.ones{
+    width:60px;
+    background:#ffd966;
+    z-index:4;
+}
+.ones::after{
+    border-left:22px solid #ffd966;
+}
+.tens{
+    width:92px;
+    background:#93c47d;
+    color:white;
+    z-index:3;
+}
+.tens::after{
+    border-left:22px solid #93c47d;
+}
+.hundreds{
+    width:125px;
+    background:#6fa8dc;
+    color:white;
+    z-index:2;
+}
+.hundreds::after{
+    border-left:22px solid #6fa8dc;
+}
+.thousands{
+    width:158px;
+    background:#8e7cc3;
+    color:white;
+    z-index:1;
+}
+.thousands::after{
+    border-left:22px solid #8e7cc3;
+}
+.number{
+    letter-spacing:10px;
+}
+</style>
 </head>
 <body>
-    <!-- Navbar -->
-    <div class="navbar">
-      <div class="container flex">
-          <h1 class="logo" style="font-family:'Battambang', cursive;">ទម្រង់ពង្រាយ</h1>
-          <button class="button1" style="font-family:'Battambang', cursive; font-size: 20px;" onClick="document.location.reload(true)">សារដើម</button>
-            <button class="button1" style="font-family:'Battambang', cursive; font-size: 20px;" onclick="Restore()" >ថយក្រោយ</button>
-            <button class="button1" style="font-family:'Battambang', cursive; font-size: 20px;" onclick="Clear()">លុប</button>
-            
-            <div  class="color" onclick="change_color(this)" style="background:red"  class="stroke-color"></div>
-            <div class="color" onclick="change_color(this)" style="background:blue" class="stroke-color"></div>
-            <input class="color" type="color" oninput="stroke_color = this.value" placeholder="Colors">
-          
-            <input class="color1" type="range" min="1" max="100" oninput="stroke_width = this.value">
-            <nav>
-            <ul>
-
-         
-              <li><a href="../index.html" style="font-family:'Battambang', cursive; font-size: 20px;">ទំព័រដើម</a></li>
-        
-           
-          
-    </ul>
-            
-        </nav>
-          
-      </div>
-      
-  </div>
-    
-    <main >
-      <div class="div2" div id="container" class="container"> 
-            
-        <canvas id="canvas" style="background-image:url(images/P.png) ;"></canvas>
-</div>
-        <div  id="container1" >  
-         
-            
-          <div>
-            <button class="card9000"  ></button>
-            <button class="card8000" ></button>
-            <button class="card7000"  ></button>
-            <button class="card6000"  ></button>
-            <button class="card5000" ></button>
-            <button class="card4000"  ></button>
-            <button class="card3000"  ></button>
-            <button class="card2000"  ></button>
-            <button class="card1000"  ></button>
-            <button class="card0000"  ></button>
-    
-          <div>
-            <div>
-              <button class="card900"  ></button>
-              <button class="card800" ></button>
-              <button class="card700"  ></button>
-              <button class="card600"  ></button>
-              <button class="card500" ></button>
-              <button class="card400"  ></button>
-              <button class="card300"  ></button>
-              <button class="card200"  ></button>
-              <button class="card100"  ></button>
-              <button class="card000"  ></button>
-      </div> 
-      <div>
-        <button class="card90"  ></button>
-        <button class="card80" ></button>
-        <button class="card70"  ></button>
-        <button class="card60"  ></button>
-        <button class="card50" ></button>
-        <button class="card40"  ></button>
-        <button class="card30"  ></button>
-        <button class="card20"  ></button>
-        <button class="card10"  ></button>
-        <button class="card00"  ></button>
-</div>    
-<div>
-        <button class="card9" ></button>
-        <button class="card8" ></button>
-        <button class="card7" ></button>
-        <button class="card6" ></button>
-        <button class="card5" ></button>
-        <button class="card4" ></button>
-        <button class="card3" ></button>
-        <button class="card2" ></button>
-        <button class="card1" ></button>
-        <button class="card0" ></button>
-</div>    
-    
-          
-       
+<h2>🔢 Arrow Place Value Cards</h2>
+<div id="toolbar">
+    <!-- NUMBER INPUTS -->
+    <div>
+        <input id="onesInput" type="number" min="0" max="9" value="0">
+        <button class="onesBtn" onclick="createCard('ones')">
+            Ones
+        </button>
     </div>
-       
-       </main>
-      
-       </body>
-              
-<script src="expanded.js"></script>
-<!-- <script src="expanded1.js"></script> 
-<script src="expanded2.js"></script> 
-<script src="expanded3.js"></script> 
-<script src="expanded4.js"></script> 
-<script src="expanded5.js"></script> 
-<script src="expanded6.js"></script> 
-<script src="expanded7.js"></script> 
-<script src="expanded8.js"></script> 
-<script src="expanded9.js"></script> 
-<script src="expanded10.js"></script>  -->
-
+    <div>
+        <input id="tensInput" type="number" min="0" max="9" value="1">
+        <button class="tensBtn" onclick="createCard('tens')">
+            Tens
+        </button>
+    </div>
+    <div>
+        <input id="hundredsInput" type="number" min="0" max="9" value="4">
+        <button class="hundredsBtn" onclick="createCard('hundreds')">
+            Hundreds
+        </button>
+    </div>
+    <div>
+        <input id="thousandsInput" type="number" min="0" max="9" value="3">
+        <button class="thousandsBtn" onclick="createCard('thousands')">
+            Thousands
+        </button>
+    </div>
+    <hr>
+    <button class="drawBtn" onclick="setTool('draw')">
+        ✏️ Draw
+    </button>
+    <button class="eraseBtn" onclick="setTool('erase')">
+        🩹 Erase
+    </button>
+    <button class="clearBtn" onclick="clearCanvas()">
+        🧹 Clear
+    </button>
+    <button class="homeBtn" onclick="goHome()">
+        🏠 Home
+    </button>
+</div>
+<canvas id="drawCanvas"></canvas>
+<div id="playArea"></div>
+<script>
+/* ---------- CANVAS ---------- */
+const canvas = document.getElementById("drawCanvas");
+const ctx = canvas.getContext("2d");
+function resizeCanvas(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
+let currentTool = "draw";
+let drawing = false;
+function setTool(tool){
+    currentTool = tool;
+}
+function clearCanvas(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+}
+canvas.addEventListener("pointerdown",(e)=>{
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(e.clientX, e.clientY);
+});
+canvas.addEventListener("pointermove",(e)=>{
+    if(!drawing) return;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    if(currentTool === "erase"){
+        ctx.lineWidth = 35;
+        ctx.globalCompositeOperation = "destination-out";
+    }
+    else{
+        ctx.lineWidth = 4;
+        ctx.globalCompositeOperation = "source-over";
+        ctx.strokeStyle = "black";
+    }
+    ctx.lineTo(e.clientX, e.clientY);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(e.clientX, e.clientY);
+});
+function stopDrawing(){
+    drawing = false;
+    ctx.beginPath();
+}
+canvas.addEventListener("pointerup", stopDrawing);
+canvas.addEventListener("pointerleave", stopDrawing);
+/* ---------- PLAY AREA ---------- */
+const playArea = document.getElementById("playArea");
+/* ---------- GET USER VALUES ---------- */
+function getValue(type){
+    if(type === "ones"){
+        return document.getElementById("onesInput").value;
+    }
+    if(type === "tens"){
+        return document.getElementById("tensInput").value + "0";
+    }
+    if(type === "hundreds"){
+        return document.getElementById("hundredsInput").value + "00";
+    }
+    if(type === "thousands"){
+        return document.getElementById("thousandsInput").value + "000";
+    }
+}
+/* ---------- CREATE CARD ---------- */
+function createCard(type){
+    const card = document.createElement("div");
+    card.className = `card ${type}`;
+    const number = document.createElement("div");
+    number.className = "number";
+    number.innerText = getValue(type);
+    card.appendChild(number);
+    /* TOP CENTER */
+    const centerX = window.innerWidth / 2 - 80;
+    card.style.left = centerX + "px";
+    card.style.top = "90px";
+    playArea.appendChild(card);
+    makeDraggable(card);
+}
+/* ---------- MANUAL CARD ---------- */
+function createManualCard(value,type,x,y){
+    const card = document.createElement("div");
+    card.className = `card ${type}`;
+    const number = document.createElement("div");
+    number.className = "number";
+    number.innerText = value;
+    card.appendChild(number);
+    card.style.left = x + "px";
+    card.style.top = y + "px";
+    playArea.appendChild(card);
+    makeDraggable(card);
+}
+/* ---------- HOME BUTTON ---------- */
+function goHome(){
+    const cards = document.querySelectorAll(".card");
+    let startX = window.innerWidth / 2 - 120;
+    cards.forEach((card,index)=>{
+        card.style.left = (startX + index * 35) + "px";
+        card.style.top = "220px";
+    });
+}
+/* ---------- DRAG + DOUBLE TAP DELETE ---------- */
+function makeDraggable(card){
+    let dragging = false;
+    let offsetX = 0;
+    let offsetY = 0;
+    let lastTap = 0;
+    card.addEventListener("pointerdown",(e)=>{
+        /* DOUBLE TAP DELETE */
+        const currentTime = new Date().getTime();
+        const tapLength = currentTime - lastTap;
+        if(tapLength < 300 && tapLength > 0){
+            card.remove();
+            return;
+        }
+        lastTap = currentTime;
+        /* DRAGGING */
+        dragging = true;
+        offsetX = e.clientX - card.offsetLeft;
+        offsetY = e.clientY - card.offsetTop;
+        card.style.cursor = "grabbing";
+        card.setPointerCapture(e.pointerId);
+        e.stopPropagation();
+    });
+    card.addEventListener("pointermove",(e)=>{
+        if(!dragging) return;
+        card.style.left = (e.clientX - offsetX) + "px";
+        card.style.top = (e.clientY - offsetY) + "px";
+    });
+    card.addEventListener("pointerup",()=>{
+        dragging = false;
+        card.style.cursor = "grab";
+    });
+}
+/* ---------- START EXAMPLE ---------- */
+createManualCard("3000","thousands",210,220);
+createManualCard("400","hundreds",245,220);
+createManualCard("10","tens",280,220);
+createManualCard("0","ones",315,220);
+</script>
+</body>
 </html>
+
