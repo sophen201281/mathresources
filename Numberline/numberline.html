@@ -1,399 +1,653 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Interactive Number Line + Rain Clouds</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>បន្ទាត់លេខ</title>
+
 <style>
+*{
+    box-sizing:border-box;
+}
+
 body{
-    margin:0;
-    height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    background:#eef2f7;
-    font-family:Arial,sans-serif;
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:#eef2f7;
+    font-family:Arial,sans-serif;
+    padding:10px;
 }
+
 .container{
-    background:white;
-    padding:20px;
-    border-radius:14px;
-    box-shadow:0 4px 12px rgba(0,0,0,0.12);
-    text-align:center;
+    width:100%;
+    max-width:1100px;
+    background:white;
+    padding:14px;
+    border-radius:16px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.12);
+    text-align:center;
 }
-canvas{
-    border:1px solid #ddd;
-    border-radius:10px;
-    background:white;
-    touch-action:none;
+
+h2{
+    margin-top:0;
+    font-size:clamp(20px,4vw,32px);
 }
+
 .toolbar{
-    margin-bottom:10px;
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:8px;
+    margin-bottom:10px;
 }
+
 button{
-    padding:8px 14px;
-    margin:4px;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-    background:#4a90e2;
-    color:white;
-    font-weight:bold;
+    padding:10px 14px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    background:#4a90e2;
+    color:white;
+    font-weight:bold;
+    font-size:14px;
 }
+
+button:hover{
+    opacity:0.9;
+}
+
+#deleteCloudBtn{
+    background:#d9534f;
+}
+
+.canvasWrap{
+    width:100%;
+}
+
+canvas{
+    width:100%;
+    height:auto;
+    border:1px solid #ddd;
+    border-radius:12px;
+    background:white;
+    touch-action:none;
+    display:block;
+}
+
 .instructions{
-    margin-top:10px;
-    color:#666;
-    font-size:14px;
-}
-.modeText{
-    margin-bottom:10px;
-    font-weight:bold;
-    color:#333;
+    margin-top:10px;
+    color:#666;
+    font-size:14px;
+    line-height:1.5;
 }
 </style>
 </head>
+
 <body>
+
 <div class="container">
-    <h2>Interactive Number Line + Rain Clouds</h2>
-    <div class="toolbar">
-        <button id="drawModeBtn">✏️ Draw Mode</button>
-        <button id="moveModeBtn">🚶 Move Mode</button>
-        <button id="cloudBtn">🌧 Add Rain Cloud</button>
-        <button id="clearBtn">🗑 Clear Drawing</button>
-    </div>
-    <div class="modeText" id="modeText">
-        Current Mode: Draw
-    </div>
-    <canvas id="canvas" width="950" height="420"></canvas>
-    <div class="instructions">
-        ✏️ Draw • 🚶 Drag walking man • 🌧 Drag rain clouds • Double tap cloud to copy
-    </div>
+
+    <h2>បន្ទាត់លេខ</h2>
+
+    <div class="toolbar">
+        <button id="eraserModeBtn">🩹 លុប</button>
+        <button id="cloudBtn">🌧 បន្ថែមពពក</button>
+        <button id="deleteCloudBtn">❌ ដកពពក</button>
+        <button id="clearBtn">🗑 សម្អាត</button>
+    </div>
+
+    <div class="canvasWrap">
+        <canvas id="canvas"></canvas>
+    </div>
+
+    <div class="instructions">
+        ✏️ Draw directly • 🩹 Erase • 🚶 Drag walking man • 🌧 Drag clouds • Double tap cloud to copy
+    </div>
+
 </div>
+
 <script>
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
+
+function resizeCanvas(){
+
+    const maxWidth = Math.min(window.innerWidth - 30, 1000);
+
+    canvas.width = maxWidth;
+    canvas.height = maxWidth * 0.52;
+
+    updateNumberLine();
+    draw();
+}
+
+window.addEventListener("resize", resizeCanvas);
+
 // NUMBER LINE
-const startX = 80;
-const endX = 870;
-const lineY = 320;
-const totalSteps = 10;
-const stepX = (endX - startX) / totalSteps;
-// MODE
-let mode = "draw";
+let startX, endX, lineY, totalSteps, stepX;
+
+function updateNumberLine(){
+
+    startX = canvas.width * 0.08;
+    endX = canvas.width * 0.92;
+    lineY = canvas.height * 0.55;
+
+    totalSteps = 10;
+    stepX = (endX - startX) / totalSteps;
+
+    man.y = lineY - canvas.height * 0.12;
+}
+
+// ERASER MODE
+let eraseMode = false;
+
 // WALKING MAN
 const man = {
-    step:3,
-    x:0,
-    y:lineY - 70,
-    facingRight:false,
-    dragging:false,
-    lastX:0
+    step:3,
+    x:0,
+    y:0,
+    facingRight:false,
+    dragging:false,
+    lastX:0
 };
+
 // CLOUDS
 let clouds = [
-    {
-        x:180,
-        y:90,
-        emoji:"🌧",
-        size:55
-    }
+    {
+        x:180,
+        y:90,
+        emoji:"🌧",
+        size:55
+    }
 ];
+
 let draggingCloud = null;
-// DRAWING
+let selectedCloudIndex = null;
+
+// DRAWINGS
 let drawings = [];
 let currentLine = [];
 let drawing = false;
-// MODE TEXT
-const modeText = document.getElementById("modeText");
+
 // BUTTONS
-document.getElementById("drawModeBtn").onclick = ()=>{
-    mode = "draw";
-    modeText.innerHTML = "Current Mode: Draw";
+document.getElementById("eraserModeBtn").onclick = ()=>{
+
+    eraseMode = !eraseMode;
+
+    if(eraseMode){
+        document.getElementById("eraserModeBtn").innerHTML = "✏️ គូរ";
+    }else{
+        document.getElementById("eraserModeBtn").innerHTML = "🩹 លុប";
+    }
 };
-document.getElementById("moveModeBtn").onclick = ()=>{
-    mode = "move";
-    modeText.innerHTML = "Current Mode: Move Objects";
-};
+
 document.getElementById("cloudBtn").onclick = ()=>{
-    clouds.push({
-        x:150 + Math.random()*500,
-        y:60 + Math.random()*120,
-        emoji:"🌧",
-        size:55
-    });
-    draw();
+
+    clouds.push({
+        x:150 + Math.random()*300,
+        y:60 + Math.random()*120,
+        emoji:"🌧",
+        size:Math.max(35, canvas.width * 0.05)
+    });
+
+    draw();
 };
+
+document.getElementById("deleteCloudBtn").onclick = ()=>{
+
+    if(
+        selectedCloudIndex !== null &&
+        selectedCloudIndex >= 0 &&
+        selectedCloudIndex < clouds.length
+    ){
+
+        clouds.splice(selectedCloudIndex,1);
+        selectedCloudIndex = null;
+
+        draw();
+    }
+};
+
 document.getElementById("clearBtn").onclick = ()=>{
-    drawings = [];
-    draw();
+
+    drawings = [];
+    draw();
 };
-// STEP → X
+
+// STEP TO X
 function stepToX(step){
-    return startX + step * stepX;
+    return startX + step * stepX;
 }
-// X → STEP
+
+// X TO STEP
 function xToStep(x){
-    let step = Math.round((x - startX) / stepX);
-    return Math.max(0, Math.min(10, step));
+
+    let step = Math.round((x - startX) / stepX);
+
+    return Math.max(0, Math.min(10, step));
 }
+
 // LABELS
 function getLabel(step){
-    return step === 10 ? 0 : step;
+    return step === 10 ? 0 : step;
 }
+
 // DRAW NUMBER LINE
 function drawNumberLine(){
-    ctx.beginPath();
-    ctx.moveTo(startX - 20, lineY);
-    ctx.lineTo(endX + 20, lineY);
-    ctx.lineWidth = 4;
-    ctx.strokeStyle = "#222";
-    ctx.stroke();
-    for(let i=0;i<=10;i++){
-        const x = stepToX(i);
-        // Tick
-        ctx.beginPath();
-        ctx.moveTo(x, lineY - 12);
-        ctx.lineTo(x, lineY + 12);
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        // Label
-        ctx.font = "18px Arial";
-        ctx.fillStyle = "#222";
-        ctx.textAlign = "center";
-        ctx.fillText(getLabel(i), x, lineY + 38);
-    }
+
+    ctx.beginPath();
+    ctx.moveTo(startX - 20, lineY);
+    ctx.lineTo(endX + 20, lineY);
+
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = "#222";
+    ctx.stroke();
+
+    for(let i=0;i<=10;i++){
+
+        const x = stepToX(i);
+
+        ctx.beginPath();
+        ctx.moveTo(x, lineY - 12);
+        ctx.lineTo(x, lineY + 12);
+
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.font = `${Math.max(14, canvas.width*0.02)}px Arial`;
+        ctx.fillStyle = "#222";
+        ctx.textAlign = "center";
+
+        ctx.fillText(getLabel(i), x, lineY + 35);
+    }
 }
-// DRAW WALKING MAN
+
+// DRAW MAN
 function drawMan(){
-    const x = stepToX(man.step);
-    man.x = x;
-    ctx.save();
-    ctx.translate(x, man.y);
-    /* 🚶 emoji naturally faces LEFT Flip when moving RIGHT */
-    if(man.facingRight){
-        ctx.scale(-1,1);
-    }
-    ctx.font = "50px Arial";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText("🚶",0,0);
-    ctx.restore();
+
+    const x = stepToX(man.step);
+
+    man.x = x;
+
+    ctx.save();
+    ctx.translate(x, man.y);
+
+    if(man.facingRight){
+        ctx.scale(-1,1);
+    }
+
+    ctx.font = `${Math.max(35, canvas.width*0.05)}px Arial`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    ctx.fillText("🚶",0,0);
+
+    ctx.restore();
 }
+
 // DRAW CLOUDS
 function drawClouds(){
-    clouds.forEach(cloud=>{
-        ctx.save();
-        ctx.font = `${cloud.size}px Arial`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(cloud.emoji, cloud.x, cloud.y);
-        ctx.restore();
-    });
+
+    clouds.forEach((cloud,index)=>{
+
+        if(index === selectedCloudIndex){
+
+            ctx.beginPath();
+            ctx.arc(cloud.x, cloud.y, cloud.size * 0.7, 0, 2 * Math.PI);
+
+            ctx.strokeStyle = "rgba(217,83,79,0.6)";
+            ctx.lineWidth = 3;
+
+            ctx.setLineDash([6,4]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        ctx.font = `${cloud.size}px Arial`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        ctx.fillText(cloud.emoji, cloud.x, cloud.y);
+    });
 }
+
 // DRAW LINES
 function drawLines(){
-    ctx.strokeStyle = "#1976d2";
-    ctx.lineWidth = 3;
-    ctx.lineCap = "round";
-    drawings.forEach(line=>{
-        if(line.length < 2) return;
-        ctx.beginPath();
-        ctx.moveTo(line[0].x,line[0].y);
-        for(let i=1;i<line.length;i++){
-            ctx.lineTo(line[i].x,line[i].y);
-        }
-        ctx.stroke();
-    });
-    // CURRENT LINE
-    if(currentLine.length > 1){
-        ctx.beginPath();
-        ctx.moveTo(currentLine[0].x,currentLine[0].y);
-        for(let i=1;i<currentLine.length;i++){
-            ctx.lineTo(currentLine[i].x,currentLine[i].y);
-        }
-        ctx.stroke();
-    }
+
+    ctx.strokeStyle = "#1976d2";
+    ctx.lineWidth = 3;
+    ctx.lineCap = "round";
+
+    drawings.forEach(line=>{
+
+        if(line.length < 2) return;
+
+        ctx.beginPath();
+        ctx.moveTo(line[0].x,line[0].y);
+
+        for(let i=1;i<line.length;i++){
+            ctx.lineTo(line[i].x,line[i].y);
+        }
+
+        ctx.stroke();
+    });
+
+    if(currentLine.length > 1){
+
+        ctx.beginPath();
+        ctx.moveTo(currentLine[0].x,currentLine[0].y);
+
+        for(let i=1;i<currentLine.length;i++){
+            ctx.lineTo(currentLine[i].x,currentLine[i].y);
+        }
+
+        ctx.stroke();
+    }
 }
+
 // MAIN DRAW
 function draw(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    drawLines();
-    drawClouds();
-    drawNumberLine();
-    drawMan();
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    drawLines();
+    drawClouds();
+    drawNumberLine();
+    drawMan();
 }
+
 // GET POSITION
 function getPos(e){
-    const rect = canvas.getBoundingClientRect();
-    if(e.touches){
-        return {
-            x:e.touches[0].clientX - rect.left,
-            y:e.touches[0].clientY - rect.top
-        };
-    }
-    return {
-        x:e.clientX - rect.left,
-        y:e.clientY - rect.top
-    };
+
+    const rect = canvas.getBoundingClientRect();
+
+    if(e.touches && e.touches.length > 0){
+
+        return {
+            x:(e.touches[0].clientX - rect.left) * (canvas.width / rect.width),
+            y:(e.touches[0].clientY - rect.top) * (canvas.height / rect.height)
+        };
+    }
+
+    return {
+        x:(e.clientX - rect.left) * (canvas.width / rect.width),
+        y:(e.clientY - rect.top) * (canvas.height / rect.height)
+    };
 }
+
 // HIT MAN
 function hitMan(x,y){
-    return (
-        x > man.x - 35 &&
-        x < man.x + 35 &&
-        y > man.y - 35 &&
-        y < man.y + 35
-    );
+
+    return (
+        x > man.x - 35 &&
+        x < man.x + 35 &&
+        y > man.y - 35 &&
+        y < man.y + 35
+    );
 }
+
 // HIT CLOUD
 function hitCloud(x,y){
-    for(let i=clouds.length-1;i>=0;i--){
-        const c = clouds[i];
-        if(
-            x > c.x - 35 &&
-            x < c.x + 35 &&
-            y > c.y - 35 &&
-            y < c.y + 35
-        ){
-            return i;
-        }
-    }
-    return -1;
+
+    for(let i=clouds.length-1;i>=0;i--){
+
+        const c = clouds[i];
+
+        if(
+            x > c.x - 40 &&
+            x < c.x + 40 &&
+            y > c.y - 40 &&
+            y < c.y + 40
+        ){
+            return i;
+        }
+    }
+
+    return -1;
 }
-// START
+
+// ERASER
+function eraseAt(x,y){
+
+    drawings = drawings.filter(line=>{
+
+        for(let point of line){
+
+            const dx = point.x - x;
+            const dy = point.y - y;
+
+            const dist = Math.sqrt(dx*dx + dy*dy);
+
+            if(dist < 18){
+                return false;
+            }
+        }
+
+        return true;
+    });
+
+    draw();
+}
+
+// START ACTION
 function startAction(e){
-    const pos = getPos(e);
-    // CLOUD
-    const cloudIndex = hitCloud(pos.x,pos.y);
-    if(cloudIndex !== -1){
-        draggingCloud = cloudIndex;
-        return;
-    }
-    // MOVE MODE
-    if(mode === "move"){
-        if(hitMan(pos.x,pos.y)){
-            man.dragging = true;
-            man.lastX = pos.x;
-        }
-        return;
-    }
-    // DRAW MODE
-    drawing = true;
-    currentLine = [{
-        x:pos.x,
-        y:pos.y
-    }];
-    draw();
+
+    const pos = getPos(e);
+
+    // CLOUD
+    const cloudIndex = hitCloud(pos.x,pos.y);
+
+    if(cloudIndex !== -1){
+
+        draggingCloud = cloudIndex;
+        selectedCloudIndex = cloudIndex;
+
+        draw();
+        return;
+    }
+
+    // MAN
+    if(hitMan(pos.x,pos.y)){
+
+        man.dragging = true;
+        man.lastX = pos.x;
+
+        return;
+    }
+
+    // ERASE
+    if(eraseMode){
+
+        eraseAt(pos.x,pos.y);
+        return;
+    }
+
+    // DRAW
+    drawing = true;
+
+    currentLine = [{
+        x:pos.x,
+        y:pos.y
+    }];
 }
-// MOVE
+
+// MOVE ACTION
 function moveAction(e){
-    const pos = getPos(e);
-    // MOVE CLOUD
-    if(draggingCloud !== null){
-        clouds[draggingCloud].x = pos.x;
-        clouds[draggingCloud].y = pos.y;
-        draw();
-        e.preventDefault();
-        return;
-    }
-    // MOVE MAN
-    if(man.dragging){
-        // FACE DIRECTION
-        if(pos.x > man.lastX + 1){
-            man.facingRight = true;
-        }
-        else if(pos.x < man.lastX - 1){
-            man.facingRight = false;
-        }
-        man.lastX = pos.x;
-        man.step = xToStep(pos.x);
-        draw();
-        e.preventDefault();
-        return;
-    }
-    // DRAW
-    if(drawing){
-        currentLine.push({
-            x:pos.x,
-            y:pos.y
-        });
-        draw();
-        e.preventDefault();
-    }
+
+    const pos = getPos(e);
+
+    // MOVE CLOUD
+    if(draggingCloud !== null){
+
+        clouds[draggingCloud].x = pos.x;
+        clouds[draggingCloud].y = pos.y;
+
+        draw();
+
+        e.preventDefault();
+        return;
+    }
+
+    // MOVE MAN
+    if(man.dragging){
+
+        if(pos.x > man.lastX + 1){
+            man.facingRight = true;
+        }
+        else if(pos.x < man.lastX - 1){
+            man.facingRight = false;
+        }
+
+        man.lastX = pos.x;
+
+        man.step = xToStep(pos.x);
+
+        draw();
+
+        e.preventDefault();
+        return;
+    }
+
+    // ERASE
+    if(eraseMode){
+
+        eraseAt(pos.x,pos.y);
+
+        e.preventDefault();
+        return;
+    }
+
+    // DRAW
+    if(drawing){
+
+        currentLine.push({
+            x:pos.x,
+            y:pos.y
+        });
+
+        draw();
+
+        e.preventDefault();
+    }
 }
-// END
+
+// END ACTION
 function endAction(){
-    if(currentLine.length > 0){
-        drawings.push(currentLine);
-    }
-    currentLine = [];
-    drawing = false;
-    man.dragging = false;
-    draggingCloud = null;
-    draw();
+
+    if(currentLine.length > 0){
+        drawings.push(currentLine);
+    }
+
+    currentLine = [];
+    drawing = false;
+
+    man.dragging = false;
+    draggingCloud = null;
+
+    draw();
 }
-// DOUBLE TAP COPY CLOUD
+
+// DOUBLE TAP
 let lastTap = 0;
+
 function handleDoubleTap(e){
-    const currentTime = new Date().getTime();
-    const tapLength = currentTime - lastTap;
-    const pos = getPos(e);
-    if(tapLength < 300 && tapLength > 0){
-        const cloudIndex = hitCloud(pos.x,pos.y);
-        if(cloudIndex !== -1){
-            const c = clouds[cloudIndex];
-            clouds.push({
-                x:c.x + 60,
-                y:c.y,
-                emoji:"🌧",
-                size:c.size
-            });
-            draw();
-        }
-    }
-    lastTap = currentTime;
+
+    const currentTime = new Date().getTime();
+    const tapLength = currentTime - lastTap;
+
+    const pos = getPos(e);
+
+    if(tapLength < 300 && tapLength > 0){
+
+        const cloudIndex = hitCloud(pos.x,pos.y);
+
+        if(cloudIndex !== -1){
+
+            const c = clouds[cloudIndex];
+
+            clouds.push({
+                x:c.x + 60,
+                y:c.y,
+                emoji:"🌧",
+                size:c.size
+            });
+
+            selectedCloudIndex = clouds.length - 1;
+
+            draw();
+        }
+    }
+
+    lastTap = currentTime;
 }
+
 // EVENTS
 canvas.addEventListener("mousedown", startAction);
 canvas.addEventListener("mousemove", moveAction);
+
 window.addEventListener("mouseup", endAction);
+
 canvas.addEventListener("touchstart",(e)=>{
-    startAction(e);
-    handleDoubleTap(e);
+
+    startAction(e);
+    handleDoubleTap(e);
+
 },{passive:false});
+
 canvas.addEventListener("touchmove", moveAction,{passive:false});
+
 window.addEventListener("touchend", endAction);
+
 // DOUBLE CLICK
 canvas.addEventListener("dblclick",(e)=>{
-    const pos = getPos(e);
-    const cloudIndex = hitCloud(pos.x,pos.y);
-    if(cloudIndex !== -1){
-        const c = clouds[cloudIndex];
-        clouds.push({
-            x:c.x + 60,
-            y:c.y,
-            emoji:"🌧",
-            size:c.size
-        });
-        draw();
-    }
+
+    const pos = getPos(e);
+
+    const cloudIndex = hitCloud(pos.x,pos.y);
+
+    if(cloudIndex !== -1){
+
+        const c = clouds[cloudIndex];
+
+        clouds.push({
+            x:c.x + 60,
+            y:c.y,
+            emoji:"🌧",
+            size:c.size
+        });
+
+        selectedCloudIndex = clouds.length - 1;
+
+        draw();
+    }
 });
+
 // KEYBOARD
 window.addEventListener("keydown",(e)=>{
-    if(e.key === "ArrowRight"){
-        man.facingRight = true;
-        man.step = Math.min(10, man.step + 1);
-        draw();
-    }
-    else if(e.key === "ArrowLeft"){
-        man.facingRight = false;
-        man.step = Math.max(0, man.step - 1);
-        draw();
-    }
+
+    if(e.key === "ArrowRight"){
+
+        man.facingRight = true;
+        man.step = Math.min(10, man.step + 1);
+
+        draw();
+    }
+
+    else if(e.key === "ArrowLeft"){
+
+        man.facingRight = false;
+        man.step = Math.max(0, man.step - 1);
+
+        draw();
+    }
 });
+
 // START
-draw();
+resizeCanvas();
 </script>
+
 </body>
 </html>
-
