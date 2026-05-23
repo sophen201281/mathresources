@@ -2,77 +2,537 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="./css/bootstrap.min.css">
-  <link rel="stylesheet" href="./css/headers.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Font for Khmer text -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Battambang&display=swap" rel="stylesheet">
+<title>សម្ភារគណិតវិទ្យា</title>
 
-  <title>សម្ភារគណិតវិទ្យា</title>
+<link rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css">
+
+<!-- Khmer Font -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Battambang&display=swap"
+rel="stylesheet">
+
+<style>
+
+body{
+    background:#f4f6f9;
+    margin:0;
+    padding:0;
+    font-family:'Battambang',sans-serif;
+}
+
+/* =========================
+   KHMER FONT
+========================= */
+
+.font-khmer{
+    font-family:'Battambang',sans-serif;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+header{
+    background:white;
+    border-radius:18px;
+    padding:12px 20px;
+    margin-top:18px;
+
+    box-shadow:
+        0 4px 15px rgba(0,0,0,0.08);
+}
+
+.bi{
+    fill:#0d6efd;
+}
+
+/* =========================
+   GRID
+========================= */
+
+.gridbox{
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(auto-fit,minmax(180px,1fr));
+
+    gap:24px;
+
+    margin-top:25px;
+    margin-bottom:40px;
+}
+
+/* =========================
+   CARD
+========================= */
+
+.divclass{
+
+    background:white;
+
+    border-radius:20px;
+
+    overflow:hidden;
+
+    position:relative;
+
+    box-shadow:
+        0 6px 18px rgba(0,0,0,0.12);
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+
+    cursor:pointer;
+}
+
+.divclass:hover{
+
+    transform:
+        translateY(-8px)
+        scale(1.02);
+
+    box-shadow:
+        0 14px 28px rgba(0,0,0,0.18);
+}
+
+.divclass:active{
+
+    transform:scale(0.96);
+}
+
+/* =========================
+   IMAGE
+========================= */
+
+.divclass img{
+
+    width:100%;
+    height:190px;
+
+    object-fit:cover;
+
+    display:block;
+
+    background:white;
+}
+
+/* =========================
+   LABEL
+========================= */
+
+.divclass::after{
+
+    content:attr(data-title);
+
+    position:absolute;
+
+    left:0;
+    bottom:0;
+
+    width:100%;
+
+    padding:12px;
+
+    text-align:center;
+
+    color:white;
+
+    font-size:15px;
+    font-weight:bold;
+
+    background:
+        linear-gradient(
+            transparent,
+            rgba(0,0,0,0.8)
+        );
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+footer{
+    margin-bottom:30px;
+}
+
+.copyright{
+
+    background:white;
+
+    border-radius:16px;
+
+    padding:16px;
+
+    box-shadow:
+        0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width:768px){
+
+    .gridbox{
+
+        grid-template-columns:
+            repeat(auto-fit,minmax(140px,1fr));
+
+        gap:16px;
+    }
+
+    .divclass img{
+
+        height:140px;
+    }
+
+    .fs-4{
+
+        font-size:20px !important;
+    }
+}
+
+</style>
 </head>
 
 <body>
-  <!-- Fixed: SVG Sprite definition added so the header logo displays correctly -->
-  <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
-    <symbol id="bootstrap" viewBox="0 0 118 94">
-      <path fill-rule="evenodd" clip-rule="evenodd" d="M24.509 0c-6.733 0-11.715 5.893-11.492 12.284.214 6.14-.064 14.092-2.066 20.577C8.943 39.365 5.547 43.485 0 44.014v4.972c5.547.529 8.943 4.649 10.951 11.153 2.002 6.485 2.28 14.437 2.066 20.577C12.794 88.106 17.776 94 24.51 94H93.5c6.733 0 11.714-5.893 11.491-12.284-.214-6.14.064-14.092 2.066-20.577 2.009-6.504 5.396-10.624 10.943-11.153v-4.972c-5.547-.529-8.934-4.649-10.943-11.153-2.002-6.484-2.28-14.437-2.066-20.577C105.214 5.893 100.233 0 93.5 0H24.508zM75.908 35.53c-1.21-2.4-3.218-4.14-6.025-5.222 2.128-1.503 3.633-3.611 4.515-6.327.882-2.716.893-5.753-.033-9.11-1.722-6.248-6.196-10.366-13.418-12.355C54.893 1.031 46.592 1 35.942 1H18.966v74.5h20.842c13.791 0 23.364-2.314 28.719-6.941 5.354-4.627 7.15-11.53 5.387-20.71-.873-4.544-2.715-8.232-5.526-11.063zm-21.722-13.5c.579 2.455-.391 4.981-2.91 7.578-2.518 2.597-6.91 3.896-13.178 3.896H28.232V13.882h10.339c6.179 0 10.373 1.032 12.581 3.097 2.208 2.065 2.44 4.096 1.034 6.051zm4.747 37.644c1.199 4.312-1.391 8.243-7.775 11.795-6.385 3.551-14.777 5.327-25.178 5.327H28.232V42.174h14.043c7.545 0 13.061 1.488 16.549 4.463 3.488 2.975 4.108 6.54 1.861 10.696z"/>
-    </symbol>
-  </svg>
 
-  <main>
-    <div class="container">
-      <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
-        <a href="index.html" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
-          <svg class="bi me-2" width="40" height="32">
-            <use xlink:href="#bootstrap" />
-          </svg>
-          <!-- Added the font-khmer class here so the header title renders correctly -->
-          <span class="fs-4 font-khmer">សម្ភារគណិតវិទ្យា</span>
-        </a>
-      </header>
-    </div>
+<!-- SVG LOGO -->
+<svg xmlns="http://www.w3.org/2000/svg"
+style="display:none;">
 
-    <!-- Fixed: Wrapped gridbox inside a Bootstrap container for better structure -->
-    <div class="container">
-      <div class="gridbox">
-        <!-- Fixed: All duplicate id="div12" updated to unique IDs -->
-        <div class="divclass" id="div1"><a href="./100chart/100chart.html"><img src="image/100.jpg" class="card-img-top" alt="100 Chart"></a></div>
-        <div class="divclass" id="div2"><a href="./Dice/dice.html"><img src="image/placevalue2.jpg" class="card-img-top" alt="Dice"></a></div>
-        <div class="divclass" id="div3"><a href="./dots array/dotschart.html"><img src="image/dot.jpg" class="card-img-top" alt="Dots Array"></a></div>  
-        <div class="divclass" id="div4"><a href="./Expanded form/expanded.html"><img src="image/exp.png" class="card-img-top" alt="Expanded Form"></a></div> 
-        <div class="divclass" id="div5"><a href="./Five and Ten frames/five.html"><img src="image/5frame.png" class="card-img-top" alt="Five and Ten Frames"></a></div> 
-        <div class="divclass" id="div6"><a href="./Fraction/Fractionhomepage.html"><img src="image/fraction.png" class="card-img-top" alt="Fraction"></a></div> 
-        <div class="divclass" id="div7"><a href="./New Counters/Counters.html"><img src="image/add.png" class="card-img-top" alt="Counters"></a></div> 
-        <div class="divclass" id="div8"><a href="./Numberline/numberline.html"><img src="image/numberline.png" class="card-img-top" alt="Numberline"></a></div> 
-        <div class="divclass" id="div9"><a href="./placevaluechart/placevaluechart.html"><img src="image/3.png" class="card-img-top" alt="Place Value Chart"></a></div> 
-        <div class="divclass" id="div10"><a href="./Time/time.html"><img src="image/clock.png" class="brand-img-top" alt="Time/Clock"></a></div> 
-        <div class="divclass" id="div11"><a href="./scale/scale.html"><img src="image/scale.png" class="card-img-top" alt="Scale"></a></div> 
-        <div class="divclass" id="div12"><a href="./patterning/pattern.html"><img src="image/pattern.png" class="card-img-top" alt="Patterning"></a></div> 
-        <div class="divclass" id="div13"><a href="./ordernumber/index.html"><img src="image/order.png" class="card-img-top" alt="Order Number"></a></div> 
-        <div class="divclass" id="div14"><a href="./Khmer-number-writing/index.html"><img src="image/writing.png" class="card-img-top" alt="Khmer Number Writing"></a></div> 
-        <div class="divclass" id="div15"><a href="./Test/index.html"><img src="image/writing.png" class="card-img-top" alt="Test"></a></div> 
-         <div class="divclass" id="div16"><a href="./Weight Scale/Index.html"><img src="image/writing.png" class="card-img-top" alt="Test"></a></div> 
-        
-        <!-- Fixed: Removed the empty placeholder divs with duplicate IDs to keep code clean -->
-      </div>
-    </div>
-  </main>
+<symbol id="bootstrap"
+viewBox="0 0 118 94">
 
-  <footer class="container mt-5">
-    <div class="copyright text-center">
-      <p class="font-khmer">
-        <strong>
-          ផលិតដោយ ផាន់ សុភេន &copy; <script>document.write(new Date().getFullYear())</script> 
-        </strong>
-      </p>
-    </div>
-  </footer>
+<path fill-rule="evenodd"
+clip-rule="evenodd"
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+d="M24.509 0c-6.733 0-11.715 5.893-11.492 12.284.214 6.14-.064 14.092-2.066 20.577C8.943 39.365 5.547 43.485 0 44.014v4.972c5.547.529 8.943 4.649 10.951 11.153 2.002 6.485 2.28 14.437 2.066 20.577C12.794 88.106 17.776 94 24.51 94H93.5c6.733 0 11.714-5.893 11.491-12.284-.214-6.14.064-14.092 2.066-20.577 2.009-6.504 5.396-10.624 10.943-11.153v-4.972c-5.547-.529-8.934-4.649-10.943-11.153-2.002-6.484-2.28-14.437-2.066-20.577C105.214 5.893 100.233 0 93.5 0H24.508z">
+
+</path>
+
+</symbol>
+</svg>
+
+<main>
+
+<div class="container">
+
+<header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
+
+<a href="index.html"
+class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+
+<svg class="bi me-2"
+width="40"
+height="32">
+
+<use xlink:href="#bootstrap"></use>
+
+</svg>
+
+<span class="fs-4 font-khmer">
+សម្ភារគណិតវិទ្យា
+</span>
+
+</a>
+
+</header>
+
+</div>
+
+<!-- =========================
+     GRID CARDS
+========================= -->
+
+<div class="container">
+
+<div class="gridbox">
+
+<div class="divclass"
+data-title="100 Chart">
+
+<a href="./100chart/100chart.html">
+
+<img src="image/100.jpg"
+alt="100 Chart">
+
+</a>
+</div>
+
+<div class="divclass"
+data-title="Dice">
+
+<a href="./Dice/dice.html">
+
+<img src="image/placevalue2.jpg"
+alt="Dice">
+
+</a>
+</div>
+
+<div class="divclass"
+data-title="Dots Array">
+
+<a href="./dots array/dotschart.html">
+
+<img src="image/dot.jpg"
+alt="Dots Array">
+
+</a>
+</div>
+
+<div class="divclass"
+data-title="Expanded Form">
+
+<a href="./Expanded form/expanded.html">
+
+<img src="image/exp.png"
+alt="Expanded Form">
+
+</a>
+</div>
+
+<div class="divclass"
+data-title="Five & Ten Frames">
+
+<a href="./Five and Ten frames/five.html">
+
+<img src="image/5frame.png"
+alt="Five and Ten Frames">
+
+</a>
+</div>
+
+<div class="divclass"
+data-title="Fraction">
+
+<a href="./Fraction/Fractionhomepage.html">
+
+<img src="image/fraction.png"
+alt="Fraction">
+
+</a>
+</div>
+
+<div class="divclass"
+data-title="Counters">
+
+<a href="./New Counters/Counters.html">
+
+<img src="image/add.png"
+alt="Counters">
+
+</a>
+</div>
+
+<div class="divclass"
+data-title="Number Line">
+
+<a href="./Numberline/numberline.html">
+
+<img src="image/numberline.png"
+alt="Numberline">
+
+</a>
+</div>
+
+<div class="divclass"
+data-title="Place Value">
+
+<a href="./placevaluechart/placevaluechart.html">
+
+<img src="image/3.png"
+alt="Place Value">
+
+</a>
+</div>
+
+<div class="divclass"
+data-title="Clock">
+
+<a href="./Time/time.html">
+
+<img src="image/clock.png"
+alt="Clock">
+
+</a>
+</div>
+
+<div class="divclass"
+data-title="Scale">
+
+<a href="./scale/scale.html">
+
+<img src="image/scale.png"
+alt="Scale">
+
+</a>
+</div>
+
+<div class="divclass"
+data-title="Pattern">
+
+<a href="./patterning/pattern.html">
+
+<img src="image/pattern.png"
+alt="Pattern">
+
+</a>
+</div>
+
+<div class="divclass"
+data-title="Order Number">
+
+<a href="./ordernumber/index.html">
+
+<img src="image/order.png"
+alt="Order Number">
+
+</a>
+</div>
+
+<div class="divclass"
+data-title="Khmer Writing">
+
+<a href="./Khmer-number-writing/index.html">
+
+<img src="image/writing.png"
+alt="Khmer Writing">
+
+</a>
+</div>
+
+<div class="divclass"
+data-title="Test">
+
+<a href="./Test/index.html">
+
+<img src="image/writing.png"
+alt="Test">
+
+</a>
+</div>
+
+<div class="divclass"
+data-title="Weight Scale">
+
+<a href="./Weight Scale/Index.html">
+
+<img src="image/writing.png"
+alt="Weight Scale">
+
+</a>
+</div>
+
+</div>
+</div>
+
+</main>
+
+<!-- =========================
+     FOOTER
+========================= -->
+
+<footer class="container mt-5">
+
+<div class="copyright text-center">
+
+<p class="font-khmer">
+
+<strong>
+
+ផលិតដោយ ផាន់ សុភេន ©
+<span id="year"></span>
+
+</strong>
+
+</p>
+
+</div>
+
+</footer>
+
+<!-- =========================
+     JAVASCRIPT
+========================= -->
+
+<script>
+
+/* =========================
+   YEAR
+========================= */
+
+document.getElementById("year").innerHTML =
+new Date().getFullYear();
+
+/* =========================
+   CARD ANIMATION
+========================= */
+
+const cards =
+document.querySelectorAll(".divclass");
+
+window.addEventListener("load",()=>{
+
+    cards.forEach((card,index)=>{
+
+        card.style.opacity="0";
+        card.style.transform=
+            "translateY(30px)";
+
+        setTimeout(()=>{
+
+            card.style.transition=
+                "all 0.5s ease";
+
+            card.style.opacity="1";
+
+            card.style.transform=
+                "translateY(0)";
+
+        },index*70);
+    });
+});
+
+/* =========================
+   TOUCH EFFECT
+========================= */
+
+cards.forEach(card=>{
+
+    card.addEventListener(
+        "pointerdown",
+        ()=>{
+
+        card.style.transform=
+            "scale(0.95)";
+    });
+
+    card.addEventListener(
+        "pointerup",
+        ()=>{
+
+        card.style.transform="";
+    });
+
+    card.addEventListener(
+        "pointerleave",
+        ()=>{
+
+        card.style.transform="";
+    });
+});
+
+</script>
+
 </body>
-
 </html>
