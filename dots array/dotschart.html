@@ -146,9 +146,19 @@ body{
 
     display:grid;
 
-    grid-template-columns:repeat(10,1fr);
+    /* larger handle spaces */
 
-    grid-template-rows:repeat(10,1fr);
+    grid-template-columns:
+
+        repeat(9,1fr)
+
+        22px;
+
+    grid-template-rows:
+
+        repeat(9,1fr)
+
+        22px;
 
     z-index:2;
 
@@ -190,6 +200,20 @@ body{
 
 }
 
+/* ================= HANDLE GAP ================= */
+
+.dot.handle-gap{
+
+    pointer-events:none;
+
+}
+
+.dot.handle-gap::before{
+
+    opacity:0;
+
+}
+
 /* ================= RIGHT PANEL ================= */
 
 .right-panel{
@@ -212,6 +236,8 @@ body{
 
 }
 
+/* BIGGER HANDLE */
+
 .mask-right{
 
     position:absolute;
@@ -220,11 +246,11 @@ body{
 
     left:0;
 
-    width:20px;
+    width:22px;
 
     height:100%;
 
-    background:white;
+    background:#f8fafc;
 
     border-right:2px solid #cbd5e1;
 
@@ -232,15 +258,41 @@ body{
 
     z-index:12;
 
+    touch-action:none;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
 }
+
+/* HANDLE VISUAL */
+
+.mask-right::after{
+
+    content:"";
+
+    width:6px;
+
+    height:60px;
+
+    border-radius:999px;
+
+    background:#94a3b8;
+
+}
+
+/* RIGHT CANVAS */
 
 #rightCanvas{
 
     position:absolute;
 
-    inset:0 0 0 20px;
+    inset:0 0 0 22px;
 
-    width:calc(100% - 20px);
+    width:calc(100% - 22px);
 
     height:100%;
 
@@ -270,6 +322,8 @@ body{
 
 }
 
+/* BIGGER HANDLE */
+
 .mask-bottom{
 
     position:absolute;
@@ -280,9 +334,9 @@ body{
 
     width:100%;
 
-    height:20px;
+    height:22px;
 
-    background:white;
+    background:#f8fafc;
 
     border-bottom:2px solid #cbd5e1;
 
@@ -290,17 +344,43 @@ body{
 
     z-index:12;
 
+    touch-action:none;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
 }
+
+/* HANDLE VISUAL */
+
+.mask-bottom::after{
+
+    content:"";
+
+    width:60px;
+
+    height:6px;
+
+    border-radius:999px;
+
+    background:#94a3b8;
+
+}
+
+/* BOTTOM CANVAS */
 
 #bottomCanvas{
 
     position:absolute;
 
-    inset:20px 0 0 0;
+    inset:22px 0 0 0;
 
     width:100%;
 
-    height:calc(100% - 20px);
+    height:calc(100% - 22px);
 
     touch-action:none;
 
@@ -408,21 +488,35 @@ eraseBtn.onclick = ()=>{
 
 const grid = document.getElementById("grid");
 
-for(let i=0;i<100;i++){
+for(let row=0; row<10; row++){
 
-    const dot = document.createElement("div");
+    for(let col=0; col<10; col++){
 
-    dot.className = "dot";
+        const dot = document.createElement("div");
 
-    dot.addEventListener("pointerdown",(e)=>{
+        dot.className = "dot";
 
-        e.stopPropagation();
+        /* last row/column reserved */
 
-        dot.classList.toggle("active");
+        if(col === 9 || row === 9){
 
-    });
+            dot.classList.add("handle-gap");
 
-    grid.appendChild(dot);
+        }
+
+        dot.addEventListener("pointerdown",(e)=>{
+
+            if(dot.classList.contains("handle-gap")) return;
+
+            e.stopPropagation();
+
+            dot.classList.toggle("active");
+
+        });
+
+        grid.appendChild(dot);
+
+    }
 
 }
 
@@ -448,7 +542,7 @@ const bottomPanel = document.getElementById("bottomPanel");
 
 /* ================= DRAW STORAGE ================= */
 
-const drawings = {
+let drawings = {
 
     main: [],
 
@@ -466,13 +560,13 @@ function resizeCanvases(){
 
     mainCanvas.height = board.offsetHeight;
 
-    rightCanvas.width = rightPanel.offsetWidth - 20;
+    rightCanvas.width = rightPanel.offsetWidth - 22;
 
     rightCanvas.height = rightPanel.offsetHeight;
 
     bottomCanvas.width = bottomPanel.offsetWidth;
 
-    bottomCanvas.height = bottomPanel.offsetHeight - 20;
+    bottomCanvas.height = bottomPanel.offsetHeight - 22;
 
     redrawCanvas(mainCtx, drawings.main);
 
@@ -504,9 +598,7 @@ function redrawCanvas(ctx, paths){
 
             ctx.globalCompositeOperation = "destination-out";
 
-        }
-
-        else{
+        }else{
 
             ctx.globalCompositeOperation = "source-over";
 
@@ -586,7 +678,7 @@ function enableDrawing(canvas, ctx, storage){
 
 }
 
-/* ENABLE */
+/* ================= ENABLE ================= */
 
 enableDrawing(mainCanvas, mainCtx, drawings.main);
 
@@ -598,11 +690,15 @@ enableDrawing(bottomCanvas, bottomCtx, drawings.bottom);
 
 clearBtn.onclick = ()=>{
 
-    drawings.main = [];
+    drawings = {
 
-    drawings.right = [];
+        main: [],
 
-    drawings.bottom = [];
+        right: [],
+
+        bottom: []
+
+    };
 
     mainCtx.clearRect(0,0,mainCanvas.width,mainCanvas.height);
 
@@ -642,6 +738,8 @@ maskRight.addEventListener("pointerdown",(e)=>{
 
     maskRight.setPointerCapture(e.pointerId);
 
+    e.preventDefault();
+
 });
 
 /* ================= BOTTOM RESIZE ================= */
@@ -664,55 +762,73 @@ maskBottom.addEventListener("pointerdown",(e)=>{
 
     maskBottom.setPointerCapture(e.pointerId);
 
+    e.preventDefault();
+
 });
+
+/* ================= CLAMP ================= */
+
+function clamp(value,min,max){
+
+    return Math.min(Math.max(value,min),max);
+
+}
 
 /* ================= MOVE ================= */
 
 window.addEventListener("pointermove",(e)=>{
 
+    /* ---------- RIGHT ---------- */
+
     if(dragRight){
 
-        let newWidth =
+        let dx = e.clientX - startX;
 
-            startWidth - (e.clientX - startX);
+        let newWidth = startWidth - dx;
 
-        newWidth = Math.max(80,newWidth);
+        const maxWidth = board.offsetWidth - 40;
 
-        rightPanel.style.width =
+        newWidth = clamp(newWidth,70,maxWidth);
 
-            newWidth + "px";
+        rightPanel.style.width = newWidth + "px";
 
         resizeCanvases();
 
     }
+
+    /* ---------- BOTTOM ---------- */
 
     if(dragBottom){
 
-        let newHeight =
+        let dy = e.clientY - startY;
 
-            startHeight - (e.clientY - startY);
+        let newHeight = startHeight - dy;
 
-        newHeight = Math.max(80,newHeight);
+        const maxHeight = board.offsetHeight - 40;
 
-        bottomPanel.style.height =
+        newHeight = clamp(newHeight,70,maxHeight);
 
-            newHeight + "px";
+        bottomPanel.style.height = newHeight + "px";
 
         resizeCanvases();
 
     }
 
-});
+},{ passive:false });
 
 /* ================= END DRAG ================= */
 
-window.addEventListener("pointerup",()=>{
+function stopDragging(){
 
     dragRight = false;
 
     dragBottom = false;
 
-});
+}
+
+window.addEventListener("pointerup",stopDragging);
+
+window.addEventListener("pointercancel",stopDragging);
 
 </script>
 
