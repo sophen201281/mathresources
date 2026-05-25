@@ -13,197 +13,160 @@
 <style>
 
 *{
-
     box-sizing:border-box;
-
     touch-action:none;
-
 }
 
 body{
-
     margin:0;
-
     overflow:hidden;
-
     background:#eef3f9;
-
     font-family:Arial,sans-serif;
+}
 
+/* ================= HOME BUTTON ================= */
+
+.home-btn{
+    position:fixed;
+    top:10px;
+    right:10px;
+    z-index:1200;
+
+    padding:12px 18px;
+
+    background:white;
+    color:#222;
+
+    text-decoration:none;
+    font-size:18px;
+    font-weight:bold;
+
+    border-radius:14px;
+
+    box-shadow:0 2px 8px rgba(0,0,0,0.25);
+
+    transition:0.2s;
+}
+
+.home-btn:hover{
+    background:#dfefff;
+    transform:scale(1.05);
 }
 
 /* ================= CANVAS ================= */
 
 #drawCanvas{
-
     position:fixed;
-
     inset:0;
-
     z-index:1;
-
 }
 
 /* ================= OBJECTS ================= */
 
 #objectsLayer{
-
     position:fixed;
-
     inset:0;
-
     z-index:5;
-
 }
 
 /* ================= TOOLBAR ================= */
 
 #toolbar{
-
     position:fixed;
-
     top:10px;
-
     left:10px;
-
     z-index:1000;
 
     display:flex;
-
     gap:10px;
-
     flex-wrap:wrap;
-
 }
 
 button{
-
     padding:10px 14px;
-
     border:none;
-
     border-radius:10px;
-
     background:white;
-
     font-size:15px;
-
     box-shadow:0 2px 6px rgba(0,0,0,0.2);
-
     cursor:pointer;
-
 }
 
 button:hover{
-
     background:#dfefff;
-
 }
 
 /* ================= COLORS ================= */
 
 #colors{
-
     position:fixed;
-
     bottom:10px;
-
     left:10px;
-
     z-index:1000;
 
     display:flex;
-
     gap:10px;
 
     background:white;
-
     padding:10px;
-
     border-radius:12px;
 
     box-shadow:0 2px 6px rgba(0,0,0,0.2);
-
 }
 
 .color{
-
     width:32px;
-
     height:32px;
-
     border-radius:50%;
-
     border:2px solid #333;
-
     cursor:pointer;
-
 }
 
 .active{
-
     outline:4px solid #4da3ff;
-
 }
 
 /* ================= FRAMES ================= */
 
 .frame{
-
     position:absolute;
 
     background:white;
 
     border:4px solid #222;
-
     border-radius:12px;
 
     box-shadow:0 4px 10px rgba(0,0,0,0.25);
 
     overflow:visible;
-
 }
 
 .grid{
-
     width:100%;
-
     height:100%;
-
     display:grid;
-
 }
 
 .fiveFrame .grid{
-
     grid-template-columns:repeat(5,1fr);
-
 }
 
 .tenFrame .grid{
-
     grid-template-columns:repeat(5,1fr);
-
     grid-template-rows:repeat(2,1fr);
-
 }
 
 .cell{
-
     border:2px solid #666;
-
     position:relative;
-
 }
 
 /* ================= COUNTERS ================= */
 
 .counter{
-
     position:absolute;
 
     width:58px;
-
     height:58px;
 
     border-radius:50%;
@@ -215,13 +178,10 @@ button:hover{
     box-shadow:0 2px 6px rgba(0,0,0,0.25);
 
     z-index:20;
-
 }
 
 .counter.dragging{
-
     transform:scale(1.08);
-
 }
 
 </style>
@@ -230,38 +190,32 @@ button:hover{
 
 <body>
 
+<!-- ================= HOME BUTTON ================= -->
+
+<a href="../index.html" class="home-btn">🏡 Home</a>
+
 <!-- ================= TOOLBAR ================= -->
 
 <div id="toolbar">
 
     <button onclick="createFiveFrame()">
-
         ➕ Five Frame
-
     </button>
 
     <button onclick="createTenFrame()">
-
         ➕ Ten Frame
-
     </button>
 
     <button onclick="createCounter()">
-
         🔴 Counter
-
     </button>
 
     <button onclick="toggleEraser()">
-
         ✏️ / 🩹 Eraser
-
     </button>
 
     <button onclick="clearCanvas()">
-
         🧹 Clear
-
     </button>
 
 </div>
@@ -271,35 +225,23 @@ button:hover{
 <div id="colors">
 
     <div class="color active"
-
          style="background:black"
-
          onclick="setColor('black',this)">
-
     </div>
 
     <div class="color"
-
          style="background:red"
-
          onclick="setColor('red',this)">
-
     </div>
 
     <div class="color"
-
          style="background:blue"
-
          onclick="setColor('blue',this)">
-
     </div>
 
     <div class="color"
-
          style="background:green"
-
          onclick="setColor('green',this)">
-
     </div>
 
 </div>
@@ -315,65 +257,48 @@ button:hover{
 <script>
 
 /* =====================================================
-
    CANVAS
-
 ===================================================== */
 
 const canvas =
-
 document.getElementById("drawCanvas");
 
 const ctx =
-
 canvas.getContext("2d");
 
 function resizeCanvas(){
 
     const temp =
-
     document.createElement("canvas");
 
     temp.width = canvas.width;
-
     temp.height = canvas.height;
 
     temp.getContext("2d")
-
     .drawImage(canvas,0,0);
 
     canvas.width =
-
     window.innerWidth;
 
     canvas.height =
-
     window.innerHeight;
 
     ctx.drawImage(temp,0,0);
-
 }
 
 canvas.width =
-
 window.innerWidth;
 
 canvas.height =
-
 window.innerHeight;
 
 window.addEventListener(
-
     "resize",
-
     resizeCanvas
-
 );
 
 /* =====================================================
-
    DRAWING + ERASER
-
 ===================================================== */
 
 let drawing = false;
@@ -383,45 +308,30 @@ let currentColor = "black";
 let eraserMode = false;
 
 document.addEventListener(
-
     "pointerdown",
-
     startDrawing
-
 );
 
 document.addEventListener(
-
     "pointermove",
-
     drawLine
-
 );
 
 document.addEventListener(
-
     "pointerup",
-
     stopDrawing
-
 );
 
 function startDrawing(e){
 
     if(
-
         e.target.closest(".frame") ||
-
         e.target.closest(".counter") ||
-
         e.target.closest("#toolbar") ||
-
-        e.target.closest("#colors")
-
+        e.target.closest("#colors") ||
+        e.target.closest(".home-btn")
     ){
-
         return;
-
     }
 
     drawing = true;
@@ -429,13 +339,9 @@ function startDrawing(e){
     ctx.beginPath();
 
     ctx.moveTo(
-
         e.clientX,
-
         e.clientY
-
     );
-
 }
 
 function drawLine(e){
@@ -443,43 +349,33 @@ function drawLine(e){
     if(!drawing) return;
 
     ctx.lineTo(
-
         e.clientX,
-
         e.clientY
-
     );
 
     if(eraserMode){
 
         ctx.globalCompositeOperation =
-
         "destination-out";
 
         ctx.lineWidth = 30;
-
     }
 
     else{
 
         ctx.globalCompositeOperation =
-
         "source-over";
 
         ctx.strokeStyle =
-
         currentColor;
 
         ctx.lineWidth = 5;
-
     }
 
     ctx.lineCap = "round";
-
     ctx.lineJoin = "round";
 
     ctx.stroke();
-
 }
 
 function stopDrawing(){
@@ -489,31 +385,21 @@ function stopDrawing(){
     ctx.beginPath();
 
     ctx.globalCompositeOperation =
-
     "source-over";
-
 }
 
 function toggleEraser(){
-
     eraserMode = !eraserMode;
-
 }
 
 function clearCanvas(){
 
     ctx.clearRect(
-
         0,
-
         0,
-
         canvas.width,
-
         canvas.height
-
     );
-
 }
 
 function setColor(color,el){
@@ -523,31 +409,20 @@ function setColor(color,el){
     currentColor = color;
 
     document
-
     .querySelectorAll(".color")
-
     .forEach(c=>{
-
         c.classList.remove(
-
             "active"
-
         );
-
     });
 
     el.classList.add(
-
         "active"
-
     );
-
 }
 
 /* =====================================================
-
    DRAGGABLE
-
 ===================================================== */
 
 function makeDraggable(el,onDrop){
@@ -555,87 +430,61 @@ function makeDraggable(el,onDrop){
     let dragging = false;
 
     let offsetX = 0;
-
     let offsetY = 0;
 
     el.addEventListener(
-
         "pointerdown",
-
         (e)=>{
 
         dragging = true;
 
         offsetX =
-
         e.clientX - el.offsetLeft;
 
         offsetY =
-
         e.clientY - el.offsetTop;
 
         el.setPointerCapture(
-
             e.pointerId
-
         );
 
         if(el.classList.contains(
-
             "counter"
-
         )){
-
             el.classList.add(
-
                 "dragging"
-
             );
-
         }
 
         e.stopPropagation();
-
     });
 
     el.addEventListener(
-
         "pointermove",
-
         (e)=>{
 
         if(!dragging) return;
 
         el.style.left =
-
         (e.clientX-offsetX)+"px";
 
         el.style.top =
-
         (e.clientY-offsetY)+"px";
-
     });
 
     el.addEventListener(
-
         "pointerup",
-
         ()=>{
 
         dragging = false;
 
         el.classList.remove(
-
             "dragging"
-
         );
 
         if(onDrop){
-
             onDrop(el);
-
         }
-
     });
 
     /* DOUBLE TAP DELETE */
@@ -643,39 +492,29 @@ function makeDraggable(el,onDrop){
     let lastTap = 0;
 
     el.addEventListener(
-
         "click",
-
         ()=>{
 
         const now = Date.now();
 
         if(now-lastTap < 300){
-
             el.remove();
-
         }
 
         lastTap = now;
-
     });
-
 }
 
 /* =====================================================
-
    MAGNETIC FRAME SNAP
-
 ===================================================== */
 
 function snapFrames(frame){
 
     const frames =
-
     document.querySelectorAll(".frame");
 
     const rect1 =
-
     frame.getBoundingClientRect();
 
     frames.forEach(other=>{
@@ -683,105 +522,69 @@ function snapFrames(frame){
         if(other === frame) return;
 
         const rect2 =
-
         other.getBoundingClientRect();
 
         const SNAP = 30;
 
         if(
-
             Math.abs(
-
                 rect1.right - rect2.left
-
             ) < SNAP
-
             &&
-
             Math.abs(
-
                 rect1.top - rect2.top
-
             ) < SNAP
-
         ){
 
             frame.style.left =
-
             (other.offsetLeft -
-
              frame.offsetWidth - 4)
-
              + "px";
 
             frame.style.top =
-
             other.offsetTop + "px";
-
         }
 
         if(
-
             Math.abs(
-
                 rect1.left - rect2.right
-
             ) < SNAP
-
             &&
-
             Math.abs(
-
                 rect1.top - rect2.top
-
             ) < SNAP
-
         ){
 
             frame.style.left =
-
             (other.offsetLeft +
-
              other.offsetWidth + 4)
-
              + "px";
 
             frame.style.top =
-
             other.offsetTop + "px";
-
         }
-
     });
-
 }
 
 /* =====================================================
-
    CREATE FRAMES
-
 ===================================================== */
 
 function createFiveFrame(){
 
     const frame =
-
     document.createElement("div");
 
     frame.className =
-
     "frame fiveFrame";
 
     frame.style.left = "100px";
-
     frame.style.top = "120px";
 
     frame.style.width = "340px";
-
     frame.style.height = "80px";
 
     const grid =
-
     document.createElement("div");
 
     grid.className = "grid";
@@ -789,53 +592,40 @@ function createFiveFrame(){
     for(let i=0;i<5;i++){
 
         const cell =
-
         document.createElement("div");
 
         cell.className = "cell";
 
         grid.appendChild(cell);
-
     }
 
     frame.appendChild(grid);
 
     document.getElementById(
-
         "objectsLayer"
-
     ).appendChild(frame);
 
     makeDraggable(
-
         frame,
-
         snapFrames
-
     );
-
 }
 
 function createTenFrame(){
 
     const frame =
-
     document.createElement("div");
 
     frame.className =
-
     "frame tenFrame";
 
     frame.style.left = "150px";
-
     frame.style.top = "250px";
 
     frame.style.width = "340px";
-
     frame.style.height = "160px";
 
     const grid =
-
     document.createElement("div");
 
     grid.className = "grid";
@@ -843,195 +633,135 @@ function createTenFrame(){
     for(let i=0;i<10;i++){
 
         const cell =
-
         document.createElement("div");
 
         cell.className = "cell";
 
         grid.appendChild(cell);
-
     }
 
     frame.appendChild(grid);
 
     document.getElementById(
-
         "objectsLayer"
-
     ).appendChild(frame);
 
     makeDraggable(
-
         frame,
-
         snapFrames
-
     );
-
 }
 
 /* =====================================================
-
    CREATE COUNTERS
-
 ===================================================== */
 
 function createCounter(){
 
     const counter =
-
     document.createElement("div");
 
     counter.className =
-
     "counter";
 
     counter.style.left = "20px";
-
     counter.style.top = "120px";
 
     document.getElementById(
-
         "objectsLayer"
-
     ).appendChild(counter);
 
     makeDraggable(
-
         counter,
-
         snapCounter
-
     );
-
 }
 
 /* =====================================================
-
    SNAP COUNTER
-
 ===================================================== */
 
 function snapCounter(counter){
 
     const cells =
-
     document.querySelectorAll(
-
         ".cell"
-
     );
 
     let bestCell = null;
 
     let bestDistance =
-
     Infinity;
 
     const cRect =
-
     counter.getBoundingClientRect();
 
     const cx =
-
     cRect.left +
-
     cRect.width/2;
 
     const cy =
-
     cRect.top +
-
     cRect.height/2;
 
     cells.forEach(cell=>{
 
         const rect =
-
         cell.getBoundingClientRect();
 
         const x =
-
         rect.left +
-
         rect.width/2;
 
         const y =
-
         rect.top +
-
         rect.height/2;
 
         const dist =
-
         Math.hypot(
-
             cx-x,
-
             cy-y
-
         );
 
         if(dist < bestDistance){
 
             bestDistance = dist;
-
             bestCell = cell;
-
         }
-
     });
 
     if(bestCell &&
-
        bestDistance < 80){
 
         const frame =
-
         bestCell.closest(".frame");
 
         const frameRect =
-
         frame.getBoundingClientRect();
 
         const cellRect =
-
         bestCell.getBoundingClientRect();
 
         frame.appendChild(counter);
 
         counter.style.left =
-
         (
-
             cellRect.left -
-
             frameRect.left +
-
             4
-
         )+"px";
 
         counter.style.top =
-
         (
-
             cellRect.top -
-
             frameRect.top +
-
             4
-
         )+"px";
-
     }
-
 }
 
 /* =====================================================
-
    START
-
 ===================================================== */
 
 createFiveFrame();
@@ -1039,9 +769,7 @@ createFiveFrame();
 createTenFrame();
 
 for(let i=0;i<10;i++){
-
     createCounter();
-
 }
 
 </script>
