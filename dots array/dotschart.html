@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
@@ -7,7 +6,6 @@
 <meta charset="UTF-8">
 
 <meta name="viewport"
-
 content="width=device-width, initial-scale=1.0, user-scalable=no">
 
 <title>Drawing + Eraser + Clear</title>
@@ -17,373 +15,255 @@ content="width=device-width, initial-scale=1.0, user-scalable=no">
 /* ================= RESET ================= */
 
 *{
-
     margin:0;
-
     padding:0;
-
     box-sizing:border-box;
-
 }
 
 body{
-
     width:100vw;
-
     height:100vh;
-
     overflow:hidden;
-
     background:#eef2f7;
-
     font-family:Arial;
+}
 
+/* ================= HOME BUTTON ================= */
+
+.home-btn{
+    position:fixed;
+    top:12px;
+    right:12px;
+    z-index:200;
+
+    text-decoration:none;
+    background:white;
+    color:#111827;
+
+    padding:10px 18px;
+    border-radius:12px;
+
+    box-shadow:0 4px 10px rgba(0,0,0,0.15);
+
+    font-weight:bold;
+
+    transition:0.2s;
+}
+
+.home-btn:hover{
+    transform:scale(1.05);
+    background:#2563eb;
+    color:white;
 }
 
 /* ================= TOOLBAR ================= */
 
 .toolbar{
-
     position:fixed;
-
     top:12px;
-
     left:50%;
-
     transform:translateX(-50%);
-
     z-index:100;
-
     display:flex;
-
     gap:10px;
-
 }
 
 .tool-btn{
-
     border:none;
-
     padding:10px 18px;
-
     border-radius:10px;
-
     background:white;
-
     box-shadow:0 4px 10px rgba(0,0,0,0.15);
-
     cursor:pointer;
-
     font-weight:bold;
-
 }
 
 .tool-btn.active{
-
     background:#2563eb;
-
     color:white;
-
 }
 
 /* ================= CENTER ================= */
 
 .wrapper{
-
     width:100%;
-
     height:100%;
-
     display:flex;
-
     justify-content:center;
-
     align-items:center;
-
 }
 
 /* ================= BOARD ================= */
 
 .board{
-
     position:relative;
-
     width:min(92vw, 520px);
-
     height:min(92vw, 520px);
-
     background:white;
-
     border-radius:16px;
-
     overflow:hidden;
-
     box-shadow:0 10px 30px rgba(0,0,0,0.2);
-
 }
 
 /* ================= MAIN CANVAS ================= */
 
 #mainCanvas{
-
     position:absolute;
-
     inset:0;
-
     z-index:1;
-
     touch-action:none;
-
 }
 
 /* ================= GRID ================= */
 
 .grid{
-
     position:absolute;
-
     inset:0;
-
     display:grid;
 
-    /* larger handle spaces */
-
     grid-template-columns:
-
         repeat(9,1fr)
-
         22px;
 
     grid-template-rows:
-
         repeat(9,1fr)
-
         22px;
 
     z-index:2;
-
 }
 
 /* ================= DOTS ================= */
 
 .dot{
-
     display:flex;
-
     justify-content:center;
-
     align-items:center;
-
 }
 
 .dot::before{
-
     content:"";
-
     width:55%;
-
     height:55%;
-
     border-radius:50%;
-
     background:white;
-
     border:1px solid #cbd5e1;
-
 }
 
 .dot.active::before{
-
     background:#2563eb;
-
     border-color:#2563eb;
-
 }
 
 /* ================= HANDLE GAP ================= */
 
 .dot.handle-gap{
-
     pointer-events:none;
-
 }
 
 .dot.handle-gap::before{
-
     opacity:0;
-
 }
 
 /* ================= RIGHT PANEL ================= */
 
 .right-panel{
-
     position:absolute;
-
     top:0;
-
     right:0;
-
     width:120px;
-
     height:100%;
-
     background:white;
-
     border-left:2px solid #d1d5db;
-
     z-index:10;
-
 }
 
 /* BIGGER HANDLE */
 
 .mask-right{
-
     position:absolute;
-
     top:0;
-
     left:0;
-
     width:22px;
-
     height:100%;
-
     background:#f8fafc;
-
     border-right:2px solid #cbd5e1;
-
     cursor:ew-resize;
-
     z-index:12;
-
     touch-action:none;
-
     display:flex;
-
     justify-content:center;
-
     align-items:center;
-
 }
 
 /* HANDLE VISUAL */
 
 .mask-right::after{
-
     content:"";
-
     width:6px;
-
     height:60px;
-
     border-radius:999px;
-
     background:#94a3b8;
-
 }
 
 /* RIGHT CANVAS */
 
 #rightCanvas{
-
     position:absolute;
-
     inset:0 0 0 22px;
-
     width:calc(100% - 22px);
-
     height:100%;
-
     touch-action:none;
-
 }
 
 /* ================= BOTTOM PANEL ================= */
 
 .bottom-panel{
-
     position:absolute;
-
     left:0;
-
     bottom:0;
-
     width:100%;
-
     height:120px;
-
     background:white;
-
     border-top:2px solid #d1d5db;
-
     z-index:10;
-
 }
 
 /* BIGGER HANDLE */
 
 .mask-bottom{
-
     position:absolute;
-
     top:0;
-
     left:0;
-
     width:100%;
-
     height:22px;
-
     background:#f8fafc;
-
     border-bottom:2px solid #cbd5e1;
-
     cursor:ns-resize;
-
     z-index:12;
-
     touch-action:none;
-
     display:flex;
-
     justify-content:center;
-
     align-items:center;
-
 }
 
 /* HANDLE VISUAL */
 
 .mask-bottom::after{
-
     content:"";
-
     width:60px;
-
     height:6px;
-
     border-radius:999px;
-
     background:#94a3b8;
-
 }
 
 /* BOTTOM CANVAS */
 
 #bottomCanvas{
-
     position:absolute;
-
     inset:22px 0 0 0;
-
     width:100%;
-
     height:calc(100% - 22px);
-
     touch-action:none;
-
 }
 
 </style>
@@ -392,26 +272,27 @@ body{
 
 <body>
 
+<!-- HOME BUTTON ON THE RIGHT -->
+<a href="../index.html"
+   class="home-btn"
+   style="font-family:'Battambang', cursive; font-size:20px;">
+    🏡 Home
+</a>
+
 <!-- TOOLBAR -->
 
 <div class="toolbar">
 
     <button class="tool-btn active" id="drawBtn">
-
         Draw
-
     </button>
 
     <button class="tool-btn" id="eraseBtn">
-
         Eraser
-
     </button>
 
     <button class="tool-btn" id="clearBtn">
-
         Clear
-
     </button>
 
 </div>
@@ -421,31 +302,21 @@ body{
 <div class="board" id="board">
 
     <!-- MAIN -->
-
     <canvas id="mainCanvas"></canvas>
 
     <!-- GRID -->
-
     <div class="grid" id="grid"></div>
 
     <!-- RIGHT -->
-
     <div class="right-panel" id="rightPanel">
-
         <div class="mask-right" id="maskRight"></div>
-
         <canvas id="rightCanvas"></canvas>
-
     </div>
 
     <!-- BOTTOM -->
-
     <div class="bottom-panel" id="bottomPanel">
-
         <div class="mask-bottom" id="maskBottom"></div>
-
         <canvas id="bottomCanvas"></canvas>
-
     </div>
 
 </div>
@@ -459,29 +330,19 @@ body{
 let tool = "draw";
 
 const drawBtn = document.getElementById("drawBtn");
-
 const eraseBtn = document.getElementById("eraseBtn");
-
 const clearBtn = document.getElementById("clearBtn");
 
 drawBtn.onclick = ()=>{
-
     tool = "draw";
-
     drawBtn.classList.add("active");
-
     eraseBtn.classList.remove("active");
-
 };
 
 eraseBtn.onclick = ()=>{
-
     tool = "erase";
-
     eraseBtn.classList.add("active");
-
     drawBtn.classList.remove("active");
-
 };
 
 /* ================= DOT GRID ================= */
@@ -496,12 +357,8 @@ for(let row=0; row<10; row++){
 
         dot.className = "dot";
 
-        /* last row/column reserved */
-
         if(col === 9 || row === 9){
-
             dot.classList.add("handle-gap");
-
         }
 
         dot.addEventListener("pointerdown",(e)=>{
@@ -523,33 +380,23 @@ for(let row=0; row<10; row++){
 /* ================= CANVASES ================= */
 
 const mainCanvas = document.getElementById("mainCanvas");
-
 const rightCanvas = document.getElementById("rightCanvas");
-
 const bottomCanvas = document.getElementById("bottomCanvas");
 
 const mainCtx = mainCanvas.getContext("2d");
-
 const rightCtx = rightCanvas.getContext("2d");
-
 const bottomCtx = bottomCanvas.getContext("2d");
 
 const board = document.getElementById("board");
-
 const rightPanel = document.getElementById("rightPanel");
-
 const bottomPanel = document.getElementById("bottomPanel");
 
 /* ================= DRAW STORAGE ================= */
 
 let drawings = {
-
     main: [],
-
     right: [],
-
     bottom: []
-
 };
 
 /* ================= RESIZE ================= */
@@ -557,21 +404,16 @@ let drawings = {
 function resizeCanvases(){
 
     mainCanvas.width = board.offsetWidth;
-
     mainCanvas.height = board.offsetHeight;
 
     rightCanvas.width = rightPanel.offsetWidth - 22;
-
     rightCanvas.height = rightPanel.offsetHeight;
 
     bottomCanvas.width = bottomPanel.offsetWidth;
-
     bottomCanvas.height = bottomPanel.offsetHeight - 22;
 
     redrawCanvas(mainCtx, drawings.main);
-
     redrawCanvas(rightCtx, drawings.right);
-
     redrawCanvas(bottomCtx, drawings.bottom);
 
 }
@@ -595,23 +437,16 @@ function redrawCanvas(ctx, paths){
         ctx.lineCap = "round";
 
         if(path.erase){
-
             ctx.globalCompositeOperation = "destination-out";
-
         }else{
-
             ctx.globalCompositeOperation = "source-over";
-
             ctx.strokeStyle = "#ef4444";
-
         }
 
         ctx.moveTo(path.points[0].x, path.points[0].y);
 
         for(let i=1;i<path.points.length;i++){
-
             ctx.lineTo(path.points[i].x, path.points[i].y);
-
         }
 
         ctx.stroke();
@@ -635,19 +470,13 @@ function enableDrawing(canvas, ctx, storage){
         drawing = true;
 
         currentPath = {
-
             erase: tool === "erase",
-
             points:[]
-
         };
 
         currentPath.points.push({
-
             x:e.offsetX,
-
             y:e.offsetY
-
         });
 
         storage.push(currentPath);
@@ -659,11 +488,8 @@ function enableDrawing(canvas, ctx, storage){
         if(!drawing) return;
 
         currentPath.points.push({
-
             x:e.offsetX,
-
             y:e.offsetY
-
         });
 
         redrawCanvas(ctx, storage);
@@ -671,9 +497,7 @@ function enableDrawing(canvas, ctx, storage){
     });
 
     window.addEventListener("pointerup",()=>{
-
         drawing = false;
-
     });
 
 }
@@ -681,9 +505,7 @@ function enableDrawing(canvas, ctx, storage){
 /* ================= ENABLE ================= */
 
 enableDrawing(mainCanvas, mainCtx, drawings.main);
-
 enableDrawing(rightCanvas, rightCtx, drawings.right);
-
 enableDrawing(bottomCanvas, bottomCtx, drawings.bottom);
 
 /* ================= CLEAR ================= */
@@ -691,25 +513,17 @@ enableDrawing(bottomCanvas, bottomCtx, drawings.bottom);
 clearBtn.onclick = ()=>{
 
     drawings = {
-
         main: [],
-
         right: [],
-
         bottom: []
-
     };
 
     mainCtx.clearRect(0,0,mainCanvas.width,mainCanvas.height);
-
     rightCtx.clearRect(0,0,rightCanvas.width,rightCanvas.height);
-
     bottomCtx.clearRect(0,0,bottomCanvas.width,bottomCanvas.height);
 
     document.querySelectorAll(".dot").forEach(dot=>{
-
         dot.classList.remove("active");
-
     });
 
 };
@@ -723,9 +537,7 @@ resizeCanvases();
 const maskRight = document.getElementById("maskRight");
 
 let dragRight = false;
-
 let startX = 0;
-
 let startWidth = 0;
 
 maskRight.addEventListener("pointerdown",(e)=>{
@@ -733,7 +545,6 @@ maskRight.addEventListener("pointerdown",(e)=>{
     dragRight = true;
 
     startX = e.clientX;
-
     startWidth = rightPanel.offsetWidth;
 
     maskRight.setPointerCapture(e.pointerId);
@@ -747,9 +558,7 @@ maskRight.addEventListener("pointerdown",(e)=>{
 const maskBottom = document.getElementById("maskBottom");
 
 let dragBottom = false;
-
 let startY = 0;
-
 let startHeight = 0;
 
 maskBottom.addEventListener("pointerdown",(e)=>{
@@ -757,7 +566,6 @@ maskBottom.addEventListener("pointerdown",(e)=>{
     dragBottom = true;
 
     startY = e.clientY;
-
     startHeight = bottomPanel.offsetHeight;
 
     maskBottom.setPointerCapture(e.pointerId);
@@ -769,9 +577,7 @@ maskBottom.addEventListener("pointerdown",(e)=>{
 /* ================= CLAMP ================= */
 
 function clamp(value,min,max){
-
     return Math.min(Math.max(value,min),max);
-
 }
 
 /* ================= MOVE ================= */
@@ -819,19 +625,14 @@ window.addEventListener("pointermove",(e)=>{
 /* ================= END DRAG ================= */
 
 function stopDragging(){
-
     dragRight = false;
-
     dragBottom = false;
-
 }
 
 window.addEventListener("pointerup",stopDragging);
-
 window.addEventListener("pointercancel",stopDragging);
 
 </script>
 
 </body>
-
 </html>
