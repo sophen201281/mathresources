@@ -24,16 +24,14 @@
     left: 0;
   }
 
-  /* CLOCK CANVAS - only receives events on clock face/hands area */
-  #clockCanvas {
-    z-index: 2;
-    pointer-events: auto; /* Allow hand dragging */
-  }
-  
-  /* DRAW CANVAS - receives all drawing events */
+  /* Draw layer sits on the bottom */
   #drawCanvas {
     z-index: 1;
-    pointer-events: auto; /* CRITICAL FIX: ensures drawing works */
+  }
+
+  /* Clock layer sits on top to catch interactions */
+  #clockCanvas {
+    z-index: 2;
   }
 
   #toolbar {
@@ -73,12 +71,14 @@
 </style>
 </head>
 <body>
+
 <div id="toolbar">
   <button id="modeBtn">✏️ Draw</button>
   <button id="clearBtn">🧹 Clear Canvas</button>
 </div>
-<canvas id="clockCanvas"></canvas>
+
 <canvas id="drawCanvas"></canvas>
+<canvas id="clockCanvas"></canvas>
 
 <script>
   (function() {
@@ -114,11 +114,11 @@
       drawClock();
     }
 
-    // Draw clock
+    // Draw clock graphics
     function drawClock() {
       ctx.clearRect(0, 0, clockCanvas.width, clockCanvas.height);
       
-      // Clock face
+      // Clock face background
       ctx.beginPath();
       ctx.arc(cx, cy, radius, 0, Math.PI * 2);
       ctx.fillStyle = "#FFFFFF";
@@ -142,14 +142,14 @@
         ctx.fillText(i.toString(), x, y);
       }
       
-      // Hands
+      // Hands orientation calculation
       let minuteAngle = (minutes * 6) - 90;
       let hourAngle = ((hours % 12) * 30) + (minutes * 0.5) - 90;
       
       drawHand(hourAngle, radius * 0.48, 9, "#C44536", hourTip);
       drawHand(minuteAngle, radius * 0.72, 6, "#2C5282", minuteTip);
       
-      // Center dot
+      // Center accent pin
       ctx.beginPath();
       ctx.arc(cx, cy, 12, 0, Math.PI * 2);
       ctx.fillStyle = "#1E2F3E";
@@ -184,73 +184,86 @@
       return Math.hypot(p1x - p2x, p1y - p2y);
     }
     
-    // ***** FIXED: Only drag when touching clock hands *****
-    function handleClockPointerDown(e) {
+    // Unified Event Pipeline on Top Canvas
+    function handlePointerDown(e) {
       const x = e.clientX;
       const y = e.clientY;
       
-      // Only capture if touching hour or minute hand
+      // 1. Check clock interactions first
       if (distance(x, y, hourTip.x, hourTip.y) < 38) {
         dragging = "hour";
         clockCanvas.setPointerCapture(e.pointerId);
-        e.preventDefault();
-        e.stopPropagation();
+        return;
       } 
-      else if (distance(x, y, minuteTip.x, minuteTip.y) < 38) {
+      if (distance(x, y, minuteTip.x, minuteTip.y) < 38) {
         dragging = "minute";
         clockCanvas.setPointerCapture(e.pointerId);
-        e.preventDefault();
-        e.stopPropagation();
-      }
-      // If not touching hands, do nothing - let draw canvas handle it
-    }
-    
-    function handleClockPointerMove(e) {
-      if (!dragging) return;
-      e.preventDefault();
-      
-      let dx = e.clientX - cx;
-      let dy = e.clientY - cy;
-      let rawAngle = Math.atan2(dy, dx) * 180 / Math.PI;
-      let angle = (rawAngle + 360) % 360;
-      
-      if (dragging === "minute") {
-        let newMinutes = Math.round(angle / 6) % 60;
-        if (prevMinute > 50 && newMinutes < 10) {
-          hours = (hours + 1) % 12;
-          if (hours === 0) hours = 12;
-        }
-        if (prevMinute < 10 && newMinutes > 50) {
-          hours = (hours - 1 + 12) % 12;
-          if (hours === 0) hours = 12;
-        }
-        minutes = newMinutes;
-        prevMinute = minutes;
-      } 
-      else if (dragging === "hour") {
-        let newHour = Math.round(angle / 30) % 12;
-        if (newHour === 0) newHour = 12;
-        hours = newHour;
+        return;
       }
       
-      drawClock();
+      // 2. Fall back to drawing if no hand was hit
+      drawing = true;
+      setupDrawingContext();
+      dctx.beginPath();
+      dctx.moveTo(x, y);
+      dctx.lineTo(x + 0.5, y + 0.5);
+      dctx.stroke();
+      dctx.beginPath();
+      dctx.moveTo(x, y);
     }
     
-    function handleClockPointerUp(e) {
+    function handlePointerMove(e) {
+      // Scenario A: Hand Dragging
+      if (dragging) {
+        let dx = e.clientX - cx;
+        let dy = e.clientY - cy;
+        let rawAngle = Math.atan2(dy, dx) * 180 / Math.PI;
+        let angle = (rawAngle + 360) % 360;
+        
+        if (dragging === "minute") {
+          let newMinutes = Math.round(angle / 6) % 60;
+          if (prevMinute > 50 && newMinutes < 10) {
+            hours = (hours + 1) % 12;
+            if (hours === 0) hours = 12;
+          }
+          if (prevMinute < 10 && newMinutes > 50) {
+            hours = (hours - 1 + 12) % 12;
+            if (hours === 0) hours = 12;
+          }
+          minutes = newMinutes;
+          prevMinute = minutes;
+        } 
+        else if (dragging === "hour") {
+          let newHour = Math.round(angle / 30) % 12;
+          if (newHour === 0) newHour = 12;
+          hours = newHour;
+        }
+        drawClock();
+        return;
+      }
+      
+      // Scenario B: Vector Drawing
+      if (drawing) {
+        setupDrawingContext();
+        dctx.lineTo(e.clientX, e.clientY);
+        dctx.stroke();
+        dctx.beginPath();
+        dctx.moveTo(e.clientX, e.clientY);
+      }
+    }
+    
+    function handlePointerUp(e) {
       if (dragging) {
         clockCanvas.releasePointerCapture(e.pointerId);
         dragging = null;
-        e.preventDefault();
+      }
+      if (drawing) {
+        drawing = false;
+        dctx.globalCompositeOperation = "source-over";
       }
     }
-    
-    // ***** DRAWING: works perfectly now *****
-    function startDrawing(e) {
-      drawing = true;
-      const x = e.clientX;
-      const y = e.clientY;
-      
-      dctx.beginPath();
+
+    function setupDrawingContext() {
       if (mode === "draw") {
         dctx.globalCompositeOperation = "source-over";
         dctx.lineWidth = 4;
@@ -261,43 +274,12 @@
       }
       dctx.lineCap = "round";
       dctx.lineJoin = "round";
-      dctx.moveTo(x, y);
-      dctx.lineTo(x + 0.5, y + 0.5);
-      dctx.stroke();
-      dctx.beginPath();
-      dctx.moveTo(x, y);
     }
     
-    function drawMove(e) {
-      if (!drawing) return;
-      e.preventDefault();
-      
-      if (mode === "draw") {
-        dctx.globalCompositeOperation = "source-over";
-        dctx.lineWidth = 4;
-        dctx.strokeStyle = "#1E2A3E";
-      } else {
-        dctx.globalCompositeOperation = "destination-out";
-        dctx.lineWidth = 28;
-      }
-      
-      dctx.lineTo(e.clientX, e.clientY);
-      dctx.stroke();
-      dctx.beginPath();
-      dctx.moveTo(e.clientX, e.clientY);
-    }
-    
-    function endDrawing() {
-      drawing = false;
-      dctx.globalCompositeOperation = "source-over";
-    }
-    
-    // Clear canvas
     function clearDrawCanvas() {
       dctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
     }
     
-    // Toggle mode
     function toggleMode() {
       if (mode === "draw") {
         mode = "erase";
@@ -310,25 +292,16 @@
       }
     }
     
-    // Event listeners
     function attachEvents() {
-      // Clock dragging
-      clockCanvas.addEventListener("pointerdown", handleClockPointerDown);
-      clockCanvas.addEventListener("pointermove", handleClockPointerMove);
-      clockCanvas.addEventListener("pointerup", handleClockPointerUp);
+      // Event listeners mounted entirely onto clockCanvas to handle overlapping areas natively
+      clockCanvas.addEventListener("pointerdown", handlePointerDown);
+      clockCanvas.addEventListener("pointermove", handlePointerMove);
+      clockCanvas.addEventListener("pointerup", handlePointerUp);
+      clockCanvas.addEventListener("pointercancel", handlePointerUp);
       
-      // Drawing - NOW WORKS because clock canvas only captures hand drags
-      drawCanvas.addEventListener("pointerdown", startDrawing);
-      drawCanvas.addEventListener("pointermove", drawMove);
-      drawCanvas.addEventListener("pointerup", endDrawing);
-      drawCanvas.addEventListener("pointercancel", endDrawing);
-      
-      // Prevent context menus
-      drawCanvas.addEventListener("contextmenu", (e) => e.preventDefault());
       clockCanvas.addEventListener("contextmenu", (e) => e.preventDefault());
     }
     
-    // Initialize
     const modeBtn = document.getElementById("modeBtn");
     const clearBtn = document.getElementById("clearBtn");
     
@@ -349,7 +322,6 @@
     resize();
     attachEvents();
     
-    // Initial draw
     setTimeout(() => drawClock(), 10);
   })();
 </script>
