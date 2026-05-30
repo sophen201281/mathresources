@@ -7,11 +7,11 @@
 
 <style>
 
-/* ====== SAME UI (updated for white background) ====== */
+/* ====== WHITE CLEAN UI ====== */
 
 :root{
-  --bg:#ffffff;              /* ✅ changed */
-  --panel:#f5f6fb;           /* lighter panels for contrast */
+  --bg:#ffffff;
+  --panel:#f5f6fb;
   --panel-2:#eef0f8;
   --text:#1b1f2a;
   --muted:#5a647a;
@@ -19,11 +19,7 @@
   --accent-2:#00b894;
   --danger:#e74c3c;
   --grid:#d7dbea;
-  --tile:#e9ecf7;
-  --tile-on:#4a63ff;
-  --tile-on-2:#1fb98b;
   --shadow: 0 6px 18px rgba(0,0,0,.08);
-  --radius:14px;
 }
 
 *{box-sizing:border-box}
@@ -31,9 +27,9 @@
 html,body{
   margin:0;
   height:100%;
-  background:#ffffff;   /* ✅ MAIN CHANGE */
+  background:#ffffff;
   color:var(--text);
-  font: 15px system-ui;
+  font: 20px system-ui;
 }
 
 .wrap{
@@ -58,6 +54,7 @@ html,body{
 header{
   padding:12px 14px;
   border-bottom:1px solid #e3e6f3;
+  font-weight:600;
 }
 
 .toolbar, .chart-toolbar{
@@ -84,16 +81,18 @@ canvas{
   width:100%;
   height:420px;
   display:block;
-  background:#ffffff;   /* ✅ changed from dark to white */
+  background:#ffffff;
   touch-action:none;
   border-radius:10px;
   border:1px solid #e3e6f3;
 }
 
+/* ====== 100 GRID FIX ====== */
+
 .grid{
   display:grid;
   grid-template-columns:repeat(10,1fr);
-  gap:6px;
+  gap:4px;              /* tighter spacing ✔ */
   padding:10px;
 }
 
@@ -102,16 +101,29 @@ canvas{
   display:flex;
   align-items:center;
   justify-content:center;
+
   background:#eef1fb;
-  border-radius:8px;
+  border-radius:6px;
   cursor:pointer;
+
   color:#1b1f2a;
-  font-weight:bold;
+
+  font-size:25px;       /* ✅ FIXED number size */
+  font-weight:600;
+  line-height:1;
+
   border:1px solid #d9deef;
 }
 
-.cell.on{background:#4a63ff; color:white}
-.cell.multiple{background:#1fb98b; color:white}
+.cell.on{
+  background:#4a63ff;
+  color:white;
+}
+
+.cell.multiple{
+  background:#1fb98b;
+  color:white;
+}
 
 </style>
 </head>
@@ -128,7 +140,7 @@ canvas{
 <button id="pencil">សរសេរ</button>
 <button id="eraser">លុប</button>
 <button id="clear" class="destructive">សម្អាត</button>
-<a href="../index.html" class="homeBtn">🏡 Home </a>
+<a href="../index.html">🏡 Home</a>
 </div>
 
 <canvas id="c"></canvas>
@@ -136,7 +148,7 @@ canvas{
 
 <!-- ================= 100 CHART ================= -->
 <section class="card">
-<header>តារាងការេ​ 100</header>
+<header>តារាងការេ 100</header>
 
 <div class="chart-toolbar">
 <button id="evens">គូ</button>
@@ -153,9 +165,7 @@ canvas{
 
 <script>
 
-/* =========================
-   FIXED CANVAS ENGINE
-========================= */
+/* ================= CANVAS ================= */
 
 const canvas = document.getElementById("c");
 const ctx = canvas.getContext("2d");
@@ -174,17 +184,19 @@ window.addEventListener("resize", fitCanvas);
 let drawing = false;
 let tool = "pencil";
 let last = null;
-let shiftAnchor = null;
 
 function pos(e){
   const r = canvas.getBoundingClientRect();
-  return { x: e.clientX - r.left, y: e.clientY - r.top };
+  return {x:e.clientX-r.left, y:e.clientY-r.top};
 }
 
 function draw(a,b){
-  ctx.globalCompositeOperation = tool === "eraser" ? "destination-out" : "source-over";
+  ctx.globalCompositeOperation =
+    tool === "eraser" ? "destination-out" : "source-over";
+
   ctx.strokeStyle = "#2b6fff";
   ctx.lineWidth = 4;
+
   ctx.beginPath();
   ctx.moveTo(a.x,a.y);
   ctx.lineTo(b.x,b.y);
@@ -194,9 +206,7 @@ function draw(a,b){
 canvas.addEventListener("pointerdown", e=>{
   drawing = true;
   canvas.setPointerCapture(e.pointerId);
-  const p = pos(e);
-  shiftAnchor = p;
-  last = p;
+  last = pos(e);
 });
 
 canvas.addEventListener("pointermove", e=>{
@@ -218,9 +228,7 @@ document.getElementById("clear").onclick=()=>{
   ctx.clearRect(0,0,canvas.width,canvas.height);
 };
 
-/* =========================
-   100 GRID FIXED
-========================= */
+/* ================= 100 GRID ================= */
 
 const grid = document.getElementById("grid");
 const cells = [];
