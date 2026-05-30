@@ -3,99 +3,114 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>100 Chart</title>
+<title>100 Chart - One Screen</title>
 
 <style>
 
-/* ====== WHITE CLEAN UI ====== */
+/* ===== CLEAN WHITE UI ===== */
 
 :root{
   --bg:#ffffff;
   --panel:#f5f6fb;
-  --panel-2:#eef0f8;
   --text:#1b1f2a;
-  --muted:#5a647a;
-  --accent:#2b6fff;
-  --accent-2:#00b894;
-  --danger:#e74c3c;
-  --grid:#d7dbea;
+  --border:#e3e6f3;
   --shadow: 0 6px 18px rgba(0,0,0,.08);
 }
 
-*{box-sizing:border-box}
+*{
+  box-sizing:border-box;
+}
 
 html,body{
   margin:0;
-  height:100%;
-  background:#ffffff;
+  height:100vh;
+  overflow:hidden;              /* ✅ NO SCROLL */
+  background:var(--bg);
   color:var(--text);
-  font: 20px system-ui;
+  font-family:system-ui;
 }
+
+/* ===== MAIN LAYOUT ===== */
 
 .wrap{
   display:grid;
   grid-template-columns:1fr 1fr;
-  gap:16px;
-  padding:16px;
+  height:100vh;                 /* ✅ FULL SCREEN */
+  gap:10px;
+  padding:10px;
 }
 
+/* stack on mobile */
 @media(max-width:900px){
-  .wrap{grid-template-columns:1fr;}
+  .wrap{
+    grid-template-columns:1fr;
+    grid-template-rows:1fr 1fr;
+  }
 }
 
 .card{
   background:var(--panel);
-  border-radius:14px;
-  overflow:hidden;
-  border:1px solid #e3e6f3;
+  border:1px solid var(--border);
+  border-radius:12px;
   box-shadow:var(--shadow);
+
+  display:flex;
+  flex-direction:column;
+
+  overflow:hidden;
 }
+
+/* ===== HEADERS ===== */
 
 header{
-  padding:12px 14px;
-  border-bottom:1px solid #e3e6f3;
+  padding:8px 10px;
   font-weight:600;
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
 }
 
-.toolbar, .chart-toolbar{
+/* ===== TOOLBARS ===== */
+
+.toolbar,.chart-toolbar{
   display:flex;
-  gap:10px;
-  padding:10px;
-  border-bottom:1px solid #e3e6f3;
   flex-wrap:wrap;
+  gap:6px;
+  padding:6px;
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
 }
 
 button{
-  background:#ffffff;
-  color:var(--text);
+  padding:6px 8px;
+  border-radius:8px;
   border:1px solid #cfd6ea;
-  padding:8px 10px;
-  border-radius:10px;
+  background:#fff;
   cursor:pointer;
+  font-size:14px;
 }
 
-button.secondary{background:#eef1f8}
-button.destructive{background:#ffe5e5}
+/* ===== CANVAS ===== */
 
 canvas{
+  flex:1;                      /* ✅ TAKE AVAILABLE SPACE */
   width:100%;
-  height:420px;
   display:block;
-  background:#ffffff;
+  background:#fff;
   touch-action:none;
-  border-radius:10px;
-  border:1px solid #e3e6f3;
 }
 
-/* ====== 100 GRID FIX ====== */
+/* ===== GRID AREA ===== */
 
 .grid{
+  flex:1;                      /* ✅ FILL SPACE */
   display:grid;
   grid-template-columns:repeat(10,1fr);
-  gap:4px;              /* tighter spacing ✔ */
-  padding:10px;
+  gap:3px;
+  padding:6px;
+  overflow:hidden;             /* prevents scroll */
 }
 
+/* auto scaling cells */
 .cell{
   aspect-ratio:1;
   display:flex;
@@ -103,26 +118,23 @@ canvas{
   justify-content:center;
 
   background:#eef1fb;
-  border-radius:6px;
-  cursor:pointer;
-
-  color:#1b1f2a;
-
-  font-size:25px;       /* ✅ FIXED number size */
-  font-weight:600;
-  line-height:1;
-
+  border-radius:5px;
   border:1px solid #d9deef;
+
+  font-size:clamp(10px, 1.2vw, 16px); /* ✅ RESPONSIVE TEXT */
+  font-weight:600;
+  cursor:pointer;
+  user-select:none;
 }
 
 .cell.on{
   background:#4a63ff;
-  color:white;
+  color:#fff;
 }
 
 .cell.multiple{
   background:#1fb98b;
-  color:white;
+  color:#fff;
 }
 
 </style>
@@ -134,56 +146,59 @@ canvas{
 
 <!-- ================= CANVAS ================= -->
 <section class="card">
-<header>ផ្ទាំងសរសេរ</header>
+
+<header>🖊️ Drawing Board</header>
 
 <div class="toolbar">
-<button id="pencil">សរសេរ</button>
-<button id="eraser">លុប</button>
-<button id="clear" class="destructive">សម្អាត</button>
+<button id="pencil">Pen</button>
+<button id="eraser">Eraser</button>
+<button id="clear">Clear</button>
 <a href="../index.html">🏡 Home</a>
 </div>
 
 <canvas id="c"></canvas>
+
 </section>
 
-<!-- ================= 100 CHART ================= -->
+<!-- ================= 100 GRID ================= -->
 <section class="card">
-<header>តារាងការេ 100</header>
+
+<header>🔢 100 Chart</header>
 
 <div class="chart-toolbar">
-<button id="evens">គូ</button>
-<button id="odds">សេស</button>
-<button id="clearGrid">សម្អាត</button>
+<button id="evens">Evens</button>
+<button id="odds">Odds</button>
+<button id="clearGrid">Clear</button>
 <input id="n" type="number" value="5" min="2" max="20">
-<button id="multi">ពហុគុណ</button>
+<button id="multi">Multiples</button>
 </div>
 
 <div id="grid" class="grid"></div>
+
 </section>
 
 </div>
 
 <script>
 
-/* ================= CANVAS ================= */
+/* ===== CANVAS ===== */
 
 const canvas = document.getElementById("c");
 const ctx = canvas.getContext("2d");
 
-function fitCanvas(){
-  const rect = canvas.getBoundingClientRect();
-  canvas.width = rect.width;
-  canvas.height = rect.height;
+function resize(){
+  const r = canvas.getBoundingClientRect();
+  canvas.width = r.width;
+  canvas.height = r.height;
   ctx.lineCap = "round";
-  ctx.lineJoin = "round";
 }
 
-fitCanvas();
-window.addEventListener("resize", fitCanvas);
+window.addEventListener("resize", resize);
+resize();
 
-let drawing = false;
-let tool = "pencil";
-let last = null;
+let drawing=false;
+let tool="pencil";
+let last=null;
 
 function pos(e){
   const r = canvas.getBoundingClientRect();
@@ -192,10 +207,10 @@ function pos(e){
 
 function draw(a,b){
   ctx.globalCompositeOperation =
-    tool === "eraser" ? "destination-out" : "source-over";
+    tool==="eraser" ? "destination-out" : "source-over";
 
-  ctx.strokeStyle = "#2b6fff";
-  ctx.lineWidth = 4;
+  ctx.strokeStyle="#2b6fff";
+  ctx.lineWidth=3;
 
   ctx.beginPath();
   ctx.moveTo(a.x,a.y);
@@ -203,22 +218,21 @@ function draw(a,b){
   ctx.stroke();
 }
 
-canvas.addEventListener("pointerdown", e=>{
-  drawing = true;
+canvas.addEventListener("pointerdown",e=>{
+  drawing=true;
   canvas.setPointerCapture(e.pointerId);
-  last = pos(e);
+  last=pos(e);
 });
 
-canvas.addEventListener("pointermove", e=>{
+canvas.addEventListener("pointermove",e=>{
   if(!drawing) return;
-  const p = pos(e);
+  const p=pos(e);
   draw(last,p);
-  last = p;
+  last=p;
 });
 
-canvas.addEventListener("pointerup", e=>{
-  drawing = false;
-  last = null;
+canvas.addEventListener("pointerup",e=>{
+  drawing=false;
   canvas.releasePointerCapture(e.pointerId);
 });
 
@@ -228,13 +242,13 @@ document.getElementById("clear").onclick=()=>{
   ctx.clearRect(0,0,canvas.width,canvas.height);
 };
 
-/* ================= 100 GRID ================= */
+/* ===== GRID ===== */
 
-const grid = document.getElementById("grid");
-const cells = [];
+const grid=document.getElementById("grid");
+const cells=[];
 
 for(let i=1;i<=100;i++){
-  const d = document.createElement("div");
+  const d=document.createElement("div");
   d.className="cell";
   d.textContent=i;
   grid.appendChild(d);
@@ -244,17 +258,15 @@ for(let i=1;i<=100;i++){
 let lastIdx=null;
 
 grid.addEventListener("click",e=>{
-  const cell = e.target;
-  const idx = cells.indexOf(cell);
+  const cell=e.target;
+  const idx=cells.indexOf(cell);
   if(idx<0) return;
 
   if(e.shiftKey && lastIdx!=null){
     const a=Math.min(lastIdx,idx);
     const b=Math.max(lastIdx,idx);
-    for(let i=a;i<=b;i++){
-      cells[i].classList.add("on");
-    }
-  } else {
+    for(let i=a;i<=b;i++) cells[i].classList.add("on");
+  }else{
     cell.classList.toggle("on");
   }
 
@@ -262,28 +274,20 @@ grid.addEventListener("click",e=>{
 });
 
 document.getElementById("clearGrid").onclick=()=>{
-  cells.forEach(c=>{
-    c.classList.remove("on","multiple");
-  });
+  cells.forEach(c=>c.classList.remove("on","multiple"));
 };
 
 document.getElementById("evens").onclick=()=>{
-  cells.forEach((c,i)=>{
-    c.classList.toggle("on",(i+1)%2===0);
-  });
+  cells.forEach((c,i)=>c.classList.toggle("on",(i+1)%2===0));
 };
 
 document.getElementById("odds").onclick=()=>{
-  cells.forEach((c,i)=>{
-    c.classList.toggle("on",(i+1)%2===1);
-  });
+  cells.forEach((c,i)=>c.classList.toggle("on",(i+1)%2===1));
 };
 
 document.getElementById("multi").onclick=()=>{
   const n=parseInt(document.getElementById("n").value);
-  cells.forEach((c,i)=>{
-    c.classList.toggle("multiple",(i+1)%n===0);
-  });
+  cells.forEach((c,i)=>c.classList.toggle("multiple",(i+1)%n===0));
 };
 
 </script>
