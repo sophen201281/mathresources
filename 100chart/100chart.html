@@ -1,195 +1,119 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
 <meta charset="utf-8" />
-
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-
 <title>100 Chart</title>
 
 <style>
 
-/* ====== SAME UI (unchanged visually) ====== */
+/* ====== SAME UI (updated for white background) ====== */
 
 :root{
-
-  --bg:#0f1220;
-
-  --panel:#151935;
-
-  --panel-2:#1b2147;
-
-  --text:#e6e9f4;
-
-  --muted:#a9b0c9;
-
-  --accent:#6ea8fe;
-
-  --accent-2:#8bffda;
-
-  --danger:#ff6b6b;
-
-  --grid:#2a315f;
-
-  --tile:#222a60;
-
-  --tile-on:#3541a3;
-
-  --tile-on-2:#2e816c;
-
-  --shadow: 0 6px 18px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.04);
-
+  --bg:#ffffff;              /* ✅ changed */
+  --panel:#f5f6fb;           /* lighter panels for contrast */
+  --panel-2:#eef0f8;
+  --text:#1b1f2a;
+  --muted:#5a647a;
+  --accent:#2b6fff;
+  --accent-2:#00b894;
+  --danger:#e74c3c;
+  --grid:#d7dbea;
+  --tile:#e9ecf7;
+  --tile-on:#4a63ff;
+  --tile-on-2:#1fb98b;
+  --shadow: 0 6px 18px rgba(0,0,0,.08);
   --radius:14px;
-
 }
 
 *{box-sizing:border-box}
 
 html,body{
-
   margin:0;
-
   height:100%;
-
-  background:#0b0e1a;
-
+  background:#ffffff;   /* ✅ MAIN CHANGE */
   color:var(--text);
-
   font: 15px system-ui;
-
 }
 
 .wrap{
-
   display:grid;
-
   grid-template-columns:1fr 1fr;
-
   gap:16px;
-
   padding:16px;
-
 }
 
 @media(max-width:900px){
-
   .wrap{grid-template-columns:1fr;}
-
 }
 
 .card{
-
   background:var(--panel);
-
   border-radius:14px;
-
   overflow:hidden;
-
-  border:1px solid #232956;
-
+  border:1px solid #e3e6f3;
+  box-shadow:var(--shadow);
 }
 
 header{
-
   padding:12px 14px;
-
-  border-bottom:1px solid #232956;
-
+  border-bottom:1px solid #e3e6f3;
 }
 
 .toolbar, .chart-toolbar{
-
   display:flex;
-
   gap:10px;
-
   padding:10px;
-
-  border-bottom:1px solid #232956;
-
+  border-bottom:1px solid #e3e6f3;
   flex-wrap:wrap;
-
 }
 
 button{
-
-  background:#222a60;
-
-  color:white;
-
-  border:1px solid #3a458a;
-
+  background:#ffffff;
+  color:var(--text);
+  border:1px solid #cfd6ea;
   padding:8px 10px;
-
   border-radius:10px;
-
   cursor:pointer;
-
 }
 
-button.secondary{background:#1a2740}
-
-button.destructive{background:#5a2222}
+button.secondary{background:#eef1f8}
+button.destructive{background:#ffe5e5}
 
 canvas{
-
   width:100%;
-
   height:420px;
-
   display:block;
-
-  background:#0c1030;
-
+  background:#ffffff;   /* ✅ changed from dark to white */
   touch-action:none;
-
   border-radius:10px;
-
+  border:1px solid #e3e6f3;
 }
 
 .grid{
-
   display:grid;
-
   grid-template-columns:repeat(10,1fr);
-
   gap:6px;
-
   padding:10px;
-
 }
 
 .cell{
-
   aspect-ratio:1;
-
   display:flex;
-
   align-items:center;
-
   justify-content:center;
-
-  background:#1b2350;
-
+  background:#eef1fb;
   border-radius:8px;
-
   cursor:pointer;
-
-  color:white;
-
+  color:#1b1f2a;
   font-weight:bold;
-
+  border:1px solid #d9deef;
 }
 
-.cell.on{background:#3541a3}
-
-.cell.multiple{background:#2e816c}
+.cell.on{background:#4a63ff; color:white}
+.cell.multiple{background:#1fb98b; color:white}
 
 </style>
-
 </head>
 
 <body>
@@ -197,48 +121,32 @@ canvas{
 <div class="wrap">
 
 <!-- ================= CANVAS ================= -->
-
 <section class="card">
-
 <header>ផ្ទាំងសរសេរ</header>
 
 <div class="toolbar">
-
 <button id="pencil">សរសេរ</button>
-
 <button id="eraser">លុប</button>
-
 <button id="clear" class="destructive">សម្អាត</button>
- <a href="../index.html" class="homeBtn">🏡 Home </a>
-
+<a href="../index.html" class="homeBtn">🏡 Home </a>
 </div>
 
 <canvas id="c"></canvas>
-
 </section>
 
 <!-- ================= 100 CHART ================= -->
-
 <section class="card">
-
 <header>តារាងការេ​ 100</header>
 
 <div class="chart-toolbar">
-
 <button id="evens">គូ</button>
-
 <button id="odds">សេស</button>
-
 <button id="clearGrid">សម្អាត</button>
-
 <input id="n" type="number" value="5" min="2" max="20">
-
 <button id="multi">ពហុគុណ</button>
-
 </div>
 
 <div id="grid" class="grid"></div>
-
 </section>
 
 </div>
@@ -246,229 +154,131 @@ canvas{
 <script>
 
 /* =========================
-
    FIXED CANVAS ENGINE
-
 ========================= */
 
 const canvas = document.getElementById("c");
-
 const ctx = canvas.getContext("2d");
 
 function fitCanvas(){
-
-  const dpr = 1; // ✅ FIX: remove scaling complexity
-
   const rect = canvas.getBoundingClientRect();
-
   canvas.width = rect.width;
-
   canvas.height = rect.height;
-
   ctx.lineCap = "round";
-
   ctx.lineJoin = "round";
-
 }
 
 fitCanvas();
-
 window.addEventListener("resize", fitCanvas);
 
 let drawing = false;
-
 let tool = "pencil";
-
 let last = null;
-
 let shiftAnchor = null;
 
 function pos(e){
-
   const r = canvas.getBoundingClientRect();
-
-  return {
-
-    x: e.clientX - r.left,
-
-    y: e.clientY - r.top
-
-  };
-
+  return { x: e.clientX - r.left, y: e.clientY - r.top };
 }
 
 function draw(a,b){
-
   ctx.globalCompositeOperation = tool === "eraser" ? "destination-out" : "source-over";
-
-  ctx.strokeStyle = "#8bffda";
-
-  ctx.lineWidth = 6;
-
+  ctx.strokeStyle = "#2b6fff";
+  ctx.lineWidth = 4;
   ctx.beginPath();
-
   ctx.moveTo(a.x,a.y);
-
   ctx.lineTo(b.x,b.y);
-
   ctx.stroke();
-
 }
 
 canvas.addEventListener("pointerdown", e=>{
-
   drawing = true;
-
   canvas.setPointerCapture(e.pointerId);
-
   const p = pos(e);
-
-  if(e.shiftKey && shiftAnchor){
-
-    draw(shiftAnchor, p);
-
-  } else {
-
-    shiftAnchor = p;
-
-  }
-
+  shiftAnchor = p;
   last = p;
-
 });
 
 canvas.addEventListener("pointermove", e=>{
-
   if(!drawing) return;
-
   const p = pos(e);
-
   draw(last,p);
-
   last = p;
-
 });
 
 canvas.addEventListener("pointerup", e=>{
-
   drawing = false;
-
   last = null;
-
   canvas.releasePointerCapture(e.pointerId);
-
 });
 
 document.getElementById("pencil").onclick=()=>tool="pencil";
-
 document.getElementById("eraser").onclick=()=>tool="eraser";
-
 document.getElementById("clear").onclick=()=>{
-
   ctx.clearRect(0,0,canvas.width,canvas.height);
-
 };
 
 /* =========================
-
    100 GRID FIXED
-
 ========================= */
 
 const grid = document.getElementById("grid");
-
 const cells = [];
 
 for(let i=1;i<=100;i++){
-
   const d = document.createElement("div");
-
   d.className="cell";
-
   d.textContent=i;
-
   grid.appendChild(d);
-
   cells.push(d);
-
 }
 
 let lastIdx=null;
 
 grid.addEventListener("click",e=>{
-
   const cell = e.target;
-
   const idx = cells.indexOf(cell);
-
   if(idx<0) return;
 
   if(e.shiftKey && lastIdx!=null){
-
     const a=Math.min(lastIdx,idx);
-
     const b=Math.max(lastIdx,idx);
-
     for(let i=a;i<=b;i++){
-
       cells[i].classList.add("on");
-
     }
-
   } else {
-
     cell.classList.toggle("on");
-
   }
 
   lastIdx=idx;
-
 });
 
 document.getElementById("clearGrid").onclick=()=>{
-
   cells.forEach(c=>{
-
     c.classList.remove("on","multiple");
-
   });
-
 };
 
 document.getElementById("evens").onclick=()=>{
-
   cells.forEach((c,i)=>{
-
     c.classList.toggle("on",(i+1)%2===0);
-
   });
-
 };
 
 document.getElementById("odds").onclick=()=>{
-
   cells.forEach((c,i)=>{
-
     c.classList.toggle("on",(i+1)%2===1);
-
   });
-
 };
 
 document.getElementById("multi").onclick=()=>{
-
   const n=parseInt(document.getElementById("n").value);
-
   cells.forEach((c,i)=>{
-
     c.classList.toggle("multiple",(i+1)%n===0);
-
   });
-
 };
 
 </script>
 
 </body>
-
 </html>
