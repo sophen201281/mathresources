@@ -1,78 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>តម្លៃលេខតាមខ្ទង់</title>
 
 <style>
+
 *{
-    box-sizing:border-box;
-    touch-action:none;
+  box-sizing:border-box;
 }
 
 body{
-    margin:0;
-    overflow:hidden;
-    font-family:Arial,sans-serif;
-    background:#eef3f8;
+  margin:0;
+  overflow:hidden;
+  font-family:Arial,sans-serif;
+  background:#eef3f8;
 }
 
 #toolbar{
-    position:fixed;
-    top:0;
-    left:0;
-    right:0;
-    min-height:75px;
-    background:white;
-    display:flex;
-    align-items:center;
-    gap:10px;
-    padding:10px;
-    z-index:10;
-    box-shadow:0 2px 10px rgba(0,0,0,0.15);
-    flex-wrap:wrap;
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+
+  min-height:80px;
+
+  background:white;
+
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+
+  padding:10px;
+
+  z-index:10;
+
+  box-shadow:0 2px 10px rgba(0,0,0,.15);
 }
 
 button,
 .home-btn{
-    padding:10px 14px;
-    border:none;
-    border-radius:10px;
-    background:#2f80ed;
-    color:white;
-    font-size:16px;
-    cursor:pointer;
-    text-decoration:none;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-}
 
-button:active,
-.home-btn:active{
-    transform:scale(0.95);
+  padding:10px 14px;
+
+  border:none;
+
+  border-radius:10px;
+
+  background:#2f80ed;
+
+  color:white;
+
+  font-size:16px;
+
+  cursor:pointer;
+
+  text-decoration:none;
 }
 
 #eraserBtn{
-    background:#e76f51;
+  background:#e76f51;
 }
 
 .home-btn{
-    background:#27ae60;
+  background:#27ae60;
 }
 
 #status{
-    font-weight:bold;
-    color:#333;
+  font-weight:bold;
 }
 
 #canvas{
-    position:absolute;
-    top:80px;
-    left:0;
-    background:white;
+  position:absolute;
+
+  top:80px;
+  left:0;
+
+  width:100%;
+  height:calc(100vh - 80px);
+
+  background:white;
+
+  touch-action:none;
 }
+
 </style>
 </head>
 
@@ -80,673 +93,792 @@ button:active,
 
 <div id="toolbar">
 
-    <button onclick="addOne()">➕រាយ</button>
+<button onclick="addOne()">➕រាយ</button>
 
-    <button onclick="duplicateSelected()">
-        📄 Copy
-    </button>
+<button onclick="duplicateSelected()">
+📄 Copy
+</button>
 
-    <button onclick="deleteSelected()">
-        🗑 លុប
-    </button>
+<button onclick="deleteSelected()">
+🗑 លុប
+</button>
 
-    <button id="eraserBtn" onclick="toggleEraserMode()">
-        🩹ជ័រលុប
-    </button>
+<button id="eraserBtn"
+onclick="toggleEraserMode()">
 
-    <button onclick="clearDrawing()">
-        🧹សម្អាត
-    </button>
+🩹ជ័រលុប
 
-    <a href="../index.html" class="home-btn">
-        🏡 Home
-    </a>
+</button>
 
-    <div id="status">
-        Ones: 0 | Tens: 0 | Hundreds: 0
-    </div>
+<button onclick="clearDrawing()">
+
+🧹សម្អាត
+
+</button>
+
+<a href="../index.html"
+class="home-btn">
+
+🏡 Home
+
+</a>
+
+<div id="status">
+
+Ones: 0 | Tens: 0 | Hundreds: 0
+
+</div>
 
 </div>
 
 <canvas id="canvas"></canvas>
 
 <script>
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
 
-// RESIZE
-function resizeCanvas(){
+const canvas =
+document.getElementById("canvas");
 
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight - 80;
-}
+const ctx =
+canvas.getContext("2d");
 
-resizeCanvas();
+const status =
+document.getElementById("status");
 
-window.addEventListener("resize", resizeCanvas);
+const eraserBtn =
+document.getElementById("eraserBtn");
 
-// SIZE
+const TOOLBAR_HEIGHT = 80;
+
 const SIZE = 20;
 
-// DATA
 let blocks = [];
-let selected = null;
-
-let dragOffsetX = 0;
-let dragOffsetY = 0;
-
-let drawing = false;
-let eraseMode = false;
 
 let drawings = [];
 
+let selected = null;
+
+let drawing = false;
+
+let eraseMode = false;
+
 let isDragging = false;
+
+let dragOffsetX = 0;
+
+let dragOffsetY = 0;
 
 let lastTap = 0;
 
-// STATUS
-function updateStatus(){
+let needsRedraw = true;
 
-    const ones =
-        blocks.filter(b=>b.type==="one").length;
+function resizeCanvas(){
 
-    const tens =
-        blocks.filter(b=>b.type==="ten").length;
+  canvas.width =
+    window.innerWidth;
 
-    const hundreds =
-        blocks.filter(b=>b.type==="hundred").length;
+  canvas.height =
+    window.innerHeight
+    - TOOLBAR_HEIGHT;
 
-    document.getElementById("status").innerHTML =
-        `Ones: ${ones} | Tens: ${tens} | Hundreds: ${hundreds}`;
+  requestDraw();
 }
 
-// TOGGLE ERASER
-function toggleEraserMode(){
+window.addEventListener(
+"resize",
+resizeCanvas
+);
 
-    eraseMode = !eraseMode;
+resizeCanvas();
 
-    if(eraseMode){
+function requestDraw(){
 
-        document.getElementById(
-            "eraserBtn"
-        ).innerHTML = "✏️ Draw";
-
-    }else{
-
-        document.getElementById(
-            "eraserBtn"
-        ).innerHTML = "🩹 Eraser";
-    }
+  needsRedraw = true;
 }
 
-// CLEAR DRAWINGS
-function clearDrawing(){
-
-    drawings = [];
-}
-
-// ADD ONE
-function addOne(x=80,y=120){
-
-    blocks.push({
-        type:"one",
-        x,
-        y,
-        w:SIZE,
-        h:SIZE,
-        color:"#ffd166"
-    });
-
-    combineBlocks();
-}
-
-// COMBINE BLOCKS
-function combineBlocks(){
-
-    // 10 ONES => TEN
-
-    let ones = blocks.filter(
-        b=>b.type==="one"
-    );
-
-    while(ones.length >= 10){
-
-        let first = ones[0];
-
-        let removed = 0;
-
-        blocks = blocks.filter(b=>{
-
-            if(
-                b.type==="one" &&
-                removed < 10
-            ){
-                removed++;
-                return false;
-            }
-
-            return true;
-        });
-
-        blocks.push({
-            type:"ten",
-            x:first.x,
-            y:first.y,
-            w:SIZE*10,
-            h:SIZE,
-            color:"#06d6a0"
-        });
-
-        ones = blocks.filter(
-            b=>b.type==="one"
-        );
-    }
-
-    // 10 TENS => HUNDRED
-
-    let tens = blocks.filter(
-        b=>b.type==="ten"
-    );
-
-    while(tens.length >= 10){
-
-        let first = tens[0];
-
-        let removed = 0;
-
-        blocks = blocks.filter(b=>{
-
-            if(
-                b.type==="ten" &&
-                removed < 10
-            ){
-                removed++;
-                return false;
-            }
-
-            return true;
-        });
-
-        blocks.push({
-            type:"hundred",
-            x:first.x,
-            y:first.y,
-            w:SIZE*10,
-            h:SIZE*10,
-            color:"#ef476f"
-        });
-
-        tens = blocks.filter(
-            b=>b.type==="ten"
-        );
-    }
-
-    updateStatus();
-}
-
-// DRAW EVERYTHING
-function drawScene(){
-
-    ctx.clearRect(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-    );
-
-    // DRAWINGS
-
-    for(let line of drawings){
-
-        if(line.points.length < 2)
-            continue;
-
-        ctx.beginPath();
-
-        for(let i=0;i<line.points.length;i++){
-
-            const p = line.points[i];
-
-            if(i===0){
-                ctx.moveTo(p.x,p.y);
-            }
-            else{
-                ctx.lineTo(p.x,p.y);
-            }
-        }
-
-        ctx.strokeStyle = "black";
-        ctx.lineWidth = 3;
-        ctx.lineCap = "round";
-        ctx.lineJoin = "round";
-
-        ctx.stroke();
-    }
-
-    // BLOCKS
-
-    for(let b of blocks){
-
-        if(b.type==="one"){
-
-            ctx.fillStyle = b.color;
-
-            ctx.fillRect(
-                b.x,
-                b.y,
-                b.w,
-                b.h
-            );
-
-            ctx.strokeStyle="#333";
-
-            ctx.strokeRect(
-                b.x,
-                b.y,
-                b.w,
-                b.h
-            );
-        }
-
-        else if(b.type==="ten"){
-
-            for(let i=0;i<10;i++){
-
-                ctx.fillStyle = b.color;
-
-                ctx.fillRect(
-                    b.x + i*SIZE,
-                    b.y,
-                    SIZE,
-                    SIZE
-                );
-
-                ctx.strokeStyle="#333";
-
-                ctx.strokeRect(
-                    b.x + i*SIZE,
-                    b.y,
-                    SIZE,
-                    SIZE
-                );
-            }
-        }
-
-        else if(b.type==="hundred"){
-
-            for(let r=0;r<10;r++){
-
-                for(let c=0;c<10;c++){
-
-                    ctx.fillStyle = b.color;
-
-                    ctx.fillRect(
-                        b.x + c*SIZE,
-                        b.y + r*SIZE,
-                        SIZE,
-                        SIZE
-                    );
-
-                    ctx.strokeStyle="#333";
-
-                    ctx.strokeRect(
-                        b.x + c*SIZE,
-                        b.y + r*SIZE,
-                        SIZE,
-                        SIZE
-                    );
-                }
-            }
-        }
-
-        // SELECT BORDER
-
-        if(selected === b){
-
-            ctx.strokeStyle = "blue";
-            ctx.lineWidth = 3;
-
-            ctx.strokeRect(
-                b.x - 3,
-                b.y - 3,
-                b.w + 6,
-                b.h + 6
-            );
-        }
-    }
-
-    requestAnimationFrame(drawScene);
-}
-
-drawScene();
-
-// POINTER POSITION
 function pointerPos(e){
 
-    const rect =
-        canvas.getBoundingClientRect();
+  const r =
+  canvas.getBoundingClientRect();
 
-    let clientX;
-    let clientY;
+  return{
 
-    if(
-        e.touches &&
-        e.touches.length > 0
-    ){
+    x:e.clientX-r.left,
 
-        clientX = e.touches[0].clientX;
-        clientY = e.touches[0].clientY;
-    }
-    else{
+    y:e.clientY-r.top
 
-        clientX = e.clientX;
-        clientY = e.clientY;
-    }
-
-    return {
-        x:clientX - rect.left,
-        y:clientY - rect.top
-    };
+  };
 }
 
-// GET BLOCK
-function getBlock(x,y){
+function updateStatus(){
 
-    for(
-        let i=blocks.length-1;
-        i>=0;
-        i--
-    ){
+  const ones =
+  blocks.filter(
+  b=>b.type==="one"
+  ).length;
 
-        const b = blocks[i];
+  const tens =
+  blocks.filter(
+  b=>b.type==="ten"
+  ).length;
 
-        if(
-            x >= b.x &&
-            x <= b.x + b.w &&
-            y >= b.y &&
-            y <= b.y + b.h
-        ){
-            return b;
-        }
-    }
+  const hundreds =
+  blocks.filter(
+  b=>b.type==="hundred"
+  ).length;
 
-    return null;
+  status.innerHTML =
+
+`Ones: ${ones}
+ | Tens: ${tens}
+ | Hundreds: ${hundreds}`;
 }
 
-// ERASE
-function eraseAt(x,y){
+function toggleEraserMode(){
 
-    drawings = drawings.filter(line=>{
+ eraseMode=!eraseMode;
 
-        for(let point of line.points){
+ eraserBtn.innerHTML =
 
-            const dx = point.x - x;
-            const dy = point.y - y;
-
-            const dist =
-                Math.sqrt(dx*dx + dy*dy);
-
-            if(dist < 20){
-                return false;
-            }
-        }
-
-        return true;
-    });
+ eraseMode
+ ? "✏️ Draw"
+ : "🩹 Eraser";
 }
 
-// START
-function startAction(e){
+function clearDrawing(){
 
-    e.preventDefault();
+ drawings=[];
 
-    const pos = pointerPos(e);
-
-    isDragging = false;
-
-    // ERASER MODE
-
-    if(eraseMode){
-
-        eraseAt(pos.x,pos.y);
-        return;
-    }
-
-    // CHECK BLOCK FIRST
-
-    const block = getBlock(
-        pos.x,
-        pos.y
-    );
-
-    if(block){
-
-        selected = block;
-
-        dragOffsetX =
-            pos.x - block.x;
-
-        dragOffsetY =
-            pos.y - block.y;
-
-        // BRING TO FRONT
-
-        blocks = blocks.filter(
-            b=>b!==block
-        );
-
-        blocks.push(block);
-
-        drawing = false;
-
-        return;
-    }
-
-    // DRAW ON EMPTY SPACE
-
-    selected = null;
-
-    drawing = true;
-
-    drawings.push({
-        points:[{
-            x:pos.x,
-            y:pos.y
-        }]
-    });
+ requestDraw();
 }
 
-// MOVE
-function moveAction(e){
+function addOne(
+x=100,
+y=120
+){
 
-    e.preventDefault();
+ blocks.push({
 
-    const pos = pointerPos(e);
+   type:"one",
 
-    // ERASER
+   x,y,
 
-    if(eraseMode){
+   w:SIZE,
 
-        eraseAt(pos.x,pos.y);
-        return;
-    }
+   h:SIZE,
 
-    // MOVE BLOCK
+   color:"#ffd166"
 
-    if(selected){
+ });
 
-        isDragging = true;
-
-        selected.x =
-            pos.x - dragOffsetX;
-
-        selected.y =
-            pos.y - dragOffsetY;
-
-        return;
-    }
-
-    // DRAW
-
-    if(drawing){
-
-        drawings[
-            drawings.length - 1
-        ].points.push({
-
-            x:pos.x,
-            y:pos.y
-        });
-    }
+ combineBlocks();
 }
 
-// END
-function endAction(){
+function combineBlocks(){
 
-    drawing = false;
+ while(
+ blocks.filter(
+ b=>b.type==="one"
+ ).length>=10
+ ){
 
-    // DOUBLE TAP SPLIT
+   const first =
+   blocks.find(
+   b=>b.type==="one"
+   );
 
-    if(selected && !isDragging){
+   let removed=0;
 
-        const now = Date.now();
+   blocks =
+   blocks.filter(b=>{
 
-        if(now - lastTap < 300){
+     if(
+     b.type==="one"
+     &&
+     removed<10
+     ){
 
-            splitBlock(selected);
-        }
+       removed++;
 
-        lastTap = now;
-    }
+       return false;
+     }
 
-    isDragging = false;
+     return true;
+
+   });
+
+   blocks.push({
+
+     type:"ten",
+
+     x:first.x,
+
+     y:first.y,
+
+     w:SIZE*10,
+
+     h:SIZE,
+
+     color:"#06d6a0"
+
+   });
+
+ }
+
+ while(
+ blocks.filter(
+ b=>b.type==="ten"
+ ).length>=10
+ ){
+
+   const first =
+   blocks.find(
+   b=>b.type==="ten"
+   );
+
+   let removed=0;
+
+   blocks=
+   blocks.filter(b=>{
+
+     if(
+     b.type==="ten"
+     &&
+     removed<10
+     ){
+
+       removed++;
+
+       return false;
+     }
+
+     return true;
+
+   });
+
+   blocks.push({
+
+     type:"hundred",
+
+     x:first.x,
+
+     y:first.y,
+
+     w:SIZE*10,
+
+     h:SIZE*10,
+
+     color:"#ef476f"
+
+   });
+
+ }
+
+ updateStatus();
+
+ requestDraw();
 }
 
-// SPLIT BLOCKS
 function splitBlock(block){
 
-    // TEN => ONES
+ if(block.type==="ten"){
 
-    if(block.type==="ten"){
+   blocks =
+   blocks.filter(
+   b=>b!==block
+   );
 
-        blocks = blocks.filter(
-            b=>b!==block
-        );
+   for(
+   let i=0;
+   i<10;
+   i++
+   ){
 
-        for(let i=0;i<10;i++){
+     blocks.push({
 
-            blocks.push({
-                type:"one",
-                x:block.x + i*(SIZE+4),
-                y:block.y,
-                w:SIZE,
-                h:SIZE,
-                color:"#ffd166"
-            });
-        }
-    }
+       type:"one",
 
-    // HUNDRED => TENS
+       x:block.x+i*24,
 
-    else if(
-        block.type==="hundred"
-    ){
+       y:block.y,
 
-        blocks = blocks.filter(
-            b=>b!==block
-        );
+       w:SIZE,
 
-        for(let i=0;i<10;i++){
+       h:SIZE,
 
-            blocks.push({
-                type:"ten",
-                x:block.x,
-                y:block.y + i*(SIZE+5),
-                w:SIZE*10,
-                h:SIZE,
-                color:"#06d6a0"
-            });
-        }
-    }
+       color:"#ffd166"
 
-    updateStatus();
+     });
+
+   }
+
+ }
+
+ else if(
+ block.type==="hundred"
+ ){
+
+   blocks =
+   blocks.filter(
+   b=>b!==block
+   );
+
+   for(
+   let i=0;
+   i<10;
+   i++
+   ){
+
+     blocks.push({
+
+       type:"ten",
+
+       x:block.x,
+
+       y:block.y+i*25,
+
+       w:SIZE*10,
+
+       h:SIZE,
+
+       color:"#06d6a0"
+
+     });
+
+   }
+
+ }
+
+ selected = null;
+
+ updateStatus();
+
+ requestDraw();
 }
 
-// EVENTS
+function getBlock(x,y){
 
-canvas.addEventListener(
-    "mousedown",
-    startAction
-);
+ for(
+ let i=blocks.length-1;
+ i>=0;
+ i--
+ ){
 
-canvas.addEventListener(
-    "mousemove",
-    moveAction
-);
+   const b=blocks[i];
 
-canvas.addEventListener(
-    "mouseup",
-    endAction
-);
+   if(
 
-canvas.addEventListener(
-    "touchstart",
-    startAction,
-    {passive:false}
-);
+   x>=b.x &&
+   x<=b.x+b.w &&
 
-canvas.addEventListener(
-    "touchmove",
-    moveAction,
-    {passive:false}
-);
+   y>=b.y &&
+   y<=b.y+b.h
 
-canvas.addEventListener(
-    "touchend",
-    endAction,
-    {passive:false}
-);
+   ){
 
-// COPY
+     return b;
+   }
+
+ }
+
+ return null;
+}
+
+function eraseAt(x,y){
+
+ const radius2 =
+ 35*35;
+
+ drawings =
+ drawings.filter(line=>{
+
+   return !line.points.some(p=>{
+
+     const dx =
+     p.x-x;
+
+     const dy =
+     p.y-y;
+
+     return (
+
+     dx*dx +
+
+     dy*dy
+
+     ) < radius2;
+
+   });
+
+ });
+
+ requestDraw();
+}
+
+function startAction(e){
+
+ e.preventDefault();
+
+ try{
+
+ canvas.setPointerCapture(
+ e.pointerId
+ );
+
+ }catch(err){}
+
+ const pos =
+ pointerPos(e);
+
+ if(eraseMode){
+
+   eraseAt(
+   pos.x,
+   pos.y
+   );
+
+   return;
+ }
+
+ const block =
+ getBlock(
+ pos.x,
+ pos.y
+ );
+
+ if(block){
+
+   selected = block;
+
+   dragOffsetX =
+   pos.x-block.x;
+
+   dragOffsetY =
+   pos.y-block.y;
+
+   isDragging = false;
+
+   return;
+ }
+
+ selected = null;
+
+ drawing = true;
+
+ drawings.push({
+
+   points:[pos]
+
+ });
+
+ requestDraw();
+}
+
+function moveAction(e){
+
+ const pos =
+ pointerPos(e);
+
+ if(eraseMode){
+
+   eraseAt(
+   pos.x,
+   pos.y
+   );
+
+   return;
+ }
+
+ if(selected){
+
+   isDragging = true;
+
+   selected.x =
+   pos.x-dragOffsetX;
+
+   selected.y =
+   pos.y-dragOffsetY;
+
+   requestDraw();
+
+   return;
+ }
+
+ if(drawing){
+
+   drawings[
+   drawings.length-1
+   ].points.push(pos);
+
+   requestDraw();
+ }
+}
+
+function endAction(e){
+
+ drawing = false;
+
+ try{
+
+ canvas.releasePointerCapture(
+ e.pointerId
+ );
+
+ }catch(err){}
+
+ const tappedBlock =
+ selected;
+
+ if(
+ tappedBlock &&
+ !isDragging
+ ){
+
+   const now =
+   Date.now();
+
+   if(
+   now-lastTap < 300
+   ){
+
+     splitBlock(
+     tappedBlock
+     );
+   }
+
+   lastTap = now;
+ }
+
+ selected = null;
+
+ isDragging = false;
+
+ requestDraw();
+}
+
 function duplicateSelected(){
 
-    if(!selected) return;
+ if(!selected) return;
 
-    const copy = {
+ const copy = {
 
-        type:selected.type,
+ type:selected.type,
 
-        x:selected.x + 25,
-        y:selected.y + 25,
+ x:selected.x+25,
 
-        w:selected.w,
-        h:selected.h,
+ y:selected.y+25,
 
-        color:selected.color
-    };
+ w:selected.w,
 
-    blocks.push(copy);
+ h:selected.h,
 
-    selected = copy;
+ color:selected.color
 
-    updateStatus();
+ };
+
+ blocks.push(copy);
+
+ selected = copy;
+
+ updateStatus();
+
+ requestDraw();
 }
 
-// DELETE
 function deleteSelected(){
 
-    if(!selected) return;
+ if(!selected) return;
 
-    blocks = blocks.filter(
-        b => b !== selected
-    );
+ blocks =
+ blocks.filter(
+ b=>b!==selected
+ );
 
-    selected = null;
+ selected = null;
 
-    updateStatus();
+ updateStatus();
+
+ requestDraw();
 }
 
-// START
+function render(){
+
+ if(needsRedraw){
+
+ ctx.clearRect(
+ 0,0,
+ canvas.width,
+ canvas.height
+ );
+
+ drawings.forEach(line=>{
+
+ if(line.points.length<2)
+ return;
+
+ ctx.beginPath();
+
+ line.points.forEach((p,i)=>{
+
+ if(i===0)
+
+ ctx.moveTo(
+ p.x,p.y
+ );
+
+ else
+
+ ctx.lineTo(
+ p.x,p.y
+ );
+
+ });
+
+ ctx.strokeStyle="black";
+
+ ctx.lineWidth=3;
+
+ ctx.lineCap="round";
+
+ ctx.lineJoin="round";
+
+ ctx.stroke();
+
+ });
+
+ for(const b of blocks){
+
+ ctx.fillStyle =
+ b.color;
+
+ if(b.type==="one"){
+
+ ctx.fillRect(
+ b.x,b.y,
+ b.w,b.h
+ );
+
+ ctx.strokeRect(
+ b.x,b.y,
+ b.w,b.h
+ );
+
+ }
+
+ else if(
+ b.type==="ten"
+ ){
+
+ for(
+ let i=0;
+ i<10;
+ i++
+ ){
+
+ ctx.fillRect(
+
+ b.x+i*SIZE,
+
+ b.y,
+
+ SIZE,
+
+ SIZE
+
+ );
+
+ ctx.strokeRect(
+
+ b.x+i*SIZE,
+
+ b.y,
+
+ SIZE,
+
+ SIZE
+
+ );
+
+ }
+
+ }
+
+ else{
+
+ for(
+ let r=0;
+ r<10;
+ r++
+ ){
+
+ for(
+ let c=0;
+ c<10;
+ c++
+ ){
+
+ ctx.fillRect(
+
+ b.x+c*SIZE,
+
+ b.y+r*SIZE,
+
+ SIZE,
+
+ SIZE
+
+ );
+
+ ctx.strokeRect(
+
+ b.x+c*SIZE,
+
+ b.y+r*SIZE,
+
+ SIZE,
+
+ SIZE
+
+ );
+
+ }
+
+ }
+
+ }
+
+ }
+
+ needsRedraw=false;
+
+ }
+
+ requestAnimationFrame(
+ render
+ );
+}
+
+canvas.addEventListener(
+"pointerdown",
+startAction
+);
+
+canvas.addEventListener(
+"pointermove",
+moveAction
+);
+
+canvas.addEventListener(
+"pointerup",
+endAction
+);
+
+canvas.addEventListener(
+"pointercancel",
+endAction
+);
+
+render();
+
 updateStatus();
 
 </script>
