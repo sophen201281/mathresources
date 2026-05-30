@@ -1,20 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>100 Chart - One Screen</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Responsive 100 Chart</title>
 
 <style>
-
-/* ===== CLEAN WHITE UI ===== */
 
 :root{
   --bg:#ffffff;
   --panel:#f5f6fb;
   --text:#1b1f2a;
   --border:#e3e6f3;
-  --shadow: 0 6px 18px rgba(0,0,0,.08);
+  --shadow:0 6px 18px rgba(0,0,0,.08);
 }
 
 *{
@@ -23,24 +21,22 @@
 
 html,body{
   margin:0;
+  width:100%;
   height:100vh;
-  overflow:hidden;              /* ✅ NO SCROLL */
-  background:var(--bg);
-  color:var(--text);
+  overflow:hidden;
+  background:white;
   font-family:system-ui;
+  color:var(--text);
 }
-
-/* ===== MAIN LAYOUT ===== */
 
 .wrap{
   display:grid;
   grid-template-columns:1fr 1fr;
-  height:100vh;                 /* ✅ FULL SCREEN */
   gap:10px;
   padding:10px;
+  height:100vh;
 }
 
-/* stack on mobile */
 @media(max-width:900px){
   .wrap{
     grid-template-columns:1fr;
@@ -49,92 +45,125 @@ html,body{
 }
 
 .card{
-  background:var(--panel);
-  border:1px solid var(--border);
-  border-radius:12px;
-  box-shadow:var(--shadow);
-
   display:flex;
   flex-direction:column;
+
+  background:var(--panel);
+
+  border-radius:12px;
+  border:1px solid var(--border);
+
+  box-shadow:var(--shadow);
 
   overflow:hidden;
 }
 
-/* ===== HEADERS ===== */
-
 header{
-  padding:8px 10px;
-  font-weight:600;
+  padding:8px 12px;
   border-bottom:1px solid var(--border);
-  flex-shrink:0;
+  font-weight:600;
 }
 
-/* ===== TOOLBARS ===== */
-
-.toolbar,.chart-toolbar{
+.toolbar,
+.chart-toolbar{
   display:flex;
   flex-wrap:wrap;
   gap:6px;
+
   padding:6px;
+
   border-bottom:1px solid var(--border);
+
   flex-shrink:0;
 }
 
 button{
-  padding:6px 8px;
+  padding:6px 10px;
+
   border-radius:8px;
+
   border:1px solid #cfd6ea;
-  background:#fff;
+
+  background:white;
+
   cursor:pointer;
-  font-size:14px;
 }
 
-/* ===== CANVAS ===== */
+input{
+  width:65px;
+}
 
 canvas{
-  flex:1;                      /* ✅ TAKE AVAILABLE SPACE */
+  flex:1;
+
   width:100%;
+
   display:block;
-  background:#fff;
+
+  background:white;
+
   touch-action:none;
 }
 
-/* ===== GRID AREA ===== */
+/* SMALLER GRID */
 
 .grid{
-  flex:1;                      /* ✅ FILL SPACE */
+  flex:1;
+
   display:grid;
-  grid-template-columns:repeat(10,1fr);
-  gap:3px;
-  padding:6px;
-  overflow:hidden;             /* prevents scroll */
+
+  grid-template-columns:repeat(10,minmax(0,1fr));
+
+  gap:2px;
+
+  padding:4px;
+
+  max-width:520px;
+
+  width:100%;
+
+  margin:auto;
+
+  align-content:start;
+
+  overflow:hidden;
 }
 
-/* auto scaling cells */
 .cell{
+
   aspect-ratio:1;
+
+  min-height:28px;
+
   display:flex;
-  align-items:center;
+
   justify-content:center;
 
+  align-items:center;
+
+  border-radius:4px;
+
   background:#eef1fb;
-  border-radius:5px;
+
   border:1px solid #d9deef;
 
-  font-size:clamp(10px, 1.2vw, 16px); /* ✅ RESPONSIVE TEXT */
+  font-size:clamp(8px,.9vw,13px);
+
   font-weight:600;
-  cursor:pointer;
+
   user-select:none;
+
+  cursor:pointer;
 }
 
 .cell.on{
   background:#4a63ff;
-  color:#fff;
+  color:white;
 }
 
 .cell.multiple{
   background:#1fb98b;
-  color:#fff;
+  color:white;
 }
 
 </style>
@@ -144,33 +173,42 @@ canvas{
 
 <div class="wrap">
 
-<!-- ================= CANVAS ================= -->
 <section class="card">
 
-<header>🖊️ Drawing Board</header>
+<header>ផ្ទាំងសរសេរ</header>
 
 <div class="toolbar">
-<button id="pencil">Pen</button>
-<button id="eraser">Eraser</button>
-<button id="clear">Clear</button>
+
+<button id="pencil">សរសេរ</button>
+
+<button id="eraser">លុប</button>
+
+<button id="clear">សម្អាត</button>
+
 <a href="../index.html">🏡 Home</a>
+
 </div>
 
 <canvas id="c"></canvas>
 
 </section>
 
-<!-- ================= 100 GRID ================= -->
 <section class="card">
 
-<header>🔢 100 Chart</header>
+<header>តារាងការេ 100</header>
 
 <div class="chart-toolbar">
-<button id="evens">Evens</button>
-<button id="odds">Odds</button>
-<button id="clearGrid">Clear</button>
+
+<button id="evens">គូ</button>
+
+<button id="odds">សេស</button>
+
+<button id="clearGrid">សម្អាត</button>
+
 <input id="n" type="number" value="5" min="2" max="20">
-<button id="multi">Multiples</button>
+
+<button id="multi">ពហុគុណ</button>
+
 </div>
 
 <div id="grid" class="grid"></div>
@@ -181,113 +219,200 @@ canvas{
 
 <script>
 
-/* ===== CANVAS ===== */
+/* CANVAS */
 
-const canvas = document.getElementById("c");
-const ctx = canvas.getContext("2d");
+const canvas=document.getElementById("c");
+const ctx=canvas.getContext("2d");
 
-function resize(){
-  const r = canvas.getBoundingClientRect();
-  canvas.width = r.width;
-  canvas.height = r.height;
-  ctx.lineCap = "round";
+function resizeCanvas(){
+
+ const r=canvas.getBoundingClientRect();
+
+ canvas.width=r.width;
+
+ canvas.height=r.height;
+
 }
 
-window.addEventListener("resize", resize);
-resize();
+resizeCanvas();
+
+window.addEventListener("resize",resizeCanvas);
 
 let drawing=false;
+
 let tool="pencil";
+
 let last=null;
 
 function pos(e){
-  const r = canvas.getBoundingClientRect();
-  return {x:e.clientX-r.left, y:e.clientY-r.top};
+
+ const r=canvas.getBoundingClientRect();
+
+ return{
+
+   x:e.clientX-r.left,
+
+   y:e.clientY-r.top
+
+ };
+
 }
 
 function draw(a,b){
-  ctx.globalCompositeOperation =
-    tool==="eraser" ? "destination-out" : "source-over";
 
-  ctx.strokeStyle="#2b6fff";
-  ctx.lineWidth=3;
+ ctx.globalCompositeOperation=
+ tool==="eraser"
+ ? "destination-out"
+ : "source-over";
 
-  ctx.beginPath();
-  ctx.moveTo(a.x,a.y);
-  ctx.lineTo(b.x,b.y);
-  ctx.stroke();
+ ctx.strokeStyle="#2b6fff";
+
+ ctx.lineWidth=3;
+
+ ctx.lineCap="round";
+
+ ctx.beginPath();
+
+ ctx.moveTo(a.x,a.y);
+
+ ctx.lineTo(b.x,b.y);
+
+ ctx.stroke();
+
 }
 
 canvas.addEventListener("pointerdown",e=>{
-  drawing=true;
-  canvas.setPointerCapture(e.pointerId);
-  last=pos(e);
+
+ drawing=true;
+
+ canvas.setPointerCapture(e.pointerId);
+
+ last=pos(e);
+
 });
 
 canvas.addEventListener("pointermove",e=>{
-  if(!drawing) return;
-  const p=pos(e);
-  draw(last,p);
-  last=p;
+
+ if(!drawing) return;
+
+ const p=pos(e);
+
+ draw(last,p);
+
+ last=p;
+
 });
 
-canvas.addEventListener("pointerup",e=>{
-  drawing=false;
-  canvas.releasePointerCapture(e.pointerId);
+canvas.addEventListener("pointerup",()=>{
+
+ drawing=false;
+
 });
+
+/* TOOLS */
 
 document.getElementById("pencil").onclick=()=>tool="pencil";
+
 document.getElementById("eraser").onclick=()=>tool="eraser";
+
 document.getElementById("clear").onclick=()=>{
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+ ctx.clearRect(0,0,canvas.width,canvas.height);
+
 };
 
-/* ===== GRID ===== */
+/* GRID */
 
 const grid=document.getElementById("grid");
+
 const cells=[];
 
 for(let i=1;i<=100;i++){
-  const d=document.createElement("div");
-  d.className="cell";
-  d.textContent=i;
-  grid.appendChild(d);
-  cells.push(d);
+
+ const d=document.createElement("div");
+
+ d.className="cell";
+
+ d.textContent=i;
+
+ grid.appendChild(d);
+
+ cells.push(d);
+
 }
 
 let lastIdx=null;
 
 grid.addEventListener("click",e=>{
-  const cell=e.target;
-  const idx=cells.indexOf(cell);
-  if(idx<0) return;
 
-  if(e.shiftKey && lastIdx!=null){
-    const a=Math.min(lastIdx,idx);
-    const b=Math.max(lastIdx,idx);
-    for(let i=a;i<=b;i++) cells[i].classList.add("on");
-  }else{
-    cell.classList.toggle("on");
-  }
+ const cell=e.target;
 
-  lastIdx=idx;
+ const idx=cells.indexOf(cell);
+
+ if(idx<0) return;
+
+ if(e.shiftKey && lastIdx!==null){
+
+   const a=Math.min(lastIdx,idx);
+
+   const b=Math.max(lastIdx,idx);
+
+   for(let i=a;i<=b;i++){
+
+     cells[i].classList.add("on");
+
+   }
+
+ }else{
+
+   cell.classList.toggle("on");
+
+ }
+
+ lastIdx=idx;
+
 });
 
 document.getElementById("clearGrid").onclick=()=>{
-  cells.forEach(c=>c.classList.remove("on","multiple"));
+
+ cells.forEach(c=>{
+
+   c.classList.remove("on","multiple");
+
+ });
+
 };
 
 document.getElementById("evens").onclick=()=>{
-  cells.forEach((c,i)=>c.classList.toggle("on",(i+1)%2===0));
+
+ cells.forEach((c,i)=>{
+
+   c.classList.toggle("on",(i+1)%2===0);
+
+ });
+
 };
 
 document.getElementById("odds").onclick=()=>{
-  cells.forEach((c,i)=>c.classList.toggle("on",(i+1)%2===1));
+
+ cells.forEach((c,i)=>{
+
+   c.classList.toggle("on",(i+1)%2===1);
+
+ });
+
 };
 
 document.getElementById("multi").onclick=()=>{
-  const n=parseInt(document.getElementById("n").value);
-  cells.forEach((c,i)=>c.classList.toggle("multiple",(i+1)%n===0));
+
+ const n=parseInt(document.getElementById("n").value);
+
+ cells.forEach((c,i)=>{
+
+   c.classList.toggle("multiple",(i+1)%n===0);
+
+ });
+
 };
 
 </script>
