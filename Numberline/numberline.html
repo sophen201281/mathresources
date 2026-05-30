@@ -1,676 +1,652 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-
-<title>Interactive Numbers + Fruits + Drawing</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>បន្ទាត់លេខ</title>
 
 <style>
-
 *{
     box-sizing:border-box;
-    touch-action:none;
 }
 
 body{
     margin:0;
-    overflow:hidden;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:#eef2f7;
     font-family:Arial,sans-serif;
-    background:#eef3ff;
+    padding:5px;
 }
 
-/* TOP AREA */
-
-#toolbar{
-
-    position:absolute;
-
-    top:10px;
-    left:10px;
-
-    display:flex;
-
-    gap:8px;
-
-    z-index:300;
-}
-
-.fruitTemplate{
-
-    width:48px;
-    height:48px;
-
-    border-radius:10px;
-
-    border:2px solid #666;
-
-    background:white;
-
-    display:flex;
-
-    justify-content:center;
-    align-items:center;
-
-    font-size:32px;
-}
-
-#controls{
-
-    position:absolute;
-
-    top:10px;
-
-    right:10px;
-
-    display:flex;
-
-    gap:8px;
-
-    z-index:300;
-}
-
-button{
-
-    border:none;
-
-    padding:10px 15px;
-
-    border-radius:10px;
-
-    font-size:16px;
-
-    color:white;
-
-    font-weight:bold;
-}
-
-#clearBtn{
-    background:#ff6666;
-}
-
-#eraserBtn{
-    background:#4285ff;
-}
-
-/* HOLDER */
-
-#holder{
-
-    position:absolute;
-
-    top:80px;
-
-    left:10px;
-    right:10px;
-
-    height:140px;
-
-    border:4px solid #444;
-
-    border-radius:18px;
-
-    display:grid;
-
-    grid-template-columns:repeat(11,1fr);
-
-    gap:5px;
-
-    padding:8px;
-
-    background:white;
-}
-
-.cell{
-
-    border:2px dashed #ccc;
-
-    border-radius:10px;
-}
-
-/* OBJECTS */
-
-.card,
-.fruit{
-
-    position:absolute;
-
-    width:62px;
-    height:62px;
-
-    display:flex;
-
-    justify-content:center;
-    align-items:center;
-
-    user-select:none;
-
-    z-index:100;
-}
-
-.card{
-
-    background:#FFD966;
-
-    border:3px solid #333;
-
-    border-radius:12px;
-
-    font-size:30px;
-
-    font-weight:bold;
-}
-
-.fruit{
-
-    font-size:42px;
-}
-
-/* CANVAS */
-
-#canvas{
-
-    position:absolute;
-
-    top:280px;
-
-    left:0;
-
+.container{
     width:100%;
-
-    height:calc(100vh - 280px);
-
+    max-width:1100px;
     background:white;
+    padding:5px;
+    border-radius:16px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.12);
+    text-align:center;
 }
 
+h2{
+    margin-top:0;
+    font-size:clamp(10px,2vw,16px);
+}
+
+.toolbar{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    align-items:center;
+    gap:4px;
+    margin-bottom:10px;
+}
+
+button,
+.home-btn{
+    padding:10px 14px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    background:#4a90e2;
+    color:white;
+    font-weight:bold;
+    font-size:14px;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+}
+
+button:hover,
+.home-btn:hover{
+    opacity:0.9;
+}
+
+#deleteCloudBtn{
+    background:#d9534f;
+}
+
+.home-btn{
+    background:#28a745;
+}
+
+.canvasWrap{
+    width:100%;
+}
+
+canvas{
+    width:100%;
+    height:auto;
+    border:1px solid #ddd;
+    border-radius:12px;
+    background:white;
+    touch-action:none;
+    display:block;
+}
+
+
+}
 </style>
 </head>
 
 <body>
 
-<!-- Fruits -->
+<div class="container">
 
-<div id="toolbar">
+    <h2> </h2>
 
-<div class="fruitTemplate">🍎</div>
-<div class="fruitTemplate">🍌</div>
-<div class="fruitTemplate">🍇</div>
-<div class="fruitTemplate">🍊</div>
-<div class="fruitTemplate">🍓</div>
+    <div class="toolbar">
+        <button id="eraserModeBtn">🩹 លុប</button>
+        <button id="cloudBtn">🌧 បន្ថែមពពក</button>
+        <button id="deleteCloudBtn">❌ ដកពពក</button>
+        <button id="clearBtn">🗑 សម្អាត</button>
 
-</div>
+        <!-- HOME BUTTON NEXT TO CLEAR -->
+        <a href="../index.html" class="home-btn">
+            🏡 Home
+        </a>
+    </div>
 
-<!-- Controls -->
-
-<div id="controls">
-
-<button id="clearBtn">
-Clear
-</button>
-
-<button id="eraserBtn">
-Eraser
-</button>
+    <div class="canvasWrap">
+        <canvas id="canvas"></canvas>
+    </div>
 
 </div>
-
-<!-- Holder -->
-
-<div id="holder"></div>
-
-<canvas id="canvas"></canvas>
 
 <script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
 
-/* HOLDER GRID */
+function resizeCanvas(){
 
-const holder =
-document.getElementById(
-"holder"
-);
+    const maxWidth = Math.min(window.innerWidth - 30, 1000);
 
-const cells=[];
+    canvas.width = maxWidth;
+    canvas.height = maxWidth * 0.52;
 
-for(let i=0;i<11;i++){
-
-let c=
-document.createElement(
-"div"
-);
-
-c.className=
-"cell";
-
-holder.appendChild(c);
-
-cells.push(c);
-
+    updateNumberLine();
+    draw();
 }
 
-/* NUMBER CARDS */
+window.addEventListener("resize", resizeCanvas);
 
-let nums=
-[0,1,2,3,4,5,6,7,8,9,10];
+// NUMBER LINE
+let startX, endX, lineY, totalSteps, stepX;
 
-nums.sort(
-()=>Math.random()-0.5
-);
+function updateNumberLine(){
 
-nums.forEach(n=>{
+    startX = canvas.width * 0.08;
+    endX = canvas.width * 0.92;
+    lineY = canvas.height * 0.55;
 
-let card=
-document.createElement(
-"div"
-);
+    totalSteps = 10;
+    stepX = (endX - startX) / totalSteps;
 
-card.className=
-"card";
+    man.y = lineY - canvas.height * 0.12;
+}
 
-card.textContent=
-n;
+// ERASER MODE
+let eraseMode = false;
 
-card.style.left=
-Math.random()*
-(window.innerWidth-80)
-+"px";
+// WALKING MAN
+const man = {
+    step:3,
+    x:0,
+    y:0,
+    facingRight:false,
+    dragging:false,
+    lastX:0
+};
 
-card.style.top=
-(330+
-Math.random()*250)
-+"px";
+// CLOUDS
+let clouds = [
+    {
+        x:180,
+        y:90,
+        emoji:"🌧",
+        size:55
+    }
+];
 
-document.body.appendChild(
-card
-);
+let draggingCloud = null;
+let selectedCloudIndex = null;
 
-makeDrag(
-card,
-true
-);
+// DRAWINGS
+let drawings = [];
+let currentLine = [];
+let drawing = false;
 
+// BUTTONS
+document.getElementById("eraserModeBtn").onclick = ()=>{
+
+    eraseMode = !eraseMode;
+
+    if(eraseMode){
+        document.getElementById("eraserModeBtn").innerHTML = "✏️គូរ";
+    }else{
+        document.getElementById("eraserModeBtn").innerHTML = "🩹លុប";
+    }
+};
+
+document.getElementById("cloudBtn").onclick = ()=>{
+
+    clouds.push({
+        x:150 + Math.random()*300,
+        y:60 + Math.random()*120,
+        emoji:"🌧",
+        size:Math.max(35, canvas.width * 0.05)
+    });
+
+    draw();
+};
+
+document.getElementById("deleteCloudBtn").onclick = ()=>{
+
+    if(
+        selectedCloudIndex !== null &&
+        selectedCloudIndex >= 0 &&
+        selectedCloudIndex < clouds.length
+    ){
+
+        clouds.splice(selectedCloudIndex,1);
+        selectedCloudIndex = null;
+
+        draw();
+    }
+};
+
+document.getElementById("clearBtn").onclick = ()=>{
+
+    drawings = [];
+    draw();
+};
+
+// STEP TO X
+function stepToX(step){
+    return startX + step * stepX;
+}
+
+// X TO STEP
+function xToStep(x){
+
+    let step = Math.round((x - startX) / stepX);
+
+    return Math.max(0, Math.min(10, step));
+}
+
+// LABELS
+function getLabel(step){
+    return step === 10 ? 0 : step;
+}
+
+// DRAW NUMBER LINE
+function drawNumberLine(){
+
+    ctx.beginPath();
+    ctx.moveTo(startX - 20, lineY);
+    ctx.lineTo(endX + 20, lineY);
+
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = "#222";
+    ctx.stroke();
+
+    for(let i=0;i<=10;i++){
+
+        const x = stepToX(i);
+
+        ctx.beginPath();
+        ctx.moveTo(x, lineY - 12);
+        ctx.lineTo(x, lineY + 12);
+
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.font = `${Math.max(14, canvas.width*0.02)}px Arial`;
+        ctx.fillStyle = "#222";
+        ctx.textAlign = "center";
+
+        ctx.fillText(getLabel(i), x, lineY + 35);
+    }
+}
+
+// DRAW MAN
+function drawMan(){
+
+    const x = stepToX(man.step);
+
+    man.x = x;
+
+    ctx.save();
+    ctx.translate(x, man.y);
+
+    if(man.facingRight){
+        ctx.scale(-1,1);
+    }
+
+    ctx.font = `${Math.max(35, canvas.width*0.05)}px Arial`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    ctx.fillText("🚶",0,0);
+
+    ctx.restore();
+}
+
+// DRAW CLOUDS
+function drawClouds(){
+
+    clouds.forEach((cloud,index)=>{
+
+        if(index === selectedCloudIndex){
+
+            ctx.beginPath();
+            ctx.arc(cloud.x, cloud.y, cloud.size * 0.7, 0, 2 * Math.PI);
+
+            ctx.strokeStyle = "rgba(217,83,79,0.6)";
+            ctx.lineWidth = 3;
+
+            ctx.setLineDash([6,4]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        ctx.font = `${cloud.size}px Arial`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        ctx.fillText(cloud.emoji, cloud.x, cloud.y);
+    });
+}
+
+// DRAW LINES
+function drawLines(){
+
+    ctx.strokeStyle = "#1976d2";
+    ctx.lineWidth = 3;
+    ctx.lineCap = "round";
+
+    drawings.forEach(line=>{
+
+        if(line.length < 2) return;
+
+        ctx.beginPath();
+        ctx.moveTo(line[0].x,line[0].y);
+
+        for(let i=1;i<line.length;i++){
+            ctx.lineTo(line[i].x,line[i].y);
+        }
+
+        ctx.stroke();
+    });
+
+    if(currentLine.length > 1){
+
+        ctx.beginPath();
+        ctx.moveTo(currentLine[0].x,currentLine[0].y);
+
+        for(let i=1;i<currentLine.length;i++){
+            ctx.lineTo(currentLine[i].x,currentLine[i].y);
+        }
+
+        ctx.stroke();
+    }
+}
+
+// MAIN DRAW
+function draw(){
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    drawLines();
+    drawClouds();
+    drawNumberLine();
+    drawMan();
+}
+
+// GET POSITION
+function getPos(e){
+
+    const rect = canvas.getBoundingClientRect();
+
+    if(e.touches && e.touches.length > 0){
+
+        return {
+            x:(e.touches[0].clientX - rect.left) * (canvas.width / rect.width),
+            y:(e.touches[0].clientY - rect.top) * (canvas.height / rect.height)
+        };
+    }
+
+    return {
+        x:(e.clientX - rect.left) * (canvas.width / rect.width),
+        y:(e.clientY - rect.top) * (canvas.height / rect.height)
+    };
+}
+
+// HIT MAN
+function hitMan(x,y){
+
+    return (
+        x > man.x - 35 &&
+        x < man.x + 35 &&
+        y > man.y - 35 &&
+        y < man.y + 35
+    );
+}
+
+// HIT CLOUD
+function hitCloud(x,y){
+
+    for(let i=clouds.length-1;i>=0;i--){
+
+        const c = clouds[i];
+
+        if(
+            x > c.x - 40 &&
+            x < c.x + 40 &&
+            y > c.y - 40 &&
+            y < c.y + 40
+        ){
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+// ERASER
+function eraseAt(x,y){
+
+    drawings = drawings.filter(line=>{
+
+        for(let point of line){
+
+            const dx = point.x - x;
+            const dy = point.y - y;
+
+            const dist = Math.sqrt(dx*dx + dy*dy);
+
+            if(dist < 18){
+                return false;
+            }
+        }
+
+        return true;
+    });
+
+    draw();
+}
+
+// START ACTION
+function startAction(e){
+
+    const pos = getPos(e);
+
+    const cloudIndex = hitCloud(pos.x,pos.y);
+
+    if(cloudIndex !== -1){
+
+        draggingCloud = cloudIndex;
+        selectedCloudIndex = cloudIndex;
+
+        draw();
+        return;
+    }
+
+    if(hitMan(pos.x,pos.y)){
+
+        man.dragging = true;
+        man.lastX = pos.x;
+
+        return;
+    }
+
+    if(eraseMode){
+
+        eraseAt(pos.x,pos.y);
+        return;
+    }
+
+    drawing = true;
+
+    currentLine = [{
+        x:pos.x,
+        y:pos.y
+    }];
+}
+
+// MOVE ACTION
+function moveAction(e){
+
+    const pos = getPos(e);
+
+    if(draggingCloud !== null){
+
+        clouds[draggingCloud].x = pos.x;
+        clouds[draggingCloud].y = pos.y;
+
+        draw();
+
+        e.preventDefault();
+        return;
+    }
+
+    if(man.dragging){
+
+        if(pos.x > man.lastX + 1){
+            man.facingRight = true;
+        }
+        else if(pos.x < man.lastX - 1){
+            man.facingRight = false;
+        }
+
+        man.lastX = pos.x;
+
+        man.step = xToStep(pos.x);
+
+        draw();
+
+        e.preventDefault();
+        return;
+    }
+
+    if(eraseMode){
+
+        eraseAt(pos.x,pos.y);
+
+        e.preventDefault();
+        return;
+    }
+
+    if(drawing){
+
+        currentLine.push({
+            x:pos.x,
+            y:pos.y
+        });
+
+        draw();
+
+        e.preventDefault();
+    }
+}
+
+// END ACTION
+function endAction(){
+
+    if(currentLine.length > 0){
+        drawings.push(currentLine);
+    }
+
+    currentLine = [];
+    drawing = false;
+
+    man.dragging = false;
+    draggingCloud = null;
+
+    draw();
+}
+
+// DOUBLE TAP
+let lastTap = 0;
+
+function handleDoubleTap(e){
+
+    const currentTime = new Date().getTime();
+    const tapLength = currentTime - lastTap;
+
+    const pos = getPos(e);
+
+    if(tapLength < 300 && tapLength > 0){
+
+        const cloudIndex = hitCloud(pos.x,pos.y);
+
+        if(cloudIndex !== -1){
+
+            const c = clouds[cloudIndex];
+
+            clouds.push({
+                x:c.x + 60,
+                y:c.y,
+                emoji:"🌧",
+                size:c.size
+            });
+
+            selectedCloudIndex = clouds.length - 1;
+
+            draw();
+        }
+    }
+
+    lastTap = currentTime;
+}
+
+// EVENTS
+canvas.addEventListener("mousedown", startAction);
+canvas.addEventListener("mousemove", moveAction);
+
+window.addEventListener("mouseup", endAction);
+
+canvas.addEventListener("touchstart",(e)=>{
+
+    startAction(e);
+    handleDoubleTap(e);
+
+},{passive:false});
+
+canvas.addEventListener("touchmove", moveAction,{passive:false});
+
+window.addEventListener("touchend", endAction);
+
+// DOUBLE CLICK
+canvas.addEventListener("dblclick",(e)=>{
+
+    const pos = getPos(e);
+
+    const cloudIndex = hitCloud(pos.x,pos.y);
+
+    if(cloudIndex !== -1){
+
+        const c = clouds[cloudIndex];
+
+        clouds.push({
+            x:c.x + 60,
+            y:c.y,
+            emoji:"🌧",
+            size:c.size
+        });
+
+        selectedCloudIndex = clouds.length - 1;
+
+        draw();
+    }
 });
 
-/* MAGNETIC SNAP */
+// KEYBOARD
+window.addEventListener("keydown",(e)=>{
 
-function snap(el){
+    if(e.key === "ArrowRight"){
 
-let best=999999;
+        man.facingRight = true;
+        man.step = Math.min(10, man.step + 1);
 
-let target=null;
+        draw();
+    }
 
-const r=
-el.getBoundingClientRect();
+    else if(e.key === "ArrowLeft"){
 
-const cx=
-r.left+r.width/2;
+        man.facingRight = false;
+        man.step = Math.max(0, man.step - 1);
 
-const cy=
-r.top+r.height/2;
-
-cells.forEach(cell=>{
-
-const cr=
-cell.getBoundingClientRect();
-
-const d=
-Math.hypot(
-
-cx-(cr.left+cr.width/2),
-
-cy-(cr.top+cr.height/2)
-
-);
-
-if(d<best){
-
-best=d;
-
-target=cell;
-
-}
-
+        draw();
+    }
 });
 
-if(best<90){
-
-const rect=
-target.getBoundingClientRect();
-
-el.style.left=
-(rect.left+
-(rect.width-el.offsetWidth)/2)
-+"px";
-
-el.style.top=
-(rect.top+
-(rect.height-el.offsetHeight)/2)
-+"px";
-
-}
-
-}
-
-/* DRAG */
-
-function makeDrag(
-el,
-magnetic=false
-){
-
-let sx,sy,ox,oy;
-
-function start(e){
-
-const p=
-e.touches?
-e.touches[0]:e;
-
-sx=p.clientX;
-sy=p.clientY;
-
-ox=el.offsetLeft;
-oy=el.offsetTop;
-
-document.addEventListener(
-"mousemove",
-move
-);
-
-document.addEventListener(
-"touchmove",
-move,
-{passive:false}
-);
-
-document.addEventListener(
-"mouseup",
-end
-);
-
-document.addEventListener(
-"touchend",
-end
-);
-
-}
-
-function move(e){
-
-e.preventDefault();
-
-const p=
-e.touches?
-e.touches[0]:e;
-
-el.style.left=
-ox+
-(p.clientX-sx)
-+"px";
-
-el.style.top=
-oy+
-(p.clientY-sy)
-+"px";
-
-}
-
-function end(){
-
-if(magnetic){
-
-snap(el);
-
-}
-
-document.removeEventListener(
-"mousemove",
-move
-);
-
-document.removeEventListener(
-"touchmove",
-move
-);
-
-document.removeEventListener(
-"mouseup",
-end
-);
-
-document.removeEventListener(
-"touchend",
-end
-);
-
-}
-
-el.addEventListener(
-"mousedown",
-start
-);
-
-el.addEventListener(
-"touchstart",
-start
-);
-
-}
-
-/* FRUIT COPY */
-
-document
-.querySelectorAll(
-".fruitTemplate"
-)
-
-.forEach(item=>{
-
-item.onclick=()=>{
-
-let fruit=
-document.createElement(
-"div"
-);
-
-fruit.className=
-"fruit";
-
-fruit.textContent=
-item.textContent;
-
-fruit.style.left=
-"120px";
-
-fruit.style.top=
-"340px";
-
-document.body.appendChild(
-fruit
-);
-
-makeDrag(
-fruit
-);
-
-};
-
-});
-
-/* CANVAS */
-
-const canvas=
-document.getElementById(
-"canvas"
-);
-
-const ctx=
-canvas.getContext(
-"2d"
-);
-
-function resize(){
-
-canvas.width=
-window.innerWidth;
-
-canvas.height=
-window.innerHeight-
-280;
-
-}
-
-resize();
-
-window.addEventListener(
-"resize",
-resize
-);
-
-const DRAW_SIZE=5;
-
-const ERASER_SIZE=30;
-
-ctx.lineCap=
-"round";
-
-let drawing=
-false;
-
-let eraseMode=
-false;
-
-function pos(e){
-
-const rect=
-canvas.getBoundingClientRect();
-
-const p=
-e.touches?
-e.touches[0]:e;
-
-return{
-
-x:p.clientX-
-rect.left,
-
-y:p.clientY-
-rect.top
-
-};
-
-}
-
-function startDraw(e){
-
-drawing=true;
-
-const p=pos(e);
-
-ctx.beginPath();
-
-ctx.moveTo(
-p.x,
-p.y
-);
-
-}
-
-function draw(e){
-
-if(!drawing)
-return;
-
-e.preventDefault();
-
-ctx.globalCompositeOperation=
-eraseMode
-? "destination-out"
-: "source-over";
-
-ctx.lineWidth=
-eraseMode
-? ERASER_SIZE
-: DRAW_SIZE;
-
-const p=
-pos(e);
-
-ctx.lineTo(
-p.x,
-p.y
-);
-
-ctx.stroke();
-
-}
-
-function stop(){
-
-drawing=false;
-
-}
-
-canvas.addEventListener(
-"mousedown",
-startDraw
-);
-
-canvas.addEventListener(
-"mousemove",
-draw
-);
-
-window.addEventListener(
-"mouseup",
-stop
-);
-
-canvas.addEventListener(
-"touchstart",
-startDraw
-);
-
-canvas.addEventListener(
-"touchmove",
-draw,
-{passive:false}
-);
-
-window.addEventListener(
-"touchend",
-stop
-);
-
-/* BUTTONS */
-
-document
-.getElementById(
-"clearBtn"
-)
-
-.onclick=()=>{
-
-ctx.clearRect(
-0,
-0,
-canvas.width,
-canvas.height
-);
-
-};
-
-document
-.getElementById(
-"eraserBtn"
-)
-
-.onclick=()=>{
-
-eraseMode=
-!eraseMode;
-
-};
-
+// START
+resizeCanvas();
 </script>
 
 </body>
