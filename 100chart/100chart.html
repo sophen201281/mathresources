@@ -47,14 +47,10 @@ html,body{
 .card{
   display:flex;
   flex-direction:column;
-
   background:var(--panel);
-
   border-radius:12px;
   border:1px solid var(--border);
-
   box-shadow:var(--shadow);
-
   overflow:hidden;
 }
 
@@ -69,23 +65,16 @@ header{
   display:flex;
   flex-wrap:wrap;
   gap:6px;
-
   padding:6px;
-
   border-bottom:1px solid var(--border);
-
   flex-shrink:0;
 }
 
 button{
   padding:6px 10px;
-
   border-radius:8px;
-
   border:1px solid #cfd6ea;
-
   background:#ffeaf5;
-
   cursor:pointer;
 }
 
@@ -95,50 +84,33 @@ input{
 
 canvas{
   flex:1;
-
   width:100%;
-
   display:block;
-
   background:white;
-
   touch-action:none;
 }
 
-/* SMALLER GRID */
+/* GRID */
 
 .grid{
   flex:1;
-
   display:grid;
-
   grid-template-columns:repeat(10,minmax(0,1fr));
-
   gap:2px;
-
   padding:4px;
-
   max-width:520px;
-
   width:100%;
-
   margin:auto;
-
   align-content:start;
-
   overflow:hidden;
 }
 
 .cell{
-
   aspect-ratio:1;
-
   min-height:28px;
 
   display:flex;
-
   justify-content:center;
-
   align-items:center;
 
   border-radius:4px;
@@ -219,7 +191,7 @@ canvas{
 
 <script>
 
-/* CANVAS */
+/* ===== CANVAS ===== */
 
 const canvas=document.getElementById("c");
 const ctx=canvas.getContext("2d");
@@ -258,18 +230,24 @@ function pos(e){
 
 }
 
+/* FIXED BIG ERASER */
+
 function draw(a,b){
 
- ctx.globalCompositeOperation=
- tool==="eraser"
+ const isEraser = tool==="eraser";
+
+ ctx.globalCompositeOperation =
+ isEraser
  ? "destination-out"
  : "source-over";
 
  ctx.strokeStyle="#2b6fff";
 
- ctx.lineWidth=3;
+ /* BIGGER ERASER */
+ ctx.lineWidth = isEraser ? 30 : 3;
 
  ctx.lineCap="round";
+ ctx.lineJoin="round";
 
  ctx.beginPath();
 
@@ -321,7 +299,7 @@ document.getElementById("clear").onclick=()=>{
 
 };
 
-/* GRID */
+/* ===== GRID ===== */
 
 const grid=document.getElementById("grid");
 
