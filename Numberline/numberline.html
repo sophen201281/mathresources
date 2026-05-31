@@ -1,653 +1,849 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>បន្ទាត់លេខ</title>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>Canvas + Number Line + Walker + Clouds</title>
 
 <style>
+
 *{
-    box-sizing:border-box;
+
+box-sizing:border-box;
+
 }
 
 body{
-    margin:0;
-    min-height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    background:#eef2f7;
-    font-family:Arial,sans-serif;
-    padding:5px;
-}
 
-.container{
-    width:100%;
-    max-width:1100px;
-    background:white;
-    padding:5px;
-    border-radius:16px;
-    box-shadow:0 4px 12px rgba(0,0,0,0.12);
-    text-align:center;
-}
+margin:0;
 
-h2{
-    margin-top:0;
-    font-size:clamp(10px,2vw,16px);
+padding:15px;
+
+font-family:Arial,sans-serif;
+
+background:#f2f2f2;
+
+display:flex;
+
+flex-direction:column;
+
+align-items:center;
+
 }
 
 .toolbar{
-    display:flex;
-    flex-wrap:wrap;
-    justify-content:center;
-    align-items:center;
-    gap:4px;
-    margin-bottom:10px;
-}
 
-button,
-.home-btn{
-    padding:10px 14px;
-    border:none;
-    border-radius:10px;
-    cursor:pointer;
-    background:#4a90e2;
-    color:white;
-    font-weight:bold;
-    font-size:14px;
-    text-decoration:none;
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-}
+display:flex;
 
-button:hover,
-.home-btn:hover{
-    opacity:0.9;
-}
+gap:10px;
 
-#deleteCloudBtn{
-    background:#d9534f;
-}
+margin-bottom:15px;
 
-.home-btn{
-    background:#28a745;
-}
-
-.canvasWrap{
-    width:100%;
-}
-
-canvas{
-    width:100%;
-    height:auto;
-    border:1px solid #ddd;
-    border-radius:12px;
-    background:white;
-    touch-action:none;
-    display:block;
-}
-
+flex-wrap:wrap;
 
 }
+
+button{
+
+padding:10px 16px;
+
+font-size:16px;
+
+border:none;
+
+border-radius:8px;
+
+cursor:pointer;
+
+}
+
+.active{
+
+outline:3px solid blue;
+
+}
+
+#drawCanvas{
+
+width:95%;
+
+max-width:1000px;
+
+height:350px;
+
+border:3px solid black;
+
+background:white;
+
+touch-action:none;
+
+display:block;
+
+}
+
+.number-line-container{
+
+width:75%;
+
+max-width:700px;
+
+margin-top:80px;
+
+position:relative;
+
+padding-bottom:170px;
+
+}
+
+.line{
+
+width:100%;
+
+height:4px;
+
+background:black;
+
+position:relative;
+
+}
+
+.marker{
+
+position:absolute;
+
+top:-15px;
+
+transform:translateX(-50%);
+
+display:flex;
+
+flex-direction:column;
+
+align-items:center;
+
+}
+
+.tick{
+
+width:3px;
+
+height:30px;
+
+background:black;
+
+}
+
+.marker input{
+
+width:60px;
+
+padding:5px;
+
+margin-top:8px;
+
+font-size:18px;
+
+text-align:center;
+
+pointer-events:auto;
+
+touch-action:auto;
+
+z-index:20;
+
+}
+
+/* WALKER */
+
+#walker{
+
+position:absolute;
+
+top:-75px;
+
+left:0;
+
+font-size:55px;
+
+transform:
+
+translateX(-50%)
+
+scaleX(-1);
+
+touch-action:none;
+
+user-select:none;
+
+cursor:grab;
+
+z-index:15;
+
+}
+
+/* CLOUD */
+
+.cloud{
+
+position:absolute;
+
+font-size:60px;
+
+left:40px;
+
+top:-150px;
+
+cursor:grab;
+
+touch-action:none;
+
+user-select:none;
+
+z-index:15;
+
+}
+
 </style>
+
 </head>
 
 <body>
 
-<div class="container">
+<div class="toolbar">
 
-    <h2> </h2>
+<button id="drawBtn">
 
-    <div class="toolbar">
-        <button id="eraserModeBtn">🩹 លុប</button>
-        <button id="cloudBtn">🌧 បន្ថែមពពក</button>
-        <button id="deleteCloudBtn">❌ ដកពពក</button>
-        <button id="clearBtn">🗑 សម្អាត</button>
+Draw
 
-        <!-- HOME BUTTON NEXT TO CLEAR -->
-        <a href="../index.html" class="home-btn">
-            🏡 Home
-        </a>
-    </div>
+</button>
 
-    <div class="canvasWrap">
-        <canvas id="canvas"></canvas>
-    </div>
+<button id="eraserBtn">
+
+Eraser
+
+</button>
+
+<button onclick="clearCanvas()">
+
+Clear
+
+</button>
+
+</div>
+
+<canvas id="drawCanvas"></canvas>
+
+<div class="number-line-container"
+
+id="container">
+
+<div id="walker">
+
+🚶
+
+</div>
+
+<div class="cloud">
+
+🌧️
+
+</div>
+
+<div class="line"
+
+id="line">
+
+</div>
 
 </div>
 
 <script>
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+
+/* ---------------- Container ---------------- */
+
+const container =
+
+document.getElementById(
+
+"container"
+
+);
+
+/* ---------------- Canvas ---------------- */
+
+const canvas =
+
+document.getElementById(
+
+"drawCanvas"
+
+);
+
+const ctx =
+
+canvas.getContext("2d");
 
 function resizeCanvas(){
 
-    const maxWidth = Math.min(window.innerWidth - 30, 1000);
+const r =
 
-    canvas.width = maxWidth;
-    canvas.height = maxWidth * 0.52;
+canvas.getBoundingClientRect();
 
-    updateNumberLine();
-    draw();
+canvas.width =
+
+r.width;
+
+canvas.height =
+
+r.height;
+
 }
 
-window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
 
-// NUMBER LINE
-let startX, endX, lineY, totalSteps, stepX;
+window.addEventListener(
 
-function updateNumberLine(){
+"resize",
 
-    startX = canvas.width * 0.08;
-    endX = canvas.width * 0.92;
-    lineY = canvas.height * 0.55;
+resizeCanvas
 
-    totalSteps = 10;
-    stepX = (endX - startX) / totalSteps;
+);
 
-    man.y = lineY - canvas.height * 0.12;
-}
+let drawing=false;
 
-// ERASER MODE
-let eraseMode = false;
+let eraseMode=false;
 
-// WALKING MAN
-const man = {
-    step:3,
-    x:0,
-    y:0,
-    facingRight:false,
-    dragging:false,
-    lastX:0
+const drawBtn =
+
+document.getElementById(
+
+"drawBtn"
+
+);
+
+const eraserBtn =
+
+document.getElementById(
+
+"eraserBtn"
+
+);
+
+drawBtn.classList.add(
+
+"active"
+
+);
+
+drawBtn.onclick=()=>{
+
+eraseMode=false;
+
+drawBtn.classList.add(
+
+"active"
+
+);
+
+eraserBtn.classList.remove(
+
+"active"
+
+);
+
 };
 
-// CLOUDS
-let clouds = [
-    {
-        x:180,
-        y:90,
-        emoji:"🌧",
-        size:55
-    }
-];
+eraserBtn.onclick=()=>{
 
-let draggingCloud = null;
-let selectedCloudIndex = null;
+eraseMode=true;
 
-// DRAWINGS
-let drawings = [];
-let currentLine = [];
-let drawing = false;
+eraserBtn.classList.add(
 
-// BUTTONS
-document.getElementById("eraserModeBtn").onclick = ()=>{
+"active"
 
-    eraseMode = !eraseMode;
+);
 
-    if(eraseMode){
-        document.getElementById("eraserModeBtn").innerHTML = "✏️គូរ";
-    }else{
-        document.getElementById("eraserModeBtn").innerHTML = "🩹លុប";
-    }
+drawBtn.classList.remove(
+
+"active"
+
+);
+
 };
 
-document.getElementById("cloudBtn").onclick = ()=>{
-
-    clouds.push({
-        x:150 + Math.random()*300,
-        y:60 + Math.random()*120,
-        emoji:"🌧",
-        size:Math.max(35, canvas.width * 0.05)
-    });
-
-    draw();
-};
-
-document.getElementById("deleteCloudBtn").onclick = ()=>{
-
-    if(
-        selectedCloudIndex !== null &&
-        selectedCloudIndex >= 0 &&
-        selectedCloudIndex < clouds.length
-    ){
-
-        clouds.splice(selectedCloudIndex,1);
-        selectedCloudIndex = null;
-
-        draw();
-    }
-};
-
-document.getElementById("clearBtn").onclick = ()=>{
-
-    drawings = [];
-    draw();
-};
-
-// STEP TO X
-function stepToX(step){
-    return startX + step * stepX;
-}
-
-// X TO STEP
-function xToStep(x){
-
-    let step = Math.round((x - startX) / stepX);
-
-    return Math.max(0, Math.min(10, step));
-}
-
-// LABELS
-function getLabel(step){
-    return step === 10 ? 0 : step;
-}
-
-// DRAW NUMBER LINE
-function drawNumberLine(){
-
-    ctx.beginPath();
-    ctx.moveTo(startX - 20, lineY);
-    ctx.lineTo(endX + 20, lineY);
-
-    ctx.lineWidth = 4;
-    ctx.strokeStyle = "#222";
-    ctx.stroke();
-
-    for(let i=0;i<=10;i++){
-
-        const x = stepToX(i);
-
-        ctx.beginPath();
-        ctx.moveTo(x, lineY - 12);
-        ctx.lineTo(x, lineY + 12);
-
-        ctx.lineWidth = 2;
-        ctx.stroke();
-
-        ctx.font = `${Math.max(14, canvas.width*0.02)}px Arial`;
-        ctx.fillStyle = "#222";
-        ctx.textAlign = "center";
-
-        ctx.fillText(getLabel(i), x, lineY + 35);
-    }
-}
-
-// DRAW MAN
-function drawMan(){
-
-    const x = stepToX(man.step);
-
-    man.x = x;
-
-    ctx.save();
-    ctx.translate(x, man.y);
-
-    if(man.facingRight){
-        ctx.scale(-1,1);
-    }
-
-    ctx.font = `${Math.max(35, canvas.width*0.05)}px Arial`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-
-    ctx.fillText("🚶",0,0);
-
-    ctx.restore();
-}
-
-// DRAW CLOUDS
-function drawClouds(){
-
-    clouds.forEach((cloud,index)=>{
-
-        if(index === selectedCloudIndex){
-
-            ctx.beginPath();
-            ctx.arc(cloud.x, cloud.y, cloud.size * 0.7, 0, 2 * Math.PI);
-
-            ctx.strokeStyle = "rgba(217,83,79,0.6)";
-            ctx.lineWidth = 3;
-
-            ctx.setLineDash([6,4]);
-            ctx.stroke();
-            ctx.setLineDash([]);
-        }
-
-        ctx.font = `${cloud.size}px Arial`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-
-        ctx.fillText(cloud.emoji, cloud.x, cloud.y);
-    });
-}
-
-// DRAW LINES
-function drawLines(){
-
-    ctx.strokeStyle = "#1976d2";
-    ctx.lineWidth = 3;
-    ctx.lineCap = "round";
-
-    drawings.forEach(line=>{
-
-        if(line.length < 2) return;
-
-        ctx.beginPath();
-        ctx.moveTo(line[0].x,line[0].y);
-
-        for(let i=1;i<line.length;i++){
-            ctx.lineTo(line[i].x,line[i].y);
-        }
-
-        ctx.stroke();
-    });
-
-    if(currentLine.length > 1){
-
-        ctx.beginPath();
-        ctx.moveTo(currentLine[0].x,currentLine[0].y);
-
-        for(let i=1;i<currentLine.length;i++){
-            ctx.lineTo(currentLine[i].x,currentLine[i].y);
-        }
-
-        ctx.stroke();
-    }
-}
-
-// MAIN DRAW
-function draw(){
-
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-
-    drawLines();
-    drawClouds();
-    drawNumberLine();
-    drawMan();
-}
-
-// GET POSITION
 function getPos(e){
 
-    const rect = canvas.getBoundingClientRect();
+const rect =
 
-    if(e.touches && e.touches.length > 0){
+canvas.getBoundingClientRect();
 
-        return {
-            x:(e.touches[0].clientX - rect.left) * (canvas.width / rect.width),
-            y:(e.touches[0].clientY - rect.top) * (canvas.height / rect.height)
-        };
-    }
+if(e.touches){
 
-    return {
-        x:(e.clientX - rect.left) * (canvas.width / rect.width),
-        y:(e.clientY - rect.top) * (canvas.height / rect.height)
-    };
+return{
+
+x:
+
+e.touches[0].clientX
+
+- rect.left,
+
+y:
+
+e.touches[0].clientY
+
+- rect.top
+
+};
+
 }
 
-// HIT MAN
-function hitMan(x,y){
+return{
 
-    return (
-        x > man.x - 35 &&
-        x < man.x + 35 &&
-        y > man.y - 35 &&
-        y < man.y + 35
-    );
+x:e.clientX-rect.left,
+
+y:e.clientY-rect.top
+
+};
+
 }
 
-// HIT CLOUD
-function hitCloud(x,y){
+function startDraw(e){
 
-    for(let i=clouds.length-1;i>=0;i--){
+drawing=true;
 
-        const c = clouds[i];
+const p =
 
-        if(
-            x > c.x - 40 &&
-            x < c.x + 40 &&
-            y > c.y - 40 &&
-            y < c.y + 40
-        ){
-            return i;
-        }
-    }
+getPos(e);
 
-    return -1;
+ctx.beginPath();
+
+ctx.moveTo(
+
+p.x,
+
+p.y
+
+);
+
 }
 
-// ERASER
-function eraseAt(x,y){
+function draw(e){
 
-    drawings = drawings.filter(line=>{
+if(!drawing) return;
 
-        for(let point of line){
+const p =
 
-            const dx = point.x - x;
-            const dy = point.y - y;
+getPos(e);
 
-            const dist = Math.sqrt(dx*dx + dy*dy);
+ctx.lineWidth =
 
-            if(dist < 18){
-                return false;
-            }
-        }
+eraseMode
 
-        return true;
-    });
+? 25
 
-    draw();
+: 3;
+
+ctx.lineCap =
+
+"round";
+
+ctx.globalCompositeOperation =
+
+eraseMode
+
+? "destination-out"
+
+: "source-over";
+
+ctx.lineTo(
+
+p.x,
+
+p.y
+
+);
+
+ctx.stroke();
+
+e.preventDefault();
+
 }
 
-// START ACTION
-function startAction(e){
+function stopDraw(){
 
-    const pos = getPos(e);
+drawing=false;
 
-    const cloudIndex = hitCloud(pos.x,pos.y);
+ctx.beginPath();
 
-    if(cloudIndex !== -1){
-
-        draggingCloud = cloudIndex;
-        selectedCloudIndex = cloudIndex;
-
-        draw();
-        return;
-    }
-
-    if(hitMan(pos.x,pos.y)){
-
-        man.dragging = true;
-        man.lastX = pos.x;
-
-        return;
-    }
-
-    if(eraseMode){
-
-        eraseAt(pos.x,pos.y);
-        return;
-    }
-
-    drawing = true;
-
-    currentLine = [{
-        x:pos.x,
-        y:pos.y
-    }];
 }
 
-// MOVE ACTION
-function moveAction(e){
+canvas.addEventListener(
 
-    const pos = getPos(e);
+"mousedown",
 
-    if(draggingCloud !== null){
+startDraw
 
-        clouds[draggingCloud].x = pos.x;
-        clouds[draggingCloud].y = pos.y;
+);
 
-        draw();
+canvas.addEventListener(
 
-        e.preventDefault();
-        return;
-    }
+"mousemove",
 
-    if(man.dragging){
+draw
 
-        if(pos.x > man.lastX + 1){
-            man.facingRight = true;
-        }
-        else if(pos.x < man.lastX - 1){
-            man.facingRight = false;
-        }
+);
 
-        man.lastX = pos.x;
+canvas.addEventListener(
 
-        man.step = xToStep(pos.x);
+"mouseup",
 
-        draw();
+stopDraw
 
-        e.preventDefault();
-        return;
-    }
+);
 
-    if(eraseMode){
+canvas.addEventListener(
 
-        eraseAt(pos.x,pos.y);
+"mouseleave",
 
-        e.preventDefault();
-        return;
-    }
+stopDraw
 
-    if(drawing){
+);
 
-        currentLine.push({
-            x:pos.x,
-            y:pos.y
-        });
+canvas.addEventListener(
 
-        draw();
+"touchstart",
 
-        e.preventDefault();
-    }
+startDraw,
+
+{passive:false}
+
+);
+
+canvas.addEventListener(
+
+"touchmove",
+
+draw,
+
+{passive:false}
+
+);
+
+canvas.addEventListener(
+
+"touchend",
+
+stopDraw
+
+);
+
+function clearCanvas(){
+
+ctx.clearRect(
+
+0,
+
+0,
+
+canvas.width,
+
+canvas.height
+
+);
+
 }
 
-// END ACTION
-function endAction(){
+/* ---------------- Number Line ---------------- */
 
-    if(currentLine.length > 0){
-        drawings.push(currentLine);
-    }
+const line =
 
-    currentLine = [];
-    drawing = false;
+document.getElementById(
 
-    man.dragging = false;
-    draggingCloud = null;
+"line"
 
-    draw();
+);
+
+for(let i=0;i<11;i++){
+
+const marker =
+
+document.createElement(
+
+"div"
+
+);
+
+marker.className =
+
+"marker";
+
+marker.style.left =
+
+(i*10)+"%";
+
+marker.innerHTML=`
+
+<div class="tick"></div>
+
+<input
+
+type="number"
+
+value="${i}"
+
+>
+
+`;
+
+line.appendChild(
+
+marker
+
+);
+
 }
 
-// DOUBLE TAP
-let lastTap = 0;
+/* ---------------- Walker ---------------- */
 
-function handleDoubleTap(e){
+const walker =
 
-    const currentTime = new Date().getTime();
-    const tapLength = currentTime - lastTap;
+document.getElementById(
 
-    const pos = getPos(e);
+"walker"
 
-    if(tapLength < 300 && tapLength > 0){
+);
 
-        const cloudIndex = hitCloud(pos.x,pos.y);
+let walkDrag=false;
 
-        if(cloudIndex !== -1){
+let previousX=0;
 
-            const c = clouds[cloudIndex];
+walker.addEventListener(
 
-            clouds.push({
-                x:c.x + 60,
-                y:c.y,
-                emoji:"🌧",
-                size:c.size
-            });
+"pointerdown",
 
-            selectedCloudIndex = clouds.length - 1;
+e=>{
 
-            draw();
-        }
-    }
+walkDrag=true;
 
-    lastTap = currentTime;
+walker.setPointerCapture(
+
+e.pointerId
+
+);
+
 }
 
-// EVENTS
-canvas.addEventListener("mousedown", startAction);
-canvas.addEventListener("mousemove", moveAction);
+);
 
-window.addEventListener("mouseup", endAction);
+walker.addEventListener(
 
-canvas.addEventListener("touchstart",(e)=>{
+"pointermove",
 
-    startAction(e);
-    handleDoubleTap(e);
+e=>{
 
-},{passive:false});
+if(!walkDrag) return;
 
-canvas.addEventListener("touchmove", moveAction,{passive:false});
+const rect =
 
-window.addEventListener("touchend", endAction);
+container.getBoundingClientRect();
 
-// DOUBLE CLICK
-canvas.addEventListener("dblclick",(e)=>{
+let x =
 
-    const pos = getPos(e);
+e.clientX
 
-    const cloudIndex = hitCloud(pos.x,pos.y);
+- rect.left;
 
-    if(cloudIndex !== -1){
+x =
 
-        const c = clouds[cloudIndex];
+Math.max(
 
-        clouds.push({
-            x:c.x + 60,
-            y:c.y,
-            emoji:"🌧",
-            size:c.size
-        });
+0,
 
-        selectedCloudIndex = clouds.length - 1;
+Math.min(
 
-        draw();
-    }
+rect.width,
+
+x
+
+)
+
+);
+
+walker.style.left =
+
+x+"px";
+
+if(x>previousX){
+
+walker.style.transform=
+
+"translateX(-50%) scaleX(-1)";
+
+}else if(
+
+x<previousX
+
+){
+
+walker.style.transform=
+
+"translateX(-50%) scaleX(1)";
+
+}
+
+previousX=x;
+
+}
+
+);
+
+walker.addEventListener(
+
+"pointerup",
+
+()=>walkDrag=false
+
+);
+
+/* ---------------- Clouds ---------------- */
+
+function makeCloud(cloud){
+
+let dragging=false;
+
+let lastTap=0;
+
+cloud.addEventListener(
+
+"pointerdown",
+
+e=>{
+
+dragging=true;
+
+cloud.setPointerCapture(
+
+e.pointerId
+
+);
+
+}
+
+);
+
+cloud.addEventListener(
+
+"pointermove",
+
+e=>{
+
+if(!dragging) return;
+
+const rect =
+
+container.getBoundingClientRect();
+
+cloud.style.left =
+
+(e.clientX
+
+- rect.left)
+
++"px";
+
+cloud.style.top =
+
+(e.clientY
+
+- rect.top)
+
++"px";
+
 });
 
-// KEYBOARD
-window.addEventListener("keydown",(e)=>{
+cloud.addEventListener(
 
-    if(e.key === "ArrowRight"){
+"pointerup",
 
-        man.facingRight = true;
-        man.step = Math.min(10, man.step + 1);
+()=>{
 
-        draw();
-    }
+dragging=false;
 
-    else if(e.key === "ArrowLeft"){
+const now=
 
-        man.facingRight = false;
-        man.step = Math.max(0, man.step - 1);
+Date.now();
 
-        draw();
-    }
+if(
+
+now-lastTap
+
+<300
+
+){
+
+const copy=
+
+cloud.cloneNode(true);
+
+copy.style.left=
+
+(parseInt(
+
+cloud.style.left
+
+)+60)+"px";
+
+copy.style.top=
+
+(parseInt(
+
+cloud.style.top
+
+)+20)+"px";
+
+container.appendChild(
+
+copy
+
+);
+
+makeCloud(
+
+copy
+
+);
+
+}
+
+lastTap=
+
+now;
+
 });
 
-// START
-resizeCanvas();
+}
+
+document
+
+.querySelectorAll(
+
+".cloud"
+
+)
+
+.forEach(
+
+makeCloud
+
+);
+
 </script>
 
 </body>
+
 </html>
