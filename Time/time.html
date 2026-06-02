@@ -1,329 +1,949 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Fixed: Draw + Eraser + Draggable Clock</title>
+
+<meta name="viewport"
+
+content="width=device-width,initial-scale=1.0,user-scalable=no">
+
+<title>Real Teaching Clock Fixed</title>
+
 <style>
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    touch-action: none;
-  }
 
-  body {
-    overflow: hidden;
-    background: #f2f2f2;
-    font-family: 'Segoe UI', Arial, sans-serif;
-  }
+*{
 
-  canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-  }
+margin:0;
 
-  /* Draw layer sits on the bottom */
-  #drawCanvas {
-    z-index: 1;
-  }
+padding:0;
 
-  /* Clock layer sits on top to catch interactions */
-  #clockCanvas {
-    z-index: 2;
-  }
+box-sizing:border-box;
 
-  #toolbar {
-    position: fixed;
-    top: 16px;
-    left: 16px;
-    z-index: 100;
-    display: flex;
-    gap: 12px;
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(8px);
-    padding: 8px 16px;
-    border-radius: 60px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  }
+touch-action:none;
 
-  button {
-    padding: 8px 18px;
-    border: none;
-    border-radius: 40px;
-    font-size: 1rem;
-    font-weight: 600;
-    background: white;
-    cursor: pointer;
-    transition: 0.2s;
-  }
+}
 
-  #modeBtn {
-    background: #2c3e66;
-    color: white;
-  }
+body{
 
-  #clearBtn {
-    background: #e67e22;
-    color: white;
-  }
+overflow:hidden;
+
+background:#f2f2f2;
+
+font-family:Segoe UI,Arial,sans-serif;
+
+}
+
+canvas{
+
+position:absolute;
+
+top:0;
+
+left:0;
+
+}
+
+#drawCanvas{z-index:1;}
+
+#clockCanvas{z-index:2;}
+
+#toolbar{
+
+position:fixed;
+
+top:16px;
+
+left:16px;
+
+z-index:100;
+
+display:flex;
+
+gap:12px;
+
+background:rgba(255,255,255,.92);
+
+padding:8px 16px;
+
+border-radius:60px;
+
+box-shadow:
+
+0 4px 12px rgba(0,0,0,.15);
+
+}
+
+button{
+
+border:none;
+
+border-radius:40px;
+
+padding:8px 18px;
+
+font-size:1rem;
+
+font-weight:600;
+
+}
+
+#modeBtn{
+
+background:#2c3e66;
+
+color:white;
+
+}
+
+#clearBtn{
+
+background:#e67e22;
+
+color:white;
+
+}
+
 </style>
+
 </head>
+
 <body>
 
 <div id="toolbar">
-  <button id="modeBtn">✏️ Draw</button>
-  <button id="clearBtn">🧹 Clear Canvas</button>
+
+<button id="modeBtn">✏️ Draw</button>
+
+<button id="clearBtn">🧹 Clear Canvas</button>
+
 </div>
 
 <canvas id="drawCanvas"></canvas>
+
 <canvas id="clockCanvas"></canvas>
 
 <script>
-  (function() {
-    const clockCanvas = document.getElementById("clockCanvas");
-    const drawCanvas = document.getElementById("drawCanvas");
-    const ctx = clockCanvas.getContext("2d");
-    const dctx = drawCanvas.getContext("2d");
 
-    let cx, cy, radius;
-    let mode = "draw";
-    let drawing = false;
-    let dragging = null;
-    let hours = 3;
-    let minutes = 0;
-    let prevMinute = 0;
-    const hourTip = { x: 0, y: 0 };
-    const minuteTip = { x: 0, y: 0 };
+(function(){
 
-    // Resize function
-    function resize() {
-      const w = window.innerWidth;
-      const h = window.innerHeight;
-      clockCanvas.width = w;
-      clockCanvas.height = h;
-      drawCanvas.width = w;
-      drawCanvas.height = h;
-      
-      cx = w / 2;
-      cy = h / 2;
-      radius = Math.min(w, h) / 3.2;
-      if (radius < 80) radius = 80;
-      
-      drawClock();
-    }
+const clockCanvas =
 
-    // Draw clock graphics
-    function drawClock() {
-      ctx.clearRect(0, 0, clockCanvas.width, clockCanvas.height);
-      
-      // Clock face background
-      ctx.beginPath();
-      ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-      ctx.fillStyle = "#FFFFFF";
-      ctx.fill();
-      ctx.lineWidth = 4;
-      ctx.strokeStyle = "#1e2a3a";
-      ctx.stroke();
-      
-      // Numbers
-      ctx.fillStyle = "#121826";
-      ctx.font = `bold ${Math.max(18, Math.floor(radius * 0.12))}px "Segoe UI"`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      
-      for (let i = 1; i <= 12; i++) {
-        const angleDeg = (i * 30) - 90;
-        const radAngle = angleDeg * Math.PI / 180;
-        const textRadius = radius - radius * 0.2;
-        const x = cx + Math.cos(radAngle) * textRadius;
-        const y = cy + Math.sin(radAngle) * textRadius;
-        ctx.fillText(i.toString(), x, y);
-      }
-      
-      // Hands orientation calculation
-      let minuteAngle = (minutes * 6) - 90;
-      let hourAngle = ((hours % 12) * 30) + (minutes * 0.5) - 90;
-      
-      drawHand(hourAngle, radius * 0.48, 9, "#C44536", hourTip);
-      drawHand(minuteAngle, radius * 0.72, 6, "#2C5282", minuteTip);
-      
-      // Center accent pin
-      ctx.beginPath();
-      ctx.arc(cx, cy, 12, 0, Math.PI * 2);
-      ctx.fillStyle = "#1E2F3E";
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(cx, cy, 6, 0, Math.PI * 2);
-      ctx.fillStyle = "#F7B05E";
-      ctx.fill();
-    }
-    
-    function drawHand(angleDeg, length, width, color, tipStore) {
-      const rad = angleDeg * Math.PI / 180;
-      const tipX = cx + Math.cos(rad) * length;
-      const tipY = cy + Math.sin(rad) * length;
-      tipStore.x = tipX;
-      tipStore.y = tipY;
-      
-      ctx.beginPath();
-      ctx.moveTo(cx, cy);
-      ctx.lineTo(tipX, tipY);
-      ctx.lineWidth = width;
-      ctx.strokeStyle = color;
-      ctx.stroke();
-      
-      ctx.beginPath();
-      ctx.arc(tipX, tipY, width * 0.6, 0, Math.PI * 2);
-      ctx.fillStyle = color;
-      ctx.fill();
-    }
-    
-    function distance(p1x, p1y, p2x, p2y) {
-      return Math.hypot(p1x - p2x, p1y - p2y);
-    }
-    
-    // Unified Event Pipeline on Top Canvas
-    function handlePointerDown(e) {
-      const x = e.clientX;
-      const y = e.clientY;
-      
-      // 1. Check clock interactions first
-      if (distance(x, y, hourTip.x, hourTip.y) < 38) {
-        dragging = "hour";
-        clockCanvas.setPointerCapture(e.pointerId);
-        return;
-      } 
-      if (distance(x, y, minuteTip.x, minuteTip.y) < 38) {
-        dragging = "minute";
-        clockCanvas.setPointerCapture(e.pointerId);
-        return;
-      }
-      
-      // 2. Fall back to drawing if no hand was hit
-      drawing = true;
-      setupDrawingContext();
-      dctx.beginPath();
-      dctx.moveTo(x, y);
-      dctx.lineTo(x + 0.5, y + 0.5);
-      dctx.stroke();
-      dctx.beginPath();
-      dctx.moveTo(x, y);
-    }
-    
-    function handlePointerMove(e) {
-      // Scenario A: Hand Dragging
-      if (dragging) {
-        let dx = e.clientX - cx;
-        let dy = e.clientY - cy;
-        let rawAngle = Math.atan2(dy, dx) * 180 / Math.PI;
-        let angle = (rawAngle + 360) % 360;
-        
-        if (dragging === "minute") {
-          let newMinutes = Math.round(angle / 6) % 60;
-          if (prevMinute > 50 && newMinutes < 10) {
-            hours = (hours + 1) % 12;
-            if (hours === 0) hours = 12;
-          }
-          if (prevMinute < 10 && newMinutes > 50) {
-            hours = (hours - 1 + 12) % 12;
-            if (hours === 0) hours = 12;
-          }
-          minutes = newMinutes;
-          prevMinute = minutes;
-        } 
-        else if (dragging === "hour") {
-          let newHour = Math.round(angle / 30) % 12;
-          if (newHour === 0) newHour = 12;
-          hours = newHour;
-        }
-        drawClock();
-        return;
-      }
-      
-      // Scenario B: Vector Drawing
-      if (drawing) {
-        setupDrawingContext();
-        dctx.lineTo(e.clientX, e.clientY);
-        dctx.stroke();
-        dctx.beginPath();
-        dctx.moveTo(e.clientX, e.clientY);
-      }
-    }
-    
-    function handlePointerUp(e) {
-      if (dragging) {
-        clockCanvas.releasePointerCapture(e.pointerId);
-        dragging = null;
-      }
-      if (drawing) {
-        drawing = false;
-        dctx.globalCompositeOperation = "source-over";
-      }
-    }
+document.getElementById(
 
-    function setupDrawingContext() {
-      if (mode === "draw") {
-        dctx.globalCompositeOperation = "source-over";
-        dctx.lineWidth = 4;
-        dctx.strokeStyle = "#1E2A3E";
-      } else {
-        dctx.globalCompositeOperation = "destination-out";
-        dctx.lineWidth = 28;
-      }
-      dctx.lineCap = "round";
-      dctx.lineJoin = "round";
-    }
-    
-    function clearDrawCanvas() {
-      dctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-    }
-    
-    function toggleMode() {
-      if (mode === "draw") {
-        mode = "erase";
-        modeBtn.textContent = "🧽 Eraser";
-        modeBtn.style.backgroundColor = "#8B5A2B";
-      } else {
-        mode = "draw";
-        modeBtn.textContent = "✏️ Draw";
-        modeBtn.style.backgroundColor = "#2c3e66";
-      }
-    }
-    
-    function attachEvents() {
-      // Event listeners mounted entirely onto clockCanvas to handle overlapping areas natively
-      clockCanvas.addEventListener("pointerdown", handlePointerDown);
-      clockCanvas.addEventListener("pointermove", handlePointerMove);
-      clockCanvas.addEventListener("pointerup", handlePointerUp);
-      clockCanvas.addEventListener("pointercancel", handlePointerUp);
-      
-      clockCanvas.addEventListener("contextmenu", (e) => e.preventDefault());
-    }
-    
-    const modeBtn = document.getElementById("modeBtn");
-    const clearBtn = document.getElementById("clearBtn");
-    
-    modeBtn.onclick = toggleMode;
-    clearBtn.onclick = clearDrawCanvas;
-    
-    window.addEventListener("resize", () => {
-      const snapshot = drawCanvas.toDataURL();
-      resize();
-      const img = new Image();
-      img.src = snapshot;
-      img.onload = () => {
-        dctx.drawImage(img, 0, 0);
-        drawClock();
-      };
-    });
-    
-    resize();
-    attachEvents();
-    
-    setTimeout(() => drawClock(), 10);
-  })();
+"clockCanvas"
+
+);
+
+const drawCanvas =
+
+document.getElementById(
+
+"drawCanvas"
+
+);
+
+const ctx =
+
+clockCanvas.getContext("2d");
+
+const dctx =
+
+drawCanvas.getContext("2d");
+
+let cx,cy,radius;
+
+let mode="draw";
+
+let drawing=false;
+
+let dragging=null;
+
+let activePointerId=null;
+
+let pendingHandle=null;
+
+const HANDLE_HIT_RADIUS=22;
+
+const DRAG_THRESHOLD=8;
+
+let pointerStart={
+
+x:0,
+
+y:0
+
+};
+
+let hours=3.0;
+
+let minutes=0;
+
+let prevMinute=
+
+minutes;
+
+const hourTip={
+
+x:0,
+
+y:0
+
+};
+
+const minuteTip={
+
+x:0,
+
+y:0
+
+};
+
+function resize(){
+
+const w=
+
+window.innerWidth;
+
+const h=
+
+window.innerHeight;
+
+clockCanvas.width=w;
+
+clockCanvas.height=h;
+
+drawCanvas.width=w;
+
+drawCanvas.height=h;
+
+cx=w/2;
+
+cy=h/2;
+
+radius=
+
+Math.min(w,h)/3.2;
+
+if(radius<80)
+
+radius=80;
+
+drawClock();
+
+}
+
+function drawClock(){
+
+ctx.clearRect(
+
+0,0,
+
+clockCanvas.width,
+
+clockCanvas.height
+
+);
+
+ctx.beginPath();
+
+ctx.arc(
+
+cx,
+
+cy,
+
+radius,
+
+0,
+
+Math.PI*2
+
+);
+
+ctx.fillStyle="white";
+
+ctx.fill();
+
+ctx.lineWidth=4;
+
+ctx.strokeStyle=
+
+"#1e2a3a";
+
+ctx.stroke();
+
+ctx.fillStyle="#111";
+
+ctx.textAlign="center";
+
+ctx.textBaseline=
+
+"middle";
+
+ctx.font=
+
+`bold ${
+
+Math.max(
+
+18,
+
+Math.floor(
+
+radius*.12
+
+))
+
+}px Segoe UI`;
+
+for(
+
+let i=1;
+
+i<=12;
+
+i++
+
+){
+
+const a=
+
+((i*30)-90)
+
+*Math.PI/180;
+
+const r=
+
+radius*.8;
+
+ctx.fillText(
+
+i,
+
+cx+
+
+Math.cos(a)*r,
+
+cy+
+
+Math.sin(a)*r
+
+);
+
+}
+
+const minuteAngle=
+
+(minutes*6)-90;
+
+const hourAngle=
+
+((hours%12)
+
+*30)-90;
+
+drawHand(
+
+hourAngle,
+
+radius*.48,
+
+9,
+
+"#C44536",
+
+hourTip
+
+);
+
+drawHand(
+
+minuteAngle,
+
+radius*.72,
+
+6,
+
+"#2C5282",
+
+minuteTip
+
+);
+
+ctx.beginPath();
+
+ctx.arc(
+
+cx,
+
+cy,
+
+12,
+
+0,
+
+Math.PI*2
+
+);
+
+ctx.fillStyle=
+
+"#1E2F3E";
+
+ctx.fill();
+
+}
+
+function drawHand(
+
+angleDeg,
+
+length,
+
+width,
+
+color,
+
+store
+
+){
+
+const rad=
+
+angleDeg*
+
+Math.PI/180;
+
+const x=
+
+cx+
+
+Math.cos(rad)
+
+*length;
+
+const y=
+
+cy+
+
+Math.sin(rad)
+
+*length;
+
+store.x=x;
+
+store.y=y;
+
+ctx.beginPath();
+
+ctx.moveTo(
+
+cx,
+
+cy
+
+);
+
+ctx.lineTo(
+
+x,
+
+y
+
+);
+
+ctx.lineWidth=
+
+width;
+
+ctx.strokeStyle=
+
+color;
+
+ctx.stroke();
+
+ctx.beginPath();
+
+ctx.arc(
+
+x,
+
+y,
+
+width*.7,
+
+0,
+
+Math.PI*2
+
+);
+
+ctx.fillStyle=
+
+color;
+
+ctx.fill();
+
+}
+
+function distance(
+
+x1,y1,x2,y2
+
+){
+
+return Math.hypot(
+
+x1-x2,
+
+y1-y2
+
+);
+
+}
+
+function handlePointerDown(e){
+
+activePointerId=
+
+e.pointerId;
+
+pointerStart.x=
+
+e.clientX;
+
+pointerStart.y=
+
+e.clientY;
+
+if(
+
+distance(
+
+e.clientX,
+
+e.clientY,
+
+hourTip.x,
+
+hourTip.y
+
+)
+
+<HANDLE_HIT_RADIUS
+
+){
+
+pendingHandle=
+
+"hour";
+
+clockCanvas
+
+.setPointerCapture(
+
+e.pointerId
+
+);
+
+return;
+
+}
+
+if(
+
+distance(
+
+e.clientX,
+
+e.clientY,
+
+minuteTip.x,
+
+minuteTip.y
+
+)
+
+<HANDLE_HIT_RADIUS
+
+){
+
+pendingHandle=
+
+"minute";
+
+clockCanvas
+
+.setPointerCapture(
+
+e.pointerId
+
+);
+
+return;
+
+}
+
+drawing=true;
+
+setupDrawingContext();
+
+dctx.beginPath();
+
+dctx.moveTo(
+
+e.clientX,
+
+e.clientY
+
+);
+
+}
+
+function handlePointerMove(e){
+
+if(
+
+e.pointerId
+
+!==activePointerId
+
+)return;
+
+const moveDist=
+
+distance(
+
+e.clientX,
+
+e.clientY,
+
+pointerStart.x,
+
+pointerStart.y
+
+);
+
+if(
+
+!dragging &&
+
+pendingHandle &&
+
+moveDist>
+
+DRAG_THRESHOLD
+
+){
+
+dragging=
+
+pendingHandle;
+
+pendingHandle=
+
+null;
+
+}
+
+if(dragging){
+
+let dx=
+
+e.clientX-cx;
+
+let dy=
+
+e.clientY-cy;
+
+let angle=
+
+(
+
+Math.atan2(
+
+dy,
+
+dx
+
+)
+
+*180/Math.PI
+
++450
+
+)%360;
+
+if(
+
+dragging==="minute"
+
+){
+
+let newMinutes=
+
+Math.round(
+
+angle/6
+
+)%60;
+
+/* shortest path */
+
+let delta=
+
+newMinutes-
+
+prevMinute;
+
+if(delta>30)
+
+delta-=60;
+
+if(delta<-30)
+
+delta+=60;
+
+/* move hour smoothly */
+
+hours +=
+
+delta/60;
+
+minutes=
+
+newMinutes;
+
+prevMinute=
+
+newMinutes;
+
+}
+
+else{
+
+let newHour=
+
+angle/30;
+
+let diff=
+
+newHour-hours;
+
+if(diff>6)
+
+newHour-=12;
+
+if(diff<-6)
+
+newHour+=12;
+
+hours=
+
+newHour;
+
+}
+
+drawClock();
+
+return;
+
+}
+
+if(drawing){
+
+setupDrawingContext();
+
+dctx.lineTo(
+
+e.clientX,
+
+e.clientY
+
+);
+
+dctx.stroke();
+
+dctx.beginPath();
+
+dctx.moveTo(
+
+e.clientX,
+
+e.clientY
+
+);
+
+}
+
+}
+
+function handlePointerUp(e){
+
+if(
+
+e.pointerId
+
+!==activePointerId
+
+)return;
+
+dragging=null;
+
+pendingHandle=null;
+
+activePointerId=null;
+
+drawing=false;
+
+dctx.globalCompositeOperation=
+
+"source-over";
+
+if(
+
+clockCanvas.hasPointerCapture(
+
+e.pointerId
+
+)
+
+){
+
+clockCanvas.releasePointerCapture(
+
+e.pointerId
+
+);
+
+}
+
+}
+
+function setupDrawingContext(){
+
+if(mode==="draw"){
+
+dctx.globalCompositeOperation=
+
+"source-over";
+
+dctx.lineWidth=4;
+
+dctx.strokeStyle=
+
+"#1E2A3E";
+
+}else{
+
+dctx.globalCompositeOperation=
+
+"destination-out";
+
+dctx.lineWidth=28;
+
+}
+
+dctx.lineCap=
+
+"round";
+
+dctx.lineJoin=
+
+"round";
+
+}
+
+function clearCanvas(){
+
+dctx.clearRect(
+
+0,
+
+0,
+
+drawCanvas.width,
+
+drawCanvas.height
+
+);
+
+}
+
+modeBtn.onclick=()=>{
+
+if(mode==="draw"){
+
+mode="erase";
+
+modeBtn.textContent=
+
+"🧽 Eraser";
+
+}else{
+
+mode="draw";
+
+modeBtn.textContent=
+
+"✏️ Draw";
+
+}
+
+};
+
+clearBtn.onclick=
+
+clearCanvas;
+
+clockCanvas.addEventListener(
+
+"pointerdown",
+
+handlePointerDown
+
+);
+
+clockCanvas.addEventListener(
+
+"pointermove",
+
+handlePointerMove
+
+);
+
+clockCanvas.addEventListener(
+
+"pointerup",
+
+handlePointerUp
+
+);
+
+clockCanvas.addEventListener(
+
+"pointercancel",
+
+handlePointerUp
+
+);
+
+window.addEventListener(
+
+"resize",
+
+resize
+
+);
+
+resize();
+
+})();
+
 </script>
+
 </body>
+
 </html>
