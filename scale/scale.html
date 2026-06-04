@@ -1,350 +1,614 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>360° Analog Weight Scale</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+
 <style>
-    body{
-        margin:0;
-        background:#eef2f7;
-        font-family:Arial,sans-serif;
-        overflow:hidden;
-        touch-action:none;
-    }
-    h2{
-        text-align:center;
-        margin:10px;
-    }
-    #workspace{
-        width:100vw;
-        height:100vh;
-        position:relative;
-    }
-    /* ================= TOOLBOX ================= */
-    .toolbox{
-        position:absolute;
-        top:10px;
-        left:10px;
-        display:flex;
-        gap:12px;
-        z-index:100;
-    }
-    .template{
-        width:60px;
-        height:60px;
-        background:white;
-        border:2px solid #bbb;
-        border-radius:14px;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        user-select:none;
-        cursor:pointer;
-        overflow: hidden;
-    }
-    .template img {
-        width: 80%;
-        height: 80%;
-        object-fit: contain;
-        pointer-events: none; 
-    }
-    /* ================= HOME BUTTON ================= */
-    .home-btn {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        padding: 10px 20px;
-        background: white;
-        border: 2px solid #bbb;
-        border-radius: 14px;
-        font-size: 16px;
-        font-weight: bold;
-        color: #333;
-        text-decoration: none;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        z-index: 100;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        transition: background 0.2s, transform 0.1s;
-    }
-    .home-btn:hover {
-        background: #f5f7fa;
-    }
-    .home-btn:active {
-        transform: scale(0.95);
-    }
-    /* ================= DRAGGABLE ITEM ================= */
-    .item{
-        position:absolute;
-        width:150px;
-        height:150px;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        user-select:none;
-        touch-action:none;
-        z-index:10;
-    }
-    .item img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        pointer-events: none;
-    }
-    /* ================= SCALE ================= */
-    .scale{
-        position:absolute;
-        left:50%;
-        bottom:70px;
-        transform:translateX(-50%);
-        width:420px;
-        height:470px;
-    }
-    .tray{
-        position:absolute;
-        top:0;
-        left:50%;
-        transform:translateX(-50%);
-        width:300px;
-        height:50px;
-        background:white;
-        border:10px solid #444;
-        border-radius:12px;
-    }
-    .stand{
-        position:absolute;
-        top:60px;
-        left:50%;
-        transform:translateX(-50%);
-        width:18px;
-        height:90px;
-        background:#777;
-    }
-    .dial{
-        position:absolute;
-        bottom:0;
-        left:50%;
-        transform:translateX(-50%);
-        width:320px;
-        height:320px;
-        border-radius:50%;
-        background:white;
-        border:10px solid #444;
-        box-shadow:0 5px 12px rgba(0,0,0,0.2);
-    }
-    .number{
-        position:absolute;
-        left:50%;
-        top:50%;
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size:32px;
-        font-weight:bold;
-        color:#333;
-    }
-    .tick{
-        position:absolute;
-        left:50%;
-        top:50%;
-        width:4px;
-        height:16px;
-        background:#555;
-    }
-    .needle{
-        position:absolute;
-        left:50%;
-        top:50%;
-        width:6px;
-        height:100px;
-        background:red;
-        transform-origin:bottom center;
-        transform:translate(-50%, -100%) rotate(0deg);
-        border-radius:10px;
-        z-index:5;
-    }
-    .center{
-        position:absolute;
-        width:18px;
-        height:18px;
-        background:#222;
-        border-radius:50%;
-        left:50%;
-        top:50%;
-        transform:translate(-50%,-50%);
-        z-index:10;
-    }
-    .display{
-        position:absolute;
-        width:100%;
-        text-align:center;
-        bottom:80px;
-        font-size:26px;
-        font-weight:bold;
-    }
+
+*{
+box-sizing:border-box;
+margin:0;
+padding:0;
+touch-action:none;
+user-select:none;
+}
+
+body{
+overflow:hidden;
+font-family:Arial;
+background:#f1f1f1;
+}
+
+.toolbar{
+position:fixed;
+top:10px;
+left:10px;
+display:flex;
+gap:8px;
+z-index:1000;
+}
+
+button{
+padding:10px 14px;
+border:none;
+border-radius:8px;
+background:#1976d2;
+color:white;
+}
+
+#app{
+position:relative;
+width:100vw;
+height:100vh;
+overflow:hidden;
+}
+
+canvas,
+#dotLayer{
+position:absolute;
+inset:0;
+}
+
+#lineCanvas{
+pointer-events:none;
+z-index:1;
+}
+
+#dotLayer{
+z-index:5;
+}
+
+#drawCanvas{
+z-index:20;
+pointer-events:none;
+}
+
+.dot{
+position:absolute;
+
+width:56px;
+height:56px;
+
+border-radius:50%;
+
+background:#ff4f4f;
+
+display:flex;
+justify-content:center;
+align-items:center;
+
+font-size:24px;
+font-weight:bold;
+color:white;
+
+transform:translate(-50%,-50%);
+}
+
 </style>
 </head>
+
 <body>
-<h2>⚖️ 360° Analog Weight Scale</h2>
-<div id="workspace">
-    <!-- TOOLBOX ON THE LEFT -->
-    <div class="toolbox">
-        <div class="template" data-weight="1" data-img="./image/Apple.svg"><img src="./image/Apple.svg" alt="Apple"></div>
-        <div class="template" data-weight="2" data-img="./image/chicken.svg"><img src="./image/chicken.svg" alt="chicken"></div>
-        <div class="template" data-weight="1" data-img="./image/fish.svg"><img src="./image/fish.svg" alt="fish"></div>
-        <div class="template" data-weight="4" data-img="./image/pumpkin.svg"><img src="./image/pumpkin.svg" alt="pumpkin"></div>
-    </div> 
-    
-    <!-- HOME BUTTON ON THE RIGHT -->
-    <a href="../index.html" class="home-btn" style="font-family:'Battambang', cursive; font-size: 20px;">
-        🏡 Home
-    </a>
-    
-    <!-- MAIN SCALE -->
-    <div class="scale">
-        <div class="tray" id="tray"></div>
-        <div class="stand"></div>
-        <div class="dial" id="dial">
-            <div class="needle" id="needle"></div>
-            <div class="center"></div>
-            <div class="display" id="display">0 kg</div>
-        </div>
-    </div>
+
+<div class="toolbar">
+
+<button id="addBtn">
+Add Dot
+</button>
+
+<button id="drawBtn">
+Draw OFF
+</button>
+
+<button id="clearBtn">
+Clear
+</button>
+
+</div>
+
+<div id="app">
+
+<canvas id="lineCanvas"></canvas>
+
+<div id="dotLayer"></div>
+
+<canvas id="drawCanvas"></canvas>
+
 </div>
 
 <script>
-const dial = document.getElementById("dial");
-const needle = document.getElementById("needle");
-const display = document.getElementById("display");
-const tray = document.getElementById("tray");
-const workspace = document.getElementById("workspace");
-let totalWeight = 0;
 
-/* ================= CREATE SCALE NUMBERS & TICKS ================= */
-for(let i=0; i<=10; i++){
-    const angle = (360/10) * i;
-    
-    // Ticks
-    const tick = document.createElement("div");
-    const tickRadius = 142; 
-    tick.className = "tick";
-    tick.style.transform = `translate(-50%, -50%) rotate(${angle}deg) translateY(-${tickRadius}px)`;
-    dial.appendChild(tick);
+const dots=[];
 
-    // Numbers
-    const num = document.createElement("div");
-    num.className = "number";
-    num.innerText = i;
-    
-    let currentRadius = 110; 
+let nextGroup=1;
 
-    // Adjust 10 to shift directly down below the 0 marker
-    if (i === 10) {
-        currentRadius = currentRadius - 28; 
-        num.style.fontSize = "22px";
-        num.style.color = "#777";
-    }
+const layer =
+document.getElementById("dotLayer");
 
-    const x = Math.cos((angle - 90) * Math.PI / 180) * currentRadius;
-    const y = Math.sin((angle - 90) * Math.PI / 180) * currentRadius;
-    
-    num.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
-    dial.appendChild(num);
+const lineCanvas =
+document.getElementById("lineCanvas");
+
+const drawCanvas =
+document.getElementById("drawCanvas");
+
+const lctx =
+lineCanvas.getContext("2d");
+
+const dctx =
+drawCanvas.getContext("2d");
+
+function resize(){
+
+lineCanvas.width=
+innerWidth;
+
+lineCanvas.height=
+innerHeight;
+
+drawCanvas.width=
+innerWidth;
+
+drawCanvas.height=
+innerHeight;
+
+drawLines();
+
 }
 
-/* ================= UPDATE SCALE ================= */
-function updateScale(){
-    let displayWeight = totalWeight > 10 ? 10 : (totalWeight < 0 ? 0 : totalWeight);
-    display.innerText = displayWeight + " kg";
-    let angle = (displayWeight / 10) * 360;
-    needle.style.transform = `translate(-50%, -100%) rotate(${angle}deg)`;
+resize();
+
+addEventListener(
+"resize",
+resize
+);
+
+/* ---------- DOT ---------- */
+
+function makeDot(x,y){
+
+const el =
+document.createElement("div");
+
+el.className="dot";
+
+el.textContent="●";
+
+layer.appendChild(el);
+
+const dot={
+
+x,
+y,
+
+group:null,
+
+el
+
+};
+
+dots.push(dot);
+
+update(dot);
+
+drag(dot);
+
 }
 
-/* ================= CREATE ITEMS ================= */
-document.querySelectorAll(".template").forEach(template=>{
-    template.addEventListener("pointerdown", e=>{
-        const item = document.createElement("div");
-        item.className = "item";
-        item.innerHTML = `<img src="${template.dataset.img}" alt="scaled item">`;
-        item.dataset.weight = template.dataset.weight;
-        item.dataset.img = template.dataset.img;
-        
-        item.style.left = e.pageX - 75 + "px"; 
-        item.style.top = e.pageY - 75 + "px";
-        workspace.appendChild(item);
-        
-        dragItem(item, e, 75, 75);
-    });
+function update(dot){
+
+dot.el.style.left=
+dot.x+"px";
+
+dot.el.style.top=
+dot.y+"px";
+
+}
+
+function groupMembers(dot){
+
+if(dot.group==null){
+
+return [dot];
+
+}
+
+return dots.filter(
+d=>d.group===dot.group
+);
+
+}
+
+/* ---------- GROUP ---------- */
+
+function merge(a,b){
+
+if(
+a.group===b.group &&
+a.group!=null
+){
+
+return;
+
+}
+
+if(
+a.group==null &&
+b.group==null
+){
+
+const id=nextGroup++;
+
+a.group=id;
+
+b.group=id;
+
+return;
+
+}
+
+if(a.group==null){
+
+a.group=b.group;
+
+return;
+
+}
+
+if(b.group==null){
+
+b.group=a.group;
+
+return;
+
+}
+
+const old=b.group;
+
+dots.forEach(d=>{
+
+if(d.group===old){
+
+d.group=a.group;
+
+}
+
 });
 
-/* ================= DRAGGING ================= */
-function dragItem(el, startEvent, initialOffsetX, initialOffsetY){
-    let offsetX = initialOffsetX;
-    let offsetY = initialOffsetY;
-    
-    if (offsetX === undefined || offsetY === undefined) {
-        const rect = el.getBoundingClientRect();
-        offsetX = startEvent.clientX - rect.left;
-        offsetY = startEvent.clientY - rect.top;
-    }
-
-    function move(e){
-        el.style.left = (e.pageX - offsetX) + "px";
-        el.style.top = (e.pageY - offsetY) + "px";
-    }
-    
-    function up(){
-        document.removeEventListener("pointermove", move);
-        document.removeEventListener("pointerup", up);
-        
-        const trayRect = tray.getBoundingClientRect();
-        const rect = el.getBoundingClientRect();
-        const centerX = rect.left + rect.width/2;
-        const centerY = rect.top + rect.height/2;
-        
-        const insideTray =
-            centerX > trayRect.left &&
-            centerX < trayRect.right &&
-            centerY > trayRect.top &&
-            centerY < trayRect.bottom + 80;
-            
-        if(insideTray){
-            if(el.dataset.onTray !== "true"){
-                totalWeight += Number(el.dataset.weight);
-                el.dataset.onTray = "true";
-                updateScale();
-            }
-        }else{
-            if(el.dataset.onTray === "true"){
-                totalWeight -= Number(el.dataset.weight);
-                updateScale();
-            }
-            el.remove();
-            return; 
-        }
-        
-        el.addEventListener("pointerdown", startAgain);
-    }
-    
-    function startAgain(ev){
-        ev.stopPropagation(); 
-        if(el.dataset.onTray === "true"){
-            totalWeight -= Number(el.dataset.weight);
-            updateScale();
-            el.dataset.onTray = "false";
-        }
-        dragItem(el, ev);
-    }
-    
-    document.addEventListener("pointermove", move);
-    document.addEventListener("pointerup", up);
 }
 
-updateScale();
+/* ---------- SNAP ---------- */
+
+function snap(dot){
+
+let closest=null;
+
+let best=99999;
+
+for(const other of dots){
+
+if(other===dot)
+continue;
+
+const dist=
+Math.hypot(
+
+other.x-dot.x,
+
+other.y-dot.y
+
+);
+
+if(
+dist<100 &&
+dist<best
+){
+
+best=dist;
+
+closest=other;
+
+}
+
+}
+
+if(!closest) return;
+
+const angle=
+Math.atan2(
+
+dot.y-closest.y,
+
+dot.x-closest.x
+
+);
+
+const gap=70;
+
+dot.x=
+closest.x+
+Math.cos(angle)*gap;
+
+dot.y=
+closest.y+
+Math.sin(angle)*gap;
+
+update(dot);
+
+merge(
+dot,
+closest
+);
+
+}
+
+/* ---------- DRAG ---------- */
+
+function drag(dot){
+
+let active=false;
+
+let px=0;
+let py=0;
+
+dot.el.addEventListener(
+"pointerdown",
+e=>{
+
+if(drawMode)
+return;
+
+active=true;
+
+px=e.clientX;
+
+py=e.clientY;
+
+dot.el.setPointerCapture(
+e.pointerId
+);
+
+}
+);
+
+dot.el.addEventListener(
+"pointermove",
+e=>{
+
+if(!active)
+return;
+
+const dx=
+e.clientX-px;
+
+const dy=
+e.clientY-py;
+
+px=e.clientX;
+
+py=e.clientY;
+
+groupMembers(dot)
+.forEach(d=>{
+
+d.x+=dx;
+
+d.y+=dy;
+
+update(d);
+
+});
+
+drawLines();
+
+}
+);
+
+function stop(){
+
+if(!active)
+return;
+
+active=false;
+
+snap(dot);
+
+drawLines();
+
+}
+
+dot.el.addEventListener(
+"pointerup",
+stop
+);
+
+dot.el.addEventListener(
+"pointercancel",
+stop
+);
+
+}
+
+/* ---------- LINES ---------- */
+
+function drawLines(){
+
+lctx.clearRect(
+0,
+0,
+lineCanvas.width,
+lineCanvas.height
+);
+
+lctx.lineWidth=4;
+
+const grouped={};
+
+dots.forEach(dot=>{
+
+if(dot.group==null)
+return;
+
+if(!grouped[dot.group]){
+
+grouped[dot.group]=[];
+
+}
+
+grouped[dot.group].push(dot);
+
+});
+
+Object.values(grouped)
+.forEach(group=>{
+
+for(
+let i=0;
+i<group.length-1;
+i++
+){
+
+lctx.beginPath();
+
+lctx.moveTo(
+group[i].x,
+group[i].y
+);
+
+lctx.lineTo(
+group[i+1].x,
+group[i+1].y
+);
+
+lctx.stroke();
+
+}
+
+});
+
+}
+
+/* ---------- DRAW ---------- */
+
+let drawMode=false;
+
+document
+.getElementById("drawBtn")
+.onclick=()=>{
+
+drawMode=!drawMode;
+
+drawCanvas.style.pointerEvents=
+
+drawMode ?
+
+"auto"
+
+:
+
+"none";
+
+this.textContent=
+drawMode ?
+
+"Draw ON"
+
+:
+
+"Draw OFF";
+
+};
+
+let drawing=false;
+
+drawCanvas.addEventListener(
+"pointerdown",
+e=>{
+
+drawing=true;
+
+dctx.beginPath();
+
+dctx.moveTo(
+e.clientX,
+e.clientY
+);
+
+}
+);
+
+drawCanvas.addEventListener(
+"pointermove",
+e=>{
+
+if(!drawing)
+return;
+
+dctx.lineWidth=4;
+
+dctx.lineCap="round";
+
+dctx.lineTo(
+e.clientX,
+e.clientY
+);
+
+dctx.stroke();
+
+}
+);
+
+window.addEventListener(
+"pointerup",
+()=>drawing=false
+);
+
+/* ---------- BUTTONS ---------- */
+
+document
+.getElementById("addBtn")
+.onclick=()=>{
+
+makeDot(
+
+100+
+Math.random()*350,
+
+120+
+Math.random()*350
+
+);
+
+};
+
+document
+.getElementById("clearBtn")
+.onclick=()=>{
+
+dctx.clearRect(
+0,
+0,
+drawCanvas.width,
+drawCanvas.height
+);
+
+};
+
+/* starter */
+
+for(
+let i=0;
+i<5;
+i++
+){
+
+makeDot(
+150+i*80,
+250
+);
+
+}
+
 </script>
+
 </body>
 </html>
