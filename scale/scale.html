@@ -1,73 +1,117 @@
 <!DOCTYPE html>
+
 <html>
+
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
 
 <style>
 
 *{
-box-sizing:border-box;
+
 margin:0;
+
 padding:0;
-touch-action:none;
+
+box-sizing:border-box;
+
 user-select:none;
+
+touch-action:none;
+
 }
 
 body{
+
 overflow:hidden;
-font-family:Arial;
+
 background:#f1f1f1;
+
+font-family:Arial;
+
 }
 
 .toolbar{
+
 position:fixed;
+
 top:10px;
+
 left:10px;
+
 display:flex;
+
 gap:8px;
+
 z-index:1000;
+
 }
 
 button{
+
 padding:10px 14px;
+
 border:none;
+
 border-radius:8px;
+
 background:#1976d2;
+
 color:white;
+
 }
 
 #app{
+
 position:relative;
+
 width:100vw;
+
 height:100vh;
+
 overflow:hidden;
+
 }
 
-canvas,
-#dotLayer{
+canvas,#dotLayer{
+
 position:absolute;
+
 inset:0;
+
 }
 
 #lineCanvas{
-pointer-events:none;
+
 z-index:1;
+
+pointer-events:none;
+
 }
 
 #dotLayer{
+
 z-index:5;
+
 }
 
 #drawCanvas{
+
 z-index:20;
+
 pointer-events:none;
+
 }
 
 .dot{
+
 position:absolute;
 
 width:56px;
+
 height:56px;
 
 border-radius:50%;
@@ -75,34 +119,36 @@ border-radius:50%;
 background:#ff4f4f;
 
 display:flex;
+
 justify-content:center;
+
 align-items:center;
 
 font-size:24px;
+
 font-weight:bold;
+
 color:white;
 
 transform:translate(-50%,-50%);
+
+box-shadow:0 2px 6px rgba(0,0,0,0.2);
+
 }
 
 </style>
+
 </head>
 
 <body>
 
 <div class="toolbar">
 
-<button id="addBtn">
-Add Dot
-</button>
+<button id="addBtn">Add Dot</button>
 
-<button id="drawBtn">
-Draw OFF
-</button>
+<button id="drawBtn">Draw OFF</button>
 
-<button id="clearBtn">
-Clear
-</button>
+<button id="clearBtn">Clear</button>
 
 </div>
 
@@ -118,71 +164,61 @@ Clear
 
 <script>
 
-const dots=[];
+const dots = [];
 
-let nextGroup=1;
+let nextGroup = 1;
 
-const layer =
-document.getElementById("dotLayer");
+const layer = document.getElementById("dotLayer");
 
-const lineCanvas =
-document.getElementById("lineCanvas");
+const lineCanvas = document.getElementById("lineCanvas");
 
-const drawCanvas =
-document.getElementById("drawCanvas");
+const drawCanvas = document.getElementById("drawCanvas");
 
-const lctx =
-lineCanvas.getContext("2d");
+const ctx = lineCanvas.getContext("2d");
 
-const dctx =
-drawCanvas.getContext("2d");
+const dctx = drawCanvas.getContext("2d");
 
 function resize(){
 
-lineCanvas.width=
-innerWidth;
+lineCanvas.width = innerWidth;
 
-lineCanvas.height=
-innerHeight;
+lineCanvas.height = innerHeight;
 
-drawCanvas.width=
-innerWidth;
+drawCanvas.width = innerWidth;
 
-drawCanvas.height=
-innerHeight;
+drawCanvas.height = innerHeight;
 
 drawLines();
 
 }
 
+window.addEventListener("resize", resize);
+
 resize();
 
-addEventListener(
-"resize",
-resize
-);
-
-/* ---------- DOT ---------- */
+/* ================= CREATE DOT ================= */
 
 function makeDot(x,y){
 
-const el =
-document.createElement("div");
+const el = document.createElement("div");
 
-el.className="dot";
+el.className = "dot";
 
-el.textContent="●";
+el.textContent = "●";
 
 layer.appendChild(el);
 
-const dot={
+const dot = {
 
 x,
+
 y,
 
 group:null,
 
-el
+el,
+
+lastTap:0
 
 };
 
@@ -192,83 +228,47 @@ update(dot);
 
 drag(dot);
 
+enableDoubleTap(dot);
+
+return dot;
+
 }
 
 function update(dot){
 
-dot.el.style.left=
-dot.x+"px";
+dot.el.style.left = dot.x + "px";
 
-dot.el.style.top=
-dot.y+"px";
+dot.el.style.top = dot.y + "px";
 
 }
 
-function groupMembers(dot){
+/* ================= GROUP ================= */
 
-if(dot.group==null){
+function members(dot){
 
-return [dot];
+if(dot.group == null) return [dot];
 
-}
-
-return dots.filter(
-d=>d.group===dot.group
-);
+return dots.filter(d => d.group === dot.group);
 
 }
-
-/* ---------- GROUP ---------- */
 
 function merge(a,b){
 
-if(
-a.group===b.group &&
-a.group!=null
-){
+if(a.group == null && b.group == null){
+
+a.group = b.group = nextGroup++;
 
 return;
 
 }
 
-if(
-a.group==null &&
-b.group==null
-){
-
-const id=nextGroup++;
-
-a.group=id;
-
-b.group=id;
-
-return;
-
-}
-
-if(a.group==null){
-
-a.group=b.group;
-
-return;
-
-}
-
-if(b.group==null){
-
-b.group=a.group;
-
-return;
-
-}
-
-const old=b.group;
+const g = a.group ?? b.group;
 
 dots.forEach(d=>{
 
-if(d.group===old){
+if(d.group === a.group || d.group === b.group || d.group == null){
 
-d.group=a.group;
+d.group = g;
 
 }
 
@@ -276,36 +276,31 @@ d.group=a.group;
 
 }
 
-/* ---------- SNAP ---------- */
+/* ================= SNAP ================= */
 
 function snap(dot){
 
-let closest=null;
+let closest = null;
 
-let best=99999;
+let best = 90;
 
 for(const other of dots){
 
-if(other===dot)
-continue;
+if(other === dot) continue;
 
-const dist=
-Math.hypot(
+const dist = Math.hypot(
 
-other.x-dot.x,
+other.x - dot.x,
 
-other.y-dot.y
+other.y - dot.y
 
 );
 
-if(
-dist<100 &&
-dist<best
-){
+if(dist < best){
 
-best=dist;
+best = dist;
 
-closest=other;
+closest = other;
 
 }
 
@@ -313,86 +308,67 @@ closest=other;
 
 if(!closest) return;
 
-const angle=
-Math.atan2(
+const angle = Math.atan2(
 
-dot.y-closest.y,
+dot.y - closest.y,
 
-dot.x-closest.x
+dot.x - closest.x
 
 );
 
-const gap=70;
+const gap = 70;
 
-dot.x=
-closest.x+
-Math.cos(angle)*gap;
+dot.x = closest.x + Math.cos(angle) * gap;
 
-dot.y=
-closest.y+
-Math.sin(angle)*gap;
+dot.y = closest.y + Math.sin(angle) * gap;
 
 update(dot);
 
-merge(
-dot,
-closest
-);
+merge(dot,closest);
 
 }
 
-/* ---------- DRAG ---------- */
+/* ================= DRAG ================= */
 
 function drag(dot){
 
-let active=false;
+let active = false;
 
-let px=0;
-let py=0;
+let px = 0;
 
-dot.el.addEventListener(
-"pointerdown",
-e=>{
+let py = 0;
 
-if(drawMode)
-return;
+dot.el.addEventListener("pointerdown", e=>{
 
-active=true;
+if(drawMode) return;
 
-px=e.clientX;
+active = true;
 
-py=e.clientY;
+px = e.clientX;
 
-dot.el.setPointerCapture(
-e.pointerId
-);
+py = e.clientY;
 
-}
-);
+dot.el.setPointerCapture(e.pointerId);
 
-dot.el.addEventListener(
-"pointermove",
-e=>{
+});
 
-if(!active)
-return;
+dot.el.addEventListener("pointermove", e=>{
 
-const dx=
-e.clientX-px;
+if(!active) return;
 
-const dy=
-e.clientY-py;
+const dx = e.clientX - px;
 
-px=e.clientX;
+const dy = e.clientY - py;
 
-py=e.clientY;
+px = e.clientX;
 
-groupMembers(dot)
-.forEach(d=>{
+py = e.clientY;
 
-d.x+=dx;
+members(dot).forEach(d=>{
 
-d.y+=dy;
+d.x += dx;
+
+d.y += dy;
 
 update(d);
 
@@ -400,15 +376,13 @@ update(d);
 
 drawLines();
 
-}
-);
+});
 
 function stop(){
 
-if(!active)
-return;
+if(!active) return;
 
-active=false;
+active = false;
 
 snap(dot);
 
@@ -416,70 +390,75 @@ drawLines();
 
 }
 
-dot.el.addEventListener(
-"pointerup",
-stop
-);
+dot.el.addEventListener("pointerup", stop);
 
-dot.el.addEventListener(
-"pointercancel",
-stop
-);
+dot.el.addEventListener("pointercancel", stop);
 
 }
 
-/* ---------- LINES ---------- */
+/* ================= DOUBLE TAP (FIXED) ================= */
+
+function enableDoubleTap(dot){
+
+dot.el.addEventListener("pointerdown", ()=>{
+
+const now = Date.now();
+
+if(now - dot.lastTap < 300 && dot.group != null){
+
+const g = dot.group;
+
+dots.forEach(d=>{
+
+if(d.group === g){
+
+d.group = null;
+
+}
+
+});
+
+drawLines();
+
+}
+
+dot.lastTap = now;
+
+});
+
+}
+
+/* ================= DRAW LINES ================= */
 
 function drawLines(){
 
-lctx.clearRect(
-0,
-0,
-lineCanvas.width,
-lineCanvas.height
-);
+ctx.clearRect(0,0,lineCanvas.width,lineCanvas.height);
 
-lctx.lineWidth=4;
+ctx.lineWidth = 4;
 
-const grouped={};
+const groups = {};
 
-dots.forEach(dot=>{
+dots.forEach(d=>{
 
-if(dot.group==null)
-return;
+if(d.group == null) return;
 
-if(!grouped[dot.group]){
+if(!groups[d.group]) groups[d.group] = [];
 
-grouped[dot.group]=[];
-
-}
-
-grouped[dot.group].push(dot);
+groups[d.group].push(d);
 
 });
 
-Object.values(grouped)
-.forEach(group=>{
+Object.values(groups).forEach(group=>{
 
-for(
-let i=0;
-i<group.length-1;
-i++
-){
+for(let i=0;i<group.length-1;i++){
 
-lctx.beginPath();
+ctx.beginPath();
 
-lctx.moveTo(
-group[i].x,
-group[i].y
-);
+ctx.moveTo(group[i].x, group[i].y);
 
-lctx.lineTo(
-group[i+1].x,
-group[i+1].y
-);
+ctx.lineTo(group[i+1].x, group[i+1].y);
 
-lctx.stroke();
+ctx.stroke();
 
 }
 
@@ -487,128 +466,82 @@ lctx.stroke();
 
 }
 
-/* ---------- DRAW ---------- */
+/* ================= DRAW MODE ================= */
 
-let drawMode=false;
+let drawMode = false;
 
-document
-.getElementById("drawBtn")
-.onclick=()=>{
+document.getElementById("drawBtn").onclick = (e)=>{
 
-drawMode=!drawMode;
+drawMode = !drawMode;
 
-drawCanvas.style.pointerEvents=
+drawCanvas.style.pointerEvents =
 
-drawMode ?
+drawMode ? "auto" : "none";
 
-"auto"
+e.target.textContent =
 
-:
-
-"none";
-
-this.textContent=
-drawMode ?
-
-"Draw ON"
-
-:
-
-"Draw OFF";
+drawMode ? "Draw ON" : "Draw OFF";
 
 };
 
-let drawing=false;
+let drawing = false;
 
-drawCanvas.addEventListener(
-"pointerdown",
-e=>{
+drawCanvas.addEventListener("pointerdown", e=>{
 
-drawing=true;
+drawing = true;
 
 dctx.beginPath();
 
-dctx.moveTo(
-e.clientX,
-e.clientY
-);
+dctx.moveTo(e.clientX,e.clientY);
 
-}
-);
+});
 
-drawCanvas.addEventListener(
-"pointermove",
-e=>{
+drawCanvas.addEventListener("pointermove", e=>{
 
-if(!drawing)
-return;
+if(!drawing) return;
 
-dctx.lineWidth=4;
-
-dctx.lineCap="round";
-
-dctx.lineTo(
-e.clientX,
-e.clientY
-);
+dctx.lineTo(e.clientX,e.clientY);
 
 dctx.stroke();
 
-}
-);
+});
 
-window.addEventListener(
-"pointerup",
-()=>drawing=false
-);
+window.addEventListener("pointerup", ()=>{
 
-/* ---------- BUTTONS ---------- */
+drawing = false;
 
-document
-.getElementById("addBtn")
-.onclick=()=>{
+});
+
+/* ================= BUTTONS ================= */
+
+document.getElementById("addBtn").onclick = ()=>{
 
 makeDot(
 
-100+
-Math.random()*350,
+100 + Math.random()*350,
 
-120+
-Math.random()*350
+120 + Math.random()*350
 
 );
 
 };
 
-document
-.getElementById("clearBtn")
-.onclick=()=>{
+document.getElementById("clearBtn").onclick = ()=>{
 
-dctx.clearRect(
-0,
-0,
-drawCanvas.width,
-drawCanvas.height
-);
+dctx.clearRect(0,0,drawCanvas.width,drawCanvas.height);
 
 };
 
-/* starter */
+/* ================= START ================= */
 
-for(
-let i=0;
-i<5;
-i++
-){
+for(let i=0;i<5;i++){
 
-makeDot(
-150+i*80,
-250
-);
+makeDot(150+i*80,250);
 
 }
 
 </script>
 
 </body>
+
 </html>
