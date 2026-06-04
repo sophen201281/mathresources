@@ -16,95 +16,91 @@ content="width=device-width, initial-scale=1.0, user-scalable=no">
 
 *{
 
-    box-sizing:border-box;
+box-sizing:border-box;
 
-    user-select:none;
+user-select:none;
 
-    touch-action:none;
+touch-action:none;
 
 }
 
 body{
 
-    margin:0;
+margin:0;
 
-    overflow:hidden;
+overflow:hidden;
 
-    background:#ececec;
+background:#ececec;
 
-    font-family:Arial,sans-serif;
+font-family:Arial;
 
 }
 
 canvas{
 
-    position:absolute;
+position:absolute;
 
-    inset:0;
+inset:0;
 
-    background:white;
+background:white;
 
 }
 
 .toolbar{
 
-    position:fixed;
+position:fixed;
 
-    top:10px;
+top:10px;
 
-    left:10px;
+left:10px;
 
-    z-index:1000;
+display:flex;
 
-    display:flex;
+gap:8px;
 
-    gap:8px;
+flex-wrap:wrap;
 
-    flex-wrap:wrap;
+z-index:1000;
 
 }
 
 button{
 
-    padding:10px 14px;
+padding:10px 14px;
 
-    font-size:16px;
+font-size:16px;
+
+}
+
+.active{
+
+background:orange;
 
 }
 
 .counter{
 
-    position:absolute;
+position:absolute;
 
-    width:60px;
+width:60px;
 
-    height:60px;
+height:60px;
 
-    border-radius:50%;
+border-radius:50%;
 
-    background:#4CAF50;
+background:#4CAF50;
 
-    border:4px solid #1B5E20;
+border:4px solid #1B5E20;
 
-    color:white;
+transform:translate(-30px,-30px);
 
-    display:flex;
-
-    justify-content:center;
-
-    align-items:center;
-
-    font-size:22px;
-
-    transform:translate(-30px,-30px);
-
-    z-index:100;
+z-index:100;
 
 }
 
 .selected{
 
-    outline:5px solid orange;
+outline:5px solid orange;
 
 }
 
@@ -131,6 +127,12 @@ Delete Selected
 <button id="clearDraw">
 
 Clear Drawing
+
+</button>
+
+<button id="eraserBtn">
+
+Eraser OFF
 
 </button>
 
@@ -174,6 +176,42 @@ resize
 
 let drawing=false;
 
+let eraser=false;
+
+const eraserBtn=
+
+document.getElementById(
+
+"eraserBtn"
+
+);
+
+eraserBtn.onclick=()=>{
+
+eraser=!eraser;
+
+eraserBtn.textContent=
+
+eraser
+
+?
+
+"Eraser ON"
+
+:
+
+"Eraser OFF";
+
+eraserBtn.classList.toggle(
+
+"active",
+
+eraser
+
+);
+
+};
+
 canvas.addEventListener(
 
 "pointerdown",
@@ -210,7 +248,23 @@ e=>{
 
 if(!drawing) return;
 
+if(eraser){
+
+ctx.globalCompositeOperation=
+
+"destination-out";
+
+ctx.lineWidth=28;
+
+}else{
+
+ctx.globalCompositeOperation=
+
+"source-over";
+
 ctx.lineWidth=4;
+
+}
 
 ctx.lineCap="round";
 
@@ -232,13 +286,19 @@ window.addEventListener(
 
 "pointerup",
 
-()=>drawing=false
+()=>{
+
+drawing=false;
+
+ctx.globalCompositeOperation=
+
+"source-over";
+
+}
 
 );
 
 /* COUNTERS */
-
-let counterNumber=1;
 
 let selected=null;
 
@@ -263,10 +323,6 @@ c.className=
 c.dataset.id=
 
 crypto.randomUUID();
-
-c.textContent=
-
-counterNumber++;
 
 c.style.left=
 
@@ -408,7 +464,7 @@ c.classList.add(
 
 }
 
-/* GROUP GRAPH */
+/* CONNECTIONS */
 
 function connectedGroup(id){
 
@@ -464,15 +520,11 @@ function connect(a,b){
 
 connections
 
-.get(a)
-
-.add(b);
+.get(a).add(b);
 
 connections
 
-.get(b)
-
-.add(a);
+.get(b).add(a);
 
 }
 
@@ -484,9 +536,7 @@ counter.dataset.id;
 
 connections
 
-.get(id)
-
-.clear();
+.get(id).clear();
 
 connections.forEach(set=>{
 
@@ -520,7 +570,7 @@ set.delete(id);
 
 }
 
-/* DRAGGING */
+/* DRAG */
 
 function setupCounter(counter){
 
@@ -656,7 +706,7 @@ snap(counter);
 
 }
 
-/* MAGNETIC SNAP */
+/* SNAP */
 
 function snap(active){
 
@@ -708,19 +758,9 @@ other.offsetTop;
 
 const d=
 
-Math.hypot(
+Math.hypot(dx,dy);
 
-dx,
-
-dy
-
-);
-
-if(
-
-d<SNAP
-
-){
+if(d<SNAP){
 
 const angle=
 
