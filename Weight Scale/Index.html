@@ -4,7 +4,7 @@
 
 <head>
 
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
@@ -26,14 +26,6 @@ body{
 
 }
 
-h2{
-
-    text-align:center;
-
-    margin:10px;
-
-}
-
 #workspace{
 
     width:100vw;
@@ -44,7 +36,7 @@ h2{
 
 }
 
-/* DRAWING CANVAS */
+/* ================= DRAW CANVAS (FIXED BACK LAYER) ================= */
 
 #drawCanvas{
 
@@ -58,13 +50,13 @@ h2{
 
     height:100%;
 
-    z-index:1;
+    z-index:0;
 
-    touch-action:none;
+    pointer-events:none; /* IMPORTANT FIX */
 
 }
 
-/* DRAW BUTTONS */
+/* ================= DRAW TOOLS ================= */
 
 .draw-tools{
 
@@ -98,7 +90,7 @@ h2{
 
 }
 
-/* TOOLBOX */
+/* ================= TOOLBOX ================= */
 
 .toolbox{
 
@@ -136,8 +128,6 @@ h2{
 
     cursor:pointer;
 
-    overflow:hidden;
-
 }
 
 .template img{
@@ -148,11 +138,9 @@ h2{
 
     object-fit:contain;
 
-    pointer-events:none;
-
 }
 
-/* HOME */
+/* ================= HOME ================= */
 
 .home-btn{
 
@@ -172,15 +160,13 @@ h2{
 
     text-decoration:none;
 
-    color:#333;
-
     font-size:18px;
 
     z-index:100;
 
 }
 
-/* ITEMS */
+/* ================= ITEMS ================= */
 
 .item{
 
@@ -195,8 +181,6 @@ h2{
     align-items:center;
 
     justify-content:center;
-
-    touch-action:none;
 
     z-index:30;
 
@@ -214,7 +198,7 @@ h2{
 
 }
 
-/* SCALE */
+/* ================= SCALE ================= */
 
 .scale{
 
@@ -354,8 +338,6 @@ h2{
 
     transform:translate(-50%,-100%) rotate(0deg);
 
-    border-radius:10px;
-
 }
 
 .center{
@@ -406,11 +388,11 @@ h2{
 
 <div class="draw-tools">
 
-<button id="penBtn">✏️</button>
+<button id="penBtn">✏️ Pen</button>
 
-<button id="eraserBtn">🧽</button>
+<button id="eraserBtn">🧽 Eraser</button>
 
-<button id="clearBtn">🗑</button>
+<button id="clearBtn">🗑 Clear</button>
 
 </div>
 
@@ -456,11 +438,7 @@ h2{
 
 <div class="center"></div>
 
-<div class="display" id="display">
-
-0 kg
-
-</div>
+<div class="display" id="display">0 kg</div>
 
 </div>
 
@@ -470,407 +448,251 @@ h2{
 
 <script>
 
-const dial=document.getElementById("dial");
+const workspace = document.getElementById("workspace");
 
-const needle=document.getElementById("needle");
+const tray = document.getElementById("tray");
 
-const display=document.getElementById("display");
+const dial = document.getElementById("dial");
 
-const tray=document.getElementById("tray");
+const needle = document.getElementById("needle");
 
-const workspace=document.getElementById("workspace");
+const display = document.getElementById("display");
 
-let totalWeight=0;
+let totalWeight = 0;
 
-/* SCALE */
+/* ================= SCALE ================= */
 
 for(let i=0;i<=10;i++){
 
-const angle=(360/10)*i;
+    const angle = (360/10)*i;
 
-const tick=document.createElement("div");
+    const tick = document.createElement("div");
 
-tick.className="tick";
+    tick.className="tick";
 
-tick.style.transform=
+    tick.style.transform =
 
-`translate(-50%,-50%)
+        `translate(-50%,-50%) rotate(${angle}deg) translateY(-142px)`;
 
-rotate(${angle}deg)
+    dial.appendChild(tick);
 
-translateY(-142px)`;
+    const num = document.createElement("div");
 
-dial.appendChild(tick);
+    num.className="number";
 
-const num=document.createElement("div");
+    num.innerText=i;
 
-num.className="number";
+    let r=110;
 
-num.innerText=i;
+    if(i===10){
 
-let r=110;
+        r-=28;
 
-if(i===10){
+        num.style.fontSize="22px";
 
-r-=28;
+    }
 
-num.style.fontSize="22px";
+    const x=Math.cos((angle-90)*Math.PI/180)*r;
 
-}
+    const y=Math.sin((angle-90)*Math.PI/180)*r;
 
-const x=Math.cos((angle-90)*Math.PI/180)*r;
+    num.style.transform =
 
-const y=Math.sin((angle-90)*Math.PI/180)*r;
+        `translate(-50%,-50%) translate(${x}px,${y}px)`;
 
-num.style.transform=
-
-`translate(-50%,-50%)
-
-translate(${x}px,${y}px)`;
-
-dial.appendChild(num);
+    dial.appendChild(num);
 
 }
 
 function updateScale(){
 
-let value=Math.min(
+    let value = Math.min(10, Math.max(0,totalWeight));
 
-10,
+    display.innerText = value + " kg";
 
-Math.max(0,totalWeight)
+    needle.style.transform =
 
-);
-
-display.innerText=value+" kg";
-
-let angle=(value/10)*360;
-
-needle.style.transform=
-
-`translate(-50%,-100%)
-
-rotate(${angle}deg)`;
+        `translate(-50%,-100%) rotate(${(value/10)*360}deg)`;
 
 }
 
-/* CREATE OBJECTS */
+/* ================= CREATE ITEMS ================= */
 
-document.querySelectorAll(".template")
+document.querySelectorAll(".template").forEach(t=>{
 
-.forEach(template=>{
+    t.addEventListener("pointerdown", e=>{
 
-template.addEventListener(
+        const item=document.createElement("div");
 
-"pointerdown",
+        item.className="item";
 
-e=>{
+        item.innerHTML=`<img src="${t.dataset.img}">`;
 
-const item=document.createElement("div");
+        item.dataset.weight=t.dataset.weight;
 
-item.className="item";
+        item.style.left=e.pageX-75+"px";
 
-item.innerHTML=
+        item.style.top=e.pageY-75+"px";
 
-`<img src="${template.dataset.img}">`;
+        workspace.appendChild(item);
 
-item.dataset.weight=
+        dragItem(item,e,75,75);
 
-template.dataset.weight;
-
-item.style.left=
-
-e.pageX-75+"px";
-
-item.style.top=
-
-e.pageY-75+"px";
-
-workspace.appendChild(item);
-
-dragItem(item,e,75,75);
+    });
 
 });
 
-});
+/* ================= DRAG ================= */
 
-/* DRAG */
-
-function dragItem(
-
-el,
-
-startEvent,
-
-offsetX,
-
-offsetY
-
-){
+function dragItem(el,startEvent,offsetX,offsetY){
 
 function move(e){
 
-el.style.left=
+    el.style.left=(e.pageX-offsetX)+"px";
 
-e.pageX-offsetX+"px";
-
-el.style.top=
-
-e.pageY-offsetY+"px";
+    el.style.top=(e.pageY-offsetY)+"px";
 
 }
 
 function up(){
 
-document.removeEventListener(
+    document.removeEventListener("pointermove",move);
 
-"pointermove",
+    document.removeEventListener("pointerup",up);
 
-move
+    const trayRect = tray.getBoundingClientRect();
 
-);
+    const rect = el.getBoundingClientRect();
 
-document.removeEventListener(
+    const inside =
 
-"pointerup",
+        rect.left+75>trayRect.left &&
 
-up
+        rect.left+75<trayRect.right &&
 
-);
+        rect.top+75<trayRect.bottom+80;
 
-const trayRect=
+    if(inside){
 
-tray.getBoundingClientRect();
+        if(el.dataset.onTray!=="true"){
 
-const rect=
+            totalWeight+=Number(el.dataset.weight);
 
-el.getBoundingClientRect();
+            el.dataset.onTray="true";
 
-const inside=
+            updateScale();
 
-rect.left+75>trayRect.left &&
+        }
 
-rect.left+75<trayRect.right &&
+    } else {
 
-rect.top+75<trayRect.bottom+80;
+        if(el.dataset.onTray==="true"){
 
-if(inside){
+            totalWeight-=Number(el.dataset.weight);
 
-if(el.dataset.onTray!=="true"){
+            updateScale();
 
-totalWeight+=
+        }
 
-Number(el.dataset.weight);
+        el.remove();
 
-el.dataset.onTray="true";
+    }
 
-updateScale();
+    el.addEventListener("pointerdown", ev=>{
 
-}
+        if(el.dataset.onTray==="true"){
 
-}else{
+            totalWeight-=Number(el.dataset.weight);
 
-if(el.dataset.onTray==="true"){
+            updateScale();
 
-totalWeight-=
+        }
 
-Number(el.dataset.weight);
+        dragItem(el,ev,75,75);
 
-updateScale();
-
-}
-
-el.remove();
+    });
 
 }
 
-el.addEventListener(
+document.addEventListener("pointermove",move);
 
-"pointerdown",
-
-ev=>{
-
-if(el.dataset.onTray==="true"){
-
-totalWeight-=
-
-Number(el.dataset.weight);
-
-updateScale();
+document.addEventListener("pointerup",up);
 
 }
 
-dragItem(el,ev,75,75);
+/* ================= DRAWING FIXED ================= */
 
-}
+const canvas = document.getElementById("drawCanvas");
 
-);
-
-}
-
-document.addEventListener(
-
-"pointermove",
-
-move
-
-);
-
-document.addEventListener(
-
-"pointerup",
-
-up
-
-);
-
-}
-
-/* DRAWING */
-
-const canvas=
-
-document.getElementById("drawCanvas");
-
-const ctx=
-
-canvas.getContext("2d");
+const ctx = canvas.getContext("2d");
 
 let drawing=false;
 
 let erase=false;
 
-function resizeCanvas(){
+function resize(){
 
-canvas.width=
+    canvas.width=window.innerWidth;
 
-window.innerWidth;
-
-canvas.height=
-
-window.innerHeight;
+    canvas.height=window.innerHeight;
 
 }
 
-resizeCanvas();
+resize();
 
-window.addEventListener(
+window.addEventListener("resize",resize);
 
-"resize",
+function canDraw(target){
 
-resizeCanvas
+    return !target.closest(".item") &&
 
-);
+           !target.closest(".scale") &&
 
-function startDraw(e){
+           !target.closest(".toolbox") &&
 
-if(
+           !target.closest(".draw-tools") &&
 
-e.target.closest(".template") ||
-
-e.target.closest(".item") ||
-
-e.target.closest(".scale") ||
-
-e.target.closest(".draw-tools") ||
-
-e.target.closest(".home-btn")
-
-)return;
-
-drawing=true;
-
-ctx.beginPath();
-
-ctx.moveTo(
-
-e.pageX,
-
-e.pageY
-
-);
+           !target.closest(".home-btn");
 
 }
 
-function draw(e){
+workspace.addEventListener("pointerdown",e=>{
 
-if(!drawing)return;
+    if(!canDraw(e.target)) return;
 
-ctx.globalCompositeOperation=
+    drawing=true;
 
-erase
+    ctx.beginPath();
 
-? "destination-out"
+    ctx.moveTo(e.pageX,e.pageY);
 
-: "source-over";
+});
 
-ctx.lineWidth=
+workspace.addEventListener("pointermove",e=>{
 
-erase ? 24 : 4;
+    if(!drawing) return;
 
-ctx.lineCap="round";
+    ctx.globalCompositeOperation =
 
-ctx.lineTo(
+        erase ? "destination-out":"source-over";
 
-e.pageX,
+    ctx.lineWidth = erase ? 24:4;
 
-e.pageY
+    ctx.lineCap="round";
 
-);
+    ctx.lineTo(e.pageX,e.pageY);
 
-ctx.stroke();
+    ctx.stroke();
 
-ctx.beginPath();
+    ctx.beginPath();
 
-ctx.moveTo(
+    ctx.moveTo(e.pageX,e.pageY);
 
-e.pageX,
+});
 
-e.pageY
+workspace.addEventListener("pointerup",()=>drawing=false);
 
-);
-
-}
-
-function stop(){
-
-drawing=false;
-
-ctx.beginPath();
-
-}
-
-canvas.addEventListener(
-
-"pointerdown",
-
-startDraw
-
-);
-
-canvas.addEventListener(
-
-"pointermove",
-
-draw
-
-);
-
-canvas.addEventListener(
-
-"pointerup",
-
-stop
-
-);
-
-canvas.addEventListener(
-
-"pointerleave",
-
-stop
-
-);
+workspace.addEventListener("pointercancel",()=>drawing=false);
 
 penBtn.onclick=()=>erase=false;
 
@@ -878,17 +700,7 @@ eraserBtn.onclick=()=>erase=true;
 
 clearBtn.onclick=()=>{
 
-ctx.clearRect(
-
-0,
-
-0,
-
-canvas.width,
-
-canvas.height
-
-);
+    ctx.clearRect(0,0,canvas.width,canvas.height);
 
 };
 
