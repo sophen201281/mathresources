@@ -1,713 +1,350 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
 <meta charset="UTF-8" />
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
 <title>360° Analog Weight Scale</title>
-
 <style>
-
-body{
-
-    margin:0;
-
-    background:#eef2f7;
-
-    font-family:Arial,sans-serif;
-
-    overflow:hidden;
-
-    touch-action:none;
-
-}
-
-#workspace{
-
-    width:100vw;
-
-    height:100vh;
-
-    position:relative;
-
-}
-
-/* ================= DRAW CANVAS (FIXED BACK LAYER) ================= */
-
-#drawCanvas{
-
-    position:absolute;
-
-    top:0;
-
-    left:0;
-
-    width:100%;
-
-    height:100%;
-
-    z-index:0;
-
-    pointer-events:none; /* IMPORTANT FIX */
-
-}
-
-/* ================= DRAW TOOLS ================= */
-
-.draw-tools{
-
-    position:absolute;
-
-    bottom:20px;
-
-    left:20px;
-
-    display:flex;
-
-    gap:10px;
-
-    z-index:200;
-
-}
-
-.draw-tools button{
-
-    padding:10px 14px;
-
-    border:none;
-
-    border-radius:10px;
-
-    background:white;
-
-    font-weight:bold;
-
-    box-shadow:0 2px 5px rgba(0,0,0,.2);
-
-}
-
-/* ================= TOOLBOX ================= */
-
-.toolbox{
-
-    position:absolute;
-
-    top:10px;
-
-    left:10px;
-
-    display:flex;
-
-    gap:12px;
-
-    z-index:100;
-
-}
-
-.template{
-
-    width:60px;
-
-    height:60px;
-
-    background:white;
-
-    border:2px solid #bbb;
-
-    border-radius:14px;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    cursor:pointer;
-
-}
-
-.template img{
-
-    width:80%;
-
-    height:80%;
-
-    object-fit:contain;
-
-}
-
-/* ================= HOME ================= */
-
-.home-btn{
-
-    position:absolute;
-
-    top:10px;
-
-    right:10px;
-
-    padding:10px 20px;
-
-    background:white;
-
-    border:2px solid #bbb;
-
-    border-radius:14px;
-
-    text-decoration:none;
-
-    font-size:18px;
-
-    z-index:100;
-
-}
-
-/* ================= ITEMS ================= */
-
-.item{
-
-    position:absolute;
-
-    width:150px;
-
-    height:150px;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    z-index:30;
-
-}
-
-.item img{
-
-    width:100%;
-
-    height:100%;
-
-    object-fit:contain;
-
-    pointer-events:none;
-
-}
-
-/* ================= SCALE ================= */
-
-.scale{
-
-    position:absolute;
-
-    left:50%;
-
-    bottom:70px;
-
-    transform:translateX(-50%);
-
-    width:420px;
-
-    height:470px;
-
-    z-index:20;
-
-}
-
-.tray{
-
-    position:absolute;
-
-    top:0;
-
-    left:50%;
-
-    transform:translateX(-50%);
-
-    width:300px;
-
-    height:50px;
-
-    background:white;
-
-    border:10px solid #444;
-
-    border-radius:12px;
-
-}
-
-.stand{
-
-    position:absolute;
-
-    top:60px;
-
-    left:50%;
-
-    transform:translateX(-50%);
-
-    width:18px;
-
-    height:90px;
-
-    background:#777;
-
-}
-
-.dial{
-
-    position:absolute;
-
-    bottom:0;
-
-    left:50%;
-
-    transform:translateX(-50%);
-
-    width:320px;
-
-    height:320px;
-
-    border-radius:50%;
-
-    background:white;
-
-    border:10px solid #444;
-
-}
-
-.number{
-
-    position:absolute;
-
-    left:50%;
-
-    top:50%;
-
-    width:40px;
-
-    height:40px;
-
-    display:flex;
-
-    justify-content:center;
-
-    align-items:center;
-
-    font-size:32px;
-
-    font-weight:bold;
-
-}
-
-.tick{
-
-    position:absolute;
-
-    left:50%;
-
-    top:50%;
-
-    width:4px;
-
-    height:16px;
-
-    background:#555;
-
-}
-
-.needle{
-
-    position:absolute;
-
-    left:50%;
-
-    top:50%;
-
-    width:6px;
-
-    height:100px;
-
-    background:red;
-
-    transform-origin:bottom center;
-
-    transform:translate(-50%,-100%) rotate(0deg);
-
-}
-
-.center{
-
-    position:absolute;
-
-    width:18px;
-
-    height:18px;
-
-    background:#222;
-
-    border-radius:50%;
-
-    left:50%;
-
-    top:50%;
-
-    transform:translate(-50%,-50%);
-
-}
-
-.display{
-
-    position:absolute;
-
-    width:100%;
-
-    bottom:80px;
-
-    text-align:center;
-
-    font-size:26px;
-
-    font-weight:bold;
-
-}
-
+    body{
+        margin:0;
+        background:#eef2f7;
+        font-family:Arial,sans-serif;
+        overflow:hidden;
+        touch-action:none;
+    }
+    h2{
+        text-align:center;
+        margin:10px;
+    }
+    #workspace{
+        width:100vw;
+        height:100vh;
+        position:relative;
+    }
+    /* ================= TOOLBOX ================= */
+    .toolbox{
+        position:absolute;
+        top:10px;
+        left:10px;
+        display:flex;
+        gap:12px;
+        z-index:100;
+    }
+    .template{
+        width:60px;
+        height:60px;
+        background:white;
+        border:2px solid #bbb;
+        border-radius:14px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        user-select:none;
+        cursor:pointer;
+        overflow: hidden;
+    }
+    .template img {
+        width: 80%;
+        height: 80%;
+        object-fit: contain;
+        pointer-events: none; 
+    }
+    /* ================= HOME BUTTON ================= */
+    .home-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 10px 20px;
+        background: white;
+        border: 2px solid #bbb;
+        border-radius: 14px;
+        font-size: 16px;
+        font-weight: bold;
+        color: #333;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        z-index: 100;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        transition: background 0.2s, transform 0.1s;
+    }
+    .home-btn:hover {
+        background: #f5f7fa;
+    }
+    .home-btn:active {
+        transform: scale(0.95);
+    }
+    /* ================= DRAGGABLE ITEM ================= */
+    .item{
+        position:absolute;
+        width:150px;
+        height:150px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        user-select:none;
+        touch-action:none;
+        z-index:10;
+    }
+    .item img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        pointer-events: none;
+    }
+    /* ================= SCALE ================= */
+    .scale{
+        position:absolute;
+        left:50%;
+        bottom:70px;
+        transform:translateX(-50%);
+        width:420px;
+        height:470px;
+    }
+    .tray{
+        position:absolute;
+        top:0;
+        left:50%;
+        transform:translateX(-50%);
+        width:300px;
+        height:50px;
+        background:white;
+        border:10px solid #444;
+        border-radius:12px;
+    }
+    .stand{
+        position:absolute;
+        top:60px;
+        left:50%;
+        transform:translateX(-50%);
+        width:18px;
+        height:90px;
+        background:#777;
+    }
+    .dial{
+        position:absolute;
+        bottom:0;
+        left:50%;
+        transform:translateX(-50%);
+        width:320px;
+        height:320px;
+        border-radius:50%;
+        background:white;
+        border:10px solid #444;
+        box-shadow:0 5px 12px rgba(0,0,0,0.2);
+    }
+    .number{
+        position:absolute;
+        left:50%;
+        top:50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size:32px;
+        font-weight:bold;
+        color:#333;
+    }
+    .tick{
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:4px;
+        height:16px;
+        background:#555;
+    }
+    .needle{
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:6px;
+        height:100px;
+        background:red;
+        transform-origin:bottom center;
+        transform:translate(-50%, -100%) rotate(0deg);
+        border-radius:10px;
+        z-index:5;
+    }
+    .center{
+        position:absolute;
+        width:18px;
+        height:18px;
+        background:#222;
+        border-radius:50%;
+        left:50%;
+        top:50%;
+        transform:translate(-50%,-50%);
+        z-index:10;
+    }
+    .display{
+        position:absolute;
+        width:100%;
+        text-align:center;
+        bottom:80px;
+        font-size:26px;
+        font-weight:bold;
+    }
 </style>
-
 </head>
-
 <body>
-
+<h2> </h2>
 <div id="workspace">
-
-<canvas id="drawCanvas"></canvas>
-
-<div class="draw-tools">
-
-<button id="penBtn">✏️ Pen</button>
-
-<button id="eraserBtn">🧽 Eraser</button>
-
-<button id="clearBtn">🗑 Clear</button>
-
-</div>
-
-<div class="toolbox">
-
-<div class="template" data-weight="1" data-img="./image/Apple.svg">
-
-<img src="./image/Apple.svg">
-
-</div>
-
-<div class="template" data-weight="2" data-img="./image/chicken.svg">
-
-<img src="./image/chicken.svg">
-
-</div>
-
-<div class="template" data-weight="1" data-img="./image/fish.svg">
-
-<img src="./image/fish.svg">
-
-</div>
-
-<div class="template" data-weight="4" data-img="./image/pumpkin.svg">
-
-<img src="./image/pumpkin.svg">
-
-</div>
-
-</div>
-
-<a href="../index.html" class="home-btn">🏡 Home</a>
-
-<div class="scale">
-
-<div class="tray" id="tray"></div>
-
-<div class="stand"></div>
-
-<div class="dial" id="dial">
-
-<div class="needle" id="needle"></div>
-
-<div class="center"></div>
-
-<div class="display" id="display">0 kg</div>
-
-</div>
-
-</div>
-
+    <!-- TOOLBOX ON THE LEFT -->
+    <div class="toolbox">
+        <div class="template" data-weight="1" data-img="./image/Apple.svg"><img src="./image/Apple.svg" alt="Apple"></div>
+        <div class="template" data-weight="2" data-img="./image/chicken.svg"><img src="./image/chicken.svg" alt="chicken"></div>
+        <div class="template" data-weight="1" data-img="./image/fish.svg"><img src="./image/fish.svg" alt="fish"></div>
+        <div class="template" data-weight="4" data-img="./image/pumpkin.svg"><img src="./image/pumpkin.svg" alt="pumpkin"></div>
+    </div> 
+    
+    <!-- HOME BUTTON ON THE RIGHT -->
+    <a href="../index.html" class="home-btn" style="font-family:'Battambang', cursive; font-size: 20px;">
+        🏡 Home
+    </a>
+    
+    <!-- MAIN SCALE -->
+    <div class="scale">
+        <div class="tray" id="tray"></div>
+        <div class="stand"></div>
+        <div class="dial" id="dial">
+            <div class="needle" id="needle"></div>
+            <div class="center"></div>
+            <div class="display" id="display">0 kg</div>
+        </div>
+    </div>
 </div>
 
 <script>
-
-const workspace = document.getElementById("workspace");
-
-const tray = document.getElementById("tray");
-
 const dial = document.getElementById("dial");
-
 const needle = document.getElementById("needle");
-
 const display = document.getElementById("display");
-
+const tray = document.getElementById("tray");
+const workspace = document.getElementById("workspace");
 let totalWeight = 0;
 
-/* ================= SCALE ================= */
-
-for(let i=0;i<=10;i++){
-
-    const angle = (360/10)*i;
-
+/* ================= CREATE SCALE NUMBERS & TICKS ================= */
+for(let i=0; i<=10; i++){
+    const angle = (360/10) * i;
+    
+    // Ticks
     const tick = document.createElement("div");
-
-    tick.className="tick";
-
-    tick.style.transform =
-
-        `translate(-50%,-50%) rotate(${angle}deg) translateY(-142px)`;
-
+    const tickRadius = 142; 
+    tick.className = "tick";
+    tick.style.transform = `translate(-50%, -50%) rotate(${angle}deg) translateY(-${tickRadius}px)`;
     dial.appendChild(tick);
 
+    // Numbers
     const num = document.createElement("div");
+    num.className = "number";
+    num.innerText = i;
+    
+    let currentRadius = 110; 
 
-    num.className="number";
-
-    num.innerText=i;
-
-    let r=110;
-
-    if(i===10){
-
-        r-=28;
-
-        num.style.fontSize="22px";
-
+    // Adjust 10 to shift directly down below the 0 marker
+    if (i === 10) {
+        currentRadius = currentRadius - 28; 
+        num.style.fontSize = "22px";
+        num.style.color = "#777";
     }
 
-    const x=Math.cos((angle-90)*Math.PI/180)*r;
-
-    const y=Math.sin((angle-90)*Math.PI/180)*r;
-
-    num.style.transform =
-
-        `translate(-50%,-50%) translate(${x}px,${y}px)`;
-
+    const x = Math.cos((angle - 90) * Math.PI / 180) * currentRadius;
+    const y = Math.sin((angle - 90) * Math.PI / 180) * currentRadius;
+    
+    num.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
     dial.appendChild(num);
-
 }
 
+/* ================= UPDATE SCALE ================= */
 function updateScale(){
-
-    let value = Math.min(10, Math.max(0,totalWeight));
-
-    display.innerText = value + " kg";
-
-    needle.style.transform =
-
-        `translate(-50%,-100%) rotate(${(value/10)*360}deg)`;
-
+    let displayWeight = totalWeight > 10 ? 10 : (totalWeight < 0 ? 0 : totalWeight);
+    display.innerText = displayWeight + " kg";
+    let angle = (displayWeight / 10) * 360;
+    needle.style.transform = `translate(-50%, -100%) rotate(${angle}deg)`;
 }
 
 /* ================= CREATE ITEMS ================= */
-
-document.querySelectorAll(".template").forEach(t=>{
-
-    t.addEventListener("pointerdown", e=>{
-
-        const item=document.createElement("div");
-
-        item.className="item";
-
-        item.innerHTML=`<img src="${t.dataset.img}">`;
-
-        item.dataset.weight=t.dataset.weight;
-
-        item.style.left=e.pageX-75+"px";
-
-        item.style.top=e.pageY-75+"px";
-
+document.querySelectorAll(".template").forEach(template=>{
+    template.addEventListener("pointerdown", e=>{
+        const item = document.createElement("div");
+        item.className = "item";
+        item.innerHTML = `<img src="${template.dataset.img}" alt="scaled item">`;
+        item.dataset.weight = template.dataset.weight;
+        item.dataset.img = template.dataset.img;
+        
+        item.style.left = e.pageX - 75 + "px"; 
+        item.style.top = e.pageY - 75 + "px";
         workspace.appendChild(item);
-
-        dragItem(item,e,75,75);
-
+        
+        dragItem(item, e, 75, 75);
     });
-
 });
 
-/* ================= DRAG ================= */
-
-function dragItem(el,startEvent,offsetX,offsetY){
-
-function move(e){
-
-    el.style.left=(e.pageX-offsetX)+"px";
-
-    el.style.top=(e.pageY-offsetY)+"px";
-
-}
-
-function up(){
-
-    document.removeEventListener("pointermove",move);
-
-    document.removeEventListener("pointerup",up);
-
-    const trayRect = tray.getBoundingClientRect();
-
-    const rect = el.getBoundingClientRect();
-
-    const inside =
-
-        rect.left+75>trayRect.left &&
-
-        rect.left+75<trayRect.right &&
-
-        rect.top+75<trayRect.bottom+80;
-
-    if(inside){
-
-        if(el.dataset.onTray!=="true"){
-
-            totalWeight+=Number(el.dataset.weight);
-
-            el.dataset.onTray="true";
-
-            updateScale();
-
-        }
-
-    } else {
-
-        if(el.dataset.onTray==="true"){
-
-            totalWeight-=Number(el.dataset.weight);
-
-            updateScale();
-
-        }
-
-        el.remove();
-
+/* ================= DRAGGING ================= */
+function dragItem(el, startEvent, initialOffsetX, initialOffsetY){
+    let offsetX = initialOffsetX;
+    let offsetY = initialOffsetY;
+    
+    if (offsetX === undefined || offsetY === undefined) {
+        const rect = el.getBoundingClientRect();
+        offsetX = startEvent.clientX - rect.left;
+        offsetY = startEvent.clientY - rect.top;
     }
 
-    el.addEventListener("pointerdown", ev=>{
-
-        if(el.dataset.onTray==="true"){
-
-            totalWeight-=Number(el.dataset.weight);
-
-            updateScale();
-
+    function move(e){
+        el.style.left = (e.pageX - offsetX) + "px";
+        el.style.top = (e.pageY - offsetY) + "px";
+    }
+    
+    function up(){
+        document.removeEventListener("pointermove", move);
+        document.removeEventListener("pointerup", up);
+        
+        const trayRect = tray.getBoundingClientRect();
+        const rect = el.getBoundingClientRect();
+        const centerX = rect.left + rect.width/2;
+        const centerY = rect.top + rect.height/2;
+        
+        const insideTray =
+            centerX > trayRect.left &&
+            centerX < trayRect.right &&
+            centerY > trayRect.top &&
+            centerY < trayRect.bottom + 80;
+            
+        if(insideTray){
+            if(el.dataset.onTray !== "true"){
+                totalWeight += Number(el.dataset.weight);
+                el.dataset.onTray = "true";
+                updateScale();
+            }
+        }else{
+            if(el.dataset.onTray === "true"){
+                totalWeight -= Number(el.dataset.weight);
+                updateScale();
+            }
+            el.remove();
+            return; 
         }
-
-        dragItem(el,ev,75,75);
-
-    });
-
+        
+        el.addEventListener("pointerdown", startAgain);
+    }
+    
+    function startAgain(ev){
+        ev.stopPropagation(); 
+        if(el.dataset.onTray === "true"){
+            totalWeight -= Number(el.dataset.weight);
+            updateScale();
+            el.dataset.onTray = "false";
+        }
+        dragItem(el, ev);
+    }
+    
+    document.addEventListener("pointermove", move);
+    document.addEventListener("pointerup", up);
 }
-
-document.addEventListener("pointermove",move);
-
-document.addEventListener("pointerup",up);
-
-}
-
-/* ================= DRAWING FIXED ================= */
-
-const canvas = document.getElementById("drawCanvas");
-
-const ctx = canvas.getContext("2d");
-
-let drawing=false;
-
-let erase=false;
-
-function resize(){
-
-    canvas.width=window.innerWidth;
-
-    canvas.height=window.innerHeight;
-
-}
-
-resize();
-
-window.addEventListener("resize",resize);
-
-function canDraw(target){
-
-    return !target.closest(".item") &&
-
-           !target.closest(".scale") &&
-
-           !target.closest(".toolbox") &&
-
-           !target.closest(".draw-tools") &&
-
-           !target.closest(".home-btn");
-
-}
-
-workspace.addEventListener("pointerdown",e=>{
-
-    if(!canDraw(e.target)) return;
-
-    drawing=true;
-
-    ctx.beginPath();
-
-    ctx.moveTo(e.pageX,e.pageY);
-
-});
-
-workspace.addEventListener("pointermove",e=>{
-
-    if(!drawing) return;
-
-    ctx.globalCompositeOperation =
-
-        erase ? "destination-out":"source-over";
-
-    ctx.lineWidth = erase ? 24:4;
-
-    ctx.lineCap="round";
-
-    ctx.lineTo(e.pageX,e.pageY);
-
-    ctx.stroke();
-
-    ctx.beginPath();
-
-    ctx.moveTo(e.pageX,e.pageY);
-
-});
-
-workspace.addEventListener("pointerup",()=>drawing=false);
-
-workspace.addEventListener("pointercancel",()=>drawing=false);
-
-penBtn.onclick=()=>erase=false;
-
-eraserBtn.onclick=()=>erase=true;
-
-clearBtn.onclick=()=>{
-
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-
-};
 
 updateScale();
-
 </script>
-
 </body>
-
 </html>
