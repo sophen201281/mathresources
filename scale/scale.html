@@ -1,664 +1,825 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Magnetic Canvas Studio | Draw & Snap Groups</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      touch-action: none;      /* prevents touch scrolling while drawing/dragging */
-      user-select: none;
-      -webkit-tap-highlight-color: transparent;
-    }
 
-    body {
-      background: #0f1a21;
-      font-family: 'Segoe UI', system-ui, 'Inter', Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      padding: 20px;
-    }
+<meta charset="UTF-8">
 
-    .canvas-panel {
-      width: min(1100px, 100%);
-      background: #1e2f3a;
-      border-radius: 2rem;
-      padding: 1.25rem;
-      box-shadow: 0 20px 35px -12px rgba(0,0,0,0.5);
-      transition: all 0.2s;
-    }
+<meta name="viewport"
 
-    /* button bar + stats row */
-    .controls-row {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 18px;
-    }
+content="width=device-width, initial-scale=1.0, user-scalable=no">
 
-    .stats-group {
-      display: flex;
-      gap: 14px;
-      background: #0e1a22;
-      padding: 6px 18px;
-      border-radius: 60px;
-      backdrop-filter: blur(2px);
-    }
+<title>Magnetic Circle Counters</title>
 
-    .counter {
-      color: #eef4ff;
-      font-weight: 600;
-      font-size: 1rem;
-      letter-spacing: 0.3px;
-    }
+<style>
 
-    .counter span {
-      background: #2c5770;
-      padding: 4px 10px;
-      border-radius: 30px;
-      margin-left: 8px;
-      font-weight: bold;
-      color: white;
-    }
+*{
 
-    .action-buttons {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
+    box-sizing:border-box;
 
-    button {
-      border: none;
-      padding: 8px 18px;
-      border-radius: 40px;
-      background: #3f7e9c;
-      color: white;
-      font-weight: 600;
-      font-size: 0.85rem;
-      cursor: pointer;
-      transition: 0.15s;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-      font-family: inherit;
-    }
+    user-select:none;
 
-    button:active {
-      transform: scale(0.97);
-      background: #2f6079;
-    }
+    touch-action:none;
 
-    .dot-buttons {
-      display: flex;
-      gap: 12px;
-      background: #152b36;
-      padding: 5px 16px;
-      border-radius: 60px;
-      align-items: center;
-    }
+}
 
-    .dot-buttons span {
-      color: #bdd9e8;
-      font-size: 0.8rem;
-      font-weight: 500;
-    }
+body{
 
-    .dot-preset {
-      background: #4c6e81;
-      padding: 6px 16px;
-      font-weight: bold;
-      font-size: 0.9rem;
-    }
+    margin:0;
 
-    .clear-draw-btn {
-      background: #5f3e2c;
-    }
+    overflow:hidden;
 
-    .clear-draw-btn:hover {
-      background: #7a4d33;
-    }
+    background:#ececec;
 
-    .canvas-wrapper {
-      background: #fef7e8;
-      border-radius: 28px;
-      overflow: hidden;
-      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08), 0 12px 22px -8px black;
-    }
+    font-family:Arial,sans-serif;
 
-    canvas {
-      display: block;
-      width: 100%;
-      height: auto;
-      cursor: grab;
-      touch-action: none;
-      background: #fffbf0;
-    }
+}
 
-    canvas:active {
-      cursor: grabbing;
-    }
+canvas{
 
-    .mode-hint {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 12px;
-      font-size: 0.7rem;
-      color: #bfd7e4;
-      background: #0b1920b3;
-      padding: 6px 14px;
-      border-radius: 40px;
-      backdrop-filter: blur(4px);
-    }
+    position:absolute;
 
-    .mode-hint kbd {
-      background: #2a4555;
-      padding: 2px 8px;
-      border-radius: 30px;
-      font-weight: bold;
-      margin: 0 4px;
-    }
+    inset:0;
 
-    @media (max-width: 640px) {
-      .controls-row {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .dot-buttons, .action-buttons {
-        justify-content: center;
-      }
-    }
-  </style>
+    background:white;
+
+}
+
+.toolbar{
+
+    position:fixed;
+
+    top:10px;
+
+    left:10px;
+
+    z-index:1000;
+
+    display:flex;
+
+    gap:8px;
+
+    flex-wrap:wrap;
+
+}
+
+button{
+
+    padding:10px 14px;
+
+    font-size:16px;
+
+}
+
+.counter{
+
+    position:absolute;
+
+    width:60px;
+
+    height:60px;
+
+    border-radius:50%;
+
+    background:#4CAF50;
+
+    border:4px solid #1B5E20;
+
+    color:white;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-size:22px;
+
+    transform:translate(-30px,-30px);
+
+    z-index:100;
+
+}
+
+.selected{
+
+    outline:5px solid orange;
+
+}
+
+</style>
+
 </head>
-<body>
-<div class="canvas-panel">
-  <div class="controls-row">
-    <div class="stats-group">
-      <div class="counter">🔘 Dots <span id="dotCount">0</span></div>
-      <div class="counter">🧲 Groups <span id="groupCount">0</span></div>
-    </div>
-    <div class="dot-buttons">
-      <span>➕ Add dot button:</span>
-      <button id="addDotTopLeft" class="dot-preset">📍 Top‑Left</button>
-      <button id="addDotCenter" class="dot-preset">🎯 Center</button>
-      <button id="addDotRandom" class="dot-preset">✨ Random</button>
-    </div>
-    <div class="action-buttons">
-      <button id="resetBtn">⟳ Reset Groups</button>
-      <button id="clearDrawingBtn" class="clear-draw-btn">✏️ Clear Drawing</button>
-    </div>
-  </div>
 
-  <div class="canvas-wrapper">
-    <canvas id="canvas" width="1000" height="600" style="width:100%; height:auto; aspect-ratio:1000/600"></canvas>
-  </div>
-  <div class="mode-hint">
-    <span>🖱️ Drag dots → magnetic snap & group merge</span>
-    <span>✏️ <strong>Drawing mode:</strong> hold <kbd>Ctrl / ⌘</kbd> + drag anywhere → freehand sketch</span>
-    <span>💡 Double‑tap a dot → split group (burst apart)</span>
-  </div>
+<body>
+
+<div class="toolbar">
+
+<button id="addCounter">
+
+Add Counter
+
+</button>
+
+<button id="deleteCounter">
+
+Delete Selected
+
+</button>
+
+<button id="clearDraw">
+
+Clear Drawing
+
+</button>
+
 </div>
 
+<canvas id="draw"></canvas>
+
 <script>
-  (function(){
-    // ---------- CANVAS & CORE ----------
-    const canvas = document.getElementById("canvas");
-    const ctx = canvas.getContext("2d");
-    
-    // dimensions handling: keep crisp rendering
-    let canvasWidth = 1000;
-    let canvasHeight = 600;
-    canvas.width = canvasWidth;
-    canvas.height = canvasHeight;
-    
-    // resize observer (maintain aspect but preserve dots positions relative)
-    function handleCanvasSize() {
-      const rect = canvas.getBoundingClientRect();
-      const containerWidth = rect.width;
-      if(containerWidth > 0) {
-        // keep logical resolution but canvas internal resolution fixed 1000x600
-        // no scaling of dots needed because coordinates stay absolute.
-      }
-    }
-    window.addEventListener('resize', () => handleCanvasSize());
-    handleCanvasSize();
-    
-    // Data models
-    let dots = [];           // { id, x, y, groupId, radius }
-    let nextId = 1;
-    let groupCounter = 1;
-    const DOT_RADIUS = 30;
-    const SNAP_DISTANCE = 65;
-    const GAP = 74;          // distance when snapping
-    
-    // Drag state
-    let dragTarget = null;
-    let dragging = false;
-    let dragOffsetX = 0, dragOffsetY = 0;
-    let lastTapTime = 0;
-    let lastTappedDot = null;
-    
-    // ---------- DRAWING CANVAS (freehand lines) ----------
-    let drawingModeActive = false;      // ctrl/cmd held
-    let isDrawing = false;
-    let lastDrawX = 0, lastDrawY = 0;
-    let drawingPoints = [];              // store {x, y, color?} we'll store strokes as array of paths
-    let strokes = [];                    // each stroke: { points: [{x,y}], color: string, width: number }
-    let currentStrokePoints = [];
-    
-    // drawing style
-    const DRAW_COLOR = "#cd5c5c";
-    const DRAW_WIDTH = 5;
-    
-    // Helper: update stats UI
-    function updateStats() {
-      document.getElementById("dotCount").textContent = dots.length;
-      const uniqueGroups = new Set(dots.map(d => d.groupId));
-      document.getElementById("groupCount").textContent = uniqueGroups.size;
-    }
-    
-    // Helper: redraw everything (dots + group lines + drawing strokes)
-    function fullRedraw() {
-      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-      
-      // 1) Draw all freehand strokes
-      for (const stroke of strokes) {
-        if (!stroke.points || stroke.points.length < 2) continue;
-        ctx.beginPath();
-        ctx.lineWidth = stroke.width || DRAW_WIDTH;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.strokeStyle = stroke.color || DRAW_COLOR;
-        const pts = stroke.points;
-        ctx.moveTo(pts[0].x, pts[0].y);
-        for (let i = 1; i < pts.length; i++) {
-          ctx.lineTo(pts[i].x, pts[i].y);
-        }
-        ctx.stroke();
-      }
-      
-      // 2) draw group connection lines (magnetic links)
-      const groupsMap = new Map();
-      dots.forEach(dot => {
-        if (!groupsMap.has(dot.groupId)) groupsMap.set(dot.groupId, []);
-        groupsMap.get(dot.groupId).push(dot);
-      });
-      
-      for (const group of groupsMap.values()) {
-        if (group.length < 2) continue;
-        for (let i = 0; i < group.length; i++) {
-          for (let j = i+1; j < group.length; j++) {
-            ctx.beginPath();
-            ctx.moveTo(group[i].x, group[i].y);
-            ctx.lineTo(group[j].x, group[j].y);
-            ctx.lineWidth = 4;
-            ctx.strokeStyle = "rgba(38, 70, 83, 0.45)";
-            ctx.stroke();
-          }
-        }
-      }
-      
-      // 3) draw dots with glow effect
-      dots.forEach(dot => {
-        ctx.beginPath();
-        ctx.arc(dot.x, dot.y, DOT_RADIUS, 0, Math.PI*2);
-        ctx.fillStyle = "#ff8c4a";
-        ctx.fill();
-        ctx.shadowBlur = 0;
-        ctx.strokeStyle = "white";
-        ctx.lineWidth = 3;
-        ctx.stroke();
-        // subtle inner highlight
-        ctx.beginPath();
-        ctx.arc(dot.x-2, dot.y-2, 8, 0, Math.PI*2);
-        ctx.fillStyle = "#ffcc88";
-        ctx.fill();
-      });
-    }
-    
-    // ----- group merge / snap logic -----
-    function mergeGroups(fromGroupId, toGroupId) {
-      if (fromGroupId === toGroupId) return;
-      dots.forEach(dot => {
-        if (dot.groupId === fromGroupId) {
-          dot.groupId = toGroupId;
-        }
-      });
-    }
-    
-    function disconnectGroup(dot) {
-      const members = dots.filter(d => d.groupId === dot.groupId);
-      if (members.length <= 1) return;
-      // burst: assign each member a brand new group id, spread them apart slightly
-      members.forEach((d, idx) => {
-        d.groupId = groupCounter++;
-        const angle = (idx / members.length) * Math.PI * 2;
-        d.x += Math.cos(angle) * 52;
-        d.y += Math.sin(angle) * 52;
-        // clamp inside canvas boundaries with margin
-        d.x = Math.min(Math.max(d.x, DOT_RADIUS+5), canvasWidth - DOT_RADIUS-5);
-        d.y = Math.min(Math.max(d.y, DOT_RADIUS+5), canvasHeight - DOT_RADIUS-5);
-      });
-      updateStats();
-      fullRedraw();
-    }
-    
-    function trySnap(dot) {
-      let closest = null;
-      let bestDist = Infinity;
-      for (const other of dots) {
-        if (other.id === dot.id) continue;
-        if (other.groupId === dot.groupId) continue;
-        const dist = Math.hypot(other.x - dot.x, other.y - dot.y);
-        if (dist < SNAP_DISTANCE && dist < bestDist) {
-          bestDist = dist;
-          closest = other;
-        }
-      }
-      if (!closest) return false;
-      
-      const angle = Math.atan2(dot.y - closest.y, dot.x - closest.x);
-      const newX = closest.x + Math.cos(angle) * GAP;
-      const newY = closest.y + Math.sin(angle) * GAP;
-      dot.x = Math.min(Math.max(newX, DOT_RADIUS), canvasWidth - DOT_RADIUS);
-      dot.y = Math.min(Math.max(newY, DOT_RADIUS), canvasHeight - DOT_RADIUS);
-      
-      mergeGroups(dot.groupId, closest.groupId);
-      updateStats();
-      return true;
-    }
-    
-    // create dot utility
-    function createDot(x, y, groupId = null) {
-      let gid = groupId;
-      if (gid === null) {
-        gid = groupCounter++;
-      }
-      return {
-        id: nextId++,
-        x: Math.min(Math.max(x, DOT_RADIUS), canvasWidth - DOT_RADIUS),
-        y: Math.min(Math.max(y, DOT_RADIUS), canvasHeight - DOT_RADIUS),
-        groupId: gid,
-        radius: DOT_RADIUS
-      };
-    }
-    
-    function addDotAt(x, y) {
-      const newDot = createDot(x, y);
-      dots.push(newDot);
-      updateStats();
-      fullRedraw();
-      return newDot;
-    }
-    
-    // reset default scene
-    function loadDots() {
-      dots.length = 0;
-      nextId = 1;
-      groupCounter = 1;
-      // built-in interesting groups
-      dots.push(createDot(150, 180));
-      dots.push(createDot(330, 120));
-      dots.push(createDot(720, 220));
-      const g = groupCounter++;
-      dots.push(createDot(260, 340, g));
-      dots.push(createDot(320, 380, g));
-      const g2 = groupCounter++;
-      dots.push(createDot(560, 250, g2));
-      dots.push(createDot(610, 270, g2));
-      dots.push(createDot(590, 320, g2));
-      updateStats();
-      fullRedraw();
-    }
-    
-    // ---- drawing canvas functions ----
-    function startDrawing(clientX, clientY) {
-      const p = getCanvasCoords(clientX, clientY);
-      isDrawing = true;
-      currentStrokePoints = [{ x: p.x, y: p.y }];
-      lastDrawX = p.x;
-      lastDrawY = p.y;
-    }
-    
-    function continueDrawing(clientX, clientY) {
-      if (!isDrawing) return;
-      const p = getCanvasCoords(clientX, clientY);
-      // avoid redundant points
-      const dx = p.x - lastDrawX;
-      const dy = p.y - lastDrawY;
-      if (Math.hypot(dx, dy) < 2) return;
-      currentStrokePoints.push({ x: p.x, y: p.y });
-      lastDrawX = p.x;
-      lastDrawY = p.y;
-      // live drawing update: draw temporary stroke on canvas + full redraw would be heavy, but we do optimized
-      fullRedraw();  // redraw everything (including previous strokes) + current "live" stroke
-      // draw ongoing stroke on top
-      if (currentStrokePoints.length > 1) {
-        ctx.beginPath();
-        ctx.lineWidth = DRAW_WIDTH;
-        ctx.lineCap = 'round';
-        ctx.strokeStyle = DRAW_COLOR;
-        ctx.moveTo(currentStrokePoints[0].x, currentStrokePoints[0].y);
-        for (let i = 1; i < currentStrokePoints.length; i++) {
-          ctx.lineTo(currentStrokePoints[i].x, currentStrokePoints[i].y);
-        }
-        ctx.stroke();
-      }
-    }
-    
-    function endDrawing() {
-      if (isDrawing && currentStrokePoints.length >= 2) {
-        strokes.push({
-          points: [...currentStrokePoints],
-          color: DRAW_COLOR,
-          width: DRAW_WIDTH
-        });
-      } else if (currentStrokePoints.length === 1) {
-        // minimal dot? ignore but we could push but not needed.
-      }
-      isDrawing = false;
-      currentStrokePoints = [];
-      fullRedraw(); // final flush
-    }
-    
-    function clearDrawingCanvas() {
-      strokes = [];
-      currentStrokePoints = [];
-      isDrawing = false;
-      fullRedraw();
-    }
-    
-    // helper: get canvas coordinates (respecting canvas logical size)
-    function getCanvasCoords(clientX, clientY) {
-      const rect = canvas.getBoundingClientRect();
-      const scaleX = canvas.width / rect.width;
-      const scaleY = canvas.height / rect.height;
-      let canvasX = (clientX - rect.left) * scaleX;
-      let canvasY = (clientY - rect.top) * scaleY;
-      canvasX = Math.min(Math.max(canvasX, 0), canvasWidth);
-      canvasY = Math.min(Math.max(canvasY, 0), canvasHeight);
-      return { x: canvasX, y: canvasY };
-    }
-    
-    // ---- drag & pointer logic with drawing mode detection (ctrl/cmd) ----
-    function shouldActivateDrawing(e) {
-      // ctrlKey on Windows/Linux, metaKey on Mac (cmd)
-      return e.ctrlKey === true || e.metaKey === true;
-    }
-    
-    // pointer down: decide if drawing or dragging dot
-    function onPointerDown(e) {
-      e.preventDefault();
-      const p = getCanvasCoords(e.clientX, e.clientY);
-      const now = Date.now();
-      
-      // first: check if drawing mode is active (ctrl/cmd)
-      if (shouldActivateDrawing(e)) {
-        drawingModeActive = true;
-        startDrawing(e.clientX, e.clientY);
-        return;
-      }
-      
-      // else find dot under cursor for dragging
-      let hitDot = null;
-      for (let i = dots.length-1; i >= 0; i--) {
-        const d = dots[i];
-        const dist = Math.hypot(d.x - p.x, d.y - p.y);
-        if (dist < DOT_RADIUS + 8) {
-          hitDot = d;
-          break;
-        }
-      }
-      
-      if (hitDot) {
-        // double-tap detection (split group)
-        if (lastTappedDot === hitDot && (now - lastTapTime) < 280) {
-          disconnectGroup(hitDot);
-          lastTappedDot = null;
-          lastTapTime = 0;
-          return;
-        }
-        lastTappedDot = hitDot;
-        lastTapTime = now;
-        
-        dragTarget = hitDot;
-        dragging = true;
-        dragOffsetX = hitDot.x - p.x;
-        dragOffsetY = hitDot.y - p.y;
-      } else {
-        // No dot: double tap off ? ignore
-        lastTappedDot = null;
-      }
-    }
-    
-    function onPointerMove(e) {
-      if (dragging && dragTarget) {
-        e.preventDefault();
-        const p = getCanvasCoords(e.clientX, e.clientY);
-        let newX = p.x + dragOffsetX;
-        let newY = p.y + dragOffsetY;
-        // clamp to canvas edges
-        newX = Math.min(Math.max(newX, DOT_RADIUS), canvasWidth - DOT_RADIUS);
-        newY = Math.min(Math.max(newY, DOT_RADIUS), canvasHeight - DOT_RADIUS);
-        const deltaX = newX - dragTarget.x;
-        const deltaY = newY - dragTarget.y;
-        // move whole group
-        dots.forEach(dot => {
-          if (dot.groupId === dragTarget.groupId) {
-            let nx = dot.x + deltaX;
-            let ny = dot.y + deltaY;
-            nx = Math.min(Math.max(nx, DOT_RADIUS), canvasWidth - DOT_RADIUS);
-            ny = Math.min(Math.max(ny, DOT_RADIUS), canvasHeight - DOT_RADIUS);
-            dot.x = nx;
-            dot.y = ny;
-          }
-        });
-        fullRedraw();
-        return;
-      }
-      
-      // drawing mode active and we are drawing
-      if (drawingModeActive && isDrawing) {
-        e.preventDefault();
-        continueDrawing(e.clientX, e.clientY);
-      }
-    }
-    
-    function onPointerUp(e) {
-      if (dragging && dragTarget) {
-        // after drag: try snap to neighbor group (only snap the dragged group representative)
-        // but the dragTarget is part of its group; snap using dragTarget's new position
-        if (dragTarget) {
-          trySnap(dragTarget);
-          fullRedraw();
-        }
-        dragging = false;
-        dragTarget = null;
-      }
-      
-      if (drawingModeActive && isDrawing) {
-        endDrawing();
-        drawingModeActive = false;
-      } else {
-        drawingModeActive = false;
-      }
-      isDrawing = false;
-    }
-    
-    // manage drawing mode when ctrl/meta key released globally
-    function onWindowKeyUp(e) {
-      if (!e.ctrlKey && !e.metaKey) {
-        if (drawingModeActive && isDrawing) {
-          endDrawing();
-        }
-        drawingModeActive = false;
-        isDrawing = false;
-      }
-    }
-    
-    // ---- Dot Buttons Implementation ----
-    function addDotTopLeft() {
-      addDotAt(80, 70);
-    }
-    
-    function addDotCenter() {
-      addDotAt(canvasWidth/2, canvasHeight/2);
-    }
-    
-    function addDotRandom() {
-      const margin = DOT_RADIUS + 12;
-      const randX = margin + Math.random() * (canvasWidth - margin * 2);
-      const randY = margin + Math.random() * (canvasHeight - margin * 2);
-      addDotAt(randX, randY);
-    }
-    
-    // reset full scene (dots and drawing?)
-    function fullReset() {
-      loadDots();
-      clearDrawingCanvas();  // also resets drawing strokes
-    }
-    
-    // ---- event binding ----
-    function bindEvents() {
-      canvas.addEventListener("pointerdown", onPointerDown);
-      window.addEventListener("pointermove", onPointerMove);
-      window.addEventListener("pointerup", onPointerUp);
-      window.addEventListener("keyup", onWindowKeyUp);
-      // avoid context menu while drawing
-      canvas.addEventListener("contextmenu", (e) => e.preventDefault());
-    }
-    
-    // manual reset button + dot buttons
-    document.getElementById("resetBtn").onclick = () => fullReset();
-    document.getElementById("clearDrawingBtn").onclick = () => clearDrawingCanvas();
-    document.getElementById("addDotTopLeft").onclick = () => addDotTopLeft();
-    document.getElementById("addDotCenter").onclick = () => addDotCenter();
-    document.getElementById("addDotRandom").onclick = () => addDotRandom();
-    
-    // initial load
-    loadDots();
-    bindEvents();
-    fullRedraw();
-    
-    // sync canvas resize projection (handle any manual changes)
-    function syncCanvasSize() {
-      // keep aspect but internal dimensions constant
-      if (canvas.width !== canvasWidth || canvas.height !== canvasHeight) {
-        canvas.width = canvasWidth;
-        canvas.height = canvasHeight;
-        fullRedraw();
-      }
-    }
-    setInterval(syncCanvasSize, 200);
-    window.addEventListener('resize', () => {
-      syncCanvasSize();
-      fullRedraw();
-    });
-  })();
+
+const canvas=
+
+document.getElementById("draw");
+
+const ctx=
+
+canvas.getContext("2d");
+
+function resize(){
+
+canvas.width=
+
+innerWidth;
+
+canvas.height=
+
+innerHeight;
+
+}
+
+resize();
+
+addEventListener(
+
+"resize",
+
+resize
+
+);
+
+/* DRAWING */
+
+let drawing=false;
+
+canvas.addEventListener(
+
+"pointerdown",
+
+e=>{
+
+if(
+
+e.target!==canvas
+
+) return;
+
+drawing=true;
+
+ctx.beginPath();
+
+ctx.moveTo(
+
+e.clientX,
+
+e.clientY
+
+);
+
+}
+
+);
+
+canvas.addEventListener(
+
+"pointermove",
+
+e=>{
+
+if(!drawing) return;
+
+ctx.lineWidth=4;
+
+ctx.lineCap="round";
+
+ctx.lineTo(
+
+e.clientX,
+
+e.clientY
+
+);
+
+ctx.stroke();
+
+}
+
+);
+
+window.addEventListener(
+
+"pointerup",
+
+()=>drawing=false
+
+);
+
+/* COUNTERS */
+
+let counterNumber=1;
+
+let selected=null;
+
+const connections=
+
+new Map();
+
+function createCounter(x,y){
+
+const c=
+
+document.createElement(
+
+"div"
+
+);
+
+c.className=
+
+"counter";
+
+c.dataset.id=
+
+crypto.randomUUID();
+
+c.textContent=
+
+counterNumber++;
+
+c.style.left=
+
+x+"px";
+
+c.style.top=
+
+y+"px";
+
+document.body.appendChild(
+
+c
+
+);
+
+connections.set(
+
+c.dataset.id,
+
+new Set()
+
+);
+
+setupCounter(c);
+
+}
+
+document
+
+.getElementById(
+
+"addCounter"
+
+)
+
+.onclick=()=>{
+
+createCounter(
+
+innerWidth/2,
+
+innerHeight/2
+
+);
+
+};
+
+document
+
+.getElementById(
+
+"deleteCounter"
+
+)
+
+.onclick=()=>{
+
+if(!selected) return;
+
+removeConnections(
+
+selected.dataset.id
+
+);
+
+selected.remove();
+
+selected=null;
+
+};
+
+document
+
+.getElementById(
+
+"clearDraw"
+
+)
+
+.onclick=()=>{
+
+ctx.clearRect(
+
+0,
+
+0,
+
+canvas.width,
+
+canvas.height
+
+);
+
+};
+
+function getCounters(){
+
+return [
+
+...document.querySelectorAll(
+
+".counter"
+
+)
+
+];
+
+}
+
+function getCounter(id){
+
+return document.querySelector(
+
+`[data-id="${id}"]`
+
+);
+
+}
+
+function selectCounter(c){
+
+getCounters().forEach(
+
+x=>x.classList.remove(
+
+"selected"
+
+)
+
+);
+
+selected=c;
+
+c.classList.add(
+
+"selected"
+
+);
+
+}
+
+/* GROUP GRAPH */
+
+function connectedGroup(id){
+
+const visited=
+
+new Set();
+
+const queue=[id];
+
+while(queue.length){
+
+const current=
+
+queue.shift();
+
+if(
+
+visited.has(current)
+
+) continue;
+
+visited.add(
+
+current
+
+);
+
+connections
+
+.get(current)
+
+?.forEach(n=>{
+
+if(
+
+!visited.has(n)
+
+){
+
+queue.push(n);
+
+}
+
+});
+
+}
+
+return [...visited];
+
+}
+
+function connect(a,b){
+
+connections
+
+.get(a)
+
+.add(b);
+
+connections
+
+.get(b)
+
+.add(a);
+
+}
+
+function detach(counter){
+
+const id=
+
+counter.dataset.id;
+
+connections
+
+.get(id)
+
+.clear();
+
+connections.forEach(set=>{
+
+set.delete(id);
+
+});
+
+counter.style.left=
+
+(counter.offsetLeft+45)
+
++"px";
+
+counter.style.top=
+
+(counter.offsetTop+45)
+
++"px";
+
+}
+
+function removeConnections(id){
+
+connections.delete(id);
+
+connections.forEach(set=>{
+
+set.delete(id);
+
+});
+
+}
+
+/* DRAGGING */
+
+function setupCounter(counter){
+
+let dragging=false;
+
+let members=[];
+
+let starts=[];
+
+let sx=0;
+
+let sy=0;
+
+let lastTap=0;
+
+counter.addEventListener(
+
+"pointerdown",
+
+e=>{
+
+dragging=true;
+
+selectCounter(counter);
+
+sx=e.clientX;
+
+sy=e.clientY;
+
+members=
+
+connectedGroup(
+
+counter.dataset.id
+
+);
+
+starts=
+
+members.map(id=>{
+
+const c=
+
+getCounter(id);
+
+return{
+
+el:c,
+
+x:c.offsetLeft,
+
+y:c.offsetTop
+
+};
+
+});
+
+const now=
+
+Date.now();
+
+if(
+
+now-lastTap<300
+
+){
+
+detach(counter);
+
+members=[
+
+counter.dataset.id
+
+];
+
+}
+
+lastTap=now;
+
+counter.setPointerCapture(
+
+e.pointerId
+
+);
+
+});
+
+counter.addEventListener(
+
+"pointermove",
+
+e=>{
+
+if(!dragging) return;
+
+const dx=
+
+e.clientX-sx;
+
+const dy=
+
+e.clientY-sy;
+
+starts.forEach(obj=>{
+
+obj.el.style.left=
+
+(obj.x+dx)
+
++"px";
+
+obj.el.style.top=
+
+(obj.y+dy)
+
++"px";
+
+});
+
+});
+
+counter.addEventListener(
+
+"pointerup",
+
+()=>{
+
+dragging=false;
+
+snap(counter);
+
+});
+
+}
+
+/* MAGNETIC SNAP */
+
+function snap(active){
+
+const SNAP=80;
+
+const DIST=62;
+
+const myGroup=
+
+connectedGroup(
+
+active.dataset.id
+
+);
+
+const all=
+
+getCounters();
+
+for(let id of myGroup){
+
+const me=
+
+getCounter(id);
+
+for(let other of all){
+
+if(
+
+myGroup.includes(
+
+other.dataset.id
+
+)
+
+) continue;
+
+const dx=
+
+me.offsetLeft-
+
+other.offsetLeft;
+
+const dy=
+
+me.offsetTop-
+
+other.offsetTop;
+
+const d=
+
+Math.hypot(
+
+dx,
+
+dy
+
+);
+
+if(
+
+d<SNAP
+
+){
+
+const angle=
+
+Math.atan2(
+
+dy,
+
+dx
+
+);
+
+const targetX=
+
+other.offsetLeft+
+
+Math.cos(angle)
+
+*DIST;
+
+const targetY=
+
+other.offsetTop+
+
+Math.sin(angle)
+
+*DIST;
+
+const moveX=
+
+targetX-
+
+me.offsetLeft;
+
+const moveY=
+
+targetY-
+
+me.offsetTop;
+
+myGroup.forEach(g=>{
+
+const c=
+
+getCounter(g);
+
+c.style.left=
+
+(c.offsetLeft+
+
+moveX)
+
++"px";
+
+c.style.top=
+
+(c.offsetTop+
+
+moveY)
+
++"px";
+
+});
+
+connect(
+
+me.dataset.id,
+
+other.dataset.id
+
+);
+
+return;
+
+}
+
+}
+
+}
+
+}
+
+createCounter(
+
+250,
+
+250
+
+);
+
+createCounter(
+
+400,
+
+250
+
+);
+
 </script>
+
 </body>
+
 </html>
