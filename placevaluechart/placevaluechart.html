@@ -1,488 +1,735 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA==" crossorigin="anonymous" />
-    <link rel="stylesheet" href="valuechartStyle.css">
-    <link rel="stylesheet" href="valuechartdivgrid.css">
-    <link rel="stylesheet" type="text/css" href="valuechart.css">
-     <!--fount for teblet-->
-     <link rel="stylesheet" media="handheld" href="css/handheld.css?v=2">
-     <link rel="preconnect" href="https://fonts.googleapis.com">
-     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-     <link href="https://fonts.googleapis.com/css2?family=Battambang&display=swap" rel="stylesheet">
-    <title>សម្ភារគណិតវិទ្យា</title>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+
+<title>Crocodile Compare Counters</title>
+
+<style>
+
+*{
+
+    box-sizing:border-box;
+
+}
+
+body{
+
+    margin:0;
+
+    font-family:Arial,sans-serif;
+
+    background:#eef3f7;
+
+    overflow:hidden;
+
+}
+
+.toolbar{
+
+    display:flex;
+
+    gap:8px;
+
+    flex-wrap:wrap;
+
+    padding:10px;
+
+    background:white;
+
+    box-shadow:0 2px 6px rgba(0,0,0,.12);
+
+    z-index:20;
+
+    position:relative;
+
+}
+
+button{
+
+    border:none;
+
+    padding:10px 14px;
+
+    border-radius:10px;
+
+    background:#2d89ef;
+
+    color:white;
+
+    font-size:14px;
+
+}
+
+#workspace{
+
+    position:relative;
+
+    width:100vw;
+
+    height:calc(100vh - 70px);
+
+    overflow:hidden;
+
+}
+
+#drawCanvas{
+
+    position:absolute;
+
+    inset:0;
+
+    touch-action:none;
+
+}
+
+.side{
+
+    position:absolute;
+
+    top:0;
+
+    width:45%;
+
+    height:100%;
+
+}
+
+#leftSide{
+
+    left:0;
+
+}
+
+#rightSide{
+
+    right:0;
+
+}
+
+.countLabel{
+
+    position:absolute;
+
+    top:10px;
+
+    font-size:50px;
+
+    font-weight:bold;
+
+    z-index:5;
+
+}
+
+#leftCount{
+
+    left:20%;
+
+}
+
+#rightCount{
+
+    right:20%;
+
+}
+
+.counter{
+
+    position:absolute;
+
+    width:44px;
+
+    height:44px;
+
+    border-radius:50%;
+
+    background:#ff9800;
+
+    border:2px solid rgba(0,0,0,.15);
+
+    touch-action:none;
+
+    z-index:6;
+
+}
+
+#middleZone{
+
+    position:absolute;
+
+    left:40%;
+
+    width:20%;
+
+    top:0;
+
+    bottom:0;
+
+    border-left:3px dashed rgba(0,0,0,.15);
+
+    border-right:3px dashed rgba(0,0,0,.15);
+
+    pointer-events:none;
+
+}
+
+#croc{
+
+    position:absolute;
+
+    left:50%;
+
+    top:55%;
+
+    transform:translate(-50%,-50%);
+
+    font-size:95px;
+
+    user-select:none;
+
+    touch-action:none;
+
+    cursor:grab;
+
+    z-index:10;
+
+}
+
+</style>
+
 </head>
+
 <body>
-    <!-- Navbar -->
-    <div class="navbar">
-      <div class="container flex">
-          <h1 class="logo" style="font-family:'Battambang', cursive;"></h1>
-          <button class="button0"><a href="placevaluechartempty.html" style="font-family:'Battambang', cursive;">0</a></button>
-        
-          <button class="button0"><a href="placevaluechart2.html"  style="font-family:'Battambang', cursive;">2</a></button>
-          <button class="button0"><a href="placevaluechart3.html"  style="font-family:'Battambang', cursive;">3</a></button>
-          <button class="button0"><a href="placevaluechart.html"  style="font-family:'Battambang', cursive;">4</a></button>
-        
-          <button class="button1" style="font-family:'Battambang', cursive; font-size: 20px;" onClick="document.location.reload(true)">សារដើម</button>
-          <button class="button1" style="font-family:'Battambang', cursive; font-size: 20px;" onclick="Restore()" >ថយក្រោយ</button>
-          <button class="button1" style="font-family:'Battambang', cursive; font-size: 20px;" onclick="Clear()">លុប</button>
-          
-          <div  class="color" onclick="change_color(this)" style="background:red"  class="stroke-color"></div>
-          <div class="color" onclick="change_color(this)" style="background:blue" class="stroke-color"></div>
-          <input class="color" type="color" oninput="stroke_color = this.value" placeholder="Colors">
-        
-          <input class="color1" type="range" min="1" max="100" oninput="stroke_width = this.value">
-          <nav>
-          <ul>
 
-           
-            <li><a href="../index.html" style="font-family:'Battambang', cursive; font-size: 20px;">ទំព័រដើម</a></li>
-          
-             
-            
-      </ul>
-              
-          </nav>
-            
-        </div>
-        
-    </div>
+<div class="toolbar">
 
-    
-    <main >     
-      <div class="wrapper"></div>
-      <div class="box a">    
-        <canvas id="canvas" style="background-image:url(images/Place.png) ;"></canvas>
-      </div>
-    <div class="box b" id="container1" >
-      <div>
-      <button class="Thousands"></button>
-      <button class="Thousands"></button>
-      <button class="Thousands"></button>
-      <button class="Thousands"></button>
-      <button class="Thousands"></button>
-      <button class="Thousands"></button>
-      <button class="Thousands"></button>
-      <button class="Thousands"></button>
-      <button class="Thousands"></button>
-      <button class="Thousands"></button>
-      <button class="Thousands"></button>
-      <button class="Thousands"></button>
-      <button class="Thousands"></button>
-      <button class="Thousands"></button>
-      <button class="Thousands"></button>
-      <button class="Thousands"></button>
-      <button class="Thousands"></button>
-      <button class="Thousands"></button>
-      <button class="Thousands"></button>
-      <button class="Thousands"></button>
-      <button class="Thousands"></button>
-      <button class="Thousands"></button>
-      <button class="Thousands"></button>
-      <button class="Thousands"></button>
-      <button class="Thousands"></button>
-      <button class="Thousands"></button>
-      <button class="Thousands"></button>
-      <button class="Thousands"></button>
-      <button class="Thousands"></button>
-      <button class="Thousands"></button>
-      <button class="Thousands"></button>
-      <button class="Thousands"></button>
-     </div>
-            <div>
-                <button class="hundreds"></button>
-                <button class="hundreds"></button>
-                <button class="hundreds"></button>
-                <button class="hundreds"></button>
-                <button class="hundreds"></button>
-                <button class="hundreds"></button>
-                <button class="hundreds"></button>
-                <button class="hundreds"></button>
-                <button class="hundreds"></button>
-                <button class="hundreds"></button>
-                <button class="hundreds"></button>
-                <button class="hundreds"></button>
-                <button class="hundreds"></button>
-                <button class="hundreds"></button>
-                <button class="hundreds"></button>
-                <button class="hundreds"></button>
-                <button class="hundreds"></button>
-                <button class="hundreds"></button>
-                <button class="hundreds"></button>
-                <button class="hundreds"></button>
-                <button class="hundreds"></button>
-                <button class="hundreds"></button>
-                <button class="hundreds"></button>
-                <button class="hundreds"></button>
-                <button class="hundreds"></button>
-                <button class="hundreds"></button>
-                <button class="hundreds"></button>
-                <button class="hundreds"></button>
-            </div>
-            <div>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-                <button class="tens"></button>
-              </div>
-              <div>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-                <button class="ones"></button>
-            
-            </div> 
-            <div>
-              <button class="N0"></button>
-              <button class="N0"></button>
-              <button class="N0"></button>
-              <button class="N0"></button>
-              <button class="N0"></button>
-              <button class="N0"></button>
-              <button class="N0"></button>
-              <button class="N0"></button>
-              <button class="N0"></button>
-              <button class="N0"></button>
-              <button class="N0"></button>
-              <button class="N0"></button>
-             </div>
-             <div>
-              <button class="N1"></button>
-              <button class="N1"></button>
-              <button class="N1"></button>
-              <button class="N1"></button>
-              <button class="N1"></button>
-              <button class="N1"></button>
-              <button class="N1"></button>
-              <button class="N1"></button>
-              <button class="N1"></button>
-              <button class="N1"></button>
-              <button class="N1"></button>
-              <button class="N1"></button>
-              <button class="N1"></button>
-              <button class="N1"></button>
-              <button class="N1"></button>
-              <button class="N1"></button>
+<button onclick="addCounter('left')">
 
-             </div>
-             <div>
-              <button class="N2"></button>
-              <button class="N2"></button>
-              <button class="N2"></button>
-              <button class="N2"></button>
-              <button class="N2"></button>
-              <button class="N2"></button>
-              <button class="N2"></button>
-              <button class="N2"></button>
-              <button class="N2"></button>
-              <button class="N2"></button>
-              <button class="N2"></button>
-              <button class="N2"></button>
-              <button class="N2"></button>
-              <button class="N2"></button>
-              <button class="N2"></button>
-              <button class="N2"></button>
+Add Left Counter
 
-             </div>
-             <div>
-              <button class="N3"></button>
-              <button class="N3"></button>
-              <button class="N3"></button>
-              <button class="N3"></button>
-              <button class="N3"></button>
-              <button class="N3"></button>
-              <button class="N3"></button>
-              <button class="N3"></button>
-              <button class="N3"></button>
-              <button class="N3"></button>
-              <button class="N3"></button>
-              <button class="N3"></button>
-              <button class="N3"></button>
-              <button class="N3"></button>
-              <button class="N3"></button>
-              <button class="N3"></button>
+</button>
 
-             </div>
-             <div>
-              <button class="N4"></button>
-              <button class="N4"></button>
-              <button class="N4"></button>
-              <button class="N4"></button>
-              <button class="N4"></button>
-              <button class="N4"></button>
-              <button class="N4"></button>
-              <button class="N4"></button>
-              <button class="N4"></button>
-              <button class="N4"></button>
-              <button class="N4"></button>
-              <button class="N4"></button>
-              <button class="N4"></button>
-              <button class="N4"></button>
-              <button class="N4"></button>
-              <button class="N4"></button>
+<button onclick="addCounter('right')">
 
-             </div>
-             <div>
-              <button class="N5"></button>
-              <button class="N5"></button>
-              <button class="N5"></button>
-              <button class="N5"></button>
-              <button class="N5"></button>
-              <button class="N5"></button>
-              <button class="N5"></button>
-              <button class="N5"></button>
-              <button class="N5"></button>
-              <button class="N5"></button>
-              <button class="N5"></button>
-              <button class="N5"></button>
-              <button class="N5"></button>
-              <button class="N5"></button>
-              <button class="N5"></button>
-              <button class="N5"></button>
+Add Right Counter
 
-             </div>
-             <div>
-              <button class="N6"></button>
-              <button class="N6"></button>
-              <button class="N6"></button>
-              <button class="N6"></button>
-              <button class="N6"></button>
-              <button class="N6"></button>
-              <button class="N6"></button>
-              <button class="N6"></button>
-              <button class="N6"></button>
-              <button class="N6"></button>
-              <button class="N6"></button>
-              <button class="N6"></button>
-              <button class="N6"></button>
-              <button class="N6"></button>
-              <button class="N6"></button>
-              <button class="N6"></button>
+</button>
 
-             </div>
-             <div>
-              <button class="N7"></button>
-              <button class="N7"></button>
-              <button class="N7"></button>
-              <button class="N7"></button>
-              <button class="N7"></button>
-              <button class="N7"></button>
-              <button class="N7"></button>
-              <button class="N7"></button>
-              <button class="N7"></button>
-              <button class="N7"></button>
-              <button class="N7"></button>
-              <button class="N7"></button>
-              <button class="N7"></button>
-              <button class="N7"></button>
-              <button class="N7"></button>
-              <button class="N7"></button>
+<button onclick="eraser=!eraser">
 
-             </div>
-             <div>
-              <button class="N8"></button>
-              <button class="N8"></button>
-              <button class="N8"></button>
-              <button class="N8"></button>
-              <button class="N8"></button>
-              <button class="N8"></button>
-              <button class="N8"></button>
-              <button class="N8"></button>
-              <button class="N8"></button>
-              <button class="N8"></button>
-              <button class="N8"></button>
-              <button class="N8"></button>
-              <button class="N8"></button>
-              <button class="N8"></button>
-              <button class="N8"></button>
-              <button class="N8"></button>
+Toggle Eraser
 
-             </div>
-             <div>
-              <button class="N9"></button>
-              <button class="N9"></button>
-              <button class="N9"></button>
-              <button class="N9"></button>
-              <button class="N9"></button>
-              <button class="N9"></button>
-              <button class="N9"></button>
-              <button class="N9"></button>
-              <button class="N9"></button>
-              <button class="N9"></button>
-              <button class="N9"></button>
-              <button class="N9"></button>
-              <button class="N9"></button>
-              <button class="N9"></button>
-              <button class="N9"></button>
-              <button class="N9"></button>
+</button>
 
-             </div>
-          </div> 
+<button onclick="clearCanvas()">
 
-       </main>
-      
-       </body>
-         
-<script src="placevaluedrawing.js"></script>
+Clear Drawing
 
+</button>
+
+</div>
+
+<div id="workspace">
+
+<canvas id="drawCanvas"></canvas>
+
+<div id="leftSide" class="side"></div>
+
+<div id="rightSide" class="side"></div>
+
+<div id="middleZone"></div>
+
+<div id="leftCount" class="countLabel">0</div>
+
+<div id="rightCount" class="countLabel">0</div>
+
+<div id="croc">🐊</div>
+
+</div>
+
+<script>
+
+const workspace=document.getElementById("workspace");
+
+const croc=document.getElementById("croc");
+
+const leftCount=document.getElementById("leftCount");
+
+const rightCount=document.getElementById("rightCount");
+
+let counters=[];
+
+let eraser=false;
+
+/* ---------------- COUNTERS ---------------- */
+
+function addCounter(side){
+
+    const c=document.createElement("div");
+
+    c.className="counter";
+
+    if(side==="left"){
+
+        c.style.left=
+
+        (40+Math.random()*180)+"px";
+
+    }
+
+    else{
+
+        c.style.left=
+
+        (window.innerWidth-240+
+
+        Math.random()*120)+"px";
+
+    }
+
+    c.style.top=
+
+    (130+Math.random()*280)+"px";
+
+    workspace.appendChild(c);
+
+    makeCounterDrag(c);
+
+    counters.push(c);
+
+    updateCounts();
+
+}
+
+function makeCounterDrag(el){
+
+    let ox,oy;
+
+    function move(e){
+
+        const p=
+
+        e.touches ?
+
+        e.touches[0] :
+
+        e;
+
+        el.style.left=
+
+        (p.clientX-ox)+"px";
+
+        el.style.top=
+
+        (p.clientY-oy-70)+"px";
+
+        updateCounts();
+
+    }
+
+    function stop(){
+
+        document.removeEventListener(
+
+        "mousemove",move);
+
+        document.removeEventListener(
+
+        "mouseup",stop);
+
+        document.removeEventListener(
+
+        "touchmove",move);
+
+        document.removeEventListener(
+
+        "touchend",stop);
+
+    }
+
+    el.addEventListener(
+
+    "mousedown",
+
+    e=>{
+
+        ox=e.offsetX;
+
+        oy=e.offsetY;
+
+        document.addEventListener(
+
+        "mousemove",move);
+
+        document.addEventListener(
+
+        "mouseup",stop);
+
+    });
+
+    el.addEventListener(
+
+    "touchstart",
+
+    e=>{
+
+        const r=
+
+        el.getBoundingClientRect();
+
+        ox=
+
+        e.touches[0].clientX-r.left;
+
+        oy=
+
+        e.touches[0].clientY-r.top;
+
+        document.addEventListener(
+
+        "touchmove",
+
+        move,
+
+        {passive:false});
+
+        document.addEventListener(
+
+        "touchend",
+
+        stop);
+
+    });
+
+}
+
+/* ---------------- COUNTS ---------------- */
+
+function updateCounts(){
+
+    const middle=
+
+    window.innerWidth/2;
+
+    let left=0;
+
+    let right=0;
+
+    counters.forEach(c=>{
+
+        const x=
+
+        c.offsetLeft+22;
+
+        if(x<middle)
+
+            left++;
+
+        else
+
+            right++;
+
+    });
+
+    leftCount.textContent=left;
+
+    rightCount.textContent=right;
+
+    updateCroc(left,right);
+
+}
+
+/* ---------------- CROCODILE ---------------- */
+
+function updateCroc(left,right){
+
+    const x=croc.offsetLeft;
+
+    const activeZone =
+
+    x > window.innerWidth*0.40 &&
+
+    x < window.innerWidth*0.60;
+
+    if(!activeZone){
+
+        croc.textContent="🐊";
+
+        return;
+
+    }
+
+    if(left>right){
+
+        croc.textContent=">";
+
+    }
+
+    else if(right>left){
+
+        croc.textContent="<";
+
+    }
+
+    else{
+
+        croc.textContent="=";
+
+    }
+
+}
+
+let dragCroc=false;
+
+let crocOffset=0;
+
+function moveCroc(e){
+
+    if(!dragCroc) return;
+
+    const p=
+
+    e.touches ?
+
+    e.touches[0] :
+
+    e;
+
+    croc.style.left=
+
+    (p.clientX-crocOffset)+"px";
+
+    updateCounts();
+
+}
+
+croc.addEventListener(
+
+"mousedown",
+
+e=>{
+
+    dragCroc=true;
+
+    crocOffset=e.offsetX;
+
+});
+
+document.addEventListener(
+
+"mousemove",
+
+moveCroc);
+
+document.addEventListener(
+
+"mouseup",
+
+()=>{
+
+    dragCroc=false;
+
+});
+
+croc.addEventListener(
+
+"touchstart",
+
+e=>{
+
+    dragCroc=true;
+
+    const r=
+
+    croc.getBoundingClientRect();
+
+    crocOffset=
+
+    e.touches[0].clientX-r.left;
+
+});
+
+document.addEventListener(
+
+"touchmove",
+
+moveCroc,
+
+{passive:false});
+
+document.addEventListener(
+
+"touchend",
+
+()=>{
+
+    dragCroc=false;
+
+});
+
+/* ---------------- DRAWING CANVAS ---------------- */
+
+const canvas=
+
+document.getElementById(
+
+"drawCanvas");
+
+const ctx=
+
+canvas.getContext("2d");
+
+function resize(){
+
+    canvas.width=
+
+    innerWidth;
+
+    canvas.height=
+
+    innerHeight;
+
+}
+
+resize();
+
+addEventListener(
+
+"resize",
+
+resize);
+
+let drawing=false;
+
+function pos(e){
+
+    const p=
+
+    e.touches ?
+
+    e.touches[0] :
+
+    e;
+
+    return {
+
+        x:p.clientX,
+
+        y:p.clientY-70
+
+    };
+
+}
+
+function start(e){
+
+    drawing=true;
+
+    const p=pos(e);
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+
+    p.x,
+
+    p.y);
+
+}
+
+function draw(e){
+
+    if(!drawing)
+
+        return;
+
+    const p=pos(e);
+
+    ctx.lineWidth=
+
+    eraser ? 22 : 4;
+
+    ctx.strokeStyle=
+
+    eraser ?
+
+    "#eef3f7" :
+
+    "black";
+
+    ctx.lineTo(
+
+    p.x,
+
+    p.y);
+
+    ctx.stroke();
+
+}
+
+function stop(){
+
+    drawing=false;
+
+}
+
+canvas.addEventListener(
+
+"mousedown",
+
+start);
+
+canvas.addEventListener(
+
+"mousemove",
+
+draw);
+
+canvas.addEventListener(
+
+"mouseup",
+
+stop);
+
+canvas.addEventListener(
+
+"touchstart",
+
+start);
+
+canvas.addEventListener(
+
+"touchmove",
+
+draw);
+
+canvas.addEventListener(
+
+"touchend",
+
+stop);
+
+function clearCanvas(){
+
+    ctx.clearRect(
+
+    0,
+
+    0,
+
+    canvas.width,
+
+    canvas.height);
+
+}
+
+</script>
+
+</body>
 
 </html>
