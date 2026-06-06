@@ -84,9 +84,7 @@ button{
 
 }
 
-/* DRAWING LAYER */
-
-#drawCanvas{
+canvas{
 
     position:absolute;
 
@@ -97,8 +95,6 @@ button{
     touch-action:none;
 
 }
-
-/* CENTER ZONE */
 
 #middleZone{
 
@@ -112,17 +108,15 @@ button{
 
     bottom:0;
 
-    border-left:3px dashed rgba(0,0,0,.18);
+    border-left:3px dashed rgba(0,0,0,.15);
 
-    border-right:3px dashed rgba(0,0,0,.18);
+    border-right:3px dashed rgba(0,0,0,.15);
 
     pointer-events:none;
 
     z-index:2;
 
 }
-
-/* NUMBERS */
 
 .countLabel{
 
@@ -134,9 +128,9 @@ button{
 
     font-weight:bold;
 
-    z-index:20;
-
     pointer-events:none;
+
+    z-index:20;
 
 }
 
@@ -152,8 +146,6 @@ button{
 
 }
 
-/* COUNTERS */
-
 .counter{
 
     position:absolute;
@@ -168,13 +160,11 @@ button{
 
     border:2px solid rgba(0,0,0,.15);
 
-    z-index:15;
-
     touch-action:none;
 
-}
+    z-index:15;
 
-/* CROCODILE */
+}
 
 #croc{
 
@@ -188,13 +178,13 @@ button{
 
     font-size:95px;
 
-    z-index:30;
-
     user-select:none;
+
+    cursor:grab;
 
     touch-action:none;
 
-    cursor:grab;
+    z-index:30;
 
 }
 
@@ -224,13 +214,14 @@ Draw
 
 onclick="setMode('erase')">
 
-ជ័រលុប
+Eraser
 
 </button>
 
 <button onclick="clearCanvas()">
 
-សម្អាត
+Clear Drawing
+
 </button>
 
 </div>
@@ -241,9 +232,13 @@ onclick="setMode('erase')">
 
 <div id="middleZone"></div>
 
-<div id="leftCount" class="countLabel">0</div>
+<div id="leftCount"
 
-<div id="rightCount" class="countLabel">0</div>
+class="countLabel">0</div>
+
+<div id="rightCount"
+
+class="countLabel">0</div>
 
 <div id="croc">🐊</div>
 
@@ -253,51 +248,67 @@ onclick="setMode('erase')">
 
 const workspace =
 
-document.getElementById("workspace");
+document.getElementById(
+
+"workspace");
 
 const canvas =
 
-document.getElementById("drawCanvas");
+document.getElementById(
+
+"drawCanvas");
 
 const ctx =
 
-canvas.getContext("2d");
+canvas.getContext(
+
+"2d");
 
 const croc =
 
-document.getElementById("croc");
+document.getElementById(
+
+"croc");
 
 const leftCount =
 
-document.getElementById("leftCount");
+document.getElementById(
+
+"leftCount");
 
 const rightCount =
 
-document.getElementById("rightCount");
+document.getElementById(
+
+"rightCount");
 
 const drawBtn =
 
-document.getElementById("drawBtn");
+document.getElementById(
+
+"drawBtn");
 
 const eraseBtn =
 
-document.getElementById("eraseBtn");
+document.getElementById(
 
-let counters = [];
+"eraseBtn");
 
-let mode = "draw";
+let counters=[];
 
-/* ---------------- RESIZE ---------------- */
+let mode="draw";
+
+/* ---------------- CANVAS ---------------- */
 
 function resize(){
 
-    canvas.width =
+canvas.width=
 
-    workspace.clientWidth;
+workspace.clientWidth;
 
-    canvas.height =
+canvas.height=
 
-    workspace.clientHeight;
+workspace.clientHeight;
 
 }
 
@@ -311,135 +322,143 @@ resize
 
 );
 
-/* ---------------- DRAWING ---------------- */
-
 function setMode(newMode){
 
-    mode = newMode;
+mode=newMode;
 
-    drawBtn.classList.remove(
+drawBtn.classList.remove(
 
-    "activeMode");
+"activeMode");
 
-    eraseBtn.classList.remove(
+eraseBtn.classList.remove(
 
-    "activeMode");
+"activeMode");
 
-    if(mode==="draw")
+if(mode==="draw")
 
-        drawBtn.classList.add(
+drawBtn.classList.add(
 
-        "activeMode");
+"activeMode");
 
-    if(mode==="erase")
+if(mode==="erase")
 
-        eraseBtn.classList.add(
+eraseBtn.classList.add(
 
-        "activeMode");
+"activeMode");
 
 }
 
 setMode("draw");
 
-let drawing = false;
+let drawing=false;
 
 function getPos(e){
 
-    const p =
+const p=
 
-    e.touches ?
+e.touches ?
 
-    e.touches[0] :
+e.touches[0] :
 
-    e;
+e;
 
-    const rect =
+const rect=
 
-    canvas.getBoundingClientRect();
+canvas.getBoundingClientRect();
 
-    return{
+return{
 
-        x:p.clientX-rect.left,
+x:p.clientX-rect.left,
 
-        y:p.clientY-rect.top
+y:p.clientY-rect.top
 
-    };
+};
 
 }
 
 function startDraw(e){
 
-    if(
+if(
 
-        e.target.classList.contains(
+e.target.classList.contains(
 
-        "counter") ||
+"counter"
 
-        e.target.id==="croc"
+) ||
 
-    ){
+e.target.id==="croc"
 
-        return;
+){
 
-    }
+return;
 
-    drawing = true;
+}
 
-    const p = getPos(e);
+drawing=true;
 
-    ctx.beginPath();
+const p=
 
-    ctx.moveTo(
+getPos(e);
 
-    p.x,
+ctx.beginPath();
 
-    p.y
+ctx.moveTo(
 
-    );
+p.x,
+
+p.y
+
+);
 
 }
 
 function draw(e){
 
-    if(!drawing) return;
+if(!drawing)
 
-    e.preventDefault();
+return;
 
-    const p = getPos(e);
+e.preventDefault();
 
-    ctx.lineCap="round";
+const p=
 
-    ctx.lineWidth =
+getPos(e);
 
-    mode==="erase"
+ctx.lineCap=
 
-    ? 28
+"round";
 
-    : 4;
+ctx.lineWidth=
 
-    ctx.strokeStyle =
+mode==="erase"
 
-    mode==="erase"
+? 28
 
-    ? "#eef3f7"
+: 4;
 
-    : "black";
+ctx.strokeStyle=
 
-    ctx.lineTo(
+mode==="erase"
 
-    p.x,
+? "#eef3f7"
 
-    p.y
+: "black";
 
-    );
+ctx.lineTo(
 
-    ctx.stroke();
+p.x,
+
+p.y
+
+);
+
+ctx.stroke();
 
 }
 
 function stopDraw(){
 
-    drawing=false;
+drawing=false;
 
 }
 
@@ -503,25 +522,23 @@ canvas.height
 
 function addCounter(){
 
-const c =
+const c=
 
 document.createElement(
 
-"div"
+"div");
 
-);
-
-c.className =
+c.className=
 
 "counter";
 
-/* randomly place left or right */
-
 if(Math.random()<0.5){
 
-c.style.left =
+c.style.left=
 
-(40 + Math.random()*180)
+(40+
+
+Math.random()*180)
 
 +"px";
 
@@ -529,9 +546,11 @@ c.style.left =
 
 else{
 
-c.style.left =
+c.style.left=
 
-(window.innerWidth-240+
+(window.innerWidth
+
+-240+
 
 Math.random()*120)
 
@@ -539,9 +558,11 @@ Math.random()*120)
 
 }
 
-c.style.top =
+c.style.top=
 
-(150 + Math.random()*260)
+(150+
+
+Math.random()*260)
 
 +"px";
 
@@ -559,9 +580,129 @@ function makeCounterDrag(el){
 
 let ox,oy;
 
+let lastTap=0;
+
+function deleteCounter(){
+
+counters=
+
+counters.filter(
+
+c=>c!==el
+
+);
+
+el.remove();
+
+updateCounts();
+
+}
+
+/* DOUBLE CLICK */
+
+el.addEventListener(
+
+"dblclick",
+
+e=>{
+
+e.stopPropagation();
+
+deleteCounter();
+
+});
+
+/* TOUCH */
+
+el.addEventListener(
+
+"touchstart",
+
+e=>{
+
+e.stopPropagation();
+
+const now=
+
+Date.now();
+
+if(
+
+now-lastTap
+
+<300
+
+){
+
+deleteCounter();
+
+return;
+
+}
+
+lastTap=now;
+
+const r=
+
+el.getBoundingClientRect();
+
+ox=
+
+e.touches[0]
+
+.clientX-r.left;
+
+oy=
+
+e.touches[0]
+
+.clientY-r.top;
+
+document.addEventListener(
+
+"touchmove",
+
+move,
+
+{passive:false});
+
+document.addEventListener(
+
+"touchend",
+
+stop);
+
+});
+
+el.addEventListener(
+
+"mousedown",
+
+e=>{
+
+e.stopPropagation();
+
+ox=e.offsetX;
+
+oy=e.offsetY;
+
+document.addEventListener(
+
+"mousemove",
+
+move);
+
+document.addEventListener(
+
+"mouseup",
+
+stop);
+
+});
+
 function move(e){
 
-const p =
+const p=
 
 e.touches ?
 
@@ -569,13 +710,13 @@ e.touches[0] :
 
 e;
 
-el.style.left =
+el.style.left=
 
 (p.clientX-ox)
 
 +"px";
 
-el.style.top =
+el.style.top=
 
 (p.clientY-oy-65)
 
@@ -613,68 +754,6 @@ stop);
 
 }
 
-el.addEventListener(
-
-"mousedown",
-
-e=>{
-
-e.stopPropagation();
-
-ox=e.offsetX;
-
-oy=e.offsetY;
-
-document.addEventListener(
-
-"mousemove",
-
-move);
-
-document.addEventListener(
-
-"mouseup",
-
-stop);
-
-});
-
-el.addEventListener(
-
-"touchstart",
-
-e=>{
-
-e.stopPropagation();
-
-const r =
-
-el.getBoundingClientRect();
-
-ox =
-
-e.touches[0].clientX-r.left;
-
-oy =
-
-e.touches[0].clientY-r.top;
-
-document.addEventListener(
-
-"touchmove",
-
-move,
-
-{passive:false});
-
-document.addEventListener(
-
-"touchend",
-
-stop);
-
-});
-
 }
 
 /* ---------------- COUNTS ---------------- */
@@ -685,15 +764,15 @@ let left=0;
 
 let right=0;
 
-const middle =
+const middle=
 
 window.innerWidth/2;
 
 counters.forEach(c=>{
 
-const x =
+const x=
 
-c.offsetLeft + 23;
+c.offsetLeft+23;
 
 if(x<middle)
 
@@ -705,11 +784,11 @@ right++;
 
 });
 
-leftCount.textContent =
+leftCount.textContent=
 
 left;
 
-rightCount.textContent =
+rightCount.textContent=
 
 right;
 
@@ -725,21 +804,31 @@ right
 
 /* ---------------- CROCODILE ---------------- */
 
-function updateCroc(left,right){
+function updateCroc(
 
-const x =
+left,
+
+right
+
+){
+
+const x=
 
 croc.offsetLeft;
 
-const activeZone =
+const activeZone=
 
-x > window.innerWidth*0.40 &&
+x>
 
-x < window.innerWidth*0.60;
+window.innerWidth*0.4 &&
+
+x<
+
+window.innerWidth*0.6;
 
 if(!activeZone){
 
-croc.textContent =
+croc.textContent=
 
 "🐊";
 
@@ -749,7 +838,7 @@ return;
 
 if(left>right){
 
-croc.textContent =
+croc.textContent=
 
 ">";
 
@@ -757,7 +846,7 @@ croc.textContent =
 
 else if(right>left){
 
-croc.textContent =
+croc.textContent=
 
 "<";
 
@@ -765,7 +854,7 @@ croc.textContent =
 
 else{
 
-croc.textContent =
+croc.textContent=
 
 "=";
 
@@ -787,7 +876,7 @@ return;
 
 e.preventDefault();
 
-const p =
+const p=
 
 e.touches ?
 
@@ -795,15 +884,21 @@ e.touches[0] :
 
 e;
 
-croc.style.left =
+croc.style.left=
 
-(p.clientX-crocOffsetX)
+(p.clientX
+
+-crocOffsetX)
 
 +"px";
 
-croc.style.top =
+croc.style.top=
 
-(p.clientY-crocOffsetY-65)
+(p.clientY
+
+-crocOffsetY
+
+-65)
 
 +"px";
 
@@ -839,15 +934,15 @@ e.stopPropagation();
 
 draggingCroc=true;
 
-const r =
+const r=
 
 croc.getBoundingClientRect();
 
-crocOffsetX =
+crocOffsetX=
 
 e.clientX-r.left;
 
-crocOffsetY =
+crocOffsetY=
 
 e.clientY-r.top;
 
@@ -875,17 +970,21 @@ e.stopPropagation();
 
 draggingCroc=true;
 
-const r =
+const r=
 
 croc.getBoundingClientRect();
 
-crocOffsetX =
+crocOffsetX=
 
-e.touches[0].clientX-r.left;
+e.touches[0]
 
-crocOffsetY =
+.clientX-r.left;
 
-e.touches[0].clientY-r.top;
+crocOffsetY=
+
+e.touches[0]
+
+.clientY-r.top;
 
 document.addEventListener(
 
