@@ -8,7 +8,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Fraction Builder - Strong Snap + Fixed Drawing</title>
+<title>Fraction Builder - Stable State Fix</title>
 
 <style>
 
@@ -62,7 +62,7 @@ body{
 
 }
 
-/* Buttons */
+/* buttons */
 
 button{
 
@@ -86,7 +86,7 @@ button.active{
 
 }
 
-/* CANVAS */
+/* canvases */
 
 #drawCanvas{
 
@@ -121,8 +121,6 @@ button.active{
 </head>
 
 <body>
-
-<!-- UI -->
 
 <div id="ui">
 
@@ -178,9 +176,9 @@ const ctx = canvas.getContext("2d");
 
 /* UI */
 
-const shapeSelect = document.getElementById("shape");
+const shape = document.getElementById("shape");
 
-const partsSlider = document.getElementById("parts");
+const parts = document.getElementById("parts");
 
 const drawBtn = document.getElementById("drawBtn");
 
@@ -188,7 +186,23 @@ const eraseBtn = document.getElementById("eraseBtn");
 
 const clearBtn = document.getElementById("clearBtn");
 
-/* ================= STATE ================= */
+/* ================= STATE MACHINE ================= */
+
+const STATE = {
+
+IDLE: "idle",
+
+DRAG: "drag",
+
+DRAW: "draw",
+
+ERASE: "erase"
+
+};
+
+let state = STATE.DRAW;
+
+/* ================= DATA ================= */
 
 let pieces = [];
 
@@ -196,23 +210,19 @@ let groups = [];
 
 let active = null;
 
-/* drawing */
+/* drag */
 
-let mode = "draw";
+let offsetX = 0;
 
-let strokeMode = "draw";
+let offsetY = 0;
 
-let drawing = false;
+/* pointer tracking */
 
 let pointerId = null;
 
 let lastX = 0;
 
 let lastY = 0;
-
-let offsetX = 0;
-
-let offsetY = 0;
 
 /* ================= RESIZE ================= */
 
@@ -242,9 +252,7 @@ pieces = [];
 
 groups = [];
 
-const shape = shapeSelect.value;
-
-const N = +partsSlider.value;
+const N = +parts.value;
 
 const cx = canvas.width/2;
 
@@ -252,15 +260,15 @@ const cy = canvas.height/2;
 
 for(let i=0;i<N;i++){
 
-let pathFn;
+let path;
 
-if(shape==="circle"){
+if(shape.value==="circle"){
 
 const r=120;
 
 const a=(i/N)*Math.PI*2;
 
-pathFn=(ox,oy)=>{
+path=(ox,oy)=>{
 
 ctx.beginPath();
 
@@ -274,7 +282,7 @@ ctx.closePath();
 
 }
 
-else if(shape==="square"){
+else if(shape.value==="square"){
 
 const size=220;
 
@@ -284,33 +292,11 @@ const x=cx-size/2+i*w;
 
 const y=cy-size/2;
 
-pathFn=(ox,oy)=>{
+path=(ox,oy)=>{
 
 ctx.beginPath();
 
 ctx.rect(x+ox,y+oy,w,size);
-
-};
-
-}
-
-else if(shape==="rectangle"){
-
-const w0=280;
-
-const h=160;
-
-const w=w0/N;
-
-const x=cx-w0/2+i*w;
-
-const y=cy-h/2;
-
-pathFn=(ox,oy)=>{
-
-ctx.beginPath();
-
-ctx.rect(x+ox,y+oy,w,h);
 
 };
 
@@ -332,7 +318,7 @@ const topY=cy-h/2;
 
 const bottomY=cy+h/2;
 
-pathFn=(ox,oy)=>{
+path=(ox,oy)=>{
 
 ctx.beginPath();
 
@@ -356,7 +342,7 @@ y:0,
 
 color:`hsl(${(i*360)/N},70%,60%)`,
 
-path:pathFn
+path
 
 });
 
@@ -396,17 +382,11 @@ function pos(e,el){
 
 const r=el.getBoundingClientRect();
 
-return {
-
-x:e.clientX-r.left,
-
-y:e.clientY-r.top
-
-};
+return {x:e.clientX-r.left,y:e.clientY-r.top};
 
 }
 
-/* ================= GROUP SYSTEM ================= */
+/* ================= GROUP ================= */
 
 function getGroup(p){
 
@@ -414,11 +394,11 @@ return groups.find(g=>g.includes(p));
 
 }
 
-function mergeGroups(a,b){
+function merge(a,b){
 
-const ga=getGroup(a);
+let ga=getGroup(a);
 
-const gb=b?getGroup(b):null;
+let gb=b?getGroup(b):null;
 
 if(!ga && !gb){
 
@@ -454,21 +434,21 @@ groups.push([...ga,...gb]);
 
 }
 
-/* ================= STRONG SNAP ================= */
+/* ================= SNAP ================= */
 
 function snap(p){
 
-const SNAP = 22;
+const SNAP=20;
 
-/* center lock */
+/* center snap */
 
-if(Math.hypot(p.x,p.y) < SNAP){
+if(Math.hypot(p.x,p.y)<SNAP){
 
-p.x = 0;
+p.x=0;
 
-p.y = 0;
+p.y=0;
 
-mergeGroups(p,null);
+merge(p,null);
 
 return;
 
@@ -480,49 +460,15 @@ for(let q of pieces){
 
 if(q===p) continue;
 
-const dx = p.x - q.x;
+if(Math.hypot(p.x-q.x,p.y-q.y)<SNAP){
 
-const dy = p.y - q.y;
+p.x=q.x;
 
-if(Math.hypot(dx,dy) < SNAP){
+p.y=q.y;
 
-p.x = q.x;
-
-p.y = q.y;
-
-mergeGroups(p,q);
+merge(p,q);
 
 return;
-
-}
-
-}
-
-}
-
-/* ================= MAGNETIC PULL ================= */
-
-function magneticPull(p){
-
-const RANGE = 60;
-
-for(let q of pieces){
-
-if(q===p) continue;
-
-const dx = q.x - p.x;
-
-const dy = q.y - p.y;
-
-const d = Math.hypot(dx,dy);
-
-if(d < RANGE && d > 0){
-
-const f = (RANGE - d)/RANGE;
-
-p.x += dx * f * 0.12;
-
-p.y += dy * f * 0.12;
 
 }
 
@@ -536,6 +482,8 @@ canvas.addEventListener("pointerdown",(e)=>{
 
 const {x,y}=pos(e,canvas);
 
+/* try pick piece */
+
 for(let i=pieces.length-1;i>=0;i--){
 
 const p=pieces[i];
@@ -543,6 +491,8 @@ const p=pieces[i];
 p.path(p.x,p.y);
 
 if(ctx.isPointInPath(x,y)){
+
+state=STATE.DRAG;
 
 active=p;
 
@@ -558,11 +508,9 @@ return;
 
 }
 
-/* DRAW MODE */
+/* otherwise drawing */
 
-if(mode==="draw" || mode==="erase"){
-
-drawing=true;
+state = (state===STATE.ERASE) ? STATE.ERASE : STATE.DRAW;
 
 pointerId=e.pointerId;
 
@@ -570,13 +518,9 @@ lastX=x;
 
 lastY=y;
 
-strokeMode=mode;
-
 drawCanvas.setPointerCapture(e.pointerId);
 
 dCtx.beginPath();
-
-}
 
 });
 
@@ -586,39 +530,33 @@ canvas.addEventListener("pointermove",(e)=>{
 
 const {x,y}=pos(e,canvas);
 
-if(active){
+if(state===STATE.DRAG && active){
 
-const nx = x - offsetX;
+const nx=x-offsetX;
 
-const ny = y - offsetY;
+const ny=y-offsetY;
 
-let group = getGroup(active);
+let group=getGroup(active);
 
 if(group){
 
+const dx=nx-active.x;
+
+const dy=ny-active.y;
+
 for(let p of group){
 
-p.x += nx - active.x;
+p.x+=dx;
 
-p.y += ny - active.y;
-
-}
+p.y+=dy;
 
 }
 
-active.x = nx;
-
-active.y = ny;
-
-/* STRONG SNAP + MAGNET */
-
-for(let p of pieces){
-
-magneticPull(p);
-
-snap(p);
-
 }
+
+active.x=nx;
+
+active.y=ny;
 
 draw();
 
@@ -626,17 +564,19 @@ draw();
 
 });
 
-/* ================= DRAW ENGINE ================= */
+/* ================= DRAW / ERASE ================= */
 
 drawCanvas.addEventListener("pointermove",(e)=>{
 
-if(!drawing || e.pointerId!==pointerId) return;
+if(!pointerId || e.pointerId!==pointerId) return;
 
 const {x,y}=pos(e,drawCanvas);
 
+if(state!==STATE.DRAW && state!==STATE.ERASE) return;
+
 dCtx.lineCap="round";
 
-if(strokeMode==="erase"){
+if(state===STATE.ERASE){
 
 dCtx.globalCompositeOperation="destination-out";
 
@@ -670,7 +610,7 @@ lastY=y;
 
 function stop(e){
 
-if(active){
+if(state===STATE.DRAG && active){
 
 snap(active);
 
@@ -678,7 +618,7 @@ active=null;
 
 }
 
-drawing=false;
+state=STATE.IDLE;
 
 pointerId=null;
 
@@ -690,7 +630,7 @@ canvas.releasePointerCapture(e.pointerId);
 
 drawCanvas.releasePointerCapture(e.pointerId);
 
-}catch(err){}
+}catch{}
 
 }
 
@@ -704,35 +644,15 @@ drawCanvas.addEventListener("pointercancel",stop);
 
 /* ================= UI ================= */
 
-shapeSelect.onchange=init;
+shape.onchange=init;
 
-partsSlider.oninput=init;
+parts.oninput=init;
 
-drawBtn.onclick=()=>{
+drawBtn.onclick=()=>state=STATE.DRAW;
 
-mode="draw";
+eraseBtn.onclick=()=>state=STATE.ERASE;
 
-drawBtn.classList.add("active");
-
-eraseBtn.classList.remove("active");
-
-};
-
-eraseBtn.onclick=()=>{
-
-mode="erase";
-
-eraseBtn.classList.add("active");
-
-drawBtn.classList.remove("active");
-
-};
-
-clearBtn.onclick=()=>{
-
-dCtx.clearRect(0,0,drawCanvas.width,drawCanvas.height);
-
-};
+clearBtn.onclick=()=>dCtx.clearRect(0,0,drawCanvas.width,drawCanvas.height);
 
 init();
 
