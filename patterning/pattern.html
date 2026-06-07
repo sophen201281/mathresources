@@ -2,16 +2,16 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
-<title>Tape Measure + Canvas + Objects</title>
+<meta name="viewport"
+content="width=device-width,initial-scale=1,user-scalable=no">
+<title>Tape Measure Practice</title>
 <style>
 body{
 margin:0;
 overflow:hidden;
 background:#eef2f7;
-font-family:Arial;
+font-family:Arial,sans-serif;
 }
-/* ---------- UI ---------- */
 #display{
 position:fixed;
 top:10px;
@@ -22,7 +22,8 @@ padding:10px 18px;
 border-radius:10px;
 font-size:22px;
 font-weight:bold;
-z-index:1000;
+z-index:500;
+box-shadow:0 2px 8px rgba(0,0,0,.2);
 }
 #toolbar{
 position:fixed;
@@ -31,34 +32,19 @@ left:50%;
 transform:translateX(-50%);
 display:flex;
 gap:8px;
-background:white;
-padding:8px;
-border-radius:10px;
-z-index:1000;
+z-index:500;
 }
-#toolbar select,
-#toolbar button{
-padding:8px;
+button{
+border:none;
+padding:8px 14px;
+border-radius:8px;
+background:#2d7cff;
+color:white;
 font-size:16px;
 }
-/* ---------- CANVAS ---------- */
-#drawCanvas{
-position:absolute;
-inset:0;
-z-index:1;
-touch-action:none;
-}
-/* ---------- SCENE ---------- */
-#scene{
-position:relative;
-width:100vw;
-height:100vh;
-overflow:hidden;
-}
-/* ---------- OBJECTS ---------- */
+/* OBJECTS */
 .object{
 position:absolute;
-z-index:200;
 touch-action:none;
 user-select:none;
 }
@@ -67,25 +53,60 @@ width:180px;
 height:80px;
 background:#9c6b3d;
 border:3px solid #6d4825;
+border-radius:8px;
 display:flex;
 justify-content:center;
 align-items:center;
 color:white;
 font-weight:bold;
 }
+.table::before,
+.table::after{
+content:"";
+position:absolute;
+width:10px;
+height:60px;
+background:#6d4825;
+bottom:-60px;
+}
+.table::before{ left:20px; }
+.table::after{ right:20px; }
 .pencil{
 width:180px;
 height:18px;
-background:#f4c542;
+background:#f5c542;
+border-radius:4px;
 }
-/* ---------- TAPE ---------- */
+.pencil::before{
+content:"";
+position:absolute;
+right:-24px;
+border-left:24px solid #d7b28c;
+border-top:9px solid transparent;
+border-bottom:9px solid transparent;
+}
+.pencil::after{
+content:"";
+position:absolute;
+left:-14px;
+width:14px;
+height:18px;
+background:#ff6b8a;
+}
+/* TAPE */
+#scene{
+width:100vw;
+height:100vh;
+position:relative;
+}
 #hook{
 position:absolute;
 width:14px;
 height:34px;
 background:#333;
-z-index:500;
-transform-origin:center;
+border-radius:3px;
+z-index:60;
+transform-origin:center center;
 touch-action:none;
 }
 #tape{
@@ -96,7 +117,7 @@ border-top:1px solid black;
 border-bottom:1px solid black;
 overflow:hidden;
 transform-origin:left center;
-z-index:300;
+z-index:30;
 touch-action:none;
 }
 .tick{
@@ -107,8 +128,9 @@ bottom:0;
 }
 .label{
 position:absolute;
-font-size:12px;
 top:1px;
+font-size:12px;
+font-weight:bold;
 }
 #case{
 position:absolute;
@@ -116,9 +138,9 @@ width:70px;
 height:50px;
 background:orange;
 border-radius:12px;
-z-index:600;
-transform-origin:center;
+z-index:70;
 touch-action:none;
+transform-origin:center center;
 }
 #rotate{
 position:absolute;
@@ -126,11 +148,12 @@ width:34px;
 height:34px;
 border-radius:50%;
 background:#2d7cff;
-color:white;
 display:flex;
 justify-content:center;
 align-items:center;
-z-index:700;
+color:white;
+font-size:18px;
+z-index:80;
 touch-action:none;
 }
 </style>
@@ -138,16 +161,13 @@ touch-action:none;
 <body>
 <div id="display">44.0 cm</div>
 <div id="toolbar">
-<select id="objectSelect">
-<option value="">Select Object</option>
-<option value="table">Table</option>
-<option value="pencil">Pencil</option>
-</select>
-<button id="drawBtn">Draw</button>
-<button id="eraserBtn">Eraser</button>
-<button onclick="clearCanvas()">Clear</button>
+<button onclick="createObject('table')">
+Add Table
+</button>
+<button onclick="createObject('pencil')">
+Add Pencil
+</button>
 </div>
-<canvas id="drawCanvas"></canvas>
 <div id="scene">
 <div id="tape"></div>
 <div id="hook"></div>
@@ -155,44 +175,6 @@ touch-action:none;
 <div id="rotate">↻</div>
 </div>
 <script>
-/* ================= CANVAS ================= */
-const canvas=document.getElementById("drawCanvas");
-const ctx=canvas.getContext("2d");
-let drawing=false;
-let erasing=false;
-function resize(){
-canvas.width=window.innerWidth;
-canvas.height=window.innerHeight;
-}
-resize();
-window.addEventListener("resize",resize);
-document.getElementById("drawBtn").onclick=()=>{
-erasing=false;
-};
-document.getElementById("eraserBtn").onclick=()=>{
-erasing=true;
-};
-canvas.onpointerdown=e=>{
-drawing=true;
-ctx.beginPath();
-ctx.moveTo(e.clientX,e.clientY);
-};
-canvas.onpointermove=e=>{
-if(!drawing)return;
-ctx.globalCompositeOperation =
-erasing ? "destination-out" : "source-over";
-ctx.lineWidth = erasing ? 18 : 2;
-ctx.lineTo(e.clientX,e.clientY);
-ctx.stroke();
-};
-window.onpointerup=()=>{
-drawing=false;
-ctx.beginPath();
-};
-function clearCanvas(){
-ctx.clearRect(0,0,canvas.width,canvas.height);
-}
-/* ================= TAPE ================= */
 const hook=document.getElementById("hook");
 const tape=document.getElementById("tape");
 const box=document.getElementById("case");
@@ -203,113 +185,179 @@ let anchorX=120;
 let anchorY=320;
 let length=220;
 let angle=0;
-let action=null;
 let dragging=null;
+let currentAction=null;
 /* SCALE */
-for(let i=0;i<3000;i++){
+for(let i=0;i<5000;i++){
 const tick=document.createElement("div");
 tick.className="tick";
 tick.style.left=(i*5)+"px";
 if(i%10===0){
 tick.style.height="24px";
-const label=document.createElement("div");
+const label=
+document.createElement("div");
 label.className="label";
 label.innerText=i/10;
-label.style.left=(i*5)+"px";
+label.style.left=
+(i*5+2)+"px";
 tape.appendChild(label);
-}else if(i%5===0){
+}
+else if(i%5===0){
 tick.style.height="16px";
-}else{
+}
+else{
 tick.style.height="10px";
 }
 tape.appendChild(tick);
 }
-/* UPDATE */
-function update(){
-const rad=angle*Math.PI/180;
-hook.style.left=(anchorX-7)+"px";
-hook.style.top=(anchorY-17)+"px";
-hook.style.transform=`rotate(${angle}deg)`;
-tape.style.left=anchorX+"px";
-tape.style.top=(anchorY-14)+"px";
-tape.style.width=length+"px";
-tape.style.transform=`rotate(${angle}deg)`;
-const endX=anchorX+Math.cos(rad)*length;
-const endY=anchorY+Math.sin(rad)*length;
-box.style.left=(endX-30)+"px";
-box.style.top=(endY-25)+"px";
-box.style.transform=`rotate(${angle}deg)`;
-rot.style.left=(endX+40)+"px";
-rot.style.top=(endY-5)+"px";
-display.innerText=(length/5).toFixed(1)+" cm";
-}
-/* STATES */
-function reset(){
-action=null;
-dragging=null;
-}
-/* TAPE ACTIONS */
-hook.onpointerdown=e=>{
-reset();
-action="hook";
-e.stopPropagation();
-};
-tape.onpointerdown=e=>{
-reset();
-action="pull";
-e.stopPropagation();
-};
-box.onpointerdown=e=>{
-reset();
-action="pull";
-e.stopPropagation();
-};
-rot.onpointerdown=e=>{
-reset();
-action="rotate";
-e.stopPropagation();
-};
-/* MOVE */
-window.addEventListener("pointermove",e=>{
-const x=e.clientX;
-const y=e.clientY;
-/* OBJECT DRAG */
-if(dragging){
-dragging.style.left=(x-dragging.offsetWidth/2)+"px";
-dragging.style.top=(y-dragging.offsetHeight/2)+"px";
-return;
-}
-if(!action)return;
-if(action==="hook"){
-anchorX=x;
-anchorY=y;
-}
-if(action==="pull"){
-length=Math.max(40,Math.hypot(x-anchorX,y-anchorY));
-}
-if(action==="rotate"){
-angle=Math.atan2(y-anchorY,x-anchorX)*180/Math.PI;
-}
-update();
-});
-window.addEventListener("pointerup",reset);
-/* ================= OBJECTS ================= */
-document.getElementById("objectSelect")
-.addEventListener("change",function(){
-const type=this.value;
-if(!type)return;
-const obj=document.createElement("div");
-obj.classList.add("object",type);
-obj.style.left="250px";
-obj.style.top="250px";
-if(type==="table") obj.innerHTML="TABLE";
-obj.onpointerdown=e=>{
+/* OBJECTS */
+function attachDrag(obj){
+obj.onpointerdown=(e)=>{
+clearStates();
 dragging=obj;
 e.stopPropagation();
 };
+}
+function createObject(type){
+const obj=
+document.createElement("div");
+obj.classList.add(
+"object"
+);
+obj.style.left="220px";
+obj.style.top="250px";
+if(type==="table"){
+obj.classList.add(
+"table"
+);
+obj.innerHTML="TABLE";
+}
+if(type==="pencil"){
+obj.classList.add(
+"pencil"
+);
+}
 scene.appendChild(obj);
-this.value="";
+attachDrag(obj);
+}
+/* STATES */
+function clearStates(){
+currentAction=null;
+dragging=null;
+}
+/* ACTION START */
+hook.onpointerdown=(e)=>{
+clearStates();
+currentAction="hook";
+e.stopPropagation();
+};
+tape.onpointerdown=(e)=>{
+clearStates();
+currentAction="pull";
+e.stopPropagation();
+};
+box.onpointerdown=(e)=>{
+clearStates();
+currentAction="pull";
+e.stopPropagation();
+};
+rot.onpointerdown=(e)=>{
+clearStates();
+currentAction="rotate";
+e.stopPropagation();
+};
+/* UPDATE */
+function update(){
+const rad=
+angle*Math.PI/180;
+hook.style.left=
+(anchorX-7)+"px";
+hook.style.top=
+(anchorY-17)+"px";
+hook.style.transform=
+`rotate(${angle}deg)`;
+tape.style.left=
+anchorX+"px";
+tape.style.top=
+(anchorY-14)+"px";
+tape.style.width=
+length+"px";
+tape.style.transform=
+`rotate(${angle}deg)`;
+const endX=
+anchorX+
+Math.cos(rad)*length;
+const endY=
+anchorY+
+Math.sin(rad)*length;
+box.style.left=
+(endX-30)+"px";
+box.style.top=
+(endY-25)+"px";
+box.style.transform=
+`rotate(${angle}deg)`;
+rot.style.left=
+(endX+40)+"px";
+rot.style.top=
+(endY-5)+"px";
+display.innerText=
+(length/5).toFixed(1)
++" cm";
+}
+/* MOVE */
+window.addEventListener(
+"pointermove",
+e=>{
+const x=e.clientX;
+const y=e.clientY;
+if(dragging){
+dragging.style.left=
+(x-dragging.offsetWidth/2)
++"px";
+dragging.style.top=
+(y-dragging.offsetHeight/2)
++"px";
+return;
+}
+if(!currentAction) return;
+if(currentAction==="hook"){
+anchorX=x;
+anchorY=y;
+}
+if(currentAction==="pull"){
+const dx=x-anchorX;
+const dy=y-anchorY;
+length=
+Math.max(
+40,
+Math.sqrt(
+dx*dx+
+dy*dy
+)
+);
+}
+if(currentAction==="rotate"){
+angle=
+Math.atan2(
+y-anchorY,
+x-anchorX
+)
+*180/Math.PI;
+}
+update();
 });
+window.addEventListener(
+"pointerup",
+clearStates
+);
+window.addEventListener(
+"pointercancel",
+clearStates
+);
+window.addEventListener(
+"pointerleave",
+clearStates
+);
 update();
 </script>
 </body>
