@@ -8,21 +8,17 @@
 
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
 
-<title>Crocodile Compare Counters</title>
+<title>Crocodile Compare + Drawing</title>
 
 <style>
 
-*{
-
-    box-sizing:border-box;
-
-}
+*{ box-sizing:border-box; }
 
 body{
 
     margin:0;
 
-    font-family:Arial,sans-serif;
+    font-family:Arial;
 
     background:#eef3f7;
 
@@ -30,19 +26,17 @@ body{
 
 }
 
+/* ---------- TOOLBAR ---------- */
+
 .toolbar{
 
     display:flex;
-
-    flex-wrap:wrap;
 
     gap:8px;
 
     padding:10px;
 
     background:white;
-
-    box-shadow:0 2px 6px rgba(0,0,0,.1);
 
     position:relative;
 
@@ -52,25 +46,19 @@ body{
 
 button{
 
+    padding:10px 12px;
+
     border:none;
 
-    padding:10px 14px;
-
-    border-radius:10px;
+    border-radius:8px;
 
     background:#2d89ef;
 
     color:white;
 
-    font-size:14px;
-
 }
 
-.activeMode{
-
-    background:#ff5722;
-
-}
+/* ---------- WORKSPACE ---------- */
 
 #workspace{
 
@@ -78,11 +66,13 @@ button{
 
     width:100vw;
 
-    height:calc(100vh - 65px);
+    height:calc(100vh - 60px);
 
     overflow:hidden;
 
 }
+
+/* ---------- CANVAS ---------- */
 
 canvas{
 
@@ -96,75 +86,67 @@ canvas{
 
 }
 
-#middleZone{
-
-    position:absolute;
-
-    left:40%;
-
-    width:20%;
-
-    top:0;
-
-    bottom:0;
-
-    border-left:3px dashed rgba(0,0,0,.15);
-
-    border-right:3px dashed rgba(0,0,0,.15);
-
-    pointer-events:none;
-
-    z-index:2;
-
-}
-
-.countLabel{
-
-    position:absolute;
-
-    top:10px;
-
-    font-size:56px;
-
-    font-weight:bold;
-
-    pointer-events:none;
-
-    z-index:20;
-
-}
-
-#leftCount{
-
-    left:20%;
-
-}
-
-#rightCount{
-
-    right:20%;
-
-}
+/* ---------- COUNTERS ---------- */
 
 .counter{
 
     position:absolute;
 
-    width:46px;
+    width:45px;
 
-    height:46px;
+    height:45px;
 
     border-radius:50%;
 
     background:#ff9800;
 
-    border:2px solid rgba(0,0,0,.15);
+    z-index:20;
 
     touch-action:none;
 
-    z-index:15;
+}
+
+/* ---------- NUMBERS ---------- */
+
+.numBox{
+
+    position:absolute;
+
+    top:15px;
+
+    font-size:70px;
+
+    font-weight:bold;
+
+    z-index:50;
+
+    background:white;
+
+    padding:10px 18px;
+
+    border-radius:12px;
+
+    box-shadow:0 3px 10px rgba(0,0,0,0.2);
 
 }
+
+#leftNum{
+
+    left:20px;
+
+    color:#2d89ef;
+
+}
+
+#rightNum{
+
+    right:20px;
+
+    color:#ff5722;
+
+}
+
+/* ---------- CROCODILE ---------- */
 
 #croc{
 
@@ -176,15 +158,29 @@ canvas{
 
     transform:translate(-50%,-50%);
 
-    font-size:95px;
-
-    user-select:none;
+    z-index:60;
 
     cursor:grab;
 
     touch-action:none;
 
-    z-index:30;
+    text-align:center;
+
+}
+
+#croc img{
+
+    width:120px;
+
+    display:block;
+
+}
+
+#label{
+
+    font-weight:bold;
+
+    font-size:16px;
 
 }
 
@@ -194,817 +190,398 @@ canvas{
 
 <body>
 
+<!-- ---------- TOOLBAR ---------- -->
+
 <div class="toolbar">
 
-<button onclick="addCounter()">
+<button onclick="setMode('draw')">✏️ Draw</button>
 
-វត្ថុសម្រាប់រាប់
+<button onclick="setMode('erase')">🧽 Erase</button>
 
-</button>
+<button onclick="clearCanvas()">🧹 Clear</button>
 
-<button id="drawBtn"
+<button onclick="addCounter()">➕ Counter</button>
 
-onclick="setMode('draw')">
-
-សរសេរ
-
-</button>
-
-<button id="eraseBtn"
-
-onclick="setMode('erase')">
-
-លុប
-
-</button>
-
-<button onclick="clearCanvas()">
-
-សម្អាត
-
-</button>
- <a href="../index.html" class="home-btn">🏡Home</a>
 </div>
+
+<!-- ---------- WORKSPACE ---------- -->
 
 <div id="workspace">
 
-<canvas id="drawCanvas"></canvas>
+<canvas id="canvas"></canvas>
 
-<div id="middleZone"></div>
+<div id="leftNum" class="numBox">0</div>
 
-<div id="leftCount"
+<div id="rightNum" class="numBox">0</div>
 
-class="countLabel">0</div>
+<!-- 🐊 CROCODILE -->
 
-<div id="rightCount"
+<div id="croc">
 
-class="countLabel">0</div>
+    <img id="crocImg" src="images/a.jpg">
 
-<div id="croc">🐊</div>
+    <div id="label">NORMAL</div>
+
+</div>
 
 </div>
 
 <script>
 
-const workspace =
+const workspace = document.getElementById("workspace");
 
-document.getElementById(
+const canvas = document.getElementById("canvas");
 
-"workspace");
+const ctx = canvas.getContext("2d");
 
-const canvas =
+const croc = document.getElementById("croc");
 
-document.getElementById(
+const crocImg = document.getElementById("crocImg");
 
-"drawCanvas");
+const label = document.getElementById("label");
 
-const ctx =
+const leftNum = document.getElementById("leftNum");
 
-canvas.getContext(
+const rightNum = document.getElementById("rightNum");
 
-"2d");
+let counters = [];
 
-const croc =
+let mode = "draw";
 
-document.getElementById(
-
-"croc");
-
-const leftCount =
-
-document.getElementById(
-
-"leftCount");
-
-const rightCount =
-
-document.getElementById(
-
-"rightCount");
-
-const drawBtn =
-
-document.getElementById(
-
-"drawBtn");
-
-const eraseBtn =
-
-document.getElementById(
-
-"eraseBtn");
-
-let counters=[];
-
-let mode="draw";
-
-/* ---------------- CANVAS ---------------- */
+/* ---------- CANVAS ---------- */
 
 function resize(){
 
-canvas.width=
+    canvas.width = workspace.clientWidth;
 
-workspace.clientWidth;
-
-canvas.height=
-
-workspace.clientHeight;
+    canvas.height = workspace.clientHeight;
 
 }
 
 resize();
 
-window.addEventListener(
+window.addEventListener("resize", resize);
 
-"resize",
-
-resize
-
-);
-
-function setMode(newMode){
-
-mode=newMode;
-
-drawBtn.classList.remove(
-
-"activeMode");
-
-eraseBtn.classList.remove(
-
-"activeMode");
-
-if(mode==="draw")
-
-drawBtn.classList.add(
-
-"activeMode");
-
-if(mode==="erase")
-
-eraseBtn.classList.add(
-
-"activeMode");
-
-}
-
-setMode("draw");
-
-let drawing=false;
+let drawing = false;
 
 function getPos(e){
 
-const p=
+    const p = e.touches ? e.touches[0] : e;
 
-e.touches ?
+    const r = canvas.getBoundingClientRect();
 
-e.touches[0] :
+    return {
 
-e;
+        x: p.clientX - r.left,
 
-const rect=
+        y: p.clientY - r.top
 
-canvas.getBoundingClientRect();
-
-return{
-
-x:p.clientX-rect.left,
-
-y:p.clientY-rect.top
-
-};
+    };
 
 }
+
+canvas.addEventListener("mousedown", startDraw);
+
+canvas.addEventListener("mousemove", draw);
+
+document.addEventListener("mouseup", stopDraw);
+
+canvas.addEventListener("touchstart", startDraw, {passive:false});
+
+canvas.addEventListener("touchmove", draw, {passive:false});
+
+document.addEventListener("touchend", stopDraw);
 
 function startDraw(e){
 
-if(
+    if(e.target.classList.contains("counter") || e.target.id==="croc") return;
 
-e.target.classList.contains(
+    drawing = true;
 
-"counter"
+    const p = getPos(e);
 
-) ||
+    ctx.beginPath();
 
-e.target.id==="croc"
-
-){
-
-return;
-
-}
-
-drawing=true;
-
-const p=
-
-getPos(e);
-
-ctx.beginPath();
-
-ctx.moveTo(
-
-p.x,
-
-p.y
-
-);
+    ctx.moveTo(p.x, p.y);
 
 }
 
 function draw(e){
 
-if(!drawing)
+    if(!drawing) return;
 
-return;
+    e.preventDefault();
 
-e.preventDefault();
+    const p = getPos(e);
 
-const p=
+    ctx.lineCap = "round";
 
-getPos(e);
+    ctx.lineWidth = mode==="erase" ? 25 : 3;
 
-ctx.lineCap=
+    ctx.strokeStyle = mode==="erase" ? "#eef3f7" : "#000";
 
-"round";
+    ctx.lineTo(p.x, p.y);
 
-ctx.lineWidth=
-
-mode==="erase"
-
-? 28
-
-: 4;
-
-ctx.strokeStyle=
-
-mode==="erase"
-
-? "#eef3f7"
-
-: "black";
-
-ctx.lineTo(
-
-p.x,
-
-p.y
-
-);
-
-ctx.stroke();
+    ctx.stroke();
 
 }
 
 function stopDraw(){
 
-drawing=false;
+    drawing = false;
 
 }
 
-workspace.addEventListener(
+function setMode(m){
 
-"mousedown",
+    mode = m;
 
-startDraw);
-
-workspace.addEventListener(
-
-"mousemove",
-
-draw);
-
-document.addEventListener(
-
-"mouseup",
-
-stopDraw);
-
-workspace.addEventListener(
-
-"touchstart",
-
-startDraw,
-
-{passive:false});
-
-workspace.addEventListener(
-
-"touchmove",
-
-draw,
-
-{passive:false});
-
-document.addEventListener(
-
-"touchend",
-
-stopDraw);
+}
 
 function clearCanvas(){
 
-ctx.clearRect(
-
-0,
-
-0,
-
-canvas.width,
-
-canvas.height
-
-);
+    ctx.clearRect(0,0,canvas.width,canvas.height);
 
 }
 
-/* ---------------- COUNTERS ---------------- */
+/* ---------- COUNTERS ---------- */
 
 function addCounter(){
 
-const c=
+    const c = document.createElement("div");
 
-document.createElement(
+    c.className = "counter";
 
-"div");
+    c.style.left = (100 + Math.random()*300) + "px";
 
-c.className=
+    c.style.top = (150 + Math.random()*250) + "px";
 
-"counter";
+    workspace.appendChild(c);
 
-if(Math.random()<0.5){
+    counters.push(c);
 
-c.style.left=
+    makeDrag(c);
 
-(40+
-
-Math.random()*180)
-
-+"px";
+    updateCounts();
 
 }
 
-else{
+/* ---------- DRAG + DOUBLE TAP DELETE ---------- */
 
-c.style.left=
+function makeDrag(el){
 
-(window.innerWidth
+    let ox=0, oy=0;
 
--240+
+    let lastTap = 0;
 
-Math.random()*120)
+    function deleteCounter(){
 
-+"px";
+        counters = counters.filter(x => x !== el);
 
-}
+        el.remove();
 
-c.style.top=
+        updateCounts();
 
-(150+
+    }
 
-Math.random()*260)
+    function move(e){
 
-+"px";
+        const p = e.touches ? e.touches[0] : e;
 
-workspace.appendChild(c);
+        el.style.left = (p.clientX - ox) + "px";
 
-counters.push(c);
+        el.style.top = (p.clientY - oy - 60) + "px";
 
-makeCounterDrag(c);
+        updateCounts();
 
-updateCounts();
+    }
 
-}
+    function stop(){
 
-function makeCounterDrag(el){
+        document.removeEventListener("mousemove", move);
 
-let ox,oy;
+        document.removeEventListener("mouseup", stop);
 
-let lastTap=0;
+        document.removeEventListener("touchmove", move);
 
-function deleteCounter(){
+        document.removeEventListener("touchend", stop);
 
-counters=
+    }
 
-counters.filter(
+    el.addEventListener("mousedown", e=>{
 
-c=>c!==el
+        const now = Date.now();
 
-);
+        if(now - lastTap < 300){
 
-el.remove();
+            deleteCounter();
 
-updateCounts();
+            return;
 
-}
+        }
 
-/* DOUBLE CLICK */
+        lastTap = now;
 
-el.addEventListener(
+        ox = e.offsetX;
 
-"dblclick",
+        oy = e.offsetY;
 
-e=>{
+        document.addEventListener("mousemove", move);
 
-e.stopPropagation();
+        document.addEventListener("mouseup", stop);
 
-deleteCounter();
+    });
 
-});
+    el.addEventListener("touchstart", e=>{
 
-/* TOUCH */
+        const now = Date.now();
 
-el.addEventListener(
+        if(now - lastTap < 300){
 
-"touchstart",
+            deleteCounter();
 
-e=>{
+            return;
 
-e.stopPropagation();
+        }
 
-const now=
+        lastTap = now;
 
-Date.now();
+        const r = el.getBoundingClientRect();
 
-if(
+        ox = e.touches[0].clientX - r.left;
 
-now-lastTap
+        oy = e.touches[0].clientY - r.top;
 
-<300
+        document.addEventListener("touchmove", move, {passive:false});
 
-){
+        document.addEventListener("touchend", stop);
 
-deleteCounter();
-
-return;
+    });
 
 }
 
-lastTap=now;
-
-const r=
-
-el.getBoundingClientRect();
-
-ox=
-
-e.touches[0]
-
-.clientX-r.left;
-
-oy=
-
-e.touches[0]
-
-.clientY-r.top;
-
-document.addEventListener(
-
-"touchmove",
-
-move,
-
-{passive:false});
-
-document.addEventListener(
-
-"touchend",
-
-stop);
-
-});
-
-el.addEventListener(
-
-"mousedown",
-
-e=>{
-
-e.stopPropagation();
-
-ox=e.offsetX;
-
-oy=e.offsetY;
-
-document.addEventListener(
-
-"mousemove",
-
-move);
-
-document.addEventListener(
-
-"mouseup",
-
-stop);
-
-});
-
-function move(e){
-
-const p=
-
-e.touches ?
-
-e.touches[0] :
-
-e;
-
-el.style.left=
-
-(p.clientX-ox)
-
-+"px";
-
-el.style.top=
-
-(p.clientY-oy-65)
-
-+"px";
-
-updateCounts();
-
-}
-
-function stop(){
-
-document.removeEventListener(
-
-"mousemove",
-
-move);
-
-document.removeEventListener(
-
-"mouseup",
-
-stop);
-
-document.removeEventListener(
-
-"touchmove",
-
-move);
-
-document.removeEventListener(
-
-"touchend",
-
-stop);
-
-}
-
-}
-
-/* ---------------- COUNTS ---------------- */
+/* ---------- UPDATE COUNTS ---------- */
 
 function updateCounts(){
 
-let left=0;
+    let left = 0;
 
-let right=0;
+    let right = 0;
 
-const middle=
+    const mid = window.innerWidth / 2;
 
-window.innerWidth/2;
+    counters.forEach(c=>{
 
-counters.forEach(c=>{
+        const x = c.offsetLeft;
 
-const x=
+        if(x < mid) left++;
 
-c.offsetLeft+23;
+        else right++;
 
-if(x<middle)
+    });
 
-left++;
+    leftNum.textContent = left;
 
-else
+    rightNum.textContent = right;
 
-right++;
+    updateCroc(left,right);
+
+}
+
+/* ---------- CROCODILE LOGIC ---------- */
+
+function updateCroc(left,right){
+
+    const x = croc.offsetLeft;
+
+    const active = x > window.innerWidth*0.4 && x < window.innerWidth*0.6;
+
+    if(!active){
+
+        crocImg.src = "images/a.jpg";
+
+        label.textContent = "NORMAL";
+
+        return;
+
+    }
+
+    if(left > right){
+
+        crocImg.src = "images/c.jpg";
+
+        label.textContent = ">";
+
+    }
+
+    else if(right > left){
+
+        crocImg.src = "images/b.jpg";
+
+        label.textContent = "<";
+
+    }
+
+    else{
+
+        crocImg.src = "images/d.jpg";
+
+        label.textContent = "=";
+
+    }
+
+}
+
+/* ---------- 🧠 FIXED CROCODILE DRAG ---------- */
+
+let dragCroc = false;
+
+let ox = 0, oy = 0;
+
+croc.addEventListener("pointerdown", (e)=>{
+
+    dragCroc = true;
+
+    const r = croc.getBoundingClientRect();
+
+    ox = e.clientX - r.left;
+
+    oy = e.clientY - r.top;
+
+    croc.setPointerCapture(e.pointerId);
 
 });
 
-leftCount.textContent=
+croc.addEventListener("pointermove", (e)=>{
 
-left;
+    if(!dragCroc) return;
 
-rightCount.textContent=
+    croc.style.left = (e.clientX - ox) + "px";
 
-right;
+    croc.style.top = (e.clientY - oy) + "px";
 
-updateCroc(
-
-left,
-
-right
-
-);
-
-}
-
-/* ---------------- CROCODILE ---------------- */
-
-function updateCroc(
-
-left,
-
-right
-
-){
-
-const x=
-
-croc.offsetLeft;
-
-const activeZone=
-
-x>
-
-window.innerWidth*0.4 &&
-
-x<
-
-window.innerWidth*0.6;
-
-if(!activeZone){
-
-croc.textContent=
-
-"🐊";
-
-return;
-
-}
-
-if(left>right){
-
-croc.textContent=
-
-">";
-
-}
-
-else if(right>left){
-
-croc.textContent=
-
-"<";
-
-}
-
-else{
-
-croc.textContent=
-
-"=";
-
-}
-
-}
-
-let draggingCroc=false;
-
-let crocOffsetX=0;
-
-let crocOffsetY=0;
-
-function moveCroc(e){
-
-if(!draggingCroc)
-
-return;
-
-e.preventDefault();
-
-const p=
-
-e.touches ?
-
-e.touches[0] :
-
-e;
-
-croc.style.left=
-
-(p.clientX
-
--crocOffsetX)
-
-+"px";
-
-croc.style.top=
-
-(p.clientY
-
--crocOffsetY
-
--65)
-
-+"px";
-
-updateCounts();
-
-}
-
-function stopCroc(){
-
-draggingCroc=false;
-
-document.removeEventListener(
-
-"mousemove",
-
-moveCroc);
-
-document.removeEventListener(
-
-"touchmove",
-
-moveCroc);
-
-}
-
-croc.addEventListener(
-
-"mousedown",
-
-e=>{
-
-e.stopPropagation();
-
-draggingCroc=true;
-
-const r=
-
-croc.getBoundingClientRect();
-
-crocOffsetX=
-
-e.clientX-r.left;
-
-crocOffsetY=
-
-e.clientY-r.top;
-
-document.addEventListener(
-
-"mousemove",
-
-moveCroc);
-
-document.addEventListener(
-
-"mouseup",
-
-stopCroc);
+    updateCounts();
 
 });
 
-croc.addEventListener(
+function stopCroc(e){
 
-"touchstart",
+    dragCroc = false;
 
-e=>{
+    try{
 
-e.stopPropagation();
+        croc.releasePointerCapture(e.pointerId);
 
-draggingCroc=true;
+    }catch(err){}
 
-const r=
+}
 
-croc.getBoundingClientRect();
+croc.addEventListener("pointerup", stopCroc);
 
-crocOffsetX=
-
-e.touches[0]
-
-.clientX-r.left;
-
-crocOffsetY=
-
-e.touches[0]
-
-.clientY-r.top;
-
-document.addEventListener(
-
-"touchmove",
-
-moveCroc,
-
-{passive:false});
-
-document.addEventListener(
-
-"touchend",
-
-stopCroc);
-
-});
+croc.addEventListener("pointercancel", stopCroc);
 
 </script>
 
 </body>
 
 </html>
-
