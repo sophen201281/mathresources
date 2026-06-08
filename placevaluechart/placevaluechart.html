@@ -1,7 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
 
 <title>Crocodile Compare Counters</title>
@@ -9,110 +13,191 @@
 <style>
 
 *{
-    box-sizing:border-box;
+
+box-sizing:border-box;
+
 }
 
 body{
-    margin:0;
-    font-family:Arial,sans-serif;
-    background:#eef3f7;
-    overflow:hidden;
+
+margin:0;
+
+font-family:Arial,sans-serif;
+
+background:#eef3f7;
+
+overflow:hidden;
+
+overscroll-behavior:none;
+
 }
 
 .toolbar{
-    display:flex;
-    flex-wrap:wrap;
-    gap:8px;
-    padding:10px;
-    background:white;
-    box-shadow:0 2px 6px rgba(0,0,0,.1);
-    position:relative;
-    z-index:100;
+
+display:flex;
+
+flex-wrap:wrap;
+
+gap:8px;
+
+padding:10px;
+
+background:white;
+
+box-shadow:0 2px 6px rgba(0,0,0,.1);
+
+position:relative;
+
+z-index:100;
+
 }
 
 button,
+
 .home-btn{
-    border:none;
-    padding:10px 14px;
-    border-radius:10px;
-    background:#2d89ef;
-    color:white;
-    text-decoration:none;
-    font-size:14px;
+
+border:none;
+
+padding:10px 14px;
+
+border-radius:10px;
+
+background:#2d89ef;
+
+color:white;
+
+text-decoration:none;
+
+font-size:14px;
+
 }
 
 .activeMode{
-    background:#ff5722;
+
+background:#ff5722;
+
 }
 
 #workspace{
-    position:relative;
-    width:100vw;
-    height:calc(100vh - 65px);
-    overflow:hidden;
+
+position:relative;
+
+width:100vw;
+
+height:calc(100vh - 65px);
+
+overflow:hidden;
+
 }
 
 canvas{
-    position:absolute;
-    inset:0;
-    z-index:1;
-    touch-action:none;
+
+position:absolute;
+
+inset:0;
+
+z-index:1;
+
+touch-action:none;
+
 }
 
 #middleZone{
-    position:absolute;
-    left:40%;
-    width:20%;
-    top:0;
-    bottom:0;
-    border-left:3px dashed rgba(0,0,0,.15);
-    border-right:3px dashed rgba(0,0,0,.15);
-    pointer-events:none;
-    z-index:2;
+
+position:absolute;
+
+left:40%;
+
+width:20%;
+
+top:0;
+
+bottom:0;
+
+border-left:3px dashed rgba(0,0,0,.15);
+
+border-right:3px dashed rgba(0,0,0,.15);
+
+pointer-events:none;
+
+z-index:2;
+
 }
 
 .countLabel{
-    position:absolute;
-    top:10px;
-    font-size:56px;
-    font-weight:bold;
-    pointer-events:none;
-    z-index:20;
+
+position:absolute;
+
+top:10px;
+
+font-size:56px;
+
+font-weight:bold;
+
+pointer-events:none;
+
+z-index:20;
+
 }
 
 #leftCount{
-    left:20%;
+
+left:20%;
+
 }
 
 #rightCount{
-    right:20%;
+
+right:20%;
+
 }
 
 .counter{
-    position:absolute;
-    width:46px;
-    height:46px;
-    border-radius:50%;
-    background:#ff9800;
-    border:2px solid rgba(0,0,0,.15);
-    touch-action:none;
-    z-index:15;
+
+position:absolute;
+
+width:46px;
+
+height:46px;
+
+border-radius:50%;
+
+background:#ff9800;
+
+border:2px solid rgba(0,0,0,.15);
+
+touch-action:none;
+
+z-index:15;
+
 }
 
 #croc{
-    position:absolute;
-    left:50%;
-    top:55%;
-    transform:translate(-50%,-50%);
-    width:140px;
-    height:auto;
-    user-select:none;
-    cursor:grab;
-    touch-action:none;
-    z-index:30;
+
+position:absolute;
+
+left:50%;
+
+top:55%;
+
+transform:translate(-50%,-50%);
+
+width:140px;
+
+height:auto;
+
+user-select:none;
+
+-webkit-user-drag:none;
+
+touch-action:none;
+
+z-index:30;
+
 }
 
 </style>
+
 </head>
 
 <body>
@@ -120,23 +205,33 @@ canvas{
 <div class="toolbar">
 
 <button onclick="addCounter()">
+
 វត្ថុសម្រាប់រាប់
+
 </button>
 
 <button id="drawBtn" onclick="setMode('draw')">
+
 សរសេរ
+
 </button>
 
 <button id="eraseBtn" onclick="setMode('erase')">
+
 លុប
+
 </button>
 
 <button onclick="clearCanvas()">
+
 សម្អាត
+
 </button>
 
 <a href="../index.html" class="home-btn">
+
 🏡 Home
+
 </a>
 
 </div>
@@ -147,89 +242,124 @@ canvas{
 
 <div id="middleZone"></div>
 
-<div id="leftCount" class="countLabel">
-0
-</div>
+<div id="leftCount" class="countLabel">0</div>
 
-<div id="rightCount" class="countLabel">
-0
-</div>
+<div id="rightCount" class="countLabel">0</div>
 
 <img
+
 id="croc"
+
 src="images/crocodile.png"
+
 alt="crocodile">
 
 </div>
 
 <script>
 
-const workspace =
-document.getElementById("workspace");
+const workspace=document.getElementById("workspace");
 
-const canvas =
-document.getElementById("drawCanvas");
+const canvas=document.getElementById("drawCanvas");
 
-const ctx =
-canvas.getContext("2d");
+const ctx=canvas.getContext("2d");
 
-const croc =
-document.getElementById("croc");
+const croc=document.getElementById("croc");
 
-const leftCount =
-document.getElementById("leftCount");
+const leftCount=document.getElementById("leftCount");
 
-const rightCount =
-document.getElementById("rightCount");
+const rightCount=document.getElementById("rightCount");
 
-const drawBtn =
-document.getElementById("drawBtn");
+const drawBtn=document.getElementById("drawBtn");
 
-const eraseBtn =
-document.getElementById("eraseBtn");
+const eraseBtn=document.getElementById("eraseBtn");
 
 let counters=[];
 
 let mode="draw";
 
-
-
-/* CANVAS */
-
 function resize(){
 
-    canvas.width =
-    workspace.clientWidth;
+let saved=null;
 
-    canvas.height =
-    workspace.clientHeight;
+if(canvas.width>0 && canvas.height>0){
+
+saved=ctx.getImageData(
+
+0,
+
+0,
+
+canvas.width,
+
+canvas.height
+
+);
+
+}
+
+canvas.width=workspace.clientWidth;
+
+canvas.height=workspace.clientHeight;
+
+if(saved){
+
+ctx.putImageData(
+
+saved,
+
+0,
+
+0
+
+);
+
+}
 
 }
 
 resize();
 
 window.addEventListener(
+
 "resize",
+
 resize
+
 );
 
 function setMode(newMode){
 
-    mode=newMode;
+mode=newMode;
 
-    drawBtn.classList.remove(
-    "activeMode");
+drawBtn.classList.remove(
 
-    eraseBtn.classList.remove(
-    "activeMode");
+"activeMode"
 
-    if(mode==="draw")
-        drawBtn.classList.add(
-        "activeMode");
+);
 
-    if(mode==="erase")
-        eraseBtn.classList.add(
-        "activeMode");
+eraseBtn.classList.remove(
+
+"activeMode"
+
+);
+
+if(mode==="draw")
+
+drawBtn.classList.add(
+
+"activeMode"
+
+);
+
+if(mode==="erase")
+
+eraseBtn.classList.add(
+
+"activeMode"
+
+);
+
 }
 
 setMode("draw");
@@ -238,143 +368,200 @@ let drawing=false;
 
 function getPos(e){
 
-    const p =
-    e.touches ?
-    e.touches[0] :
-    e;
+const p=
 
-    const rect =
-    canvas.getBoundingClientRect();
+e.touches?
 
-    return{
-        x:p.clientX-rect.left,
-        y:p.clientY-rect.top
-    };
+e.touches[0]:
+
+e;
+
+const rect=
+
+canvas.getBoundingClientRect();
+
+return{
+
+x:p.clientX-rect.left,
+
+y:p.clientY-rect.top
+
+};
+
 }
 
 function startDraw(e){
 
-    if(
-        e.target.classList.contains(
-        "counter") ||
+if(e.target!==canvas)
 
-        e.target.id==="croc"
-    ){
-        return;
-    }
+return;
 
-    drawing=true;
+drawing=true;
 
-    const p=getPos(e);
+const p=getPos(e);
 
-    ctx.beginPath();
+ctx.beginPath();
 
-    ctx.moveTo(
-    p.x,
-    p.y
-    );
+ctx.moveTo(
+
+p.x,
+
+p.y
+
+);
+
 }
 
 function draw(e){
 
-    if(!drawing)
-        return;
+if(!drawing)
 
-    e.preventDefault();
+return;
 
-    const p=getPos(e);
+e.preventDefault();
 
-    ctx.lineCap="round";
+const p=getPos(e);
 
-    ctx.lineWidth=
-    mode==="erase" ? 28 : 4;
+ctx.lineCap="round";
 
-    ctx.strokeStyle=
-    mode==="erase"
-    ? "#eef3f7"
-    : "black";
+ctx.lineWidth=
 
-    ctx.lineTo(
-    p.x,
-    p.y
-    );
+mode==="erase"
 
-    ctx.stroke();
+? 28
+
+: 4;
+
+if(mode==="erase"){
+
+ctx.globalCompositeOperation=
+
+"destination-out";
+
+}else{
+
+ctx.globalCompositeOperation=
+
+"source-over";
+
+}
+
+ctx.strokeStyle="black";
+
+ctx.lineTo(
+
+p.x,
+
+p.y
+
+);
+
+ctx.stroke();
+
 }
 
 function stopDraw(){
-    drawing=false;
+
+drawing=false;
+
+ctx.beginPath();
+
 }
 
 workspace.addEventListener(
+
 "mousedown",
+
 startDraw
+
 );
 
 workspace.addEventListener(
+
 "mousemove",
+
 draw
+
 );
 
 document.addEventListener(
+
 "mouseup",
+
 stopDraw
+
 );
 
 workspace.addEventListener(
+
 "touchstart",
+
 startDraw,
+
 {passive:false}
+
 );
 
 workspace.addEventListener(
+
 "touchmove",
+
 draw,
+
 {passive:false}
+
 );
 
 document.addEventListener(
+
 "touchend",
+
 stopDraw
+
 );
 
 function clearCanvas(){
 
 ctx.clearRect(
+
 0,
+
 0,
+
 canvas.width,
+
 canvas.height
+
 );
 
 }
 
-
-
-/* COUNTERS */
-
 function addCounter(){
 
-const c =
+const c=
+
 document.createElement("div");
 
-c.className =
-"counter";
+c.className="counter";
 
 if(Math.random()<0.5){
 
-c.style.left =
+c.style.left=
+
 (40+Math.random()*180)+"px";
 
 }else{
 
-c.style.left =
-(window.innerWidth-240+
+c.style.left=
+
+(workspace.clientWidth-240+
+
 Math.random()*120)+"px";
 
 }
 
-c.style.top =
+c.style.top=
+
 (150+Math.random()*260)+"px";
 
 workspace.appendChild(c);
@@ -395,9 +582,12 @@ let lastTap=0;
 
 function removeCounter(){
 
-counters =
+counters=
+
 counters.filter(
+
 c=>c!==el
+
 );
 
 el.remove();
@@ -407,12 +597,17 @@ updateCounts();
 }
 
 el.addEventListener(
+
 "dblclick",
+
 removeCounter
+
 );
 
 el.addEventListener(
+
 "touchstart",
+
 e=>{
 
 const now=Date.now();
@@ -427,30 +622,50 @@ return;
 
 lastTap=now;
 
-const r =
+const r=
+
 el.getBoundingClientRect();
 
-ox =
+ox=
+
 e.touches[0].clientX-r.left;
 
-oy =
+oy=
+
 e.touches[0].clientY-r.top;
 
 document.addEventListener(
+
 "touchmove",
+
 move,
+
 {passive:false}
+
 );
 
 document.addEventListener(
+
 "touchend",
+
 stop
+
+);
+
+document.addEventListener(
+
+"touchcancel",
+
+stop
+
 );
 
 });
 
 el.addEventListener(
+
 "mousedown",
+
 e=>{
 
 ox=e.offsetX;
@@ -458,29 +673,44 @@ ox=e.offsetX;
 oy=e.offsetY;
 
 document.addEventListener(
+
 "mousemove",
+
 move
+
 );
 
 document.addEventListener(
+
 "mouseup",
+
 stop
+
 );
 
 });
 
 function move(e){
 
-const p =
-e.touches ?
-e.touches[0] :
+const p=
+
+e.touches?
+
+e.touches[0]:
+
 e;
 
-el.style.left =
+const topOffset=
+
+workspace.getBoundingClientRect().top;
+
+el.style.left=
+
 (p.clientX-ox)+"px";
 
-el.style.top =
-(p.clientY-oy-65)+"px";
+el.style.top=
+
+(p.clientY-oy-topOffset)+"px";
 
 updateCounts();
 
@@ -489,32 +719,48 @@ updateCounts();
 function stop(){
 
 document.removeEventListener(
+
 "mousemove",
+
 move
+
 );
 
 document.removeEventListener(
+
 "mouseup",
+
 stop
+
 );
 
 document.removeEventListener(
+
 "touchmove",
+
 move
+
 );
 
 document.removeEventListener(
+
 "touchend",
+
 stop
+
+);
+
+document.removeEventListener(
+
+"touchcancel",
+
+stop
+
 );
 
 }
 
 }
-
-
-
-/* COUNTING */
 
 function updateCounts(){
 
@@ -522,19 +768,27 @@ let left=0;
 
 let right=0;
 
-const middle =
-window.innerWidth/2;
+const leftBoundary=
+
+workspace.clientWidth*0.4;
+
+const rightBoundary=
+
+workspace.clientWidth*0.6;
 
 counters.forEach(c=>{
 
-const x =
+const x=
+
 c.offsetLeft+23;
 
-if(x<middle){
+if(x<leftBoundary){
 
 left++;
 
-}else{
+}
+
+else if(x>rightBoundary){
 
 right++;
 
@@ -546,27 +800,40 @@ leftCount.textContent=left;
 
 rightCount.textContent=right;
 
-updateCroc(left,right);
+updateCroc(
+
+left,
+
+right
+
+);
 
 }
 
-
-
-/* CROCODILE */
-
 function updateCroc(left,right){
 
-const x =
-croc.offsetLeft;
+const center=
 
-const activeZone =
+croc.offsetLeft+
 
-x > window.innerWidth*0.4 &&
-x < window.innerWidth*0.6;
+(croc.offsetWidth/2);
+
+const activeZone=
+
+center>
+
+workspace.clientWidth*0.4
+
+&&
+
+center<
+
+workspace.clientWidth*0.6;
 
 if(!activeZone){
 
-croc.style.transform =
+croc.style.transform=
+
 "translate(-50%,-50%) rotate(0deg)";
 
 return;
@@ -575,19 +842,24 @@ return;
 
 if(left>right){
 
-croc.style.transform =
+croc.style.transform=
+
 "translate(-50%,-50%) rotate(180deg)";
 
 }
+
 else if(right>left){
 
-croc.style.transform =
+croc.style.transform=
+
 "translate(-50%,-50%) rotate(0deg)";
 
 }
+
 else{
 
-croc.style.transform =
+croc.style.transform=
+
 "translate(-50%,-50%) rotate(90deg)";
 
 }
@@ -603,18 +875,28 @@ let crocOffsetY=0;
 function moveCroc(e){
 
 if(!draggingCroc)
+
 return;
 
-const p =
-e.touches ?
-e.touches[0] :
+const p=
+
+e.touches?
+
+e.touches[0]:
+
 e;
 
-croc.style.left =
+const topOffset=
+
+workspace.getBoundingClientRect().top;
+
+croc.style.left=
+
 (p.clientX-crocOffsetX)+"px";
 
-croc.style.top =
-(p.clientY-crocOffsetY-65)+"px";
+croc.style.top=
+
+(p.clientY-crocOffsetY-topOffset)+"px";
 
 updateCounts();
 
@@ -625,68 +907,105 @@ function stopCroc(){
 draggingCroc=false;
 
 document.removeEventListener(
+
 "mousemove",
+
 moveCroc
+
 );
 
 document.removeEventListener(
+
 "touchmove",
+
 moveCroc
+
 );
 
 }
 
 croc.addEventListener(
+
 "mousedown",
+
 e=>{
 
 draggingCroc=true;
 
-const r =
+const r=
+
 croc.getBoundingClientRect();
 
-crocOffsetX =
+crocOffsetX=
+
 e.clientX-r.left;
 
-crocOffsetY =
+crocOffsetY=
+
 e.clientY-r.top;
 
 document.addEventListener(
+
 "mousemove",
+
 moveCroc
+
 );
 
 document.addEventListener(
+
 "mouseup",
+
 stopCroc
+
 );
 
 });
 
 croc.addEventListener(
+
 "touchstart",
+
 e=>{
 
 draggingCroc=true;
 
-const r =
+const r=
+
 croc.getBoundingClientRect();
 
-crocOffsetX =
+crocOffsetX=
+
 e.touches[0].clientX-r.left;
 
-crocOffsetY =
+crocOffsetY=
+
 e.touches[0].clientY-r.top;
 
 document.addEventListener(
+
 "touchmove",
+
 moveCroc,
+
 {passive:false}
+
 );
 
 document.addEventListener(
+
 "touchend",
+
 stopCroc
+
+);
+
+document.addEventListener(
+
+"touchcancel",
+
+stopCroc
+
 );
 
 });
@@ -694,4 +1013,5 @@ stopCroc
 </script>
 
 </body>
+
 </html>
