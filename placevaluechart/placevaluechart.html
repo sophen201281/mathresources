@@ -6,7 +6,9 @@
 
 <meta charset="UTF-8">
 
-<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<meta name="viewport"
+
+content="width=device-width,initial-scale=1,user-scalable=no">
 
 <title>Crocodile Compare Counters</title>
 
@@ -27,8 +29,6 @@ font-family:Arial,sans-serif;
 background:#eef3f7;
 
 overflow:hidden;
-
-overscroll-behavior:none;
 
 }
 
@@ -66,9 +66,9 @@ background:#2d89ef;
 
 color:white;
 
-text-decoration:none;
-
 font-size:14px;
+
+text-decoration:none;
 
 }
 
@@ -188,9 +188,11 @@ height:auto;
 
 user-select:none;
 
--webkit-user-drag:none;
+cursor:grab;
 
 touch-action:none;
+
+-webkit-user-drag:none;
 
 z-index:30;
 
@@ -210,13 +212,17 @@ z-index:30;
 
 </button>
 
-<button id="drawBtn" onclick="setMode('draw')">
+<button id="drawBtn"
+
+onclick="setMode('draw')">
 
 សរសេរ
 
 </button>
 
-<button id="eraseBtn" onclick="setMode('erase')">
+<button id="eraseBtn"
+
+onclick="setMode('erase')">
 
 លុប
 
@@ -228,7 +234,9 @@ z-index:30;
 
 </button>
 
-<a href="../index.html" class="home-btn">
+<a href="../index.html"
+
+class="home-btn">
 
 🏡 Home
 
@@ -242,9 +250,21 @@ z-index:30;
 
 <div id="middleZone"></div>
 
-<div id="leftCount" class="countLabel">0</div>
+<div id="leftCount"
 
-<div id="rightCount" class="countLabel">0</div>
+class="countLabel">
+
+0
+
+</div>
+
+<div id="rightCount"
+
+class="countLabel">
+
+0
+
+</div>
 
 <img
 
@@ -258,63 +278,85 @@ alt="crocodile">
 
 <script>
 
-const workspace=document.getElementById("workspace");
+const workspace=
 
-const canvas=document.getElementById("drawCanvas");
+document.getElementById(
 
-const ctx=canvas.getContext("2d");
+"workspace"
 
-const croc=document.getElementById("croc");
+);
 
-const leftCount=document.getElementById("leftCount");
+const canvas=
 
-const rightCount=document.getElementById("rightCount");
+document.getElementById(
 
-const drawBtn=document.getElementById("drawBtn");
+"drawCanvas"
 
-const eraseBtn=document.getElementById("eraseBtn");
+);
+
+const ctx=
+
+canvas.getContext(
+
+"2d"
+
+);
+
+const croc=
+
+document.getElementById(
+
+"croc"
+
+);
+
+const leftCount=
+
+document.getElementById(
+
+"leftCount"
+
+);
+
+const rightCount=
+
+document.getElementById(
+
+"rightCount"
+
+);
+
+const drawBtn=
+
+document.getElementById(
+
+"drawBtn"
+
+);
+
+const eraseBtn=
+
+document.getElementById(
+
+"eraseBtn"
+
+);
 
 let counters=[];
 
 let mode="draw";
 
+/* CANVAS */
+
 function resize(){
 
-let saved=null;
+canvas.width=
 
-if(canvas.width>0 && canvas.height>0){
+workspace.clientWidth;
 
-saved=ctx.getImageData(
+canvas.height=
 
-0,
-
-0,
-
-canvas.width,
-
-canvas.height
-
-);
-
-}
-
-canvas.width=workspace.clientWidth;
-
-canvas.height=workspace.clientHeight;
-
-if(saved){
-
-ctx.putImageData(
-
-saved,
-
-0,
-
-0
-
-);
-
-}
+workspace.clientHeight;
 
 }
 
@@ -392,13 +434,29 @@ y:p.clientY-rect.top
 
 function startDraw(e){
 
-if(e.target!==canvas)
+if(
+
+e.target.classList.contains(
+
+"counter"
+
+)
+
+||
+
+e.target.id==="croc"
+
+){
 
 return;
 
+}
+
 drawing=true;
 
-const p=getPos(e);
+const p=
+
+getPos(e);
 
 ctx.beginPath();
 
@@ -420,9 +478,13 @@ return;
 
 e.preventDefault();
 
-const p=getPos(e);
+const p=
 
-ctx.lineCap="round";
+getPos(e);
+
+ctx.lineCap=
+
+"round";
 
 ctx.lineWidth=
 
@@ -432,21 +494,17 @@ mode==="erase"
 
 : 4;
 
-if(mode==="erase"){
+ctx.strokeStyle=
 
-ctx.globalCompositeOperation=
+mode==="erase"
 
-"destination-out";
+?
 
-}else{
+"#eef3f7"
 
-ctx.globalCompositeOperation=
+:
 
-"source-over";
-
-}
-
-ctx.strokeStyle="black";
+"black";
 
 ctx.lineTo(
 
@@ -463,8 +521,6 @@ ctx.stroke();
 function stopDraw(){
 
 drawing=false;
-
-ctx.beginPath();
 
 }
 
@@ -536,33 +592,53 @@ canvas.height
 
 }
 
+/* COUNTERS */
+
 function addCounter(){
 
 const c=
 
-document.createElement("div");
+document.createElement(
 
-c.className="counter";
+"div"
+
+);
+
+c.className=
+
+"counter";
 
 if(Math.random()<0.5){
 
 c.style.left=
 
-(40+Math.random()*180)+"px";
+(40+
+
+Math.random()*180)
+
++"px";
 
 }else{
 
 c.style.left=
 
-(workspace.clientWidth-240+
+(window.innerWidth
 
-Math.random()*120)+"px";
+-240+
+
+Math.random()*120)
+
++"px";
 
 }
 
 c.style.top=
 
-(150+Math.random()*260)+"px";
+(150+
+
+Math.random()*260)
+
++"px";
 
 workspace.appendChild(c);
 
@@ -580,7 +656,7 @@ let ox,oy;
 
 let lastTap=0;
 
-function removeCounter(){
+function deleteCounter(){
 
 counters=
 
@@ -600,7 +676,7 @@ el.addEventListener(
 
 "dblclick",
 
-removeCounter
+deleteCounter
 
 );
 
@@ -610,11 +686,19 @@ el.addEventListener(
 
 e=>{
 
-const now=Date.now();
+const now=
 
-if(now-lastTap<300){
+Date.now();
 
-removeCounter();
+if(
+
+now-lastTap
+
+<300
+
+){
+
+deleteCounter();
 
 return;
 
@@ -628,11 +712,15 @@ el.getBoundingClientRect();
 
 ox=
 
-e.touches[0].clientX-r.left;
+e.touches[0]
+
+.clientX-r.left;
 
 oy=
 
-e.touches[0].clientY-r.top;
+e.touches[0]
+
+.clientY-r.top;
 
 document.addEventListener(
 
@@ -647,14 +735,6 @@ move,
 document.addEventListener(
 
 "touchend",
-
-stop
-
-);
-
-document.addEventListener(
-
-"touchcancel",
 
 stop
 
@@ -700,17 +780,17 @@ e.touches[0]:
 
 e;
 
-const topOffset=
-
-workspace.getBoundingClientRect().top;
-
 el.style.left=
 
-(p.clientX-ox)+"px";
+(p.clientX-ox)
+
++"px";
 
 el.style.top=
 
-(p.clientY-oy-topOffset)+"px";
+(p.clientY-oy-65)
+
++"px";
 
 updateCounts();
 
@@ -750,17 +830,11 @@ stop
 
 );
 
-document.removeEventListener(
-
-"touchcancel",
-
-stop
-
-);
-
 }
 
 }
+
+/* COUNTING */
 
 function updateCounts(){
 
@@ -768,13 +842,9 @@ let left=0;
 
 let right=0;
 
-const leftBoundary=
+const middle=
 
-workspace.clientWidth*0.4;
-
-const rightBoundary=
-
-workspace.clientWidth*0.6;
+window.innerWidth/2;
 
 counters.forEach(c=>{
 
@@ -782,13 +852,11 @@ const x=
 
 c.offsetLeft+23;
 
-if(x<leftBoundary){
+if(x<middle){
 
 left++;
 
-}
-
-else if(x>rightBoundary){
+}else{
 
 right++;
 
@@ -796,9 +864,13 @@ right++;
 
 });
 
-leftCount.textContent=left;
+leftCount.textContent=
 
-rightCount.textContent=right;
+left;
+
+rightCount.textContent=
+
+right;
 
 updateCroc(
 
@@ -810,25 +882,31 @@ right
 
 }
 
-function updateCroc(left,right){
+/* CROCODILE */
 
-const center=
+function updateCroc(
 
-croc.offsetLeft+
+left,
 
-(croc.offsetWidth/2);
+right
+
+){
+
+const x=
+
+croc.offsetLeft;
 
 const activeZone=
 
-center>
+x>
 
-workspace.clientWidth*0.4
+window.innerWidth*0.4
 
 &&
 
-center<
+x<
 
-workspace.clientWidth*0.6;
+window.innerWidth*0.6;
 
 if(!activeZone){
 
@@ -878,6 +956,8 @@ if(!draggingCroc)
 
 return;
 
+e.preventDefault();
+
 const p=
 
 e.touches?
@@ -886,17 +966,23 @@ e.touches[0]:
 
 e;
 
-const topOffset=
-
-workspace.getBoundingClientRect().top;
-
 croc.style.left=
 
-(p.clientX-crocOffsetX)+"px";
+(p.clientX
+
+-crocOffsetX)
+
++"px";
 
 croc.style.top=
 
-(p.clientY-crocOffsetY-topOffset)+"px";
+(p.clientY
+
+-crocOffsetY
+
+-65)
+
++"px";
 
 updateCounts();
 
@@ -976,11 +1062,15 @@ croc.getBoundingClientRect();
 
 crocOffsetX=
 
-e.touches[0].clientX-r.left;
+e.touches[0]
+
+.clientX-r.left;
 
 crocOffsetY=
 
-e.touches[0].clientY-r.top;
+e.touches[0]
+
+.clientY-r.top;
 
 document.addEventListener(
 
@@ -995,14 +1085,6 @@ moveCroc,
 document.addEventListener(
 
 "touchend",
-
-stopCroc
-
-);
-
-document.addEventListener(
-
-"touchcancel",
 
 stopCroc
 
