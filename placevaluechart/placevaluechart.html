@@ -6,9 +6,7 @@
 
 <meta charset="UTF-8">
 
-<meta name="viewport"
-
-content="width=device-width,initial-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
 
 <title>Crocodile Compare Counters</title>
 
@@ -16,185 +14,177 @@ content="width=device-width,initial-scale=1,user-scalable=no">
 
 *{
 
-box-sizing:border-box;
+    box-sizing:border-box;
 
 }
 
 body{
 
-margin:0;
+    margin:0;
 
-font-family:Arial,sans-serif;
+    font-family:Arial,sans-serif;
 
-background:#eef3f7;
+    background:#eef3f7;
 
-overflow:hidden;
+    overflow:hidden;
 
 }
 
 .toolbar{
 
-display:flex;
+    display:flex;
 
-flex-wrap:wrap;
+    flex-wrap:wrap;
 
-gap:8px;
+    gap:8px;
 
-padding:10px;
+    padding:10px;
 
-background:white;
+    background:white;
 
-box-shadow:0 2px 6px rgba(0,0,0,.1);
+    box-shadow:0 2px 6px rgba(0,0,0,.1);
 
-position:relative;
+    position:relative;
 
-z-index:100;
+    z-index:100;
 
 }
 
-button,
+button{
 
-.home-btn{
+    border:none;
 
-border:none;
+    padding:10px 14px;
 
-padding:10px 14px;
+    border-radius:10px;
 
-border-radius:10px;
+    background:#2d89ef;
 
-background:#2d89ef;
+    color:white;
 
-color:white;
-
-font-size:14px;
-
-text-decoration:none;
+    font-size:14px;
 
 }
 
 .activeMode{
 
-background:#ff5722;
+    background:#ff5722;
 
 }
 
 #workspace{
 
-position:relative;
+    position:relative;
 
-width:100vw;
+    width:100vw;
 
-height:calc(100vh - 65px);
+    height:calc(100vh - 65px);
 
-overflow:hidden;
+    overflow:hidden;
 
 }
 
 canvas{
 
-position:absolute;
+    position:absolute;
 
-inset:0;
+    inset:0;
 
-z-index:1;
+    z-index:1;
 
-touch-action:none;
+    touch-action:none;
 
 }
 
 #middleZone{
 
-position:absolute;
+    position:absolute;
 
-left:40%;
+    left:40%;
 
-width:20%;
+    width:20%;
 
-top:0;
+    top:0;
 
-bottom:0;
+    bottom:0;
 
-border-left:3px dashed rgba(0,0,0,.15);
+    border-left:3px dashed rgba(0,0,0,.15);
 
-border-right:3px dashed rgba(0,0,0,.15);
+    border-right:3px dashed rgba(0,0,0,.15);
 
-pointer-events:none;
+    pointer-events:none;
 
-z-index:2;
+    z-index:2;
 
 }
 
 .countLabel{
 
-position:absolute;
+    position:absolute;
 
-top:10px;
+    top:10px;
 
-font-size:56px;
+    font-size:56px;
 
-font-weight:bold;
+    font-weight:bold;
 
-pointer-events:none;
+    pointer-events:none;
 
-z-index:20;
+    z-index:20;
 
 }
 
 #leftCount{
 
-left:20%;
+    left:20%;
 
 }
 
 #rightCount{
 
-right:20%;
+    right:20%;
 
 }
 
 .counter{
 
-position:absolute;
+    position:absolute;
 
-width:46px;
+    width:46px;
 
-height:46px;
+    height:46px;
 
-border-radius:50%;
+    border-radius:50%;
 
-background:#ff9800;
+    background:#ff9800;
 
-border:2px solid rgba(0,0,0,.15);
+    border:2px solid rgba(0,0,0,.15);
 
-touch-action:none;
+    touch-action:none;
 
-z-index:15;
+    z-index:15;
 
 }
 
 #croc{
 
-position:absolute;
+    position:absolute;
 
-left:50%;
+    left:50%;
 
-top:55%;
+    top:55%;
 
-transform:translate(-50%,-50%);
+    transform:translate(-50%,-50%);
 
-width:140px;
+    font-size:95px;
 
-height:auto;
+    user-select:none;
 
-user-select:none;
+    cursor:grab;
 
-cursor:grab;
+    touch-action:none;
 
-touch-action:none;
-
--webkit-user-drag:none;
-
-z-index:30;
+    z-index:30;
 
 }
 
@@ -233,15 +223,7 @@ onclick="setMode('erase')">
 សម្អាត
 
 </button>
-
-<a href="../index.html"
-
-class="home-btn">
-
-🏡 Home
-
-</a>
-
+ <a href="../index.html" class="home-btn">🏡Home</a>
 </div>
 
 <div id="workspace">
@@ -252,101 +234,71 @@ class="home-btn">
 
 <div id="leftCount"
 
-class="countLabel">
-
-0
-
-</div>
+class="countLabel">0</div>
 
 <div id="rightCount"
 
-class="countLabel">
+class="countLabel">0</div>
 
-0
-
-</div>
-
-<img
-
-id="croc"
-
-src="images/crocodile.jpg"
-
-alt="crocodile">
+<div id="croc">🐊</div>
 
 </div>
 
 <script>
 
-const workspace=
+const workspace =
 
 document.getElementById(
 
-"workspace"
+"workspace");
 
-);
-
-const canvas=
+const canvas =
 
 document.getElementById(
 
-"drawCanvas"
+"drawCanvas");
 
-);
-
-const ctx=
+const ctx =
 
 canvas.getContext(
 
-"2d"
+"2d");
 
-);
-
-const croc=
+const croc =
 
 document.getElementById(
 
-"croc"
+"croc");
 
-);
-
-const leftCount=
+const leftCount =
 
 document.getElementById(
 
-"leftCount"
+"leftCount");
 
-);
-
-const rightCount=
+const rightCount =
 
 document.getElementById(
 
-"rightCount"
+"rightCount");
 
-);
-
-const drawBtn=
+const drawBtn =
 
 document.getElementById(
 
-"drawBtn"
+"drawBtn");
 
-);
-
-const eraseBtn=
+const eraseBtn =
 
 document.getElementById(
 
-"eraseBtn"
-
-);
+"eraseBtn");
 
 let counters=[];
 
 let mode="draw";
 
-/* CANVAS */
+/* ---------------- CANVAS ---------------- */
 
 function resize(){
 
@@ -376,31 +328,23 @@ mode=newMode;
 
 drawBtn.classList.remove(
 
-"activeMode"
-
-);
+"activeMode");
 
 eraseBtn.classList.remove(
 
-"activeMode"
-
-);
+"activeMode");
 
 if(mode==="draw")
 
 drawBtn.classList.add(
 
-"activeMode"
-
-);
+"activeMode");
 
 if(mode==="erase")
 
 eraseBtn.classList.add(
 
-"activeMode"
-
-);
+"activeMode");
 
 }
 
@@ -412,9 +356,9 @@ function getPos(e){
 
 const p=
 
-e.touches?
+e.touches ?
 
-e.touches[0]:
+e.touches[0] :
 
 e;
 
@@ -440,9 +384,7 @@ e.target.classList.contains(
 
 "counter"
 
-)
-
-||
+) ||
 
 e.target.id==="croc"
 
@@ -498,13 +440,9 @@ ctx.strokeStyle=
 
 mode==="erase"
 
-?
+? "#eef3f7"
 
-"#eef3f7"
-
-:
-
-"black";
+: "black";
 
 ctx.lineTo(
 
@@ -528,25 +466,19 @@ workspace.addEventListener(
 
 "mousedown",
 
-startDraw
-
-);
+startDraw);
 
 workspace.addEventListener(
 
 "mousemove",
 
-draw
-
-);
+draw);
 
 document.addEventListener(
 
 "mouseup",
 
-stopDraw
-
-);
+stopDraw);
 
 workspace.addEventListener(
 
@@ -554,9 +486,7 @@ workspace.addEventListener(
 
 startDraw,
 
-{passive:false}
-
-);
+{passive:false});
 
 workspace.addEventListener(
 
@@ -564,17 +494,13 @@ workspace.addEventListener(
 
 draw,
 
-{passive:false}
-
-);
+{passive:false});
 
 document.addEventListener(
 
 "touchend",
 
-stopDraw
-
-);
+stopDraw);
 
 function clearCanvas(){
 
@@ -592,7 +518,7 @@ canvas.height
 
 }
 
-/* COUNTERS */
+/* ---------------- COUNTERS ---------------- */
 
 function addCounter(){
 
@@ -600,9 +526,7 @@ const c=
 
 document.createElement(
 
-"div"
-
-);
+"div");
 
 c.className=
 
@@ -618,7 +542,9 @@ Math.random()*180)
 
 +"px";
 
-}else{
+}
+
+else{
 
 c.style.left=
 
@@ -672,19 +598,29 @@ updateCounts();
 
 }
 
+/* DOUBLE CLICK */
+
 el.addEventListener(
 
 "dblclick",
 
-deleteCounter
+e=>{
 
-);
+e.stopPropagation();
+
+deleteCounter();
+
+});
+
+/* TOUCH */
 
 el.addEventListener(
 
 "touchstart",
 
 e=>{
+
+e.stopPropagation();
 
 const now=
 
@@ -728,17 +664,13 @@ document.addEventListener(
 
 move,
 
-{passive:false}
-
-);
+{passive:false});
 
 document.addEventListener(
 
 "touchend",
 
-stop
-
-);
+stop);
 
 });
 
@@ -748,6 +680,8 @@ el.addEventListener(
 
 e=>{
 
+e.stopPropagation();
+
 ox=e.offsetX;
 
 oy=e.offsetY;
@@ -756,17 +690,13 @@ document.addEventListener(
 
 "mousemove",
 
-move
-
-);
+move);
 
 document.addEventListener(
 
 "mouseup",
 
-stop
-
-);
+stop);
 
 });
 
@@ -774,9 +704,9 @@ function move(e){
 
 const p=
 
-e.touches?
+e.touches ?
 
-e.touches[0]:
+e.touches[0] :
 
 e;
 
@@ -802,39 +732,31 @@ document.removeEventListener(
 
 "mousemove",
 
-move
-
-);
+move);
 
 document.removeEventListener(
 
 "mouseup",
 
-stop
-
-);
+stop);
 
 document.removeEventListener(
 
 "touchmove",
 
-move
-
-);
+move);
 
 document.removeEventListener(
 
 "touchend",
 
-stop
-
-);
+stop);
 
 }
 
 }
 
-/* COUNTING */
+/* ---------------- COUNTS ---------------- */
 
 function updateCounts(){
 
@@ -852,15 +774,13 @@ const x=
 
 c.offsetLeft+23;
 
-if(x<middle){
+if(x<middle)
 
 left++;
 
-}else{
+else
 
 right++;
-
-}
 
 });
 
@@ -882,7 +802,7 @@ right
 
 }
 
-/* CROCODILE */
+/* ---------------- CROCODILE ---------------- */
 
 function updateCroc(
 
@@ -900,9 +820,7 @@ const activeZone=
 
 x>
 
-window.innerWidth*0.4
-
-&&
+window.innerWidth*0.4 &&
 
 x<
 
@@ -910,9 +828,9 @@ window.innerWidth*0.6;
 
 if(!activeZone){
 
-croc.style.transform=
+croc.textContent=
 
-"translate(-50%,-50%) rotate(0deg)";
+"🐊";
 
 return;
 
@@ -920,25 +838,25 @@ return;
 
 if(left>right){
 
-croc.style.transform=
+croc.textContent=
 
-"translate(-50%,-50%) rotate(180deg)";
+">";
 
 }
 
 else if(right>left){
 
-croc.style.transform=
+croc.textContent=
 
-"translate(-50%,-50%) rotate(0deg)";
+"<";
 
 }
 
 else{
 
-croc.style.transform=
+croc.textContent=
 
-"translate(-50%,-50%) rotate(90deg)";
+"=";
 
 }
 
@@ -960,9 +878,9 @@ e.preventDefault();
 
 const p=
 
-e.touches?
+e.touches ?
 
-e.touches[0]:
+e.touches[0] :
 
 e;
 
@@ -996,17 +914,13 @@ document.removeEventListener(
 
 "mousemove",
 
-moveCroc
-
-);
+moveCroc);
 
 document.removeEventListener(
 
 "touchmove",
 
-moveCroc
-
-);
+moveCroc);
 
 }
 
@@ -1015,6 +929,8 @@ croc.addEventListener(
 "mousedown",
 
 e=>{
+
+e.stopPropagation();
 
 draggingCroc=true;
 
@@ -1034,17 +950,13 @@ document.addEventListener(
 
 "mousemove",
 
-moveCroc
-
-);
+moveCroc);
 
 document.addEventListener(
 
 "mouseup",
 
-stopCroc
-
-);
+stopCroc);
 
 });
 
@@ -1053,6 +965,8 @@ croc.addEventListener(
 "touchstart",
 
 e=>{
+
+e.stopPropagation();
 
 draggingCroc=true;
 
@@ -1078,17 +992,13 @@ document.addEventListener(
 
 moveCroc,
 
-{passive:false}
-
-);
+{passive:false});
 
 document.addEventListener(
 
 "touchend",
 
-stopCroc
-
-);
+stopCroc);
 
 });
 
@@ -1097,3 +1007,4 @@ stopCroc
 </body>
 
 </html>
+
