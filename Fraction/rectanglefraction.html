@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Advanced Dot Pattern Math Game</title>
-
+<title>Dot Counting Game</title>
 <style>
 body{
     font-family:Arial;
@@ -12,7 +11,6 @@ body{
     background:#eef3f7;
     margin:0;
 }
-
 /* ---------- MATCHED AREA ---------- */
 #matchedArea{
     display:flex;
@@ -23,7 +21,7 @@ body{
     background:#e8f5e9;
     border-bottom:4px solid #66bb6a;
 }
-
+/* MATCH CARD */
 .matchPair{
     display:flex;
     align-items:center;
@@ -33,26 +31,27 @@ body{
     border-radius:10px;
     padding:8px;
 }
-
-/* MATCH DOT CARD */
+/* DOT CARD (matched) */
 .cardBox{
     width:90px;
     height:90px;
     border:3px solid #444;
     border-radius:10px;
-    position:relative;
+    display:grid;
+    grid-template-columns:repeat(5,10px);
+    gap:3px;
+    justify-content:center;
+    align-content:center;
+    background:white;
 }
-
-/* DOT */
+/* DOT (matched) */
 .dot{
     width:10px;
     height:10px;
     border-radius:50%;
     background:#1e88e5;
-    position:absolute;
 }
-
-/* NUMBER CARD */
+/* NUMBER CARD (matched) */
 .numberCard{
     width:90px;
     height:90px;
@@ -65,7 +64,6 @@ body{
     font-weight:bold;
     background:white;
 }
-
 /* ---------- NUMBER OPTIONS ---------- */
 #numberCards{
     display:grid;
@@ -73,8 +71,8 @@ body{
     gap:10px;
     max-width:500px;
     margin:20px auto;
+    padding:10px;
 }
-
 .numberOption{
     height:60px;
     border:3px solid #444;
@@ -86,55 +84,53 @@ body{
     font-size:28px;
     cursor:pointer;
 }
-
-/* ---------- DOT AREA ---------- */
+.numberOption:hover{
+    transform:scale(1.05);
+}
+/* ---------- ⭐ IMPROVED DOT CARD (CLEAR PATTERN) ---------- */
 #dotCard{
     width:95%;
-    max-width:260px;
-    height:160px;
+    max-width:320px;
+    height:220px;
     margin:20px auto;
     background:white;
-    border:4px solid #333;
-    border-radius:16px;
-    position:relative;
+    border:5px solid #333;
+    border-radius:18px;
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    grid-auto-rows:1fr;
+    gap:15px;
+    justify-items:center;
+    align-items:center;
+    padding:20px;
 }
-
-/* DOT */
+/* BIG DOT */
 .bigDot{
-    width:26px;
-    height:26px;
+    width:35px;
+    height:35px;
     border-radius:50%;
     background:#2196f3;
-    position:absolute;
     cursor:pointer;
     transition:0.2s;
 }
-
 .bigDot.active{
     background:#ff9800;
     transform:scale(1.2);
 }
 </style>
 </head>
-
 <body>
-
 <h2>Matched Cards</h2>
 <div id="matchedArea"></div>
-
 <h2>Choose Number</h2>
 <div id="numberCards"></div>
-
 <h2>Count the Dots</h2>
 <div id="dotCard"></div>
-
 <script>
 const dotCard=document.getElementById("dotCard");
 const numberCards=document.getElementById("numberCards");
 const matchedArea=document.getElementById("matchedArea");
-
 let dotCount=0;
-
 /* ---------- NUMBER CARDS ---------- */
 for(let i=1;i<=10;i++){
     let c=document.createElement("div");
@@ -143,186 +139,46 @@ for(let i=1;i<=10;i++){
     c.onclick=()=>checkAnswer(i);
     numberCards.appendChild(c);
 }
-
-/* ---------- CREATE DOT ---------- */
-function dot(x,y){
-    let d=document.createElement("div");
-    d.className="bigDot";
-    d.style.left=x+"px";
-    d.style.top=y+"px";
-    d.onclick=()=>d.classList.toggle("active");
-    dotCard.appendChild(d);
-}
-
-/* ---------- PATTERN SYSTEM ---------- */
-function buildPattern(n){
-
-    dotCard.innerHTML="";
-
-    let c=80;   // center x
-    let r=70;   // center y
-    let s=30;   // spacing
-
-    // 1 — center dot
-    if(n===1){
-        dot(c,r);
-    }
-
-    // 2 — diagonal pair
-    else if(n===2){
-        dot(c-s,r-s);
-        dot(c+s,r+s);
-    }
-
-    // 3 — diagonal trio
-    else if(n===3){
-        dot(c-s,r-s);
-        dot(c,r);
-        dot(c+s,r+s);
-    }
-
-    // 4 — square corners
-    else if(n===4){
-        dot(c-s,r-s);
-        dot(c+s,r-s);
-        dot(c-s,r+s);
-        dot(c+s,r+s);
-    }
-
-    // 5 — quincunx (X shape)
-    else if(n===5){
-        dot(c-s,r-s);
-        dot(c+s,r-s);
-        dot(c-s,r+s);
-        dot(c+s,r+s);
-        dot(c,r);
-    }
-
-    // 6 — parallel rows (3 + 3)
-    else if(n===6){
-        for(let i=-1;i<=1;i++){
-            dot(c+i*s,r-s);
-            dot(c+i*s,r+s);
-        }
-    }
-
-    // 7 — 5 + 2
-    else if(n===7){
-        // 5 (X)
-        dot(c-s,r-s);
-        dot(c+s,r-s);
-        dot(c-s,r+s);
-        dot(c+s,r+s);
-        dot(c,r);
-
-        // 2 vertical right
-        dot(c+60,r-15);
-        dot(c+60,r+15);
-    }
-
-    // 8 — 4 + 4
-    else if(n===8){
-        let left=-40;
-        let right=40;
-
-        // left square
-        dot(c+left-s,r-s);
-        dot(c+left+s,r-s);
-        dot(c+left-s,r+s);
-        dot(c+left+s,r+s);
-
-        // right square
-        dot(c+right-s,r-s);
-        dot(c+right+s,r-s);
-        dot(c+right-s,r+s);
-        dot(c+right+s,r+s);
-    }
-
-    // 9 — 5 + 4
-    else if(n===9){
-        // 5
-        dot(c-40-s,r-s);
-        dot(c-40+s,r-s);
-        dot(c-40-s,r+s);
-        dot(c-40+s,r+s);
-        dot(c-40,r);
-
-        // 4
-        dot(c+40-s,r-s);
-        dot(c+40+s,r-s);
-        dot(c+40-s,r+s);
-        dot(c+40+s,r+s);
-    }
-
-    // 10 — 5 + 5
-    else if(n===10){
-        let L=-40;
-        let R=40;
-
-        // left 5
-        dot(c+L-s,r-s);
-        dot(c+L+s,r-s);
-        dot(c+L-s,r+s);
-        dot(c+L+s,r+s);
-        dot(c+L,r);
-
-        // right 5
-        dot(c+R-s,r-s);
-        dot(c+R+s,r-s);
-        dot(c+R-s,r+s);
-        dot(c+R+s,r+s);
-        dot(c+R,r);
-    }
-}
-
 /* ---------- NEW ROUND ---------- */
 function newRound(){
     dotCount=Math.floor(Math.random()*10)+1;
-    buildPattern(dotCount);
+    dotCard.innerHTML="";
+    for(let i=0;i<dotCount;i++){
+        let d=document.createElement("div");
+        d.className="bigDot";
+        d.onclick=()=>d.classList.toggle("active");
+        dotCard.appendChild(d);
+    }
 }
-
-/* ---------- CHECK ---------- */
+/* ---------- CHECK ANSWER ---------- */
 function checkAnswer(num){
     if(num===dotCount){
         addMatch(num);
         newRound();
     }
 }
-
 /* ---------- MATCH DISPLAY ---------- */
 function addMatch(count){
-
     let pair=document.createElement("div");
     pair.className="matchPair";
-
-    let box=document.createElement("div");
-    box.className="cardBox";
-
-    function d(x,y){
-        let dot=document.createElement("div");
-        dot.className="dot";
-        dot.style.left=x+"px";
-        dot.style.top=y+"px";
-        box.appendChild(dot);
-    }
-
-    // simple matched representation (clean visual)
+    // DOT CARD
+    let dots=document.createElement("div");
+    dots.className="cardBox";
     for(let i=0;i<count;i++){
-        d(10+(i%5)*15,10+Math.floor(i/5)*15);
+        let d=document.createElement("div");
+        d.className="dot";
+        dots.appendChild(d);
     }
-
+    // NUMBER CARD
     let num=document.createElement("div");
     num.className="numberCard";
     num.textContent=count;
-
-    pair.appendChild(box);
+    pair.appendChild(dots);
     pair.appendChild(num);
-
     matchedArea.appendChild(pair);
 }
-
 newRound();
 </script>
-
 </body>
 </html>
+
