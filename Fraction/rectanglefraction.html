@@ -8,7 +8,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-<title>Place Value Drag + Regroup</title>
+<title>Place Value Tool (Drag + Canvas + Regroup)</title>
 
 <style>
 
@@ -24,6 +24,8 @@ body{
 
 }
 
+/* MAIN GRID */
+
 .table{
 
   display:flex;
@@ -35,6 +37,8 @@ body{
   overflow-x:auto;
 
 }
+
+/* COLUMN */
 
 .col{
 
@@ -52,11 +56,17 @@ body{
 
 }
 
-.col h4{ margin:6px 0; }
+.col h4{
+
+  margin:6px 0;
+
+}
+
+/* SECTION */
 
 .section{
 
-  min-height:180px;
+  min-height:140px;
 
   border:1px dashed #aaa;
 
@@ -71,6 +81,26 @@ body{
   overflow:hidden;
 
 }
+
+/* CANVAS BETWEEN */
+
+.canvas{
+
+  height:70px;
+
+  margin:4px;
+
+  border:1px solid #ddd;
+
+  border-radius:8px;
+
+  background:#fff;
+
+  touch-action:none;
+
+}
+
+/* COUNTER */
 
 .counter{
 
@@ -90,7 +120,13 @@ body{
 
 }
 
-.counter:active{ cursor:grabbing; }
+.counter:active{
+
+  cursor:grabbing;
+
+}
+
+/* COLORS */
 
 .c0{ background:#ff4d4d; }
 
@@ -102,7 +138,7 @@ body{
 
 .c4{ background:#4da6ff; }
 
-/* popup */
+/* POPUP */
 
 .popup{
 
@@ -114,7 +150,7 @@ body{
 
   transform:translate(-50%,-50%);
 
-  background:white;
+  background:#fff;
 
   padding:20px;
 
@@ -134,8 +170,6 @@ body{
 
   padding:8px 12px;
 
-  cursor:pointer;
-
 }
 
 </style>
@@ -144,7 +178,7 @@ body{
 
 <body>
 
-<h2>Place Value Tool (Drag + Regroup Fixed)</h2>
+<h2>Place Value Tool (Final Version)</h2>
 
 <div id="table" class="table"></div>
 
@@ -160,47 +194,47 @@ body{
 
 <script>
 
-const cols=["Ten Thousands","Thousands","Hundreds","Tens","Ones"];
+const cols = ["Ten Thousands","Thousands","Hundreds","Tens","Ones"];
 
-let state=Array(3).fill().map(()=>Array(5).fill().map(()=>[]));
+/* STATE */
 
-const table=document.getElementById("table");
+let state = Array(3).fill().map(()=>Array(5).fill().map(()=>[]));
 
-const popup=document.getElementById("popup");
+const table = document.getElementById("table");
 
-let pending=null;
+const popup = document.getElementById("popup");
+
+let pending = null;
 
 /* ================= BUILD ================= */
 
 function build(){
 
-  table.innerHTML="";
+  table.innerHTML = "";
 
   cols.forEach((name,col)=>{
 
-    const column=document.createElement("div");
+    const column = document.createElement("div");
 
-    column.className="col";
+    column.className = "col";
 
-    column.innerHTML=`<h4>${name}</h4>`;
+    column.innerHTML = `<h4>${name}</h4>`;
 
-    for(let row=0;row<3;row++){
+    for(let row=0; row<3; row++){
 
-      const section=document.createElement("div");
+      const section = document.createElement("div");
 
-      section.className="section";
+      section.className = "section";
 
-      section.dataset.row=row;
+      section.dataset.row = row;
 
-      section.dataset.col=col;
-
-      /* click add */
+      section.dataset.col = col;
 
       section.addEventListener("click",(e)=>{
 
         if(e.target.classList.contains("counter")) return;
 
-        const rect=section.getBoundingClientRect();
+        const rect = section.getBoundingClientRect();
 
         addCounter(
 
@@ -208,15 +242,29 @@ function build(){
 
           col,
 
-          e.clientX-rect.left,
+          e.clientX - rect.left,
 
-          e.clientY-rect.top
+          e.clientY - rect.top
 
         );
 
       });
 
       column.appendChild(section);
+
+      /* CANVAS BETWEEN SECTIONS */
+
+      const canvas = document.createElement("canvas");
+
+      canvas.className = "canvas";
+
+      canvas.width = 160;
+
+      canvas.height = 70;
+
+      enableCanvas(canvas);
+
+      column.appendChild(canvas);
 
     }
 
@@ -228,13 +276,93 @@ function build(){
 
 }
 
-/* ================= ADD ================= */
+/* ================= DRAWING ================= */
+
+function enableCanvas(canvas){
+
+  const ctx = canvas.getContext("2d");
+
+  let drawing = false;
+
+  function pos(e){
+
+    const r = canvas.getBoundingClientRect();
+
+    const t = e.touches ? e.touches[0] : e;
+
+    return {
+
+      x: t.clientX - r.left,
+
+      y: t.clientY - r.top
+
+    };
+
+  }
+
+  canvas.addEventListener("mousedown",e=>{
+
+    drawing = true;
+
+    const p = pos(e);
+
+    ctx.beginPath();
+
+    ctx.moveTo(p.x,p.y);
+
+  });
+
+  canvas.addEventListener("mousemove",e=>{
+
+    if(!drawing) return;
+
+    const p = pos(e);
+
+    ctx.lineTo(p.x,p.y);
+
+    ctx.stroke();
+
+  });
+
+  canvas.addEventListener("mouseup",()=>drawing=false);
+
+  canvas.addEventListener("mouseleave",()=>drawing=false);
+
+  canvas.addEventListener("touchstart",e=>{
+
+    drawing = true;
+
+    const p = pos(e);
+
+    ctx.beginPath();
+
+    ctx.moveTo(p.x,p.y);
+
+  });
+
+  canvas.addEventListener("touchmove",e=>{
+
+    if(!drawing) return;
+
+    const p = pos(e);
+
+    ctx.lineTo(p.x,p.y);
+
+    ctx.stroke();
+
+  });
+
+  canvas.addEventListener("touchend",()=>drawing=false);
+
+}
+
+/* ================= ADD COUNTER ================= */
 
 function addCounter(row,col,x,y){
 
   state[row][col].push({
 
-    id:Date.now(),
+    id: Date.now(),
 
     row,
 
@@ -260,13 +388,13 @@ function makeDraggable(el,item){
 
   function start(e){
 
-    drag=true;
+    drag = true;
 
-    const ev=e.touches?e.touches[0]:e;
+    const ev = e.touches ? e.touches[0] : e;
 
-    dx=ev.clientX-el.offsetLeft;
+    dx = ev.clientX - el.offsetLeft;
 
-    dy=ev.clientY-el.offsetTop;
+    dy = ev.clientY - el.offsetTop;
 
     document.addEventListener("mousemove",move);
 
@@ -282,11 +410,11 @@ function makeDraggable(el,item){
 
     if(!drag) return;
 
-    const ev=e.touches?e.touches[0]:e;
+    const ev = e.touches ? e.touches[0] : e;
 
-    el.style.left=(ev.clientX-dx)+"px";
+    el.style.left = (ev.clientX - dx) + "px";
 
-    el.style.top=(ev.clientY-dy)+"px";
+    el.style.top  = (ev.clientY - dy) + "px";
 
     e.preventDefault();
 
@@ -294,7 +422,7 @@ function makeDraggable(el,item){
 
   function end(){
 
-    drag=false;
+    drag = false;
 
     document.removeEventListener("mousemove",move);
 
@@ -316,49 +444,39 @@ function makeDraggable(el,item){
 
 }
 
-/* ================= SNAP (IMPORTANT FIX) ================= */
+/* ================= SNAP ================= */
 
 function snap(el,item){
 
-  const rect=el.getBoundingClientRect();
+  const rect = el.getBoundingClientRect();
 
-  const cx=rect.left+rect.width/2;
+  const cx = rect.left + rect.width/2;
 
-  const cy=rect.top+rect.height/2;
-
-  let found=false;
+  const cy = rect.top + rect.height/2;
 
   document.querySelectorAll(".section").forEach(sec=>{
 
-    const r=sec.getBoundingClientRect();
+    const r = sec.getBoundingClientRect();
 
     if(cx>r.left && cx<r.right && cy>r.top && cy<r.bottom){
 
-      found=true;
+      const newRow = +sec.dataset.row;
 
-      const newRow=+sec.dataset.row;
-
-      const newCol=+sec.dataset.col;
-
-      /* REMOVE FROM OLD */
+      const newCol = +sec.dataset.col;
 
       state[item.row][item.col] =
 
         state[item.row][item.col].filter(x=>x.id!==item.id);
 
-      /* UPDATE */
+      item.row = newRow;
 
-      item.row=newRow;
+      item.col = newCol;
 
-      item.col=newCol;
+      const secRect = sec.getBoundingClientRect();
 
-      const secRect=sec.getBoundingClientRect();
+      item.x = cx - secRect.left;
 
-      item.x=cx-secRect.left;
-
-      item.y=cy-secRect.top;
-
-      /* ADD TO NEW */
+      item.y = cy - secRect.top;
 
       state[newRow][newCol].push(item);
 
@@ -376,11 +494,11 @@ function snap(el,item){
 
 function checkRegroup(row,col){
 
-  if(state[row][col].length>=10){
+  if(state[row][col].length >= 10){
 
-    pending={row,col};
+    pending = {row,col};
 
-    popup.style.display="block";
+    popup.style.display = "block";
 
   }
 
@@ -390,43 +508,39 @@ function checkRegroup(row,col){
 
 function confirmExchange(ok){
 
-  popup.style.display="none";
+  popup.style.display = "none";
 
   if(!ok){
 
-    pending=null;
+    pending = null;
 
     return;
 
   }
 
-  const {row,col}=pending;
-
-  /* remove 10 */
+  const {row,col} = pending;
 
   state[row][col].splice(0,10);
 
-  /* move 1 left */
-
-  if(col>0){
+  if(col > 0){
 
     state[row][col-1].push({
 
-      id:Date.now(),
+      id: Date.now(),
 
       row,
 
-      col:col-1,
+      col: col-1,
 
-      x:20,
+      x: 20,
 
-      y:20
+      y: 20
 
     });
 
   }
 
-  pending=null;
+  pending = null;
 
   render();
 
@@ -438,21 +552,21 @@ function render(){
 
   document.querySelectorAll(".section").forEach(sec=>{
 
-    sec.innerHTML="";
+    sec.innerHTML = "";
 
-    const r=+sec.dataset.row;
+    const r = +sec.dataset.row;
 
-    const c=+sec.dataset.col;
+    const c = +sec.dataset.col;
 
     state[r][c].forEach(item=>{
 
-      const el=document.createElement("div");
+      const el = document.createElement("div");
 
-      el.className=`counter c${c}`;
+      el.className = `counter c${c}`;
 
-      el.style.left=item.x+"px";
+      el.style.left = item.x + "px";
 
-      el.style.top=item.y+"px";
+      el.style.top  = item.y + "px";
 
       makeDraggable(el,item);
 
