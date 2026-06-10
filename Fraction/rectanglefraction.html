@@ -77,11 +77,11 @@ select, button{
 
 <body>
 
-<h2>តារាងតម្លៃលេខតាមខ្ទង់១០០០០</h2>
+<h2>តារាងតម្លៃលេខតាមខ្ទង់ម៉ឺន</h2>
 
 <!-- ===== CONTROL PANEL ===== -->
 <div id="controls">
-  <label>Column:</label>
+  <label>ខ្ទង់:</label>
   <select id="colSelect">
     <option value="0">ខ្ទង់ម៉ឺន</option>
     <option value="1">ខ្ទង់ពាន់</option>
@@ -105,7 +105,7 @@ select, button{
 
 <script>
 
-const cols = ["Ten Thousands","Thousands","Hundreds","Tens","Ones"];
+const cols = ["ខ្ទង់ម៉ឺន","ខ្ទង់ពាន់","ខ្ទង់រយ","ខ្ទង់ដប់","ខ្ទង់រាយ"];
 
 /* state[row][col] */
 let state = Array(3).fill().map(()=> Array(5).fill().map(()=> []));
