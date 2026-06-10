@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Place Value + Drawing Board</title>
+<title>Place Value Drag System</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -13,10 +13,17 @@ body{
     text-align:center;
 }
 
-/* Layout */
+h2{ margin:10px; }
+
+button{
+    margin:5px;
+    padding:6px 10px;
+}
+
+/* 3 SECTIONS */
 .container{
-    display:grid;
-    grid-template-columns:1fr 1fr 1fr;
+    display:flex;
+    flex-direction:column;
     gap:10px;
     padding:10px;
 }
@@ -25,239 +32,251 @@ body{
     background:white;
     border-radius:10px;
     padding:10px;
-    min-height:300px;
     box-shadow:0 2px 6px rgba(0,0,0,0.1);
 }
 
-/* Columns */
+/* GRID */
 .columns{
-    display:flex;
-    justify-content:space-between;
-    margin-top:10px;
+    display:grid;
+    grid-template-columns:repeat(5, 1fr);
+    border:2px solid #333;
+    border-radius:8px;
+    overflow:hidden;
 }
 
+/* COLUMN */
 .col{
-    flex:1;
-    border:1px solid #ddd;
-    margin:2px;
-    border-radius:5px;
-    min-height:120px;
+    min-height:140px;
+    border-right:1px solid #aaa;
     padding:5px;
+}
+
+.col:last-child{
+    border-right:none;
 }
 
 .col h4{
     margin:0;
     font-size:12px;
     background:#f0f0f0;
+    padding:3px;
 }
 
-/* counters */
+/* COUNTERS */
 .counter{
-    width:25px;
-    height:25px;
+    width:30px;
+    height:30px;
     border-radius:50%;
     background:#4CAF50;
     color:white;
-    display:inline-flex;
+    display:flex;
     align-items:center;
     justify-content:center;
-    margin:2px;
-    font-size:12px;
-    cursor:pointer;
-}
-
-/* buttons */
-button{
-    margin:3px;
-    padding:5px 8px;
-    font-size:12px;
-}
-
-/* canvas */
-canvas{
-    border:1px solid #aaa;
-    background:white;
+    margin:4px auto;
+    user-select:none;
     touch-action:none;
+    cursor:grab;
+}
+
+.counter:active{
+    cursor:grabbing;
+}
+
+/* DRAG GHOST */
+.ghost{
+    position:fixed;
+    z-index:9999;
+    pointer-events:none;
+    opacity:0.9;
+    transform:scale(1.2);
 }
 </style>
 </head>
 
 <body>
 
-<h2>Place Value Regrouping + Drawing 🎨🔢</h2>
+<h2>Place Value System 🔢</h2>
+
+<button onclick="add('A')">Add Section 1</button>
+<button onclick="add('B')">Add Section 2</button>
+<button onclick="regroup()">Regroup</button>
 
 <div class="container">
 
-<!-- SECTION A -->
 <div class="section">
-<h3>Section A (Build 1)</h3>
-<button onclick="addCounter(1)">Add Counter</button>
-<button onclick="moveToB(1)">Move → B</button>
-
-<div class="columns" id="Acols"></div>
+<h3>Section 1</h3>
+<div class="columns" id="A"></div>
 </div>
 
-<!-- SECTION B -->
 <div class="section">
-<h3>Section B (Build 2)</h3>
-<button onclick="addCounter(2)">Add Counter</button>
-<button onclick="moveToC()">Move → C</button>
-
-<div class="columns" id="Bcols"></div>
+<h3>Section 2</h3>
+<div class="columns" id="B"></div>
 </div>
 
-<!-- SECTION C -->
 <div class="section">
-<h3>Section C (Regroup & Answer)</h3>
-<button onclick="regroup()">Regroup 10 → 1</button>
-
-<div class="columns" id="Ccols"></div>
+<h3>Section 3 (Answer)</h3>
+<div class="columns" id="C"></div>
 </div>
 
 </div>
-
-<hr>
-
-<h3>Drawing Canvas ✏️</h3>
-<canvas id="board" width="500" height="250"></canvas><br>
-<button onclick="clearCanvas()">Clear</button>
-<button onclick="eraserMode=true">Eraser</button>
-<button onclick="eraserMode=false">Pen</button>
 
 <script>
 
-/* =========================
-   PLACE VALUE DATA
-========================= */
-const places = ["ones","tens","hundreds","thousands","tenThousands"];
+/* ======================
+   PLACE VALUE ORDER
+====================== */
+const places = [
+    "Ten Thousands",
+    "Thousands",
+    "Hundreds",
+    "Tens",
+    "Ones"
+];
 
+/* ======================
+   DATA
+====================== */
 let A = [0,0,0,0,0];
 let B = [0,0,0,0,0];
 let C = [0,0,0,0,0];
 
-function render(){
-    renderCols("Acols",A);
-    renderCols("Bcols",B);
-    renderCols("Ccols",C);
+function getArr(name){
+    if(name==="A") return A;
+    if(name==="B") return B;
+    return C;
 }
 
-function renderCols(id,data){
-    const container = document.getElementById(id);
-    container.innerHTML = "";
+/* ======================
+   RENDER
+====================== */
+function render(){
+    draw("A",A);
+    draw("B",B);
+    draw("C",C);
+}
+
+function draw(id,data){
+    const box = document.getElementById(id);
+    box.innerHTML = "";
 
     for(let i=0;i<5;i++){
         let col = document.createElement("div");
         col.className="col";
+        col.dataset.col=i;
+
+        col.ondragover = e => e.preventDefault();
+
+        col.ondrop = drop;
 
         let title = document.createElement("h4");
         title.innerText = places[i];
-
         col.appendChild(title);
 
         for(let j=0;j<data[i];j++){
             let c = document.createElement("div");
             c.className="counter";
             c.innerText="●";
+
+            c.dataset.from = id;
+            c.dataset.col = i;
+
+            c.addEventListener("pointerdown",startDrag);
+
             col.appendChild(c);
         }
 
-        container.appendChild(col);
+        box.appendChild(col);
     }
 }
 
-/* =========================
-   SECTION ACTIONS
-========================= */
-
-function addCounter(section){
-    if(section===1) A[0]++;
-    if(section===2) B[0]++;
+/* ======================
+   ADD COUNTERS
+====================== */
+function add(section){
+    getArr(section)[4]++;
     render();
 }
 
-function moveToB(){
-    B[0] += A[0];
-    A = [0,0,0,0,0];
+/* ======================
+   DRAG SYSTEM
+====================== */
+let drag = null;
+let ghost = null;
+
+function startDrag(e){
+    const el = e.target;
+
+    drag = {
+        from: el.dataset.from,
+        col: parseInt(el.dataset.col)
+    };
+
+    ghost = el.cloneNode(true);
+    ghost.classList.add("ghost");
+    document.body.appendChild(ghost);
+
+    move(e);
+
+    el.setPointerCapture(e.pointerId);
+
+    el.addEventListener("pointermove",move);
+    el.addEventListener("pointerup",end);
+}
+
+function move(e){
+    if(!ghost) return;
+
+    ghost.style.left = (e.clientX - 15) + "px";
+    ghost.style.top = (e.clientY - 15) + "px";
+}
+
+/* ======================
+   DROP LOGIC (STABLE)
+====================== */
+function end(e){
+    if(!ghost) return;
+
+    const cols = document.querySelectorAll(".col");
+
+    for(let col of cols){
+        const r = col.getBoundingClientRect();
+
+        if(
+            e.clientX >= r.left &&
+            e.clientX <= r.right &&
+            e.clientY >= r.top &&
+            e.clientY <= r.bottom
+        ){
+            let toCol = parseInt(col.dataset.col);
+
+            let fromArr = getArr(drag.from);
+
+            if(fromArr[drag.col] > 0){
+                fromArr[drag.col]--;
+                C[toCol]++; // always goes to answer section
+            }
+        }
+    }
+
+    ghost.remove();
+    ghost = null;
+    drag = null;
+
     render();
 }
 
-function moveToC(){
-    C[0] += B[0];
-    B = [0,0,0,0,0];
-    render();
-}
-
-/* =========================
+/* ======================
    REGROUP LOGIC
-========================= */
+====================== */
 function regroup(){
-    for(let i=0;i<4;i++){
+    for(let i=4;i>0;i--){
         if(C[i] >= 10){
             let carry = Math.floor(C[i]/10);
-            C[i] = C[i] % 10;
-            C[i+1] += carry;
+            C[i] %= 10;
+            C[i-1] += carry;
         }
     }
     render();
-}
-
-/* =========================
-   DRAWING CANVAS
-========================= */
-const canvas = document.getElementById("board");
-const ctx = canvas.getContext("2d");
-
-let drawing = false;
-let eraserMode = false;
-
-canvas.addEventListener("mousedown",start);
-canvas.addEventListener("mouseup",stop);
-canvas.addEventListener("mousemove",draw);
-
-canvas.addEventListener("touchstart",start);
-canvas.addEventListener("touchend",stop);
-canvas.addEventListener("touchmove",draw);
-
-function getPos(e){
-    if(e.touches){
-        return {
-            x:e.touches[0].clientX - canvas.offsetLeft,
-            y:e.touches[0].clientY - canvas.offsetTop
-        };
-    }
-    return {
-        x:e.offsetX,
-        y:e.offsetY
-    };
-}
-
-function start(e){
-    drawing = true;
-    draw(e);
-}
-
-function stop(){
-    drawing = false;
-    ctx.beginPath();
-}
-
-function draw(e){
-    if(!drawing) return;
-    let pos = getPos(e);
-
-    ctx.lineWidth = 3;
-    ctx.lineCap = "round";
-
-    ctx.strokeStyle = eraserMode ? "white" : "black";
-
-    ctx.lineTo(pos.x,pos.y);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(pos.x,pos.y);
-}
-
-function clearCanvas(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
 }
 
 render();
