@@ -12,20 +12,32 @@ body{
   text-align:center;
 }
 
-/* ===== CONTROL PANEL ===== */
+/* ===== BUTTON PANEL ===== */
 #controls{
   background:#fff;
-  padding:10px;
+  padding:12px;
   margin:10px;
   border-radius:10px;
-  display:inline-block;
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:8px;
 }
 
-select, button{
-  padding:6px;
-  margin:5px;
+button{
+  padding:10px 12px;
   font-size:14px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  color:white;
 }
+
+.btn0{ background:#ff4d4d; } /* 10000 */
+.btn1{ background:#b84dff; } /* 1000 */
+.btn2{ background:#ffd24d; color:#000; } /* 100 */
+.btn3{ background:#4dff88; color:#000; } /* 10 */
+.btn4{ background:#4da6ff; } /* 1 */
 
 /* ===== TABLE ===== */
 .table{
@@ -50,13 +62,6 @@ select, button{
   position:relative;
 }
 
-.row-label{
-  font-size:12px;
-  color:#666;
-  margin-bottom:5px;
-}
-
-/* ===== COUNTER ===== */
 .counter{
   width:26px;
   height:26px;
@@ -66,38 +71,25 @@ select, button{
   cursor:pointer;
 }
 
-/* colors by column */
-.c0{ background:#ff4d4d; } /* Ten Thousands */
-.c1{ background:#b84dff; } /* Thousands */
-.c2{ background:#ffd24d; } /* Hundreds */
-.c3{ background:#4dff88; } /* Tens */
-.c4{ background:#4da6ff; } /* Ones */
+.c0{ background:#ff4d4d; }
+.c1{ background:#b84dff; }
+.c2{ background:#ffd24d; }
+.c3{ background:#4dff88; }
+.c4{ background:#4da6ff; }
 </style>
 </head>
 
 <body>
 
-<h2>តារាងតម្លៃលេខតាមខ្ទង់ម៉ឺន</h2>
+<h2>Place Value Learning Tool</h2>
 
-<!-- ===== CONTROL PANEL ===== -->
+<!-- ===== BUTTON CONTROLS ===== -->
 <div id="controls">
-  <label>ខ្ទង់:</label>
-  <select id="colSelect">
-    <option value="0">ខ្ទង់ម៉ឺន</option>
-    <option value="1">ខ្ទង់ពាន់</option>
-    <option value="2">ខ្ទង់រយ</option>
-    <option value="3">ខ្ទង់ដប់</option>
-    <option value="4">ខ្ទង់រាយ</option>
-  </select>
-
-  <label>ជួរ:</label>
-  <select id="rowSelect">
-    <option value="0">ជួរទី១</option>
-    <option value="1">ជួរទី២</option>
-    <option value="2">ជួរទី៣ (Regroup)</option>
-  </select>
-
-  <button onclick="addCounter()">➕ដាក់សម្ភារៈ</button>
+  <button class="btn0" onclick="addCounter(0)">➕ 10,000</button>
+  <button class="btn1" onclick="addCounter(1)">➕ 1,000</button>
+  <button class="btn2" onclick="addCounter(2)">➕ 100</button>
+  <button class="btn3" onclick="addCounter(3)">➕ 10</button>
+  <button class="btn4" onclick="addCounter(4)">➕ 1</button>
 </div>
 
 <!-- ===== TABLE ===== -->
@@ -105,16 +97,14 @@ select, button{
 
 <script>
 
-const cols = ["ខ្ទង់ម៉ឺន","ខ្ទង់ពាន់","ខ្ទង់រយ","ខ្ទង់ដប់","ខ្ទង់រាយ"];
+const cols = ["Ten Thousands","Thousands","Hundreds","Tens","Ones"];
 
 /* state[row][col] */
 let state = Array(3).fill().map(()=> Array(5).fill().map(()=> []));
 
 const table = document.getElementById("table");
 
-/* =========================
-   BUILD GRID
-========================= */
+/* ================= GRID ================= */
 function build(){
   table.innerHTML = "";
 
@@ -125,12 +115,10 @@ function build(){
     column.innerHTML = `<h4>${name}</h4>`;
 
     for(let row=0; row<3; row++){
-
       const cell = document.createElement("div");
       cell.className = "cell";
       cell.dataset.row = row;
       cell.dataset.col = col;
-
       column.appendChild(cell);
     }
 
@@ -140,12 +128,9 @@ function build(){
   render();
 }
 
-/* =========================
-   ADD COUNTER (CONTROL PANEL)
-========================= */
-function addCounter(){
-  const col = +colSelect.value;
-  const row = +rowSelect.value;
+/* ================= ADD COUNTER ================= */
+function addCounter(col){
+  const row = 0; // always start in row 0 (bank row)
 
   state[row][col].push({id: Date.now()});
 
@@ -153,9 +138,7 @@ function addCounter(){
   render();
 }
 
-/* =========================
-   CREATE COUNTER (DRAG)
-========================= */
+/* ================= COUNTER ================= */
 function createCounter(row,col,index){
 
   const c = document.createElement("div");
@@ -174,8 +157,8 @@ function createCounter(row,col,index){
     offsetY = ev.clientY - c.offsetTop;
 
     document.addEventListener("mousemove", move);
-    document.addEventListener("mouseup", end);
     document.addEventListener("touchmove", move, {passive:false});
+    document.addEventListener("mouseup", end);
     document.addEventListener("touchend", end);
   }
 
@@ -206,9 +189,7 @@ function createCounter(row,col,index){
   return c;
 }
 
-/* =========================
-   DROP DETECTION
-========================= */
+/* ================= DROP ================= */
 function dropCheck(counter, fr, fc, index){
 
   const rect = counter.getBoundingClientRect();
@@ -236,9 +217,7 @@ function dropCheck(counter, fr, fc, index){
   moveCounter(fr,fc,index,tr,tc);
 }
 
-/* =========================
-   MOVE COUNTER
-========================= */
+/* ================= MOVE ================= */
 function moveCounter(fr,fc,index,tr,tc){
 
   const item = state[fr][fc][index];
@@ -251,9 +230,7 @@ function moveCounter(fr,fc,index,tr,tc){
   render();
 }
 
-/* =========================
-   REGROUPING RULE (10 = 1)
-========================= */
+/* ================= REGROUP 10 ================= */
 function normalize(){
 
   for(let col=4; col>0; col--){
@@ -266,9 +243,7 @@ function normalize(){
   }
 }
 
-/* =========================
-   RENDER EVERYTHING
-========================= */
+/* ================= RENDER ================= */
 function render(){
 
   document.querySelectorAll(".cell").forEach(cell=>{
