@@ -42,653 +42,329 @@ h2{
 }
 .canvas{
     height:70px;
-
     margin:4px;
-
     border:1px solid #ddd;
-
-    border-radius:8px;
-
+    border-radius:0px;
     background:white;
-
     touch-action:none;
-
 }
-
 .counter{
-
     width:34px;
-
     height:34px;
-
     border-radius:50%;
-
     position:absolute;
-
     cursor:grab;
-
     user-select:none;
-
     touch-action:none;
-
     display:flex;
-
     align-items:center;
-
     justify-content:center;
-
     font-size:10px;
-
     font-weight:bold;
-
     color:black;
-
     box-shadow:0 2px 4px rgba(0,0,0,.25);
-
 }
-
 .counter:active{
-
     cursor:grabbing;
-
 }
-
 .c0{background:#4da6ff;}
-
 .c1{background:#4dff88;}
-
 .c2{background:#ffd24d;}
-
 .c3{background:#b84dff;}
-
 .c4{background:#ff4d4d;}
-
 .popup{
-
     position:fixed;
-
     top:50%;
-
     left:50%;
-
     transform:translate(-50%,-50%);
-
     background:white;
-
     padding:20px;
-
     border-radius:12px;
-
     box-shadow:0 10px 30px rgba(0,0,0,.3);
-
     display:none;
-
     z-index:1000;
-
 }
-
 .popup button{
-
     padding:8px 14px;
-
     margin:5px;
-
 }
-
 .overlay{
-
     position:fixed;
-
     inset:0;
-
     background:rgba(0,0,0,.25);
-
     display:none;
-
     z-index:999;
-
 }
-
 </style>
-
 </head>
-
 <body>
-
-<h2>Place Value Tool</h2>
-
+<h2>តារាងតម្លៃលេខតាមខ្ទង់</h2>
 <div id="table" class="table"></div>
-
 <div id="overlay" class="overlay"></div>
-
 <div id="popup" class="popup">
-
     <p>តើត្រូវការប្តូរទេ?</p>
-
-    <button onclick="confirmExchange(true)">Yes</button>
-
-    <button onclick="confirmExchange(false)">No</button>
-
+    <button onclick="confirmExchange(true)">បាទ/ចាស</button>
+    <button onclick="confirmExchange(false)">អត់ទេ</button>
 </div>
-
 <script>
-
 const cols = [
-
     "ខ្ទង់ម៉ឺន",
-
     "ខ្ទង់ពាន់",
-
     "ខ្ទង់រយ",
-
     "ខ្ទង់ដប់",
-
     "ខ្ទង់រាយ"
-
 ];
-
 const values = [
-
     10000,
-
     1000,
-
     100,
-
     10,
-
     1
-
 ];
-
 const table = document.getElementById("table");
-
 const popup = document.getElementById("popup");
-
 const overlay = document.getElementById("overlay");
-
 let pending = null;
-
 /* row x column */
-
 let state = Array(3)
-
 .fill()
-
 .map(() =>
-
     Array(5)
-
     .fill()
-
     .map(() => [])
-
 );
-
 /* ================= BUILD ================= */
-
 function build(){
-
     table.innerHTML="";
-
     cols.forEach((name,col)=>{
-
         const column=document.createElement("div");
-
         column.className="col";
-
         const title=document.createElement("h4");
-
         title.textContent=name;
-
         column.appendChild(title);
-
         for(let row=0;row<3;row++){
-
             const section=document.createElement("div");
-
             section.className="section";
-
             section.dataset.row=row;
-
             section.dataset.col=col;
-
             section.addEventListener("click",(e)=>{
-
                 if(e.target.classList.contains("counter")) return;
-
                 const rect=section.getBoundingClientRect();
-
                 addCounter(
-
                     row,
-
                     col,
-
                     e.clientX-rect.left,
-
                     e.clientY-rect.top
-
                 );
-
             });
-
             column.appendChild(section);
-
             const canvas=document.createElement("canvas");
-
             canvas.className="canvas";
-
             canvas.width=170;
-
-            canvas.height=70;
-
+            canvas.height=60;
             enableCanvas(canvas);
-
             column.appendChild(canvas);
-
         }
-
         table.appendChild(column);
-
     });
-
     render();
-
 }
-
 /* ================= CANVAS ================= */
-
 function enableCanvas(canvas){
-
     const ctx=canvas.getContext("2d");
-
     let drawing=false;
-
     function getPos(e){
-
         const rect=canvas.getBoundingClientRect();
-
         const p=e.touches ? e.touches[0] : e;
-
         return{
-
             x:p.clientX-rect.left,
-
             y:p.clientY-rect.top
-
         };
-
     }
-
     canvas.addEventListener("mousedown",(e)=>{
-
         drawing=true;
-
         const p=getPos(e);
-
         ctx.beginPath();
-
         ctx.moveTo(p.x,p.y);
-
     });
-
     canvas.addEventListener("mousemove",(e)=>{
-
         if(!drawing) return;
-
         const p=getPos(e);
-
         ctx.lineTo(p.x,p.y);
-
         ctx.stroke();
-
     });
-
     canvas.addEventListener("mouseup",()=>drawing=false);
-
     canvas.addEventListener("mouseleave",()=>drawing=false);
-
     canvas.addEventListener("touchstart",(e)=>{
-
         drawing=true;
-
         const p=getPos(e);
-
         ctx.beginPath();
-
         ctx.moveTo(p.x,p.y);
-
     });
-
     canvas.addEventListener("touchmove",(e)=>{
-
         if(!drawing) return;
-
         e.preventDefault();
-
         const p=getPos(e);
-
         ctx.lineTo(p.x,p.y);
-
         ctx.stroke();
-
     });
-
     canvas.addEventListener("touchend",()=>drawing=false);
-
 }
-
 /* ================= ADD COUNTER ================= */
-
 function addCounter(row,col,x,y){
-
     state[row][col].push({
-
         id:Date.now()+Math.random(),
-
         row,
-
         col,
-
         x,
-
         y
-
     });
-
     checkRegroup(row,col);
-
     render();
-
 }
-
 /* ================= REGROUP CHECK ================= */
-
 function checkRegroup(row,col){
-
     if(state[row][col].length>=10){
-
         pending={row,col};
-
         overlay.style.display="block";
-
         popup.style.display="block";
-
     }
-
 }
-
 /* ================= POPUP ================= */
-
 function confirmExchange(answer){
-
     popup.style.display="none";
-
     overlay.style.display="none";
-
     if(!answer){
-
         pending=null;
-
         return;
-
     }
-
     const {row,col}=pending;
-
     state[row][col].splice(0,10);
-
     if(col>0){
-
         state[row][col-1].push({
-
             id:Date.now()+Math.random(),
-
             row,
-
             col:col-1,
-
             x:20,
-
             y:20
-
         });
-
     }
-
     pending=null;
-
     render();
-
 }
-
 /* ================= DRAG ================= */
-
 function makeDraggable(el,item){
-
     let dragging=false;
-
     let dx=0;
-
     let dy=0;
-
     function start(e){
-
         dragging=true;
-
         const p=e.touches ? e.touches[0] : e;
-
         dx=p.clientX-el.offsetLeft;
-
         dy=p.clientY-el.offsetTop;
-
         document.addEventListener("mousemove",move);
-
         document.addEventListener("mouseup",end);
-
         document.addEventListener("touchmove",move,{passive:false});
-
         document.addEventListener("touchend",end);
-
     }
-
     function move(e){
-
         if(!dragging) return;
-
         const p=e.touches ? e.touches[0] : e;
-
         el.style.left=(p.clientX-dx)+"px";
-
         el.style.top=(p.clientY-dy)+"px";
-
         e.preventDefault();
-
     }
-
     function end(){
-
         dragging=false;
-
         document.removeEventListener("mousemove",move);
-
         document.removeEventListener("mouseup",end);
-
         document.removeEventListener("touchmove",move);
-
         document.removeEventListener("touchend",end);
-
         snap(el,item);
-
     }
-
     el.addEventListener("mousedown",start);
-
     el.addEventListener("touchstart",start);
-
     return el;
-
 }
-
 /* ================= SNAP ================= */
-
 function snap(el,item){
-
     const rect=el.getBoundingClientRect();
-
     const cx=rect.left+rect.width/2;
-
     const cy=rect.top+rect.height/2;
-
     document.querySelectorAll(".section").forEach(sec=>{
-
         const r=sec.getBoundingClientRect();
-
         if(
-
             cx>r.left &&
-
             cx<r.right &&
-
             cy>r.top &&
-
             cy<r.bottom
-
         ){
-
             const newRow=+sec.dataset.row;
-
             const newCol=+sec.dataset.col;
-
             const oldRow=item.row;
-
             const oldCol=item.col;
-
             state[oldRow][oldCol]=
-
             state[oldRow][oldCol].filter(
-
                 x=>x.id!==item.id
-
             );
-
             /* UNGROUP */
-
             if(
-
                 newRow===oldRow &&
-
                 newCol===oldCol+1 &&
-
                 oldCol<4
-
             ){
-
                 const secRect=
-
                 sec.getBoundingClientRect();
-
                 for(let i=0;i<10;i++){
-
                     state[newRow][newCol].push({
-
                         id:Date.now()+Math.random(),
-
                         row:newRow,
-
                         col:newCol,
-
                         x:(cx-secRect.left)+
-
                           (Math.random()*40-20),
-
                         y:(cy-secRect.top)+
-
                           (Math.random()*40-20)
-
                     });
-
                 }
-
                 render();
-
                 return;
-
             }
-
             item.row=newRow;
-
             item.col=newCol;
-
             const secRect=
-
             sec.getBoundingClientRect();
-
             item.x=cx-secRect.left;
-
             item.y=cy-secRect.top;
-
             state[newRow][newCol].push(item);
-
             checkRegroup(newRow,newCol);
-
         }
-
     });
-
     render();
-
 }
-
 /* ================= RENDER ================= */
-
 function render(){
-
     document.querySelectorAll(".section")
-
     .forEach(sec=>{
-
         sec.innerHTML="";
-
         const row=+sec.dataset.row;
-
         const col=+sec.dataset.col;
-
         state[row][col]
-
         .forEach(item=>{
-
             const el=
-
             document.createElement("div");
-
             el.className=
-
             `counter c${col}`;
-
             el.style.left=item.x+"px";
-
             el.style.top=item.y+"px";
-
             el.textContent=values[col];
-
             makeDraggable(el,item);
-
             sec.appendChild(el);
-
         });
-
     });
-
 }
-
 /* ================= START ================= */
-
 build();
-
 </script>
-
 </body>
 
 </html>
