@@ -1,514 +1,296 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
 <meta charset="UTF-8">
-
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<title>Dot Counting</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Place Value Learning Tool</title>
 
 <style>
-
 body{
-
-    font-family:Arial;
-
-    text-align:center;
-
-    background:#eef3f7;
-
-    margin:0;
-
+  font-family: Arial;
+  background:#f4f7fb;
+  text-align:center;
 }
 
-/* ---------- MATCHED AREA ---------- */
-
-#matchedArea{
-
-    position:relative;
-
-    min-height:160px;
-
-    padding:10px;
-
-    background:#e8f5e9;
-
-    border-bottom:4px solid #66bb6a;
-
+/* ===== CONTROL PANEL ===== */
+#controls{
+  background:#fff;
+  padding:10px;
+  margin:10px;
+  border-radius:10px;
+  display:inline-block;
 }
 
-/* MATCH CARD */
-
-.matchPair{
-
-    display:flex;
-
-    align-items:center;
-
-    gap:6px;
-
-    background:white;
-
-    border:2px solid #43a047;
-
-    border-radius:8px;
-
-    padding:5px;
-
-    cursor:grab;
-
-    position:absolute;
-
-    user-select:none;
-
-    touch-action:none;
-
+select, button{
+  padding:6px;
+  margin:5px;
+  font-size:14px;
 }
 
-/* DOT BOX */
-
-.cardBox{
-
-    width:45px;
-
-    height:45px;
-
-    border:2px solid #444;
-
-    border-radius:8px;
-
-    display:grid;
-
-    grid-template-columns:repeat(5,5px);
-
-    gap:2px;
-
-    justify-content:center;
-
-    align-content:center;
-
-    background:white;
-
+/* ===== TABLE ===== */
+.table{
+  display:grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap:10px;
+  margin:20px;
 }
 
-/* DOT */
-
-.dot{
-
-    width:5px;
-
-    height:5px;
-
-    border-radius:50%;
-
-    background:#1e88e5;
-
+.col{
+  background:#fff;
+  border:2px solid #ccc;
+  border-radius:10px;
+  padding:5px;
 }
 
-/* NUMBER */
-
-.numberCard{
-
-    width:45px;
-
-    height:45px;
-
-    border:2px solid #444;
-
-    border-radius:8px;
-
-    display:flex;
-
-    justify-content:center;
-
-    align-items:center;
-
-    font-size:16px;
-
-    font-weight:bold;
-
-    background:white;
-
+.cell{
+  border:1px dashed #aaa;
+  min-height:130px;
+  margin:5px 0;
+  border-radius:8px;
+  position:relative;
 }
 
-/* ---------- NUMBER OPTIONS ---------- */
-
-#numberCards{
-
-    display:grid;
-
-    grid-template-columns:repeat(5,1fr);
-
-    gap:10px;
-
-    max-width:500px;
-
-    margin:20px auto;
-
+.row-label{
+  font-size:12px;
+  color:#666;
+  margin-bottom:5px;
 }
 
-.numberOption{
-
-    height:60px;
-
-    border:3px solid #444;
-
-    border-radius:10px;
-
-    background:white;
-
-    display:flex;
-
-    justify-content:center;
-
-    align-items:center;
-
-    font-size:28px;
-
-    cursor:pointer;
-
+/* ===== COUNTER ===== */
+.counter{
+  width:26px;
+  height:26px;
+  border-radius:50%;
+  position:absolute;
+  touch-action:none;
+  cursor:pointer;
 }
 
-/* ---------- DOT FRAME ---------- */
-
-#dotCard{
-
-    width:95%;
-
-    max-width:260px;
-
-    margin:20px auto;
-
-    background:white;
-
-    border:4px solid #333;
-
-    border-radius:16px;
-
-    padding:10px;
-
-}
-
-.row{
-
-    display:flex;
-
-    justify-content:space-between;
-
-    margin:6px 0;
-
-}
-
-.slot{
-
-    width:18px;
-
-    height:18px;
-
-}
-
-.bigDot{
-
-    width:18px;
-
-    height:18px;
-
-    border-radius:50%;
-
-    background:#2196f3;
-
-    cursor:pointer;
-
-}
-
-.bigDot.active{
-
-    background:#ff9800;
-
-    transform:scale(1.2);
-
-}
-
-/* ---------- BUTTON ---------- */
-
-#restartBtn{
-
-    margin:10px;
-
-    padding:10px 15px;
-
-    font-size:16px;
-
-    border:none;
-
-    background:#ff5252;
-
-    color:white;
-
-    border-radius:8px;
-
-    cursor:pointer;
-
-}
-
+/* colors by column */
+.c0{ background:#ff4d4d; } /* Ten Thousands */
+.c1{ background:#b84dff; } /* Thousands */
+.c2{ background:#ffd24d; } /* Hundreds */
+.c3{ background:#4dff88; } /* Tens */
+.c4{ background:#4da6ff; } /* Ones */
 </style>
-
 </head>
 
 <body>
 
-<h2></h2>
+<h2>📊 Place Value Learning Tool</h2>
 
-<button id="restartBtn">សារដើម🔄</button>
-<a href="../index.html">🏡 Home</a>
+<!-- ===== CONTROL PANEL ===== -->
+<div id="controls">
+  <label>Column:</label>
+  <select id="colSelect">
+    <option value="0">Ten Thousands</option>
+    <option value="1">Thousands</option>
+    <option value="2">Hundreds</option>
+    <option value="3">Tens</option>
+    <option value="4">Ones</option>
+  </select>
 
-<div id="matchedArea"></div>
+  <label>Row:</label>
+  <select id="rowSelect">
+    <option value="0">Row 1</option>
+    <option value="1">Row 2</option>
+    <option value="2">Row 3 (Regroup)</option>
+  </select>
 
-<h3>ចូរជ្រើរើសលេខ</h3>
+  <button onclick="addCounter()">➕ Add Counter</button>
+</div>
 
-<div id="numberCards"></div>
-
-<h3>ចូររាប់ចំនួនចំណុច</h3>
-
-<div id="dotCard"></div>
+<!-- ===== TABLE ===== -->
+<div id="table" class="table"></div>
 
 <script>
 
-const dotCard=document.getElementById("dotCard");
+const cols = ["Ten Thousands","Thousands","Hundreds","Tens","Ones"];
 
-const numberCards=document.getElementById("numberCards");
+/* state[row][col] */
+let state = Array(3).fill().map(()=> Array(5).fill().map(()=> []));
 
-const matchedArea=document.getElementById("matchedArea");
+const table = document.getElementById("table");
 
-const restartBtn=document.getElementById("restartBtn");
+/* =========================
+   BUILD GRID
+========================= */
+function build(){
+  table.innerHTML = "";
 
-let dotCount=0;
+  cols.forEach((name,col)=>{
 
-let zIndexCounter=1;
+    const column = document.createElement("div");
+    column.className = "col";
+    column.innerHTML = `<h4>${name}</h4>`;
 
-/* ---------- NUMBER OPTIONS ---------- */
+    for(let row=0; row<3; row++){
 
-for(let i=1;i<=10;i++){
+      const cell = document.createElement("div");
+      cell.className = "cell";
+      cell.dataset.row = row;
+      cell.dataset.col = col;
 
-    let c=document.createElement("div");
-
-    c.className="numberOption";
-
-    c.textContent=i;
-
-    c.onclick=()=>checkAnswer(i);
-
-    numberCards.appendChild(c);
-
-}
-
-/* ---------- DOT ---------- */
-
-function dot(){
-
-    let d=document.createElement("div");
-
-    d.className="bigDot";
-
-    d.onclick=()=>d.classList.toggle("active");
-
-    return d;
-
-}
-
-/* ---------- 5 & 10 FRAME ---------- */
-
-function buildFrame(n){
-
-    dotCard.innerHTML="";
-
-    let row1=document.createElement("div");
-
-    row1.className="row";
-
-    let row2=document.createElement("div");
-
-    row2.className="row";
-
-    for(let i=0;i<5;i++){
-
-        let slot=document.createElement("div");
-
-        slot.className="slot";
-
-        if(i<n) slot.appendChild(dot());
-
-        row1.appendChild(slot);
-
+      column.appendChild(cell);
     }
 
-    for(let i=5;i<10;i++){
+    table.appendChild(column);
+  });
 
-        let slot=document.createElement("div");
+  render();
+}
 
-        slot.className="slot";
+/* =========================
+   ADD COUNTER (CONTROL PANEL)
+========================= */
+function addCounter(){
+  const col = +colSelect.value;
+  const row = +rowSelect.value;
 
-        if(i<n) slot.appendChild(dot());
+  state[row][col].push({id: Date.now()});
 
-        row2.appendChild(slot);
+  normalize();
+  render();
+}
 
+/* =========================
+   CREATE COUNTER (DRAG)
+========================= */
+function createCounter(row,col,index){
+
+  const c = document.createElement("div");
+  c.className = `counter c${col}`;
+
+  let offsetX = 0;
+  let offsetY = 0;
+  let dragging = false;
+
+  function start(e){
+    dragging = true;
+
+    const ev = e.touches ? e.touches[0] : e;
+
+    offsetX = ev.clientX - c.offsetLeft;
+    offsetY = ev.clientY - c.offsetTop;
+
+    document.addEventListener("mousemove", move);
+    document.addEventListener("mouseup", end);
+    document.addEventListener("touchmove", move, {passive:false});
+    document.addEventListener("touchend", end);
+  }
+
+  function move(e){
+    if(!dragging) return;
+    e.preventDefault();
+
+    const ev = e.touches ? e.touches[0] : e;
+
+    c.style.left = (ev.clientX - offsetX) + "px";
+    c.style.top = (ev.clientY - offsetY) + "px";
+  }
+
+  function end(){
+    dragging = false;
+
+    document.removeEventListener("mousemove", move);
+    document.removeEventListener("mouseup", end);
+    document.removeEventListener("touchmove", move);
+    document.removeEventListener("touchend", end);
+
+    dropCheck(c,row,col,index);
+  }
+
+  c.addEventListener("mousedown", start);
+  c.addEventListener("touchstart", start);
+
+  return c;
+}
+
+/* =========================
+   DROP DETECTION
+========================= */
+function dropCheck(counter, fr, fc, index){
+
+  const rect = counter.getBoundingClientRect();
+  const cx = rect.left + rect.width/2;
+  const cy = rect.top + rect.height/2;
+
+  let target = null;
+
+  document.querySelectorAll(".cell").forEach(cell=>{
+    const r = cell.getBoundingClientRect();
+
+    if(cx>r.left && cx<r.right && cy>r.top && cy<r.bottom){
+      target = cell;
     }
+  });
 
-    dotCard.appendChild(row1);
+  if(!target){
+    render();
+    return;
+  }
 
-    dotCard.appendChild(row2);
+  const tr = +target.dataset.row;
+  const tc = +target.dataset.col;
 
+  moveCounter(fr,fc,index,tr,tc);
 }
 
-/* ---------- NEW ROUND ---------- */
+/* =========================
+   MOVE COUNTER
+========================= */
+function moveCounter(fr,fc,index,tr,tc){
 
-function newRound(){
+  const item = state[fr][fc][index];
+  if(!item) return;
 
-    dotCount=Math.floor(Math.random()*10)+1;
+  state[fr][fc].splice(index,1);
+  state[tr][tc].push(item);
 
-    buildFrame(dotCount);
-
+  normalize();
+  render();
 }
 
-/* ---------- CHECK ANSWER ---------- */
+/* =========================
+   REGROUPING RULE (10 = 1)
+========================= */
+function normalize(){
 
-function checkAnswer(num){
-
-    if(num===dotCount){
-
-        addMatch(num);
-
-        newRound();
-
+  for(let col=4; col>0; col--){
+    for(let row=2; row>=0; row--){
+      while(state[row][col].length >= 10){
+        for(let i=0;i<10;i++) state[row][col].pop();
+        state[row][col-1].push({id: Date.now()});
+      }
     }
-
+  }
 }
 
-/* ---------- MATCH CARD ---------- */
+/* =========================
+   RENDER EVERYTHING
+========================= */
+function render(){
 
-function addMatch(count){
+  document.querySelectorAll(".cell").forEach(cell=>{
+    cell.innerHTML = "";
 
-    let pair=document.createElement("div");
+    const row = +cell.dataset.row;
+    const col = +cell.dataset.col;
 
-    pair.className="matchPair";
+    state[row][col].forEach((item,i)=>{
 
-    pair.style.left="10px";
+      const c = createCounter(row,col,i);
 
-    pair.style.top=(matchedArea.children.length*65+10)+"px";
+      c.style.left = (10 + (i%5)*30) + "px";
+      c.style.top  = (10 + Math.floor(i/5)*30) + "px";
 
-    let dots=document.createElement("div");
-
-    dots.className="cardBox";
-
-    for(let i=0;i<count;i++){
-
-        let d=document.createElement("div");
-
-        d.className="dot";
-
-        dots.appendChild(d);
-
-    }
-
-    let num=document.createElement("div");
-
-    num.className="numberCard";
-
-    num.textContent=count;
-
-    pair.appendChild(dots);
-
-    pair.appendChild(num);
-
-    matchedArea.appendChild(pair);
-
-    enableDrag(pair);
-
-    enableDoubleTapDelete(pair);
-
+      cell.appendChild(c);
+    });
+  });
 }
 
-/* ---------- DRAG ---------- */
-
-function enableDrag(el){
-
-    let offsetX=0, offsetY=0;
-
-    let dragging=false;
-
-    el.addEventListener("pointerdown",(e)=>{
-
-        dragging=true;
-
-        el.style.zIndex=++zIndexCounter;
-
-        offsetX=e.clientX-el.offsetLeft;
-
-        offsetY=e.clientY-el.offsetTop;
-
-    });
-
-    document.addEventListener("pointermove",(e)=>{
-
-        if(!dragging) return;
-
-        el.style.position="absolute";
-
-        el.style.left=(e.clientX-offsetX)+"px";
-
-        el.style.top=(e.clientY-offsetY)+"px";
-
-    });
-
-    document.addEventListener("pointerup",()=>{
-
-        dragging=false;
-
-    });
-
-}
-
-/* ---------- DOUBLE TAP DELETE ---------- */
-
-function enableDoubleTapDelete(el){
-
-    let lastTap=0;
-
-    el.addEventListener("pointerdown",()=>{
-
-        let now=Date.now();
-
-        if(now-lastTap<300){
-
-            el.remove();
-
-        }
-
-        lastTap=now;
-
-    });
-
-}
-
-/* ---------- RESTART ---------- */
-
-restartBtn.onclick=()=>{
-
-    matchedArea.innerHTML="";
-
-    newRound();
-
-};
-
-/* START GAME */
-
-newRound();
-
+build();
 </script>
 
 </body>
-
 </html>
