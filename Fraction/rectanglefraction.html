@@ -6,169 +6,189 @@
 
 <meta charset="UTF-8">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Place Value Tool (Drag + Canvas + Regroup)</title>
+<title>Place Value Tool</title>
 
 <style>
 
 body{
 
-  font-family: Arial;
+    font-family:Arial, sans-serif;
 
-  background:#f4f7fb;
+    background:#f4f7fb;
 
-  text-align:center;
+    margin:0;
 
-  margin:0;
+    text-align:center;
 
 }
 
-/* MAIN GRID */
+h2{
+
+    margin:15px;
+
+}
 
 .table{
 
-  display:flex;
+    display:flex;
 
-  gap:10px;
+    gap:10px;
 
-  padding:10px;
+    padding:10px;
 
-  overflow-x:auto;
+    overflow-x:auto;
 
 }
 
-/* COLUMN */
-
 .col{
 
-  background:#fff;
+    background:white;
 
-  border:2px solid #ccc;
+    border:2px solid #ccc;
 
-  border-radius:10px;
+    border-radius:10px;
 
-  flex:0 0 180px;
+    min-width:180px;
 
-  display:flex;
+    display:flex;
 
-  flex-direction:column;
+    flex-direction:column;
 
 }
 
 .col h4{
 
-  margin:6px 0;
+    margin:8px 0;
 
 }
-
-/* SECTION */
 
 .section{
 
-  min-height:140px;
+    height:140px;
 
-  border:1px dashed #aaa;
+    border:1px dashed #aaa;
 
-  margin:4px;
+    margin:4px;
 
-  border-radius:8px;
+    border-radius:8px;
 
-  position:relative;
+    position:relative;
 
-  background:#fff;
+    overflow:hidden;
 
-  overflow:hidden;
+    background:white;
 
 }
-
-/* CANVAS BETWEEN */
 
 .canvas{
 
-  height:70px;
+    height:70px;
 
-  margin:4px;
+    margin:4px;
 
-  border:1px solid #ddd;
+    border:1px solid #ddd;
 
-  border-radius:8px;
+    border-radius:8px;
 
-  background:#fff;
+    background:white;
 
-  touch-action:none;
+    touch-action:none;
 
 }
 
-/* COUNTER */
-
 .counter{
 
-  width:26px;
+    width:34px;
 
-  height:26px;
+    height:34px;
 
-  border-radius:50%;
+    border-radius:50%;
 
-  position:absolute;
+    position:absolute;
 
-  cursor:grab;
+    cursor:grab;
 
-  touch-action:none;
+    user-select:none;
 
-  user-select:none;
+    touch-action:none;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-size:10px;
+
+    font-weight:bold;
+
+    color:black;
+
+    box-shadow:0 2px 4px rgba(0,0,0,.25);
 
 }
 
 .counter:active{
 
-  cursor:grabbing;
+    cursor:grabbing;
 
 }
 
-/* COLORS */
+.c0{background:#4da6ff;}
 
-.c0{ background:#ff4d4d; }
+.c1{background:#4dff88;}
 
-.c1{ background:#b84dff; }
+.c2{background:#ffd24d;}
 
-.c2{ background:#ffd24d; }
+.c3{background:#b84dff;}
 
-.c3{ background:#4dff88; }
-
-.c4{ background:#4da6ff; }
-
-/* POPUP */
+.c4{background:#ff4d4d;}
 
 .popup{
 
-  position:fixed;
+    position:fixed;
 
-  top:50%;
+    top:50%;
 
-  left:50%;
+    left:50%;
 
-  transform:translate(-50%,-50%);
+    transform:translate(-50%,-50%);
 
-  background:#fff;
+    background:white;
 
-  padding:20px;
+    padding:20px;
 
-  border-radius:12px;
+    border-radius:12px;
 
-  box-shadow:0 10px 30px rgba(0,0,0,0.2);
+    box-shadow:0 10px 30px rgba(0,0,0,.3);
 
-  display:none;
+    display:none;
 
-  z-index:999;
+    z-index:1000;
 
 }
 
 .popup button{
 
-  margin:10px;
+    padding:8px 14px;
 
-  padding:8px 12px;
+    margin:5px;
+
+}
+
+.overlay{
+
+    position:fixed;
+
+    inset:0;
+
+    background:rgba(0,0,0,.25);
+
+    display:none;
+
+    z-index:999;
 
 }
 
@@ -178,181 +198,227 @@ body{
 
 <body>
 
-<h2>Place Value Tool (Final Version)</h2>
+<h2>Place Value Tool</h2>
 
 <div id="table" class="table"></div>
 
+<div id="overlay" class="overlay"></div>
+
 <div id="popup" class="popup">
 
-  <p>Do you want to exchange these 10 counters?</p>
+    <p>Do you want to exchange these 10 counters?</p>
 
-  <button onclick="confirmExchange(true)">Yes</button>
+    <button onclick="confirmExchange(true)">Yes</button>
 
-  <button onclick="confirmExchange(false)">No</button>
+    <button onclick="confirmExchange(false)">No</button>
 
 </div>
 
 <script>
 
-const cols = ["Ten Thousands","Thousands","Hundreds","Tens","Ones"];
+const cols = [
 
-/* STATE */
+    "Ten Thousands",
 
-let state = Array(3).fill().map(()=>Array(5).fill().map(()=>[]));
+    "Thousands",
+
+    "Hundreds",
+
+    "Tens",
+
+    "Ones"
+
+];
+
+const values = [
+
+    10000,
+
+    1000,
+
+    100,
+
+    10,
+
+    1
+
+];
 
 const table = document.getElementById("table");
 
 const popup = document.getElementById("popup");
 
+const overlay = document.getElementById("overlay");
+
 let pending = null;
+
+/* row x column */
+
+let state = Array(3)
+
+.fill()
+
+.map(() =>
+
+    Array(5)
+
+    .fill()
+
+    .map(() => [])
+
+);
 
 /* ================= BUILD ================= */
 
 function build(){
 
-  table.innerHTML = "";
+    table.innerHTML="";
 
-  cols.forEach((name,col)=>{
+    cols.forEach((name,col)=>{
 
-    const column = document.createElement("div");
+        const column=document.createElement("div");
 
-    column.className = "col";
+        column.className="col";
 
-    column.innerHTML = `<h4>${name}</h4>`;
+        const title=document.createElement("h4");
 
-    for(let row=0; row<3; row++){
+        title.textContent=name;
 
-      const section = document.createElement("div");
+        column.appendChild(title);
 
-      section.className = "section";
+        for(let row=0;row<3;row++){
 
-      section.dataset.row = row;
+            const section=document.createElement("div");
 
-      section.dataset.col = col;
+            section.className="section";
 
-      section.addEventListener("click",(e)=>{
+            section.dataset.row=row;
 
-        if(e.target.classList.contains("counter")) return;
+            section.dataset.col=col;
 
-        const rect = section.getBoundingClientRect();
+            section.addEventListener("click",(e)=>{
 
-        addCounter(
+                if(e.target.classList.contains("counter")) return;
 
-          row,
+                const rect=section.getBoundingClientRect();
 
-          col,
+                addCounter(
 
-          e.clientX - rect.left,
+                    row,
 
-          e.clientY - rect.top
+                    col,
 
-        );
+                    e.clientX-rect.left,
 
-      });
+                    e.clientY-rect.top
 
-      column.appendChild(section);
+                );
 
-      /* CANVAS BETWEEN SECTIONS */
+            });
 
-      const canvas = document.createElement("canvas");
+            column.appendChild(section);
 
-      canvas.className = "canvas";
+            const canvas=document.createElement("canvas");
 
-      canvas.width = 160;
+            canvas.className="canvas";
 
-      canvas.height = 70;
+            canvas.width=170;
 
-      enableCanvas(canvas);
+            canvas.height=70;
 
-      column.appendChild(canvas);
+            enableCanvas(canvas);
 
-    }
+            column.appendChild(canvas);
 
-    table.appendChild(column);
+        }
 
-  });
+        table.appendChild(column);
 
-  render();
+    });
+
+    render();
 
 }
 
-/* ================= DRAWING ================= */
+/* ================= CANVAS ================= */
 
 function enableCanvas(canvas){
 
-  const ctx = canvas.getContext("2d");
+    const ctx=canvas.getContext("2d");
 
-  let drawing = false;
+    let drawing=false;
 
-  function pos(e){
+    function getPos(e){
 
-    const r = canvas.getBoundingClientRect();
+        const rect=canvas.getBoundingClientRect();
 
-    const t = e.touches ? e.touches[0] : e;
+        const p=e.touches ? e.touches[0] : e;
 
-    return {
+        return{
 
-      x: t.clientX - r.left,
+            x:p.clientX-rect.left,
 
-      y: t.clientY - r.top
+            y:p.clientY-rect.top
 
-    };
+        };
 
-  }
+    }
 
-  canvas.addEventListener("mousedown",e=>{
+    canvas.addEventListener("mousedown",(e)=>{
 
-    drawing = true;
+        drawing=true;
 
-    const p = pos(e);
+        const p=getPos(e);
 
-    ctx.beginPath();
+        ctx.beginPath();
 
-    ctx.moveTo(p.x,p.y);
+        ctx.moveTo(p.x,p.y);
 
-  });
+    });
 
-  canvas.addEventListener("mousemove",e=>{
+    canvas.addEventListener("mousemove",(e)=>{
 
-    if(!drawing) return;
+        if(!drawing) return;
 
-    const p = pos(e);
+        const p=getPos(e);
 
-    ctx.lineTo(p.x,p.y);
+        ctx.lineTo(p.x,p.y);
 
-    ctx.stroke();
+        ctx.stroke();
 
-  });
+    });
 
-  canvas.addEventListener("mouseup",()=>drawing=false);
+    canvas.addEventListener("mouseup",()=>drawing=false);
 
-  canvas.addEventListener("mouseleave",()=>drawing=false);
+    canvas.addEventListener("mouseleave",()=>drawing=false);
 
-  canvas.addEventListener("touchstart",e=>{
+    canvas.addEventListener("touchstart",(e)=>{
 
-    drawing = true;
+        drawing=true;
 
-    const p = pos(e);
+        const p=getPos(e);
 
-    ctx.beginPath();
+        ctx.beginPath();
 
-    ctx.moveTo(p.x,p.y);
+        ctx.moveTo(p.x,p.y);
 
-  });
+    });
 
-  canvas.addEventListener("touchmove",e=>{
+    canvas.addEventListener("touchmove",(e)=>{
 
-    if(!drawing) return;
+        if(!drawing) return;
 
-    const p = pos(e);
+        e.preventDefault();
 
-    ctx.lineTo(p.x,p.y);
+        const p=getPos(e);
 
-    ctx.stroke();
+        ctx.lineTo(p.x,p.y);
 
-  });
+        ctx.stroke();
 
-  canvas.addEventListener("touchend",()=>drawing=false);
+    });
+
+    canvas.addEventListener("touchend",()=>drawing=false);
 
 }
 
@@ -360,133 +426,23 @@ function enableCanvas(canvas){
 
 function addCounter(row,col,x,y){
 
-  state[row][col].push({
+    state[row][col].push({
 
-    id: Date.now(),
+        id:Date.now()+Math.random(),
 
-    row,
+        row,
 
-    col,
+        col,
 
-    x,
+        x,
 
-    y
+        y
 
-  });
+    });
 
-  checkRegroup(row,col);
+    checkRegroup(row,col);
 
-  render();
-
-}
-
-/* ================= DRAG ================= */
-
-function makeDraggable(el,item){
-
-  let dx=0,dy=0,drag=false;
-
-  function start(e){
-
-    drag = true;
-
-    const ev = e.touches ? e.touches[0] : e;
-
-    dx = ev.clientX - el.offsetLeft;
-
-    dy = ev.clientY - el.offsetTop;
-
-    document.addEventListener("mousemove",move);
-
-    document.addEventListener("mouseup",end);
-
-    document.addEventListener("touchmove",move,{passive:false});
-
-    document.addEventListener("touchend",end);
-
-  }
-
-  function move(e){
-
-    if(!drag) return;
-
-    const ev = e.touches ? e.touches[0] : e;
-
-    el.style.left = (ev.clientX - dx) + "px";
-
-    el.style.top  = (ev.clientY - dy) + "px";
-
-    e.preventDefault();
-
-  }
-
-  function end(){
-
-    drag = false;
-
-    document.removeEventListener("mousemove",move);
-
-    document.removeEventListener("mouseup",end);
-
-    document.removeEventListener("touchmove",move);
-
-    document.removeEventListener("touchend",end);
-
-    snap(el,item);
-
-  }
-
-  el.addEventListener("mousedown",start);
-
-  el.addEventListener("touchstart",start);
-
-  return el;
-
-}
-
-/* ================= SNAP ================= */
-
-function snap(el,item){
-
-  const rect = el.getBoundingClientRect();
-
-  const cx = rect.left + rect.width/2;
-
-  const cy = rect.top + rect.height/2;
-
-  document.querySelectorAll(".section").forEach(sec=>{
-
-    const r = sec.getBoundingClientRect();
-
-    if(cx>r.left && cx<r.right && cy>r.top && cy<r.bottom){
-
-      const newRow = +sec.dataset.row;
-
-      const newCol = +sec.dataset.col;
-
-      state[item.row][item.col] =
-
-        state[item.row][item.col].filter(x=>x.id!==item.id);
-
-      item.row = newRow;
-
-      item.col = newCol;
-
-      const secRect = sec.getBoundingClientRect();
-
-      item.x = cx - secRect.left;
-
-      item.y = cy - secRect.top;
-
-      state[newRow][newCol].push(item);
-
-      checkRegroup(newRow,newCol);
-
-    }
-
-  });
-
-  render();
+    render();
 
 }
 
@@ -494,55 +450,237 @@ function snap(el,item){
 
 function checkRegroup(row,col){
 
-  if(state[row][col].length >= 10){
+    if(state[row][col].length>=10){
 
-    pending = {row,col};
+        pending={row,col};
 
-    popup.style.display = "block";
+        overlay.style.display="block";
 
-  }
+        popup.style.display="block";
+
+    }
 
 }
 
 /* ================= POPUP ================= */
 
-function confirmExchange(ok){
+function confirmExchange(answer){
 
-  popup.style.display = "none";
+    popup.style.display="none";
 
-  if(!ok){
+    overlay.style.display="none";
 
-    pending = null;
+    if(!answer){
 
-    return;
+        pending=null;
 
-  }
+        return;
 
-  const {row,col} = pending;
+    }
 
-  state[row][col].splice(0,10);
+    const {row,col}=pending;
 
-  if(col > 0){
+    state[row][col].splice(0,10);
 
-    state[row][col-1].push({
+    if(col>0){
 
-      id: Date.now(),
+        state[row][col-1].push({
 
-      row,
+            id:Date.now()+Math.random(),
 
-      col: col-1,
+            row,
 
-      x: 20,
+            col:col-1,
 
-      y: 20
+            x:20,
+
+            y:20
+
+        });
+
+    }
+
+    pending=null;
+
+    render();
+
+}
+
+/* ================= DRAG ================= */
+
+function makeDraggable(el,item){
+
+    let dragging=false;
+
+    let dx=0;
+
+    let dy=0;
+
+    function start(e){
+
+        dragging=true;
+
+        const p=e.touches ? e.touches[0] : e;
+
+        dx=p.clientX-el.offsetLeft;
+
+        dy=p.clientY-el.offsetTop;
+
+        document.addEventListener("mousemove",move);
+
+        document.addEventListener("mouseup",end);
+
+        document.addEventListener("touchmove",move,{passive:false});
+
+        document.addEventListener("touchend",end);
+
+    }
+
+    function move(e){
+
+        if(!dragging) return;
+
+        const p=e.touches ? e.touches[0] : e;
+
+        el.style.left=(p.clientX-dx)+"px";
+
+        el.style.top=(p.clientY-dy)+"px";
+
+        e.preventDefault();
+
+    }
+
+    function end(){
+
+        dragging=false;
+
+        document.removeEventListener("mousemove",move);
+
+        document.removeEventListener("mouseup",end);
+
+        document.removeEventListener("touchmove",move);
+
+        document.removeEventListener("touchend",end);
+
+        snap(el,item);
+
+    }
+
+    el.addEventListener("mousedown",start);
+
+    el.addEventListener("touchstart",start);
+
+    return el;
+
+}
+
+/* ================= SNAP ================= */
+
+function snap(el,item){
+
+    const rect=el.getBoundingClientRect();
+
+    const cx=rect.left+rect.width/2;
+
+    const cy=rect.top+rect.height/2;
+
+    document.querySelectorAll(".section").forEach(sec=>{
+
+        const r=sec.getBoundingClientRect();
+
+        if(
+
+            cx>r.left &&
+
+            cx<r.right &&
+
+            cy>r.top &&
+
+            cy<r.bottom
+
+        ){
+
+            const newRow=+sec.dataset.row;
+
+            const newCol=+sec.dataset.col;
+
+            const oldRow=item.row;
+
+            const oldCol=item.col;
+
+            state[oldRow][oldCol]=
+
+            state[oldRow][oldCol].filter(
+
+                x=>x.id!==item.id
+
+            );
+
+            /* UNGROUP */
+
+            if(
+
+                newRow===oldRow &&
+
+                newCol===oldCol+1 &&
+
+                oldCol<4
+
+            ){
+
+                const secRect=
+
+                sec.getBoundingClientRect();
+
+                for(let i=0;i<10;i++){
+
+                    state[newRow][newCol].push({
+
+                        id:Date.now()+Math.random(),
+
+                        row:newRow,
+
+                        col:newCol,
+
+                        x:(cx-secRect.left)+
+
+                          (Math.random()*40-20),
+
+                        y:(cy-secRect.top)+
+
+                          (Math.random()*40-20)
+
+                    });
+
+                }
+
+                render();
+
+                return;
+
+            }
+
+            item.row=newRow;
+
+            item.col=newCol;
+
+            const secRect=
+
+            sec.getBoundingClientRect();
+
+            item.x=cx-secRect.left;
+
+            item.y=cy-secRect.top;
+
+            state[newRow][newCol].push(item);
+
+            checkRegroup(newRow,newCol);
+
+        }
 
     });
 
-  }
-
-  pending = null;
-
-  render();
+    render();
 
 }
 
@@ -550,33 +688,45 @@ function confirmExchange(ok){
 
 function render(){
 
-  document.querySelectorAll(".section").forEach(sec=>{
+    document.querySelectorAll(".section")
 
-    sec.innerHTML = "";
+    .forEach(sec=>{
 
-    const r = +sec.dataset.row;
+        sec.innerHTML="";
 
-    const c = +sec.dataset.col;
+        const row=+sec.dataset.row;
 
-    state[r][c].forEach(item=>{
+        const col=+sec.dataset.col;
 
-      const el = document.createElement("div");
+        state[row][col]
 
-      el.className = `counter c${c}`;
+        .forEach(item=>{
 
-      el.style.left = item.x + "px";
+            const el=
 
-      el.style.top  = item.y + "px";
+            document.createElement("div");
 
-      makeDraggable(el,item);
+            el.className=
 
-      sec.appendChild(el);
+            `counter c${col}`;
+
+            el.style.left=item.x+"px";
+
+            el.style.top=item.y+"px";
+
+            el.textContent=values[col];
+
+            makeDraggable(el,item);
+
+            sec.appendChild(el);
+
+        });
 
     });
 
-  });
-
 }
+
+/* ================= START ================= */
 
 build();
 
