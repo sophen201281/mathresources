@@ -3,19 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Place Value Learning Tool</title>
+<title>Responsive Place Value Tool</title>
 
 <style>
 body{
   font-family: Arial;
   background:#f4f7fb;
   text-align:center;
+  margin:0;
 }
 
-/* ===== BUTTON PANEL ===== */
+/* ===== CONTROLS ===== */
 #controls{
   background:#fff;
-  padding:12px;
+  padding:10px;
   margin:10px;
   border-radius:10px;
   display:flex;
@@ -26,56 +27,78 @@ body{
 
 button{
   padding:10px 12px;
-  font-size:14px;
   border:none;
   border-radius:8px;
   cursor:pointer;
   color:white;
+  font-size:14px;
 }
 
-.btn0{ background:#ff4d4d; } /* 10000 */
-.btn1{ background:#b84dff; } /* 1000 */
-.btn2{ background:#ffd24d; color:#000; } /* 100 */
-.btn3{ background:#4dff88; color:#000; } /* 10 */
-.btn4{ background:#4da6ff; } /* 1 */
-
-/* ===== TABLE ===== */
+/* ===== GRID RESPONSIVE ===== */
 .table{
-  display:grid;
-  grid-template-columns: repeat(5, 1fr);
+  display:flex;
   gap:10px;
-  margin:20px;
+  padding:10px;
+  overflow-x:auto; /* 🔥 important for mobile */
 }
 
+/* ===== COLUMN ===== */
 .col{
   background:#fff;
   border:2px solid #ccc;
   border-radius:10px;
-  padding:5px;
+
+  flex:0 0 clamp(140px, 18vw, 220px); /* 🔥 responsive width */
+
+  display:flex;
+  flex-direction:column;
 }
 
-.cell{
+/* title */
+.col h4{
+  margin:6px 0;
+  font-size:14px;
+}
+
+/* ===== SECTION ===== */
+.section{
+  min-height:clamp(80px, 10vh, 120px);
   border:1px dashed #aaa;
-  min-height:130px;
-  margin:5px 0;
   border-radius:8px;
+  margin:4px;
   position:relative;
 }
 
-.counter{
-  width:26px;
-  height:26px;
-  border-radius:50%;
-  position:absolute;
-  touch-action:none;
-  cursor:pointer;
+/* ===== CANVAS SPACES ===== */
+.canvas-space{
+  height:clamp(60px, 8vh, 90px);
+  margin:4px;
+  position:relative;
 }
 
+canvas{
+  width:100%;
+  height:100%;
+  touch-action:none;
+}
+
+/* ===== COUNTERS ===== */
+.counter{
+  width:clamp(18px, 3vw, 26px);
+  height:clamp(18px, 3vw, 26px);
+  border-radius:50%;
+  position:absolute;
+  cursor:pointer;
+  touch-action:none;
+}
+
+/* colors */
 .c0{ background:#ff4d4d; }
 .c1{ background:#b84dff; }
 .c2{ background:#ffd24d; }
 .c3{ background:#4dff88; }
 .c4{ background:#4da6ff; }
+
 </style>
 </head>
 
@@ -83,43 +106,53 @@ button{
 
 <h2>Place Value Learning Tool</h2>
 
-<!-- ===== BUTTON CONTROLS ===== -->
 <div id="controls">
-  <button class="btn0" onclick="addCounter(0)">➕ 10,000</button>
-  <button class="btn1" onclick="addCounter(1)">➕ 1,000</button>
-  <button class="btn2" onclick="addCounter(2)">➕ 100</button>
-  <button class="btn3" onclick="addCounter(3)">➕ 10</button>
-  <button class="btn4" onclick="addCounter(4)">➕ 1</button>
+  <button style="background:#ff4d4d" onclick="addCounter(0)">10,000</button>
+  <button style="background:#b84dff" onclick="addCounter(1)">1,000</button>
+  <button style="background:#ffd24d;color:black" onclick="addCounter(2)">100</button>
+  <button style="background:#4dff88;color:black" onclick="addCounter(3)">10</button>
+  <button style="background:#4da6ff" onclick="addCounter(4)">1</button>
 </div>
 
-<!-- ===== TABLE ===== -->
 <div id="table" class="table"></div>
 
 <script>
 
-const cols = ["Ten Thousands","Thousands","Hundreds","Tens","Ones"];
+const cols=["Ten Thousands","Thousands","Hundreds","Tens","Ones"];
+let state=Array(3).fill().map(()=>Array(5).fill().map(()=>[]));
 
-/* state[row][col] */
-let state = Array(3).fill().map(()=> Array(5).fill().map(()=> []));
+const table=document.getElementById("table");
 
-const table = document.getElementById("table");
-
-/* ================= GRID ================= */
+/* ================= BUILD ================= */
 function build(){
-  table.innerHTML = "";
+  table.innerHTML="";
 
   cols.forEach((name,col)=>{
 
-    const column = document.createElement("div");
-    column.className = "col";
-    column.innerHTML = `<h4>${name}</h4>`;
+    const column=document.createElement("div");
+    column.className="col";
 
-    for(let row=0; row<3; row++){
-      const cell = document.createElement("div");
-      cell.className = "cell";
-      cell.dataset.row = row;
-      cell.dataset.col = col;
-      column.appendChild(cell);
+    column.innerHTML=`<h4>${name}</h4>`;
+
+    const canvasWraps=[];
+
+    for(let i=0;i<3;i++){
+
+      const section=document.createElement("div");
+      section.className="section";
+      section.dataset.row=i;
+      section.dataset.col=col;
+
+      const canvasSpace=document.createElement("div");
+      canvasSpace.className="canvas-space";
+
+      const canvas=document.createElement("canvas");
+      canvasSpace.appendChild(canvas);
+
+      initCanvas(canvas);
+
+      column.appendChild(section);
+      column.appendChild(canvasSpace);
     }
 
     table.appendChild(column);
@@ -128,116 +161,126 @@ function build(){
   render();
 }
 
+/* ================= CANVAS ================= */
+function initCanvas(canvas){
+
+  const ctx=canvas.getContext("2d");
+  let drawing=false;
+
+  function resize(){
+    const rect=canvas.getBoundingClientRect();
+    const dpr=window.devicePixelRatio||1;
+
+    canvas.width=rect.width*dpr;
+    canvas.height=rect.height*dpr;
+
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.lineWidth=2;
+    ctx.strokeStyle="rgba(0,0,0,0.6)";
+  }
+
+  resize();
+  new ResizeObserver(resize).observe(canvas);
+
+  function pos(e){
+    const rect=canvas.getBoundingClientRect();
+    const t=e.touches?e.touches[0]:e;
+    return {x:t.clientX-rect.left,y:t.clientY-rect.top};
+  }
+
+  canvas.addEventListener("mousedown",e=>{
+    drawing=true;
+    const p=pos(e);
+    ctx.beginPath();
+    ctx.moveTo(p.x,p.y);
+  });
+
+  canvas.addEventListener("mousemove",e=>{
+    if(!drawing) return;
+    const p=pos(e);
+    ctx.lineTo(p.x,p.y);
+    ctx.stroke();
+  });
+
+  canvas.addEventListener("mouseup",()=>drawing=false);
+  canvas.addEventListener("mouseleave",()=>drawing=false);
+
+  canvas.addEventListener("touchstart",e=>{
+    drawing=true;
+    const p=pos(e);
+    ctx.beginPath();
+    ctx.moveTo(p.x,p.y);
+    e.preventDefault();
+  },{passive:false});
+
+  canvas.addEventListener("touchmove",e=>{
+    if(!drawing) return;
+    const p=pos(e);
+    ctx.lineTo(p.x,p.y);
+    ctx.stroke();
+    e.preventDefault();
+  },{passive:false});
+
+  canvas.addEventListener("touchend",()=>drawing=false);
+}
+
 /* ================= ADD COUNTER ================= */
 function addCounter(col){
-  const row = 0; // always start in row 0 (bank row)
-
-  state[row][col].push({id: Date.now()});
-
+  state[0][col].push({id:Date.now()});
   normalize();
   render();
 }
 
-/* ================= COUNTER ================= */
+/* ================= COUNTERS ================= */
 function createCounter(row,col,index){
 
-  const c = document.createElement("div");
-  c.className = `counter c${col}`;
+  const c=document.createElement("div");
+  c.className=`counter c${col}`;
 
-  let offsetX = 0;
-  let offsetY = 0;
-  let dragging = false;
+  let dx=0,dy=0,drag=false;
 
   function start(e){
-    dragging = true;
+    drag=true;
+    const ev=e.touches?e.touches[0]:e;
 
-    const ev = e.touches ? e.touches[0] : e;
+    dx=ev.clientX-c.offsetLeft;
+    dy=ev.clientY-c.offsetTop;
 
-    offsetX = ev.clientX - c.offsetLeft;
-    offsetY = ev.clientY - c.offsetTop;
-
-    document.addEventListener("mousemove", move);
-    document.addEventListener("touchmove", move, {passive:false});
-    document.addEventListener("mouseup", end);
-    document.addEventListener("touchend", end);
+    document.addEventListener("mousemove",move);
+    document.addEventListener("mouseup",end);
+    document.addEventListener("touchmove",move,{passive:false});
+    document.addEventListener("touchend",end);
   }
 
   function move(e){
-    if(!dragging) return;
+    if(!drag) return;
+    const ev=e.touches?e.touches[0]:e;
+    c.style.left=(ev.clientX-dx)+"px";
+    c.style.top=(ev.clientY-dy)+"px";
     e.preventDefault();
-
-    const ev = e.touches ? e.touches[0] : e;
-
-    c.style.left = (ev.clientX - offsetX) + "px";
-    c.style.top = (ev.clientY - offsetY) + "px";
   }
 
   function end(){
-    dragging = false;
-
-    document.removeEventListener("mousemove", move);
-    document.removeEventListener("mouseup", end);
-    document.removeEventListener("touchmove", move);
-    document.removeEventListener("touchend", end);
-
-    dropCheck(c,row,col,index);
+    drag=false;
+    document.removeEventListener("mousemove",move);
+    document.removeEventListener("mouseup",end);
+    document.removeEventListener("touchmove",move);
+    document.removeEventListener("touchend",end);
   }
 
-  c.addEventListener("mousedown", start);
-  c.addEventListener("touchstart", start);
+  c.addEventListener("mousedown",start);
+  c.addEventListener("touchstart",start);
 
   return c;
 }
 
-/* ================= DROP ================= */
-function dropCheck(counter, fr, fc, index){
-
-  const rect = counter.getBoundingClientRect();
-  const cx = rect.left + rect.width/2;
-  const cy = rect.top + rect.height/2;
-
-  let target = null;
-
-  document.querySelectorAll(".cell").forEach(cell=>{
-    const r = cell.getBoundingClientRect();
-
-    if(cx>r.left && cx<r.right && cy>r.top && cy<r.bottom){
-      target = cell;
-    }
-  });
-
-  if(!target){
-    render();
-    return;
-  }
-
-  const tr = +target.dataset.row;
-  const tc = +target.dataset.col;
-
-  moveCounter(fr,fc,index,tr,tc);
-}
-
-/* ================= MOVE ================= */
-function moveCounter(fr,fc,index,tr,tc){
-
-  const item = state[fr][fc][index];
-  if(!item) return;
-
-  state[fr][fc].splice(index,1);
-  state[tr][tc].push(item);
-
-  normalize();
-  render();
-}
-
-/* ================= REGROUP 10 ================= */
+/* ================= REGROUP ================= */
 function normalize(){
-
-  for(let col=4; col>0; col--){
-    for(let row=2; row>=0; row--){
-      while(state[row][col].length >= 10){
+  for(let col=4;col>0;col--){
+    for(let row=2;row>=0;row--){
+      while(state[row][col].length>=10){
         for(let i=0;i<10;i++) state[row][col].pop();
-        state[row][col-1].push({id: Date.now()});
+        state[row][col-1].push({id:Date.now()});
       }
     }
   }
@@ -246,20 +289,23 @@ function normalize(){
 /* ================= RENDER ================= */
 function render(){
 
-  document.querySelectorAll(".cell").forEach(cell=>{
-    cell.innerHTML = "";
+  document.querySelectorAll(".section").forEach(sec=>{
+    sec.innerHTML="";
 
-    const row = +cell.dataset.row;
-    const col = +cell.dataset.col;
+    const r=+sec.dataset.row;
+    const c=+sec.dataset.col;
 
-    state[row][col].forEach((item,i)=>{
+    state[r][c].forEach((item,i)=>{
 
-      const c = createCounter(row,col,i);
+      const el=createCounter(r,c,i);
 
-      c.style.left = (10 + (i%5)*30) + "px";
-      c.style.top  = (10 + Math.floor(i/5)*30) + "px";
+      const size=30;
+      const perRow=4;
 
-      cell.appendChild(c);
+      el.style.left=(8+(i%perRow)*size)+"px";
+      el.style.top=(8+Math.floor(i/perRow)*size)+"px";
+
+      sec.appendChild(el);
     });
   });
 }
