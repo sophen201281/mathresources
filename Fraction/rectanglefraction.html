@@ -353,8 +353,11 @@ popup.style.display="none";
 overlay.style.display="none";
 
 if(!ok){
+
     pending=null;
     dragPending=null;
+
+    render();
     return;
 }
 
@@ -404,6 +407,13 @@ if(dragPending){
         });
 
     }
+    dragPending=null;
+
+    render();
+
+    return;
+
+}
 
     dragPending=null;
 }
@@ -455,66 +465,77 @@ el.addEventListener("mousedown",start);
 el.addEventListener("touchstart",start);
 }
 
-/* SNAP */
 function snap(el,item){
 
 const rect=el.getBoundingClientRect();
 const cx=rect.left+rect.width/2;
 const cy=rect.top+rect.height/2;
 
-let found=false;
+let targetSection=null;
 
 document.querySelectorAll(".section").forEach(sec=>{
 
-const r=sec.getBoundingClientRect();
-
-if(cx>r.left && cx<r.right &&
-   cy>r.top && cy<r.bottom){
-
-    found=true;
-
-    const newRow=+sec.dataset.row;
-    const newCol=+sec.dataset.col;
-
-    /* DRAG RIGHT = ASK TO EXCHANGE */
+    const r=sec.getBoundingClientRect();
 
     if(
-        newRow===item.row &&
-        newCol===item.col+1 &&
-        item.col<4
+        cx>r.left &&
+        cx<r.right &&
+        cy>r.top &&
+        cy<r.bottom
     ){
-
-        dragPending={
-            item:item,
-            oldRow:item.row,
-            oldCol:item.col,
-            newRow:newRow,
-            newCol:newCol
-        };
-
-        overlay.style.display="block";
-        popup.style.display="block";
-        return;
+        targetSection=sec;
     }
 
-    state[item.row][item.col] =
-        state[item.row][item.col]
-        .filter(x=>x.id!==item.id);
+});
 
-    item.row=newRow;
-    item.col=newCol;
-
-    const secRect=sec.getBoundingClientRect();
-
-    item.x=cx-secRect.left;
-    item.y=cy-secRect.top;
-
-    state[newRow][newCol].push(item);
-
-    checkRegroup(newRow,newCol);
+if(!targetSection){
+    render();
+    return;
 }
 
-});
+const newRow=+targetSection.dataset.row;
+const newCol=+targetSection.dataset.col;
+
+/* ASK TO EXCHANGE WHEN MOVING ONE COLUMN RIGHT */
+
+if(
+    newRow===item.row &&
+    newCol===item.col+1 &&
+    item.col<4
+){
+
+    dragPending={
+        item:item,
+        oldRow:item.row,
+        oldCol:item.col,
+        newRow:newRow,
+        newCol:newCol
+    };
+
+    overlay.style.display="block";
+    popup.style.display="block";
+
+    render();
+    return;
+}
+
+/* NORMAL MOVE */
+
+state[item.row][item.col] =
+    state[item.row][item.col]
+    .filter(x=>x.id!==item.id);
+
+item.row=newRow;
+item.col=newCol;
+
+const secRect=targetSection.getBoundingClientRect();
+
+item.x=cx-secRect.left;
+item.y=cy-secRect.top;
+
+state[newRow][newCol].push(item);
+
+checkRegroup(newRow,newCol);
 
 render();
 }
