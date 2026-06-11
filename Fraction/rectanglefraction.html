@@ -196,6 +196,7 @@ const popup=document.getElementById("popup");
 const overlay=document.getElementById("overlay");
 
 let pending=null;
+let dragPending=null;
 let drawMode="pen";
 let canvases=[];
 
@@ -346,28 +347,67 @@ overlay.style.display="block";
 popup.style.display="block";
 }
 }
-
 function confirmExchange(ok){
+
 popup.style.display="none";
 overlay.style.display="none";
 
-if(!ok){pending=null;return;}
-
-const {row,col}=pending;
-
-state[row][col].splice(0,10);
-
-if(col>0){
-state[row][col-1].push({
-id:Date.now()+Math.random(),
-row,
-col:col-1,
-x:30,
-y:30
-});
+if(!ok){
+    pending=null;
+    dragPending=null;
+    return;
 }
 
-pending=null;
+/* 10 smaller -> 1 bigger */
+if(pending){
+
+    const {row,col}=pending;
+
+    state[row][col].splice(0,10);
+
+    if(col>0){
+        state[row][col-1].push({
+            id:Date.now()+Math.random(),
+            row,
+            col:col-1,
+            x:30,
+            y:30
+        });
+    }
+
+    pending=null;
+}
+
+/* 1 bigger -> 10 smaller */
+if(dragPending){
+
+    const {
+        item,
+        oldRow,
+        oldCol,
+        newRow,
+        newCol
+    } = dragPending;
+
+    state[oldRow][oldCol] =
+        state[oldRow][oldCol]
+        .filter(x=>x.id!==item.id);
+
+    for(let i=0;i<10;i++){
+
+        state[newRow][newCol].push({
+            id:Date.now()+Math.random()+i,
+            row:newRow,
+            col:newCol,
+            x:15+(i%5)*25,
+            y:15+Math.floor(i/5)*25
+        });
+
+    }
+
+    dragPending=null;
+}
+
 render();
 }
 
@@ -422,30 +462,58 @@ const rect=el.getBoundingClientRect();
 const cx=rect.left+rect.width/2;
 const cy=rect.top+rect.height/2;
 
+let found=false;
+
 document.querySelectorAll(".section").forEach(sec=>{
 
 const r=sec.getBoundingClientRect();
 
-if(cx>r.left && cx<r.right && cy>r.top && cy<r.bottom){
+if(cx>r.left && cx<r.right &&
+   cy>r.top && cy<r.bottom){
 
-const newRow=+sec.dataset.row;
-const newCol=+sec.dataset.col;
+    found=true;
 
-state[item.row][item.col]=state[item.row][item.col]
-.filter(x=>x.id!==item.id);
+    const newRow=+sec.dataset.row;
+    const newCol=+sec.dataset.col;
 
-item.row=newRow;
-item.col=newCol;
+    /* DRAG RIGHT = ASK TO EXCHANGE */
 
-const secRect=sec.getBoundingClientRect();
+    if(
+        newRow===item.row &&
+        newCol===item.col+1 &&
+        item.col<4
+    ){
 
-item.x=cx-secRect.left;
-item.y=cy-secRect.top;
+        dragPending={
+            item:item,
+            oldRow:item.row,
+            oldCol:item.col,
+            newRow:newRow,
+            newCol:newCol
+        };
 
-state[newRow][newCol].push(item);
+        overlay.style.display="block";
+        popup.style.display="block";
+        return;
+    }
 
-checkRegroup(newRow,newCol);
+    state[item.row][item.col] =
+        state[item.row][item.col]
+        .filter(x=>x.id!==item.id);
+
+    item.row=newRow;
+    item.col=newCol;
+
+    const secRect=sec.getBoundingClientRect();
+
+    item.x=cx-secRect.left;
+    item.y=cy-secRect.top;
+
+    state[newRow][newCol].push(item);
+
+    checkRegroup(newRow,newCol);
 }
+
 });
 
 render();
