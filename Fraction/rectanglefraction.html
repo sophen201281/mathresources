@@ -6,48 +6,75 @@
 <title>Place Value Regrouping Tool</title>
 
 <style>
+*{
+    box-sizing:border-box;
+}
+
 body{
     font-family:Arial,sans-serif;
     margin:0;
     background:#f4f7fb;
     text-align:center;
+    height:100vh;
+    display:flex;
+    flex-direction:column;
 }
 
+/* HEADER */
 h2{
-    margin:15px;
+    margin:10px 0;
+    font-size:clamp(16px,2.5vw,24px);
 }
 
+/* TOOLBAR */
 .toolbar{
-    margin-bottom:15px;
+    margin:5px 0;
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:6px;
 }
 
 button{
-    padding:8px 12px;
-    margin:3px;
+    padding:8px 10px;
     cursor:pointer;
+    font-size:clamp(12px,2vw,14px);
 }
 
+/* MAIN TABLE */
 .table{
+    flex:1;
     display:flex;
-    gap:10px;
-    padding:10px;
+    gap:8px;
+    padding:8px;
     overflow-x:auto;
+    overflow-y:hidden;
+    align-items:stretch;
 }
 
+/* COLUMN */
 .col{
-    min-width:190px;
+    flex:1;
+    min-width:140px;
+    max-width:220px;
     background:white;
     border:2px solid #ccc;
     border-radius:10px;
     padding:5px;
+    display:flex;
+    flex-direction:column;
 }
 
+/* TITLE */
 .col h4{
-    margin:5px 0;
+    margin:4px 0;
+    font-size:clamp(11px,1.8vw,14px);
 }
 
+/* SECTION (DROP AREA) */
 .section{
-    height:140px;
+    flex:1;
+    min-height:120px;
     border:1px dashed #999;
     margin-bottom:4px;
     position:relative;
@@ -55,17 +82,20 @@ button{
     background:white;
 }
 
+/* CANVAS */
 .canvas{
-    width:170px;
-    height:70px;
+    width:100%;
+    height:60px;
     border:1px solid #ddd;
     background:white;
     touch-action:none;
+    margin-bottom:6px;
 }
 
+/* COUNTER */
 .counter{
-    width:36px;
-    height:36px;
+    width:clamp(28px,5vw,36px);
+    height:clamp(28px,5vw,36px);
     border-radius:50%;
     position:absolute;
     display:flex;
@@ -84,12 +114,14 @@ button{
     cursor:grabbing;
 }
 
+/* COLORS */
 .c0{background:#ff6666;}
 .c1{background:#ffcc66;}
 .c2{background:#66ff99;}
 .c3{background:#66ccff;}
 .c4{background:#cc99ff;}
 
+/* POPUP */
 .popup{
     position:fixed;
     top:50%;
@@ -101,6 +133,8 @@ button{
     box-shadow:0 10px 25px rgba(0,0,0,.3);
     z-index:1001;
     display:none;
+    width:90%;
+    max-width:300px;
 }
 
 .overlay{
@@ -109,6 +143,17 @@ button{
     background:rgba(0,0,0,.3);
     z-index:1000;
     display:none;
+}
+
+/* MOBILE IMPROVEMENT */
+@media (max-width:600px){
+    .col{
+        min-width:120px;
+    }
+
+    .section{
+        min-height:100px;
+    }
 }
 </style>
 </head>
@@ -152,19 +197,12 @@ const overlay=document.getElementById("overlay");
 
 let pending=null;
 let drawMode="pen";
-
 let canvases=[];
 
-let state=Array(3)
-.fill()
-.map(()=>Array(5)
-.fill()
-.map(()=>[]));
+let state=Array(3).fill().map(()=>Array(5).fill().map(()=>[]));
 
-/* ================= BUILD ================= */
-
+/* BUILD */
 function build(){
-
 table.innerHTML="";
 
 cols.forEach((name,col)=>{
@@ -194,36 +232,29 @@ col,
 e.clientX-rect.left,
 e.clientY-rect.top
 );
-
 });
 
 column.appendChild(section);
 
-/* canvas (NO clear button per canvas) */
 const canvas=document.createElement("canvas");
-canvas.width=170;
-canvas.height=70;
 canvas.className="canvas";
+canvas.height=60;
+canvas.width=200;
 
 column.appendChild(canvas);
 
 enableCanvas(canvas);
 canvases.push(canvas);
-
 }
 
 table.appendChild(column);
-
 });
 
 render();
-
 }
 
-/* ================= DRAWING ================= */
-
+/* DRAWING */
 function enableCanvas(canvas){
-
 const ctx=canvas.getContext("2d");
 
 ctx.lineWidth=2;
@@ -232,7 +263,6 @@ ctx.lineCap="round";
 let drawing=false;
 
 function pos(e){
-
 const rect=canvas.getBoundingClientRect();
 const p=e.touches?e.touches[0]:e;
 
@@ -240,21 +270,16 @@ return{
 x:p.clientX-rect.left,
 y:p.clientY-rect.top
 };
-
 }
 
 function start(e){
-
 drawing=true;
 const p=pos(e);
-
 ctx.beginPath();
 ctx.moveTo(p.x,p.y);
-
 }
 
 function move(e){
-
 if(!drawing) return;
 
 const p=pos(e);
@@ -269,7 +294,6 @@ ctx.lineWidth=2;
 
 ctx.lineTo(p.x,p.y);
 ctx.stroke();
-
 }
 
 function stop(){
@@ -285,60 +309,45 @@ canvas.addEventListener("mouseleave",stop);
 canvas.addEventListener("touchstart",start);
 canvas.addEventListener("touchmove",(e)=>{e.preventDefault();move(e);});
 canvas.addEventListener("touchend",stop);
-
 }
 
-/* ================= TOOLS ================= */
-
+/* TOOLS */
 function setPen(){drawMode="pen";}
 function setEraser(){drawMode="eraser";}
 
 function clearAllCanvases(){
-
 canvases.forEach(c=>{
 c.getContext("2d").clearRect(0,0,c.width,c.height);
 });
-
 }
 
 function restartTool(){
-
 if(!confirm("Restart everything?")) return;
 
 state=Array(3).fill().map(()=>Array(5).fill().map(()=>[]));
-
 clearAllCanvases();
-
 render();
-
 }
 
-/* ================= COUNTERS ================= */
-
+/* COUNTERS */
 function addCounter(row,col,x,y){
-
 state[row][col].push({
 id:Date.now()+Math.random(),
 row,col,x,y
 });
-
 checkRegroup(row,col);
 render();
-
 }
 
 function checkRegroup(row,col){
-
 if(state[row][col].length>=10){
 pending={row,col};
 overlay.style.display="block";
 popup.style.display="block";
 }
-
 }
 
 function confirmExchange(ok){
-
 popup.style.display="none";
 overlay.style.display="none";
 
@@ -360,17 +369,14 @@ y:30
 
 pending=null;
 render();
-
 }
 
-/* ================= DRAG ================= */
-
+/* DRAG */
 function makeDraggable(el,item){
 
 let dragging=false,dx=0,dy=0;
 
 function start(e){
-
 dragging=true;
 const p=e.touches?e.touches[0]:e;
 
@@ -381,11 +387,9 @@ document.addEventListener("mousemove",move);
 document.addEventListener("mouseup",end);
 document.addEventListener("touchmove",move,{passive:false});
 document.addEventListener("touchend",end);
-
 }
 
 function move(e){
-
 if(!dragging) return;
 
 const p=e.touches?e.touches[0]:e;
@@ -394,33 +398,27 @@ el.style.left=(p.clientX-dx)+"px";
 el.style.top=(p.clientY-dy)+"px";
 
 e.preventDefault();
-
 }
 
 function end(){
-
 dragging=false;
 
 document.removeEventListener("mousemove",move);
-document.removeEventListener("mouseup",end);
 document.removeEventListener("touchmove",move);
+document.removeEventListener("mouseup",end);
 document.removeEventListener("touchend",end);
 
 snap(el,item);
-
 }
 
 el.addEventListener("mousedown",start);
 el.addEventListener("touchstart",start);
-
 }
 
-/* ================= SNAP ================= */
-
+/* SNAP */
 function snap(el,item){
 
 const rect=el.getBoundingClientRect();
-
 const cx=rect.left+rect.width/2;
 const cy=rect.top+rect.height/2;
 
@@ -433,26 +431,8 @@ if(cx>r.left && cx<r.right && cy>r.top && cy<r.bottom){
 const newRow=+sec.dataset.row;
 const newCol=+sec.dataset.col;
 
-state[item.row][item.col]=
-state[item.row][item.col].filter(x=>x.id!==item.id);
-
-if(newRow===item.row && newCol===item.col+1 && item.col<4){
-
-const secRect=sec.getBoundingClientRect();
-
-for(let i=0;i<10;i++){
-state[newRow][newCol].push({
-id:Date.now()+Math.random(),
-row:newRow,
-col:newCol,
-x:(cx-secRect.left)+(Math.random()*30),
-y:(cy-secRect.top)+(Math.random()*30)
-});
-}
-
-render();
-return;
-}
+state[item.row][item.col]=state[item.row][item.col]
+.filter(x=>x.id!==item.id);
 
 item.row=newRow;
 item.col=newCol;
@@ -465,17 +445,13 @@ item.y=cy-secRect.top;
 state[newRow][newCol].push(item);
 
 checkRegroup(newRow,newCol);
-
 }
-
 });
 
 render();
-
 }
 
-/* ================= RENDER ================= */
-
+/* RENDER */
 function render(){
 
 document.querySelectorAll(".section").forEach(sec=>{
@@ -499,14 +475,11 @@ sec.appendChild(el);
 });
 
 });
-
 }
 
-/* ================= START ================= */
-
+/* START */
 build();
 
 </script>
-
 </body>
 </html>
