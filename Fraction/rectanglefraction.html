@@ -8,7 +8,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Tracing App + Eraser</title>
+<title>Stable Trace Flip App</title>
 
 <style>
 
@@ -44,7 +44,7 @@ margin:10px 0;
 
 }
 
-/* 🎛 tools */
+/* tools */
 
 .tools{
 
@@ -54,9 +54,9 @@ justify-content:center;
 
 gap:15px;
 
-align-items:center;
-
 flex-wrap:wrap;
+
+align-items:center;
 
 margin-bottom:10px;
 
@@ -78,15 +78,13 @@ cursor:pointer;
 
 }
 
-/* 🖊 tool toggle */
-
 .tool-btn{
 
 background:#16a34a;
 
 }
 
-/* 📦 deck */
+/* deck */
 
 .deck{
 
@@ -100,7 +98,7 @@ margin:auto;
 
 }
 
-/* 📄 card */
+/* card system (FIXED) */
 
 .card{
 
@@ -118,21 +116,29 @@ overflow:hidden;
 
 box-shadow:0 8px 20px #888;
 
+opacity:0;
+
+pointer-events:none;
+
+transform:scale(0.95);
+
 transition:.3s;
 
 }
 
-.active{ z-index:20; }
+.card.active{
 
-.back{
+opacity:1;
 
-z-index:1;
+pointer-events:auto;
 
-transform:translateX(35px) scale(.94) rotate(-5deg);
+transform:scale(1);
+
+z-index:10;
 
 }
 
-/* 🔢 number */
+/* number */
 
 .number{
 
@@ -154,7 +160,7 @@ z-index:2;
 
 }
 
-/* ✍️ canvas */
+/* canvas */
 
 canvas{
 
@@ -172,37 +178,29 @@ z-index:5;
 
 touch-action:none;
 
-background-image:url("https://images.unsplash.com/photo-1513151233558-d860c5398176");
+background-image:url("image.png");
 
 background-size:cover;
 
 background-position:center;
 
-opacity:.25;
+opacity:0.25;
 
 }
 
-/* 📖 flip */
+/* handles */
 
-.handle{
+.handle-left,
+
+.handle-right{
 
 position:absolute;
 
-right:-40px;
+top:160px;
 
-top:180px;
+width:80px;
 
-width:45px;
-
-height:90px;
-
-background:#2563eb;
-
-color:white;
-
-border-radius:0 20px 20px 0;
-
-z-index:50;
+height:130px;
 
 display:flex;
 
@@ -210,13 +208,39 @@ align-items:center;
 
 justify-content:center;
 
-font-size:25px;
+font-size:40px;
+
+color:white;
 
 cursor:pointer;
 
+z-index:50;
+
+box-shadow:0 5px 10px rgba(0,0,0,0.2);
+
 }
 
-/* 🍎 fruits */
+.handle-left{
+
+left:-60px;
+
+background:#16a34a;
+
+border-radius:25px 0 0 25px;
+
+}
+
+.handle-right{
+
+right:-60px;
+
+background:#2563eb;
+
+border-radius:0 25px 25px 0;
+
+}
+
+/* fruits */
 
 .fruit-area{
 
@@ -230,8 +254,6 @@ height:120px;
 
 background:#dcfce7;
 
-z-index:10;
-
 display:flex;
 
 flex-wrap:wrap;
@@ -243,6 +265,8 @@ align-items:center;
 gap:8px;
 
 padding:10px;
+
+z-index:10;
 
 }
 
@@ -278,7 +302,43 @@ color:#2563eb;
 
 font-size:16px;
 
-line-height:20px;
+}
+
+/* random */
+
+.bottom-handle{
+
+position:absolute;
+
+bottom:15px;
+
+left:50%;
+
+transform:translateX(-50%);
+
+width:160px;
+
+height:60px;
+
+background:#f59e0b;
+
+color:white;
+
+border-radius:30px;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+font-size:24px;
+
+font-weight:bold;
+
+cursor:pointer;
+
+z-index:100;
 
 }
 
@@ -288,9 +348,7 @@ line-height:20px;
 
 <body>
 
-<h1>🔢 Trace, Erase & Count 🍎</h1>
-
-<!-- 🎛 tools -->
+<h1>🔢 Stable Trace Flip App 🍎</h1>
 
 <div class="tools">
 
@@ -318,6 +376,8 @@ Size:
 
 <div class="deck" id="deck"></div>
 
+<div class="bottom-handle" onclick="randomCard()">🎲 Random</div>
+
 <script>
 
 const deck=document.getElementById("deck");
@@ -330,7 +390,9 @@ let strokeSize=8;
 
 let eraserMode=false;
 
-/* 🎨 controls */
+const canvases=[];
+
+/* controls */
 
 document.getElementById("colorPicker").oninput=e=>{
 
@@ -344,25 +406,21 @@ strokeSize=e.target.value;
 
 };
 
-/* 🧽 toggle eraser */
-
 function toggleEraser(){
 
 eraserMode=!eraserMode;
 
 }
 
-/* 🍎 fruits */
-
 const fruits=["🍎","🍌","🍊","🍓","🍇"];
 
-/* 🔢 cards */
+/* build cards */
 
 for(let num=0; num<=9; num++){
 
-let card=document.createElement("div");
+const card=document.createElement("div");
 
-card.className = num===0 ? "card active" : "card back";
+card.className="card"+(num===0?" active":"");
 
 let fruitHTML="";
 
@@ -386,23 +444,21 @@ card.innerHTML=`
 
 <canvas></canvas>
 
-<div class="fruit-area">
+<div class="fruit-area">${fruitHTML}</div>
 
-${fruitHTML}
+<div class="handle-left">⬅</div>
 
-</div>
-
-<div class="handle">➜</div>
+<div class="handle-right">➜</div>
 
 `;
 
 deck.appendChild(card);
 
-/* ✍️ canvas */
+/* canvas */
 
-let canvas=card.querySelector("canvas");
+const canvas=card.querySelector("canvas");
 
-let ctx=canvas.getContext("2d");
+const ctx=canvas.getContext("2d");
 
 canvas.width=340;
 
@@ -410,7 +466,7 @@ canvas.height=460;
 
 let drawing=false;
 
-canvas.onpointerdown=e=>{
+canvas.addEventListener("pointerdown",e=>{
 
 drawing=true;
 
@@ -418,59 +474,93 @@ ctx.beginPath();
 
 ctx.moveTo(e.offsetX,e.offsetY);
 
-};
+});
 
-canvas.onpointermove=e=>{
+canvas.addEventListener("pointermove",e=>{
 
-if(!drawing)return;
+if(!drawing) return;
 
 ctx.lineWidth=strokeSize;
 
 ctx.lineCap="round";
 
-/* ✍️ pen or eraser */
-
-ctx.strokeStyle = eraserMode ? "white" : strokeColor;
+ctx.strokeStyle=eraserMode?"white":strokeColor;
 
 ctx.lineTo(e.offsetX,e.offsetY);
 
 ctx.stroke();
 
-};
+});
 
-canvas.onpointerup=()=>drawing=false;
+canvas.addEventListener("pointerup",()=>drawing=false);
 
-/* 🔄 flip */
+canvases.push(canvas);
 
-card.querySelector(".handle").onclick=()=>{
+/* fruits */
 
-let cards=document.querySelectorAll(".card");
-
-cards[current].className="card back";
-
-current++;
-
-if(current>9) current=0;
-
-cards[current].className="card active";
-
-};
+card.querySelectorAll(".fruit").forEach(enableDrag);
 
 }
 
-/* 🧼 clear current canvas only */
+/* FIXED FLIP */
 
-function clearTrace(){
+function showCard(index){
 
-document.querySelectorAll("canvas").forEach(c=>{
+document.querySelectorAll(".card").forEach(c=>{
 
-c.getContext("2d").clearRect(0,0,c.width,c.height);
+c.classList.remove("active");
 
 });
 
+current=index;
+
+document.querySelectorAll(".card")[index].classList.add("active");
+
 }
 
-/* 🍎 fruit drag + copy + delete */
+function nextCard(){
+
+showCard((current+1)%10);
+
+}
+
+function prevCard(){
+
+showCard((current+9)%10);
+
+}
+
+function randomCard(){
+
+showCard(Math.floor(Math.random()*10));
+
+}
+
+/* attach handles */
+
+document.querySelectorAll(".handle-right").forEach(b=>{
+
+b.onclick=nextCard;
+
+});
+
+document.querySelectorAll(".handle-left").forEach(b=>{
+
+b.onclick=prevCard;
+
+});
+
+/* clear */
+
+function clearTrace(){
+
+const ctx=canvases[current].getContext("2d");
+
+ctx.clearRect(0,0,340,460);
+
+}
+
+/* fruit system */
 
 function enableDrag(f){
 
@@ -484,9 +574,7 @@ f.onpointerdown=e=>{
 
 let now=Date.now();
 
-/* 👆 double tap delete */
-
-if(now-lastTap<350){
+if(now-lastTap<300){
 
 f.remove();
 
@@ -504,8 +592,6 @@ oy=e.offsetY;
 
 f.setPointerCapture(e.pointerId);
 
-/* ➕ copy */
-
 if(e.target.classList.contains("copy")){
 
 let clone=f.cloneNode(true);
@@ -520,7 +606,7 @@ enableDrag(clone);
 
 f.onpointermove=e=>{
 
-if(!dragging)return;
+if(!dragging) return;
 
 let rect=f.parentElement.getBoundingClientRect();
 
@@ -535,10 +621,6 @@ f.style.top=(e.clientY-rect.top-oy)+"px";
 f.onpointerup=()=>dragging=false;
 
 }
-
-/* activate fruits */
-
-document.querySelectorAll(".fruit").forEach(enableDrag);
 
 </script>
 
