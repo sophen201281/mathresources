@@ -3,12 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Number Learning App</title>
+<title>Number Learning App (Fully Fixed)</title>
 
 <style>
-/* (same CSS as yours — unchanged for stability) */
 
-*{box-sizing:border-box;user-select:none;}
+*{
+box-sizing:border-box;
+user-select:none;
+}
 
 body{
 margin:0;
@@ -19,89 +21,190 @@ font-family:"Comic Sans MS",Arial;
 text-align:center;
 }
 
-h1{color:#2563eb;margin:10px 0;}
+h1{
+color:#2563eb;
+margin:10px 0;
+}
 
-.tools{display:flex;justify-content:center;gap:15px;flex-wrap:wrap;align-items:center;margin-bottom:10px;}
+/* TOOLBAR */
+.tools{
+display:flex;
+justify-content:center;
+gap:10px;
+flex-wrap:wrap;
+align-items:center;
+padding:8px;
+}
+
+input[type="color"],
+input[type="range"]{
+cursor:pointer;
+}
 
 button{
-padding:8px 15px;border:0;border-radius:20px;background:#2563eb;color:white;cursor:pointer;
+padding:8px 12px;
+border:0;
+border-radius:20px;
+cursor:pointer;
+color:white;
+font-weight:bold;
 }
 
-.tool-btn{background:#16a34a;}
+.draw{background:#16a34a;}
+.erase{background:#f59e0b;}
+.clean{background:#ef4444;}
 
-.deck{position:relative;width:340px;height:460px;margin:auto;}
+/* DECK */
+.deck{
+position:relative;
+width:340px;
+height:460px;
+margin:auto;
+}
 
+/* CARD */
 .card{
-position:absolute;width:340px;height:460px;background:white;border-radius:25px;
-overflow:hidden;box-shadow:0 8px 20px #888;
-opacity:0;pointer-events:none;transform:scale(0.95);transition:.3s;
+position:absolute;
+width:340px;
+height:460px;
+background:white;
+border-radius:25px;
+overflow:hidden;
+box-shadow:0 8px 20px rgba(0,0,0,0.25);
+
+opacity:0;
+pointer-events:none;
+transform:scale(0.95);
+transition:0.25s;
 }
 
-.card.active{opacity:1;pointer-events:auto;transform:scale(1);z-index:10;}
-
-.number{
-position:absolute;top:10px;width:100%;
-font-size:150px;font-weight:bold;color:#dbeafe;
--webkit-text-stroke:5px #60a5fa;z-index:2;
+.card.active{
+opacity:1;
+pointer-events:auto;
+transform:scale(1);
+z-index:10;
 }
 
+/* NUMBER */
 .number-img{
-position:absolute;top:120px;left:50%;
+position:absolute;
+top:25px;
+left:50%;
 transform:translateX(-50%);
-width:120px;height:120px;
+width:120px;
+height:120px;
 object-fit:contain;
 z-index:3;
 }
 
+/* CANVAS */
 canvas{
-position:absolute;left:0;top:0;width:100%;height:100%;
-z-index:5;touch-action:none;
+position:absolute;
+inset:0;
 background-image:url("image.png");
-background-size:cover;background-position:center;
+background-size:cover;
+background-position:center;
 opacity:0.25;
+z-index:1;
+
+touch-action:none;
 }
 
-.handle-left,.handle-right{
-position:absolute;top:160px;width:80px;height:130px;
-display:flex;align-items:center;justify-content:center;
-font-size:40px;color:white;cursor:pointer;z-index:50;
-}
-
-.handle-left{left:-60px;background:#16a34a;border-radius:25px 0 0 25px;}
-.handle-right{right:-60px;background:#2563eb;border-radius:0 25px 25px 0;}
-
+/* FRUIT AREA */
 .fruit-area{
-position:absolute;bottom:0;width:100%;height:120px;
-background:#dcfce7;display:flex;flex-wrap:wrap;
-justify-content:center;align-items:center;gap:8px;
-padding:10px;z-index:10;
+position:absolute;
+bottom:0;
+width:100%;
+height:130px;
+background:#dcfce7;
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+align-items:center;
+gap:8px;
+padding:10px;
+z-index:20;
 }
 
+/* FRUIT */
 .fruit{
-position:relative;width:40px;height:40px;
+position:relative;
+width:45px;
+height:45px;
+touch-action:none;
 cursor:grab;
+z-index:21;
 }
 
 .fruit img{
-width:100%;height:100%;object-fit:contain;
+width:100%;
+height:100%;
+object-fit:contain;
 }
 
+/* COPY BUTTON */
 .copy{
-position:absolute;right:-10px;top:-10px;
-width:22px;height:22px;border-radius:50%;
-background:white;border:1px solid #2563eb;
-color:#2563eb;font-size:16px;
+position:absolute;
+right:-8px;
+top:-8px;
+width:20px;
+height:20px;
+border-radius:50%;
+background:white;
+border:1px solid #2563eb;
+color:#2563eb;
+font-size:14px;
+display:flex;
+align-items:center;
+justify-content:center;
 }
 
+/* NAV */
+.handle-left,
+.handle-right{
+position:absolute;
+top:160px;
+width:80px;
+height:130px;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:40px;
+color:white;
+cursor:pointer;
+z-index:50;
+}
+
+.handle-left{
+left:-60px;
+background:#16a34a;
+border-radius:25px 0 0 25px;
+}
+
+.handle-right{
+right:-60px;
+background:#2563eb;
+border-radius:0 25px 25px 0;
+}
+
+/* RANDOM */
 .bottom-handle{
-position:absolute;bottom:15px;left:50%;
+position:absolute;
+bottom:15px;
+left:50%;
 transform:translateX(-50%);
-width:160px;height:60px;
-background:#f59e0b;color:white;
-border-radius:30px;display:flex;
-align-items:center;justify-content:center;
-font-size:24px;font-weight:bold;
-cursor:pointer;z-index:100;
+width:160px;
+height:60px;
+background:#f59e0b;
+color:white;
+border-radius:30px;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:24px;
+font-weight:bold;
+cursor:pointer;
+z-index:100;
 }
 
 </style>
@@ -109,22 +212,17 @@ cursor:pointer;z-index:100;
 
 <body>
 
-<h1>🔢 Number Learn + PNG Images 🍎</h1>
+<h1>🎨 Fully Fixed Number + Fruit App</h1>
 
+<!-- TOOLBAR -->
 <div class="tools">
 
-<label>
-Color:
-<input type="color" id="colorPicker" value="#22c55e">
-</label>
+<input type="color" id="colorPicker" value="#16a34a">
+<input type="range" id="sizePicker" min="2" max="20" value="6">
 
-<label>
-Size:
-<input type="range" id="sizePicker" min="2" max="25" value="8">
-</label>
-
-<button onclick="clearTrace()">🧼 Clean</button>
-<button class="tool-btn" onclick="toggleEraser()">🧽 Eraser</button>
+<button class="draw" onclick="mode='draw'">✏️ Draw</button>
+<button class="erase" onclick="mode='erase'">🧽 Eraser</button>
+<button class="clean" onclick="clearCanvas()">🧼 Clean</button>
 
 </div>
 
@@ -135,37 +233,13 @@ Size:
 <script>
 
 const deck=document.getElementById("deck");
-
 let current=0;
-let strokeColor="#22c55e";
-let strokeSize=8;
-let eraserMode=false;
 
-const canvases=[];
+let mode="draw";
+let strokeColor="#16a34a";
+let strokeSize=6;
 
-/* ✅ LOCAL NUMBER IMAGES */
-const numberImages=[
-"image/0.png",
-"image/1.png",
-"image/2.png",
-"image/3.png",
-"image/4.png",
-"image/5.png",
-"image/6.png",
-"image/7.png",
-"image/8.png",
-"image/9.png"
-];
-
-/* ✅ FRUIT PNG IMAGES */
-const fruitImages=[
-"fruits/apple.png",
-"fruits/banana.png",
-"fruits/orange.png",
-"fruits/strawberry.png",
-"fruits/grape.png"
-];
-
+/* TOOL CONTROLS */
 document.getElementById("colorPicker").oninput=e=>{
 strokeColor=e.target.value;
 };
@@ -174,29 +248,45 @@ document.getElementById("sizePicker").oninput=e=>{
 strokeSize=e.target.value;
 };
 
-function toggleEraser(){
-eraserMode=!eraserMode;
+/* CLEAR CANVAS */
+function clearCanvas(){
+const ctx=canvases[current].getContext("2d");
+ctx.clearRect(0,0,340,460);
 }
 
+/* IMAGES */
+const numberImages=[
+"image/0.png","image/1.png","image/2.png","image/3.png","image/4.png",
+"image/5.png","image/6.png","image/7.png","image/8.png","image/9.png"
+];
+
+const fruitImages=[
+"fruits/apple.png",
+"fruits/banana.png",
+"fruits/orange.png",
+"fruits/strawberry.png",
+"fruits/grape.png"
+];
+
+const canvases=[];
+
 /* BUILD CARDS */
-for(let num=0; num<=9; num++){
+for(let i=0;i<10;i++){
 
 const card=document.createElement("div");
-card.className="card"+(num===0?" active":"");
+card.className="card"+(i===0?" active":"");
 
 let fruitHTML="";
-for(let i=0;i<5;i++){
+for(let j=0;j<5;j++){
 fruitHTML+=`
 <div class="fruit">
-<img src="${fruitImages[i%fruitImages.length]}">
+<img src="${fruitImages[j%fruitImages.length]}">
 <span class="copy">+</span>
 </div>`;
 }
 
 card.innerHTML=`
-<div class="number">${num}</div>
-
-<img class="number-img" src="${numberImages[num]}">
+<img class="number-img" src="${numberImages[i]}">
 
 <canvas></canvas>
 
@@ -208,7 +298,7 @@ card.innerHTML=`
 
 deck.appendChild(card);
 
-/* canvas */
+/* CANVAS */
 const canvas=card.querySelector("canvas");
 const ctx=canvas.getContext("2d");
 
@@ -217,35 +307,49 @@ canvas.height=460;
 
 let drawing=false;
 
-canvas.addEventListener("pointerdown",e=>{
+canvas.addEventListener("pointerdown",(e)=>{
 drawing=true;
+canvas.setPointerCapture(e.pointerId);
+
 ctx.beginPath();
 ctx.moveTo(e.offsetX,e.offsetY);
 });
 
-canvas.addEventListener("pointermove",e=>{
+canvas.addEventListener("pointermove",(e)=>{
 if(!drawing) return;
 
 ctx.lineWidth=strokeSize;
 ctx.lineCap="round";
-ctx.strokeStyle=eraserMode?"white":strokeColor;
+
+if(mode==="erase"){
+ctx.globalCompositeOperation="destination-out";
+ctx.lineWidth=strokeSize*2;
+}else{
+ctx.globalCompositeOperation="source-over";
+ctx.strokeStyle=strokeColor;
+}
 
 ctx.lineTo(e.offsetX,e.offsetY);
 ctx.stroke();
 });
 
-canvas.addEventListener("pointerup",()=>drawing=false);
+canvas.addEventListener("pointerup",()=>{
+drawing=false;
+});
+
+canvas.addEventListener("pointercancel",()=>{
+drawing=false;
+});
 
 canvases.push(canvas);
 
+/* FRUIT SYSTEM (FIXED) */
 card.querySelectorAll(".fruit").forEach(enableDrag);
 }
 
 /* NAV */
 function showCard(i){
-document.querySelectorAll(".card")
-.forEach(c=>c.classList.remove("active"));
-
+document.querySelectorAll(".card").forEach(c=>c.classList.remove("active"));
 current=i;
 document.querySelectorAll(".card")[i].classList.add("active");
 }
@@ -260,36 +364,73 @@ document.querySelectorAll(".handle-right")
 document.querySelectorAll(".handle-left")
 .forEach(b=>b.onclick=()=>showCard((current+9)%10));
 
-/* CLEAR */
-function clearTrace(){
-canvases[current].getContext("2d")
-.clearRect(0,0,340,460);
-}
+/* =========================
+   FIXED FRUIT SYSTEM
+========================= */
 
-/* DRAG FRUIT */
 function enableDrag(f){
 
 let dragging=false;
-let ox,oy;
+let offsetX=0;
+let offsetY=0;
+let lastTap=0;
 
-f.onpointerdown=e=>{
+f.style.touchAction="none";
+
+function deleteFruit(){
+f.remove();
+}
+
+f.addEventListener("pointerdown",(e)=>{
+
+e.preventDefault();
+
+const now=Date.now();
+
+/* DOUBLE TAP DELETE */
+if(now-lastTap < 300){
+deleteFruit();
+return;
+}
+
+lastTap=now;
+
 dragging=true;
-ox=e.offsetX;
-oy=e.offsetY;
-f.setPointerCapture(e.pointerId);
-};
 
-f.onpointermove=e=>{
+const rect=f.getBoundingClientRect();
+offsetX=e.clientX - rect.left;
+offsetY=e.clientY - rect.top;
+
+f.setPointerCapture(e.pointerId);
+
+/* COPY */
+const copyBtn=f.querySelector(".copy");
+
+if(e.target === copyBtn || e.target.closest(".copy")){
+const clone=f.cloneNode(true);
+f.parentElement.appendChild(clone);
+enableDrag(clone);
+}
+
+});
+
+f.addEventListener("pointermove",(e)=>{
 if(!dragging) return;
 
-let rect=f.parentElement.getBoundingClientRect();
+const parentRect=f.parentElement.getBoundingClientRect();
 
 f.style.position="absolute";
-f.style.left=(e.clientX-rect.left-ox)+"px";
-f.style.top=(e.clientY-rect.top-oy)+"px";
-};
+f.style.left=(e.clientX - parentRect.left - offsetX)+"px";
+f.style.top=(e.clientY - parentRect.top - offsetY)+"px";
+});
 
-f.onpointerup=()=>dragging=false;
+f.addEventListener("pointerup",()=>{
+dragging=false;
+});
+
+f.addEventListener("pointercancel",()=>{
+dragging=false;
+});
 
 }
 
