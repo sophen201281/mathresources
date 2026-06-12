@@ -1,1 +1,403 @@
+<!DOCTYPE html>
 
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>Flashcard Stack App</title>
+
+<style>
+
+:root {
+
+  --card-font-size: 28px;
+
+}
+
+body {
+
+  font-family: Arial, sans-serif;
+
+  background: #eef3ff;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  padding: 20px;
+
+}
+
+/* Inputs */
+
+.controls {
+
+  display: flex;
+
+  gap: 10px;
+
+  margin-bottom: 15px;
+
+  flex-wrap: wrap;
+
+  justify-content: center;
+
+}
+
+input {
+
+  padding: 10px;
+
+  width: 180px;
+
+  border: 1px solid #ccc;
+
+  border-radius: 8px;
+
+}
+
+/* Buttons */
+
+button {
+
+  padding: 10px 12px;
+
+  border: none;
+
+  background: #4a6cf7;
+
+  color: white;
+
+  border-radius: 8px;
+
+  cursor: pointer;
+
+}
+
+button:hover {
+
+  background: #3a57d6;
+
+}
+
+/* Stack */
+
+.stack {
+
+  position: relative;
+
+  width: 340px;
+
+  height: 230px;
+
+  perspective: 1200px;
+
+}
+
+/* Card */
+
+.card {
+
+  position: absolute;
+
+  width: 100%;
+
+  height: 100%;
+
+  transform-style: preserve-3d;
+
+  transition: transform 0.6s, opacity 0.3s;
+
+  cursor: pointer;
+
+}
+
+/* hidden cards */
+
+.card.hidden {
+
+  opacity: 0;
+
+  pointer-events: none;
+
+  transform: scale(0.9);
+
+}
+
+/* flip */
+
+.card.flipped {
+
+  transform: rotateY(180deg);
+
+}
+
+/* faces */
+
+.face {
+
+  position: absolute;
+
+  width: 100%;
+
+  height: 100%;
+
+  border-radius: 14px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  font-size: var(--card-font-size);
+
+  backface-visibility: hidden;
+
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+
+  padding: 15px;
+
+  text-align: center;
+
+}
+
+/* front */
+
+.front {
+
+  background: white;
+
+}
+
+/* back */
+
+.back {
+
+  background: #4a6cf7;
+
+  color: white;
+
+  transform: rotateY(180deg);
+
+}
+
+/* navigation */
+
+.nav {
+
+  margin-top: 15px;
+
+  display: flex;
+
+  gap: 10px;
+
+  flex-wrap: wrap;
+
+  justify-content: center;
+
+}
+
+/* font control */
+
+.font-control {
+
+  margin-bottom: 10px;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h2>📚 Flashcard Stack App</h2>
+
+<!-- INPUT -->
+
+<div class="controls">
+
+  <input id="frontInput" placeholder="Front word" />
+
+  <input id="backInput" placeholder="Back meaning" />
+
+  <button onclick="addCard()">➕ Add</button>
+
+</div>
+
+<!-- FONT SIZE -->
+
+<div class="font-control">
+
+  🎚 Font Size:
+
+  <input type="range" min="16" max="60" value="28"
+
+         oninput="changeFontSize(this.value)">
+
+</div>
+
+<!-- STACK -->
+
+<div class="stack" id="stack"></div>
+
+<!-- CONTROLS -->
+
+<div class="nav">
+
+  <button onclick="prevCard()">⬅ Prev</button>
+
+  <button onclick="flipCard()">🔄 Flip</button>
+
+  <button onclick="nextCard()">Next ➡</button>
+
+  <button onclick="deleteCard()">🗑 Delete</button>
+
+</div>
+
+<script>
+
+let cards = [];
+
+let current = 0;
+
+/* Render */
+
+function renderCards() {
+
+  const stack = document.getElementById("stack");
+
+  stack.innerHTML = "";
+
+  if (cards.length === 0) {
+
+    stack.innerHTML = "<p>No cards yet 📭</p>";
+
+    return;
+
+  }
+
+  cards.forEach((c, i) => {
+
+    const card = document.createElement("div");
+
+    card.className = "card";
+
+    if (i !== current) card.classList.add("hidden");
+
+    card.innerHTML = `
+
+      <div class="face front">${c.front}</div>
+
+      <div class="face back">${c.back}</div>
+
+    `;
+
+    stack.appendChild(card);
+
+  });
+
+}
+
+/* Add */
+
+function addCard() {
+
+  const front = document.getElementById("frontInput").value.trim();
+
+  const back = document.getElementById("backInput").value.trim();
+
+  if (!front || !back) return;
+
+  cards.push({ front, back });
+
+  document.getElementById("frontInput").value = "";
+
+  document.getElementById("backInput").value = "";
+
+  current = cards.length - 1;
+
+  renderCards();
+
+}
+
+/* Flip */
+
+function flipCard() {
+
+  const card = document.getElementById("stack").children[current];
+
+  if (card) card.classList.toggle("flipped");
+
+}
+
+/* Next */
+
+function nextCard() {
+
+  if (current < cards.length - 1) {
+
+    current++;
+
+    renderCards();
+
+  }
+
+}
+
+/* Prev */
+
+function prevCard() {
+
+  if (current > 0) {
+
+    current--;
+
+    renderCards();
+
+  }
+
+}
+
+/* Delete */
+
+function deleteCard() {
+
+  if (cards.length === 0) return;
+
+  cards.splice(current, 1);
+
+  if (current >= cards.length) {
+
+    current = cards.length - 1;
+
+  }
+
+  renderCards();
+
+}
+
+/* Font size control */
+
+function changeFontSize(size) {
+
+  document.documentElement.style.setProperty('--card-font-size', size + 'px');
+
+}
+
+/* init */
+
+renderCards();
+
+</script>
+
+</body>
+
+</html>
