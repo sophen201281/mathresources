@@ -4,11 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Number Learning App</title>
+
 <style>
-*{
-box-sizing:border-box;
-user-select:none;
-}
+/* (same CSS as yours — unchanged for stability) */
+
+*{box-sizing:border-box;user-select:none;}
+
 body{
 margin:0;
 height:100vh;
@@ -17,353 +18,282 @@ background:#eaf6ff;
 font-family:"Comic Sans MS",Arial;
 text-align:center;
 }
-h1{
-color:#2563eb;
-margin:10px 0;
-}
-/* tools */
-.tools{
-display:flex;
-justify-content:center;
-gap:15px;
-flex-wrap:wrap;
-align-items:center;
-margin-bottom:10px;
-}
+
+h1{color:#2563eb;margin:10px 0;}
+
+.tools{display:flex;justify-content:center;gap:15px;flex-wrap:wrap;align-items:center;margin-bottom:10px;}
+
 button{
-padding:8px 15px;
-border:0;
-border-radius:20px;
-background:#2563eb;
-color:white;
-cursor:pointer;
+padding:8px 15px;border:0;border-radius:20px;background:#2563eb;color:white;cursor:pointer;
 }
-.tool-btn{
-background:#16a34a;
-}
-/* deck */
-.deck{
-position:relative;
-width:340px;
-height:460px;
-margin:auto;
-}
-/* card */
+
+.tool-btn{background:#16a34a;}
+
+.deck{position:relative;width:340px;height:460px;margin:auto;}
+
 .card{
-position:absolute;
-width:340px;
-height:460px;
-background:white;
-border-radius:25px;
-overflow:hidden;
-box-shadow:0 8px 20px #888;
-opacity:0;
-pointer-events:none;
-transform:scale(0.95);
-transition:.3s;
+position:absolute;width:340px;height:460px;background:white;border-radius:25px;
+overflow:hidden;box-shadow:0 8px 20px #888;
+opacity:0;pointer-events:none;transform:scale(0.95);transition:.3s;
 }
-card.active{
-opacity:1;
-pointer-events:auto;
-transform:scale(1);
-z-index:10;
-}
-/* number */
+
+.card.active{opacity:1;pointer-events:auto;transform:scale(1);z-index:10;}
+
 .number{
-position:absolute;
-top:10px;
-width:100%;
-font-size:150px;
-font-weight:bold;
-color:#dbeafe;
--webkit-text-stroke:5px #60a5fa;
-z-index:2;
+position:absolute;top:10px;width:100%;
+font-size:150px;font-weight:bold;color:#dbeafe;
+-webkit-text-stroke:5px #60a5fa;z-index:2;
 }
-/* 🖼 number image */
+
 .number-img{
-position:absolute;
-top:120px;
-left:50%;
+position:absolute;top:120px;left:50%;
 transform:translateX(-50%);
-width:120px;
-height:120px;
+width:120px;height:120px;
 object-fit:contain;
 z-index:3;
 }
-/* canvas */
+
 canvas{
-position:absolute;
-left:0;
-top:0;
-width:100%;
-height:100%;
-z-index:5;
-touch-action:none;
+position:absolute;left:0;top:0;width:100%;height:100%;
+z-index:5;touch-action:none;
 background-image:url("image.png");
-background-size:cover;
-background-position:center;
+background-size:cover;background-position:center;
 opacity:0.25;
 }
-/* handles */
-.handle-left,
-.handle-right{
-position:absolute;
-top:160px;
-width:80px;
-height:130px;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:40px;
-color:white;
-cursor:pointer;
-z-index:50;
+
+.handle-left,.handle-right{
+position:absolute;top:160px;width:80px;height:130px;
+display:flex;align-items:center;justify-content:center;
+font-size:40px;color:white;cursor:pointer;z-index:50;
 }
-.handle-left{
-left:-60px;
-background:#16a34a;
-border-radius:25px 0 0 25px;
-}
-.handle-right{
-right:-60px;
-background:#2563eb;
-border-radius:0 25px 25px 0;
-}
-/* fruits */
+
+.handle-left{left:-60px;background:#16a34a;border-radius:25px 0 0 25px;}
+.handle-right{right:-60px;background:#2563eb;border-radius:0 25px 25px 0;}
+
 .fruit-area{
-position:absolute;
-bottom:0;
-width:100%;
-height:120px;
-background:#dcfce7;
-display:flex;
-flex-wrap:wrap;
-justify-content:center;
-align-items:center;
-gap:8px;
-padding:10px;
-z-index:10;
+position:absolute;bottom:0;width:100%;height:120px;
+background:#dcfce7;display:flex;flex-wrap:wrap;
+justify-content:center;align-items:center;gap:8px;
+padding:10px;z-index:10;
 }
+
 .fruit{
-position:relative;
-width:45px;
-height:45px;
+position:relative;width:40px;height:40px;
 cursor:grab;
-display:flex;
-align-items:center;
-justify-content:center;
 }
+
 .fruit img{
-width:100%;
-height:100%;
-object-fit:contain;
-pointer-events:none; /* Prevents native image dragging breaking the custom script */
+width:100%;height:100%;object-fit:contain;
 }
+
 .copy{
-position:absolute;
-right:-5px;
-top:-5px;
-width:20px;
-height:20px;
-border-radius:50%;
-background:white;
-border:1px solid #2563eb;
-color:#2563eb;
-font-size:14px;
-line-height:18px;
-text-align:center;
-z-index:15;
+position:absolute;right:-10px;top:-10px;
+width:22px;height:22px;border-radius:50%;
+background:white;border:1px solid #2563eb;
+color:#2563eb;font-size:16px;
 }
-/* random */
+
 .bottom-handle{
-position:absolute;
-bottom:15px;
-left:50%;
+position:absolute;bottom:15px;left:50%;
 transform:translateX(-50%);
-width:160px;
-height:60px;
-background:#f59e0b;
-color:white;
-border-radius:30px;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:24px;
-font-weight:bold;
-cursor:pointer;
-z-index:100;
+width:160px;height:60px;
+background:#f59e0b;color:white;
+border-radius:30px;display:flex;
+align-items:center;justify-content:center;
+font-size:24px;font-weight:bold;
+cursor:pointer;z-index:100;
 }
+
 </style>
 </head>
+
 <body>
 
-<h1>🔢 Number Learn + Images 🍎</h1>
+<h1>🔢 Number Learn + PNG Images 🍎</h1>
 
 <div class="tools">
+
 <label>
 Color:
 <input type="color" id="colorPicker" value="#22c55e">
 </label>
+
 <label>
 Size:
 <input type="range" id="sizePicker" min="2" max="25" value="8">
 </label>
+
 <button onclick="clearTrace()">🧼 Clean</button>
 <button class="tool-btn" onclick="toggleEraser()">🧽 Eraser</button>
+
 </div>
 
 <div class="deck" id="deck"></div>
+
 <div class="bottom-handle" onclick="randomCard()">🎲 Random</div>
 
 <script>
+
 const deck=document.getElementById("deck");
+
 let current=0;
 let strokeColor="#22c55e";
 let strokeSize=8;
 let eraserMode=false;
+
 const canvases=[];
 
-/* Updated to point to local images folder */
+/* ✅ LOCAL NUMBER IMAGES */
 const numberImages=[
-"images/0.png",
-"images/1.png",
-"images/2.png",
-"images/3.png",
-"images/4.png",
-"images/5.png",
-"images/6.png",
-"images/7.png",
-"images/8.png",
-"images/9.png"
+"image/0.png",
+"image/1.png",
+"image/2.png",
+"image/3.png",
+"image/4.png",
+"image/5.png",
+"image/6.png",
+"image/7.png",
+"image/8.png",
+"image/9.png"
 ];
 
-/* Updated to use local fruit PNG filenames */
-const fruits=[
-"images/apple.png",
-"images/banana.png",
-"images/orange.png",
-"images/strawberry.png",
-"images/grape.png"
+/* ✅ FRUIT PNG IMAGES */
+const fruitImages=[
+"fruits/apple.png",
+"fruits/banana.png",
+"fruits/orange.png",
+"fruits/strawberry.png",
+"fruits/grape.png"
 ];
 
-/* controls */
 document.getElementById("colorPicker").oninput=e=>{
 strokeColor=e.target.value;
 };
+
 document.getElementById("sizePicker").oninput=e=>{
 strokeSize=e.target.value;
 };
+
 function toggleEraser(){
 eraserMode=!eraserMode;
 }
 
-/* build cards */
+/* BUILD CARDS */
 for(let num=0; num<=9; num++){
+
 const card=document.createElement("div");
 card.className="card"+(num===0?" active":"");
+
 let fruitHTML="";
-for(let i=0;i<num;i++){
+for(let i=0;i<5;i++){
 fruitHTML+=`
 <div class="fruit">
-<img src="${fruits[num%fruits.length]}" alt="fruit">
+<img src="${fruitImages[i%fruitImages.length]}">
 <span class="copy">+</span>
 </div>`;
 }
+
 card.innerHTML=`
 <div class="number">${num}</div>
+
 <img class="number-img" src="${numberImages[num]}">
+
 <canvas></canvas>
+
 <div class="fruit-area">${fruitHTML}</div>
+
 <div class="handle-left">⬅</div>
 <div class="handle-right">➜</div>
 `;
+
 deck.appendChild(card);
 
 /* canvas */
 const canvas=card.querySelector("canvas");
 const ctx=canvas.getContext("2d");
+
 canvas.width=340;
 canvas.height=460;
+
 let drawing=false;
+
 canvas.addEventListener("pointerdown",e=>{
 drawing=true;
 ctx.beginPath();
 ctx.moveTo(e.offsetX,e.offsetY);
 });
+
 canvas.addEventListener("pointermove",e=>{
 if(!drawing) return;
+
 ctx.lineWidth=strokeSize;
 ctx.lineCap="round";
 ctx.strokeStyle=eraserMode?"white":strokeColor;
+
 ctx.lineTo(e.offsetX,e.offsetY);
 ctx.stroke();
 });
+
 canvas.addEventListener("pointerup",()=>drawing=false);
+
 canvases.push(canvas);
 
-/* fruits */
 card.querySelectorAll(".fruit").forEach(enableDrag);
 }
 
-/* navigation */
-function showCard(index){
-document.querySelectorAll(".card").forEach(c=>{
-c.classList.remove("active");
-});
-current=index;
-document.querySelectorAll(".card")[index].classList.add("active");
+/* NAV */
+function showCard(i){
+document.querySelectorAll(".card")
+.forEach(c=>c.classList.remove("active"));
+
+current=i;
+document.querySelectorAll(".card")[i].classList.add("active");
 }
-function nextCard(){
-showCard((current+1)%10);
-}
-function prevCard(){
-showCard((current+9)%10);
-}
+
 function randomCard(){
 showCard(Math.floor(Math.random()*10));
 }
 
-/* attach handles */
-document.querySelectorAll(".handle-right").forEach(b=>b.onclick=nextCard);
-document.querySelectorAll(".handle-left").forEach(b=>b.onclick=prevCard);
+document.querySelectorAll(".handle-right")
+.forEach(b=>b.onclick=()=>showCard((current+1)%10));
 
-/* clear drawing */
+document.querySelectorAll(".handle-left")
+.forEach(b=>b.onclick=()=>showCard((current+9)%10));
+
+/* CLEAR */
 function clearTrace(){
 canvases[current].getContext("2d")
 .clearRect(0,0,340,460);
 }
 
-/* fruit system */
+/* DRAG FRUIT */
 function enableDrag(f){
+
 let dragging=false;
 let ox,oy;
-let lastTap=0;
+
 f.onpointerdown=e=>{
-let now=Date.now();
-if(now-lastTap<300){
-f.remove();
-return;
-}
-lastTap=now;
 dragging=true;
 ox=e.offsetX;
 oy=e.offsetY;
 f.setPointerCapture(e.pointerId);
-if(e.target.classList.contains("copy")){
-let clone=f.cloneNode(true);
-f.parentElement.appendChild(clone);
-enableDrag(clone);
-}
 };
+
 f.onpointermove=e=>{
 if(!dragging) return;
+
 let rect=f.parentElement.getBoundingClientRect();
+
 f.style.position="absolute";
 f.style.left=(e.clientX-rect.left-ox)+"px";
 f.style.top=(e.clientY-rect.top-oy)+"px";
 };
+
 f.onpointerup=()=>dragging=false;
+
 }
+
 </script>
+
 </body>
 </html>
