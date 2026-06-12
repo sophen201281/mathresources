@@ -1,3 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>សម្ភារគណិតវិទ្យា</title>
+
+<link rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css">
+
+<!-- Khmer Font -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Battambang&display=swap"
+rel="stylesheet">
+
+<style>
+
+body{
+    background:#f4f6f9;
+    margin:0;
+    padding:0;
+    font-family:'Battambang',sans-serif;
+}
+
+/* =========================
+   KHMER FONT
+========================= */
+
+.font-khmer{
+    font-family:'Battambang',sans-serif;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+header{
+    background:white;
+    border-radius:18px;
+    padding:12px 20px;
+    margin-top:18px;
+
+    box-shadow:
+        0 4px 15px rgba(0,0,0,0.08);
+}
+
+.bi{
+    fill:#0d6efd;
+}
+
+/* =========================
+   GRID
+========================= */
+
+.gridbox{
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(auto-fit,minmax(180px,1fr));
+
+    gap:24px;
+
+    margin-top:25px;
+    margin-bottom:40px;
+}
+
+/* =========================
+   CARD
+========================= */
+
+.divclass{
+
+    background:white;
+
+    border-radius:20px;
+
+    overflow:hidden;
+
+    position:relative;
+
+    box-shadow:
+        0 6px 18px rgba(0,0,0,0.12);
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+
+    cursor:pointer;
+}
+
+.divclass:hover{
+
+    transform:
+        translateY(-8px)
+        scale(1.02);
+
+    box-shadow:
+        0 14px 28px rgba(0,0,0,0.18);
+}
+
+.divclass:active{
+
+    transform:scale(0.96);
+}
+
+/* =========================
+   IMAGE
+========================= */
+
+.divclass img{
+
+    width:100%;
+    height:190px;
+
+    object-fit:cover;
+
+    display:block;
+
+    background:white;
+}
+
+/* =========================
+   LABEL
+========================= */
+
+.divclass::after{
+
+    content:attr(data-title);
+
+    position:absolute;
+
+    left:0;
+    bottom:0;
+
+    width:100%;
+
+    padding:12px;
+
+    text-align:center;
+
+    color:white;
+
+    font-size:15px;
+    font-weight:bold;
+
+    background:
+        linear-gradient(
+            transparent,
+            rgba(0,0,0,0.8)
+        );
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+footer{
+    margin-bottom:30px;
+}
+
+.copyright{
+
+    background:white;
+
+    border-radius:16px;
+
+    padding:16px;
+
+    box-shadow:
+        0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width:768px){
+
+    .gridbox{
+
+        grid-template-columns:
+            repeat(auto-fit,minmax(140px,1fr));
+
+        gap:16px;
+    }
+
+    .divclass img{
+
+        height:140px;
+    }
+
+    .fs-4{
+
+        font-size:20px !important;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+
+
+<symbol id="bootstrap"
+viewBox="0 0 118 94">
+
+<path fill-rule="evenodd"
+clip-rule="evenodd"
+
+d="M24.509 0c-6.733 0-11.715 5.893-11.492 12.284.214 6.14-.064 14.092-2.066 20.577C8.943 39.365 5.547 43.485 0 44.014v4.972c5.547.529 8.943 4.649 10.951 11.153 2.002 6.485 2.28 14.437 2.066 20.577C12.794 88.106 17.776 94 24.51 94H93.5c6.733 0 11.714-5.893 11.491-12.284-.214-6.14.064-14.092 2.066-20.577 2.009-6.504 5.396-10.624 10.943-11.153v-4.972c-5.547-.529-8.934-4.649-10.943-11.153-2.002-6.484-2.28-14.437-2.066-20.577C105.214 5.893 100.233 0 93.5 0H24.508z">
+
+</path>
+
+</symbol>
+</svg>
+
+<main>
+
+<div class="container">
+
+<header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
+
+<a href="index.html"
+class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+
+<svg class="bi me-2"
+width="40"
+height="32">
+
+<use xlink:href="#bootstrap"></use>
+
+</svg>
+
+<span class="fs-4 font-khmer">
+សម្ភារគណិតវិទ្យា
+</span>
+
+</a>
+
+</header>
+
+</div>
+
 <!-- =========================
      GRID CARDS
 ========================= -->
@@ -6,113 +255,303 @@
 
 <div class="gridbox">
 
-    <div class="divclass" data-title="តារាងការេ១០០">
-        <a href="./100chart/100chart.html">
-            <img src="image/100.jpg" alt="100 Chart">
-        </a>
-    </div>
+<div class="divclass"
+data-title="តារាងការេ១០០">
 
-    <div class="divclass" data-title="តម្លៃលេខតាមខ្ទង់ ដល់១០០">
-        <a href="./Dice/dice.html">
-            <img src="image/placevalue2.jpg" alt="Dice">
-        </a>
-    </div>
+<a href="./100chart/100chart.html">
 
-    <div class="divclass" data-title="ការបូកចំនួនដដែលៗ វិធីគុណ">
-        <a href="./dots array/dotschart.html">
-            <img src="image/dot.jpg" alt="Dots Array">
-        </a>
-    </div>
+<img src="image/100.jpg"
+alt="100 Chart">
 
-    <div class="divclass" data-title="ពង្រាយចំនួន">
-        <a href="./Expanded form/expanded.html">
-            <img src="image/exp.png" alt="Expanded Form">
-        </a>
-    </div>
+</a>
+</div>
 
-    <div class="divclass" data-title="គោល៥ និង១០">
-        <a href="./Five and Ten frames/five.html">
-            <img src="image/5frame.png" alt="Five and Ten Frames">
-        </a>
-    </div>
+<div class="divclass"
+data-title="តម្លៃលេខតាមខ្ទង់ ដល់១០០">
 
-    <div class="divclass" data-title="ប្រភាគ">
-        <a href="./Fraction/Fractionhomepage.html">
-            <img src="image/fraction.png" alt="Fraction">
-        </a>
-    </div>
+<a href="./Dice/dice.html">
 
-    <div class="divclass" data-title="វិធីបូក គុណមានលក្ខណៈត្រឡប់">
-        <a href="./New Counters/Counters.html">
-            <img src="image/add.png" alt="Counters">
-        </a>
-    </div>
+<img src="image/placevalue2.jpg"
+alt="Dice">
 
-    <div class="divclass" data-title="បន្ទាត់លេខ">
-        <a href="./Numberline/numberline.html">
-            <img src="image/numberline.png" alt="Numberline">
-        </a>
-    </div>
+</a>
+</div>
 
-    <div class="divclass" data-title="ប្រៀបធៀបចំនួន">
-        <a href="./placevaluechart/placevaluechart.html">
-            <img src="image/3.png" alt="Place Value">
-        </a>
-    </div>
+<div class="divclass"
+data-title="ការបូកចំនួនដដែលៗ វិធីគុណ">
 
-    <div class="divclass" data-title="នាឡិកា">
-        <a href="./Time/time.html">
-            <img src="image/clock.png" alt="Clock">
-        </a>
-    </div>
+<a href="./dots array/dotschart.html">
 
-    <div class="divclass" data-title="ចាប់ក្រុម គុណ ចែក">
-        <a href="./scale/scale.html">
-            <img src="image/Group.png" alt="Scale">
-        </a>
-    </div>
+<img src="image/dot.jpg"
+alt="Dots Array">
 
-    <div class="divclass" data-title="រង្វាស់ប្រវែង">
-        <a href="./patterning/pattern.html">
-            <img src="image/pattern.png" alt="Pattern">
-        </a>
-    </div>
+</a>
+</div>
 
-    <div class="divclass" data-title="រៀបលេខតាមលំដាប់">
-        <a href="./ordernumber/index.html">
-            <img src="image/order.png" alt="Order Number">
-        </a>
-    </div>
+<div class="divclass"
+data-title="ពង្រាយចំនួន">
 
-    <div class="divclass" data-title="ដើមឈើគណិតវិទ្យា">
-        <a href="./Khmer-number-writing/index.html">
-            <img src="image/writing.png" alt="Khmer Writing">
-        </a>
-    </div>
+<a href="./Expanded form/expanded.html">
 
-    <div class="divclass" data-title="តារាងតម្លៃលេខតាមខ្ទង់">
-        <a href="./Test/index.html">
-            <img src="image/writing.png" alt="Test">
-        </a>
-    </div>
+<img src="image/exp.png"
+alt="Expanded Form">
 
-    <div class="divclass" data-title="ជញ្ជីងថ្លឹងទម្ងន់">
-        <a href="./Weight Scale/Index.html">
-            <img src="image/scale.png" alt="Weight Scale">
-        </a>
-    </div>
+</a>
+</div>
 
-    <div class="divclass" data-title="ផ្គូផ្គងចំនួន">
-        <a href="./Matching Number/index.html">
-            <img src="image/scale.png" alt="Matching Number">
-        </a>
-    </div>
+<div class="divclass"
+data-title="គោល៥ និង១០">
 
-    <div class="divclass" data-title="តម្លៃលខតាមខ្ទង់ម៉ឺន">
-        <a href="./10000 place value/index.html">
-            <img src="image/scale.png" alt="Ten Thousand Place Value">
-        </a>
-    </div>
+<a href="./Five and Ten frames/five.html">
 
+<img src="image/5frame.png"
+alt="Five and Ten Frames">
+
+</a>
+</div>
+
+<div class="divclass"
+data-title="ប្រភាគ">
+
+<a href="./Fraction/Fractionhomepage.html">
+
+<img src="image/fraction.png"
+alt="Fraction">
+
+</a>
+</div>
+
+<div class="divclass"
+data-title="វិធីបូក គុណមានលក្ខណៈត្រឡប់">
+
+<a href="./New Counters/Counters.html">
+
+<img src="image/add.png"
+alt="Counters">
+
+</a>
+</div>
+
+<div class="divclass"
+data-title="បន្ទាត់លេខ">
+
+<a href="./Numberline/numberline.html">
+
+<img src="image/numberline.png"
+alt="Numberline">
+
+</a>
+</div>
+
+<div class="divclass"
+data-title="ប្រៀបធៀបចំនួន">
+
+<a href="./placevaluechart/placevaluechart.html">
+
+<img src="image/3.png"
+alt="Place Value">
+
+</a>
+</div>
+
+<div class="divclass"
+data-title="នាឡិកា">
+
+<a href="./Time/time.html">
+
+<img src="image/clock.png"
+alt="Clock">
+
+</a>
+</div>
+
+<div class="divclass"
+data-title="ចាប់ក្រុម គុណ ចែក">
+
+<a href="./scale/scale.html">
+
+<img src="image/Group.png"
+alt="Scale">
+
+</a>
+</div>
+
+<div class="divclass"
+data-title="រង្វាស់ប្រវែង">
+
+<a href="./patterning/pattern.html">
+
+<img src="image/pattern.png"
+alt="Pattern">
+
+</a>
+</div>
+
+<div class="divclass"
+data-title="រៀបលេខតាមលំដាប់">
+
+<a href="./ordernumber/index.html">
+
+<img src="image/order.png"
+alt="Order Number">
+
+</a>
+</div>
+
+<div class="divclass"
+data-title="ដើមឈើគណិតវិទ្យា">
+
+<a href="./Khmer-number-writing/index.html">
+
+<img src="image/writing.png"
+alt="Khmer Writing">
+
+</a>
+</div>
+
+<div class="divclass"
+data-title="តារាងតម្លៃលេខតាមខ្ទង់">
+
+<a href="./Test/index.html">
+
+<img src="image/writing.png"
+alt="Test">
+
+</a>
+</div>
+
+<div class="divclass"
+data-title="ជញ្ជីងថ្លឹងទម្ងន់">
+
+<a href="./Weight Scale/Index.html">
+
+<img src="image/scale.png"
+alt="Weight Scale">
+
+</a>
+</div>
+<div class="divclass"
+data-title="ផ្គូផ្គងចំនួន">
+
+<a href="./Matching Number/index.html">
+
+<img src="image/scale.png"
+alt="Weight Scale">
+
+</a>
+</div>
+</a>
+</div>
+<div class="divclass"
+data-title="តម្លៃលរខតាមខ្ទង់ម៉ឺន">
+
+<a href="./10000 place value/index.html">
+
+<img src="image/scale.png"
+alt="Weight Scale">
+
+</a>
 </div>
 </div>
+</div>
+
+</main>
+
+<!-- =========================
+     FOOTER
+========================= -->
+
+<footer class="container mt-5">
+
+<div class="copyright text-center">
+
+<p class="font-khmer">
+
+<strong>
+
+ផលិតដោយ ផាន់ សុភេន ©
+<span id="year"></span>
+
+</strong>
+
+</p>
+
+</div>
+
+</footer>
+
+<!-- =========================
+     JAVASCRIPT
+========================= -->
+
+<script>
+
+/* =========================
+   YEAR
+========================= */
+
+document.getElementById("year").innerHTML =
+new Date().getFullYear();
+
+/* =========================
+   CARD ANIMATION
+========================= */
+
+const cards =
+document.querySelectorAll(".divclass");
+
+window.addEventListener("load",()=>{
+
+    cards.forEach((card,index)=>{
+
+        card.style.opacity="0";
+        card.style.transform=
+            "translateY(30px)";
+
+        setTimeout(()=>{
+
+            card.style.transition=
+                "all 0.5s ease";
+
+            card.style.opacity="1";
+
+            card.style.transform=
+                "translateY(0)";
+
+        },index*70);
+    });
+});
+
+/* =========================
+   TOUCH EFFECT
+========================= */
+
+cards.forEach(card=>{
+
+    card.addEventListener(
+        "pointerdown",
+        ()=>{
+
+        card.style.transform=
+            "scale(0.95)";
+    });
+
+    card.addEventListener(
+        "pointerup",
+        ()=>{
+
+        card.style.transform="";
+    });
+
+    card.addEventListener(
+        "pointerleave",
+        ()=>{
+
+        card.style.transform="";
+    });
+});
+
+</script>
+
+</body>
+</html>
