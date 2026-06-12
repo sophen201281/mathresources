@@ -1,553 +1,547 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Place Value Regrouping Tool</title>
+
+<title>Tracing App + Eraser</title>
 
 <style>
+
 *{
-    box-sizing:border-box;
+
+box-sizing:border-box;
+
+user-select:none;
+
 }
 
 body{
-    font-family:Arial,sans-serif;
-    margin:0;
-    background:#f4f7fb;
-    text-align:center;
-    height:100vh;
-    display:flex;
-    flex-direction:column;
+
+margin:0;
+
+height:100vh;
+
+overflow:hidden;
+
+background:#eaf6ff;
+
+font-family:"Comic Sans MS",Arial;
+
+text-align:center;
+
 }
 
-/* HEADER */
-h2{
-    margin:0px 0;
-    font-size:clamp(16px,2.5vw,24px);
+h1{
+
+color:#2563eb;
+
+margin:10px 0;
+
 }
 
-/* TOOLBAR */
-.toolbar{
-    margin:5px 0;
-    display:flex;
-    flex-wrap:wrap;
-    justify-content:center;
-    gap:3px;
+/* 🎛 tools */
+
+.tools{
+
+display:flex;
+
+justify-content:center;
+
+gap:15px;
+
+align-items:center;
+
+flex-wrap:wrap;
+
+margin-bottom:10px;
+
 }
 
 button{
-    padding:8px 10px;
-    cursor:pointer;
-    font-size:clamp(12px,2vw,14px);
+
+padding:8px 15px;
+
+border:0;
+
+border-radius:20px;
+
+background:#2563eb;
+
+color:white;
+
+cursor:pointer;
+
 }
 
-/* MAIN TABLE */
-.table{
-    flex:1;
-    display:flex;
-    gap:0px;
-    padding:3px;
-    overflow-x:auto;
-    overflow-y:hidden;
-    align-items:stretch;
+/* 🖊 tool toggle */
+
+.tool-btn{
+
+background:#16a34a;
+
 }
 
-/* COLUMN */
-.col{
-    flex:1;
-    min-width:140px;
-    max-width:220px;
-    background:white;
-    border:2px solid #ccc;
-    border-radius:0px;
-    padding:5px;
-    display:flex;
-    flex-direction:column;
+/* 📦 deck */
+
+.deck{
+
+position:relative;
+
+width:340px;
+
+height:460px;
+
+margin:auto;
+
 }
 
-/* TITLE */
-.col h4{
-    margin:0px 0;
-    font-size:clamp(11px,1.8vw,14px);
+/* 📄 card */
+
+.card{
+
+position:absolute;
+
+width:340px;
+
+height:460px;
+
+background:white;
+
+border-radius:25px;
+
+overflow:hidden;
+
+box-shadow:0 8px 20px #888;
+
+transition:.3s;
+
 }
 
-/* SECTION (DROP AREA) */
-.section{
-    flex:1;
-    min-height:80px;
-    border:1px dashed #999;
-    margin-bottom:4px;
-    position:relative;
-    overflow:hidden;
-    background:white;
+.active{ z-index:20; }
+
+.back{
+
+z-index:1;
+
+transform:translateX(35px) scale(.94) rotate(-5deg);
+
 }
 
-/* CANVAS */
-.canvas{
-    width:100%;
-    height:60px;
-    border:1px solid #ddd;
-    background:white;
-    touch-action:none;
-    margin-bottom:6px;
+/* 🔢 number */
+
+.number{
+
+position:absolute;
+
+top:15px;
+
+width:100%;
+
+font-size:190px;
+
+font-weight:bold;
+
+color:#dbeafe;
+
+-webkit-text-stroke:5px #60a5fa;
+
+z-index:2;
+
 }
 
-/* COUNTER */
-.counter{
-    width:clamp(28px,5vw,36px);
-    height:clamp(28px,5vw,36px);
-    border-radius:50%;
-    position:absolute;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    font-size:10px;
-    font-weight:bold;
-    color:black;
-    cursor:grab;
-    user-select:none;
-    touch-action:none;
-    box-shadow:0 2px 4px rgba(0,0,0,.3);
+/* ✍️ canvas */
+
+canvas{
+
+position:absolute;
+
+left:0;
+
+top:0;
+
+width:100%;
+
+height:100%;
+
+z-index:5;
+
+touch-action:none;
+
+background-image:url("https://images.unsplash.com/photo-1513151233558-d860c5398176");
+
+background-size:cover;
+
+background-position:center;
+
+opacity:.25;
+
 }
 
-.counter:active{
-    cursor:grabbing;
+/* 📖 flip */
+
+.handle{
+
+position:absolute;
+
+right:-40px;
+
+top:180px;
+
+width:45px;
+
+height:90px;
+
+background:#2563eb;
+
+color:white;
+
+border-radius:0 20px 20px 0;
+
+z-index:50;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+font-size:25px;
+
+cursor:pointer;
+
 }
 
-/* COLORS */
-.c0{background:#ff6666;}
-.c1{background:#ffcc66;}
-.c2{background:#66ff99;}
-.c3{background:#66ccff;}
-.c4{background:#cc99ff;}
+/* 🍎 fruits */
 
-/* POPUP */
-.popup{
-    position:fixed;
-    top:50%;
-    left:50%;
-    transform:translate(-50%,-50%);
-    background:white;
-    padding:20px;
-    border-radius:10px;
-    box-shadow:0 10px 25px rgba(0,0,0,.3);
-    z-index:1001;
-    display:none;
-    width:90%;
-    max-width:300px;
+.fruit-area{
+
+position:absolute;
+
+bottom:0;
+
+width:100%;
+
+height:120px;
+
+background:#dcfce7;
+
+z-index:10;
+
+display:flex;
+
+flex-wrap:wrap;
+
+justify-content:center;
+
+align-items:center;
+
+gap:8px;
+
+padding:10px;
+
 }
 
-.overlay{
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,.3);
-    z-index:1000;
-    display:none;
+.fruit{
+
+position:relative;
+
+font-size:35px;
+
+cursor:grab;
+
 }
 
-/* MOBILE IMPROVEMENT */
-@media (max-width:600px){
-    .col{
-        min-width:120px;
-    }
+.copy{
 
-    .section{
-        min-height:100px;
-    }
+position:absolute;
+
+right:-10px;
+
+top:-10px;
+
+width:22px;
+
+height:22px;
+
+border-radius:50%;
+
+background:white;
+
+border:1px solid #2563eb;
+
+color:#2563eb;
+
+font-size:16px;
+
+line-height:20px;
+
 }
+
 </style>
+
 </head>
 
 <body>
 
-<h2></h2>
+<h1>🔢 Trace, Erase & Count 🍎</h1>
 
-<div class="toolbar">
-    <button onclick="setPen()">✏️សរសេរ</button>
-    <button onclick="setEraser()">🧽លុប</button>
-    <button onclick="clearAllCanvases()">សម្អាត</button>
-    <button onclick="restartTool()">🔄សារថ្មី</button>
+<!-- 🎛 tools -->
+
+<div class="tools">
+
+<label>
+
+Color:
+
+<input type="color" id="colorPicker" value="#22c55e">
+
+</label>
+
+<label>
+
+Size:
+
+<input type="range" id="sizePicker" min="2" max="25" value="8">
+
+</label>
+
+<button onclick="clearTrace()">🧼 Clean</button>
+
+<button class="tool-btn" onclick="toggleEraser()">🧽 Eraser</button>
+
 </div>
 
-<div id="table" class="table"></div>
-
-<div id="overlay" class="overlay"></div>
-
-<div id="popup" class="popup">
-    <p>តើត្រូវការប្តូរទេ?</p>
-    <button onclick="confirmExchange(true)">បាទ/ចាស</button>
-    <button onclick="confirmExchange(false)">អត់ទេ</button>
-</div>
+<div class="deck" id="deck"></div>
 
 <script>
 
-const cols=[
-"ខ្ទង់ម៉ឺន",
-"ខ្ទង់ពាន់",
-"ខ្ទង់រយ",
-"ខ្ទង់ដប់",
-"ខ្ទង់រាយ"
-];
+const deck=document.getElementById("deck");
 
-const values=[10000,1000,100,10,1];
+let current=0;
 
-const table=document.getElementById("table");
-const popup=document.getElementById("popup");
-const overlay=document.getElementById("overlay");
+let strokeColor="#22c55e";
 
-let pending=null;
-let dragPending=null;
-let drawMode="pen";
-let canvases=[];
+let strokeSize=8;
 
-let state=Array(3).fill().map(()=>Array(5).fill().map(()=>[]));
+let eraserMode=false;
 
-/* BUILD */
-function build(){
-table.innerHTML="";
+/* 🎨 controls */
 
-cols.forEach((name,col)=>{
+document.getElementById("colorPicker").oninput=e=>{
 
-const column=document.createElement("div");
-column.className="col";
+strokeColor=e.target.value;
 
-const title=document.createElement("h4");
-title.textContent=name;
-column.appendChild(title);
+};
 
-for(let row=0;row<3;row++){
+document.getElementById("sizePicker").oninput=e=>{
 
-const section=document.createElement("div");
-section.className="section";
-section.dataset.row=row;
-section.dataset.col=col;
+strokeSize=e.target.value;
 
-section.addEventListener("click",(e)=>{
-if(e.target.classList.contains("counter")) return;
+};
 
-const rect=section.getBoundingClientRect();
+/* 🧽 toggle eraser */
 
-addCounter(
-row,
-col,
-e.clientX-rect.left,
-e.clientY-rect.top
-);
-});
+function toggleEraser(){
 
-column.appendChild(section);
+eraserMode=!eraserMode;
 
-const canvas=document.createElement("canvas");
-canvas.className="canvas";
-canvas.height=60;
-canvas.width=200;
-
-column.appendChild(canvas);
-
-enableCanvas(canvas);
-canvases.push(canvas);
 }
 
-table.appendChild(column);
-});
+/* 🍎 fruits */
 
-render();
+const fruits=["🍎","🍌","🍊","🍓","🍇"];
+
+/* 🔢 cards */
+
+for(let num=0; num<=9; num++){
+
+let card=document.createElement("div");
+
+card.className = num===0 ? "card active" : "card back";
+
+let fruitHTML="";
+
+for(let i=0;i<num;i++){
+
+fruitHTML+=`
+
+<div class="fruit">
+
+${fruits[num%fruits.length]}
+
+<span class="copy">+</span>
+
+</div>`;
+
 }
 
-/* DRAWING */
-function enableCanvas(canvas){
-const ctx=canvas.getContext("2d");
+card.innerHTML=`
 
-ctx.lineWidth=2;
-ctx.lineCap="round";
+<div class="number">${num}</div>
+
+<canvas></canvas>
+
+<div class="fruit-area">
+
+${fruitHTML}
+
+</div>
+
+<div class="handle">➜</div>
+
+`;
+
+deck.appendChild(card);
+
+/* ✍️ canvas */
+
+let canvas=card.querySelector("canvas");
+
+let ctx=canvas.getContext("2d");
+
+canvas.width=340;
+
+canvas.height=460;
 
 let drawing=false;
 
-function pos(e){
-const rect=canvas.getBoundingClientRect();
-const p=e.touches?e.touches[0]:e;
+canvas.onpointerdown=e=>{
 
-return{
-x:p.clientX-rect.left,
-y:p.clientY-rect.top
-};
-}
-
-function start(e){
 drawing=true;
-const p=pos(e);
+
 ctx.beginPath();
-ctx.moveTo(p.x,p.y);
-}
 
-function move(e){
-if(!drawing) return;
+ctx.moveTo(e.offsetX,e.offsetY);
 
-const p=pos(e);
+};
 
-if(drawMode==="eraser"){
-ctx.globalCompositeOperation="destination-out";
-ctx.lineWidth=14;
-}else{
-ctx.globalCompositeOperation="source-over";
-ctx.lineWidth=2;
-}
+canvas.onpointermove=e=>{
 
-ctx.lineTo(p.x,p.y);
+if(!drawing)return;
+
+ctx.lineWidth=strokeSize;
+
+ctx.lineCap="round";
+
+/* ✍️ pen or eraser */
+
+ctx.strokeStyle = eraserMode ? "white" : strokeColor;
+
+ctx.lineTo(e.offsetX,e.offsetY);
+
 ctx.stroke();
+
+};
+
+canvas.onpointerup=()=>drawing=false;
+
+/* 🔄 flip */
+
+card.querySelector(".handle").onclick=()=>{
+
+let cards=document.querySelectorAll(".card");
+
+cards[current].className="card back";
+
+current++;
+
+if(current>9) current=0;
+
+cards[current].className="card active";
+
+};
+
 }
 
-function stop(){
-drawing=false;
-ctx.beginPath();
-}
+/* 🧼 clear current canvas only */
 
-canvas.addEventListener("mousedown",start);
-canvas.addEventListener("mousemove",move);
-canvas.addEventListener("mouseup",stop);
-canvas.addEventListener("mouseleave",stop);
+function clearTrace(){
 
-canvas.addEventListener("touchstart",start);
-canvas.addEventListener("touchmove",(e)=>{e.preventDefault();move(e);});
-canvas.addEventListener("touchend",stop);
-}
+document.querySelectorAll("canvas").forEach(c=>{
 
-/* TOOLS */
-function setPen(){drawMode="pen";}
-function setEraser(){drawMode="eraser";}
-
-function clearAllCanvases(){
-canvases.forEach(c=>{
 c.getContext("2d").clearRect(0,0,c.width,c.height);
+
 });
+
 }
 
-function restartTool(){
-if(!confirm("Restart everything?")) return;
+/* 🍎 fruit drag + copy + delete */
 
-state=Array(3).fill().map(()=>Array(5).fill().map(()=>[]));
-clearAllCanvases();
-render();
+function enableDrag(f){
+
+let dragging=false;
+
+let ox,oy;
+
+let lastTap=0;
+
+f.onpointerdown=e=>{
+
+let now=Date.now();
+
+/* 👆 double tap delete */
+
+if(now-lastTap<350){
+
+f.remove();
+
+return;
+
 }
 
-/* COUNTERS */
-function addCounter(row,col,x,y){
-state[row][col].push({
-id:Date.now()+Math.random(),
-row,col,x,y
-});
-checkRegroup(row,col);
-render();
-}
+lastTap=now;
 
-function checkRegroup(row,col){
-if(state[row][col].length>=10){
-pending={row,col};
-overlay.style.display="block";
-popup.style.display="block";
-}
-}
-function confirmExchange(ok){
-
-popup.style.display="none";
-overlay.style.display="none";
-
-if(!ok){
-    pending=null;
-    dragPending=null;
-    return;
-}
-
-/* 10 smaller -> 1 bigger */
-if(pending){
-
-    const {row,col}=pending;
-
-    state[row][col].splice(0,10);
-
-    if(col>0){
-        state[row][col-1].push({
-            id:Date.now()+Math.random(),
-            row,
-            col:col-1,
-            x:30,
-            y:30
-        });
-    }
-
-    pending=null;
-}
-
-/* 1 bigger -> 10 smaller */
-if(dragPending){
-
-    const {
-        item,
-        oldRow,
-        oldCol,
-        newRow,
-        newCol
-    } = dragPending;
-
-    state[oldRow][oldCol] =
-        state[oldRow][oldCol]
-        .filter(x=>x.id!==item.id);
-
-    for(let i=0;i<10;i++){
-
-        state[newRow][newCol].push({
-            id:Date.now()+Math.random()+i,
-            row:newRow,
-            col:newCol,
-            x:15+(i%5)*25,
-            y:15+Math.floor(i/5)*25
-        });
-
-    }
-
-    dragPending=null;
-}
-
-render();
-}
-
-/* DRAG */
-function makeDraggable(el,item){
-
-let dragging=false,dx=0,dy=0;
-
-function start(e){
 dragging=true;
-const p=e.touches?e.touches[0]:e;
 
-dx=p.clientX-el.offsetLeft;
-dy=p.clientY-el.offsetTop;
+ox=e.offsetX;
 
-document.addEventListener("mousemove",move);
-document.addEventListener("mouseup",end);
-document.addEventListener("touchmove",move,{passive:false});
-document.addEventListener("touchend",end);
+oy=e.offsetY;
+
+f.setPointerCapture(e.pointerId);
+
+/* ➕ copy */
+
+if(e.target.classList.contains("copy")){
+
+let clone=f.cloneNode(true);
+
+f.parentElement.appendChild(clone);
+
+enableDrag(clone);
+
 }
 
-function move(e){
-if(!dragging) return;
+};
 
-const p=e.touches?e.touches[0]:e;
+f.onpointermove=e=>{
 
-el.style.left=(p.clientX-dx)+"px";
-el.style.top=(p.clientY-dy)+"px";
+if(!dragging)return;
 
-e.preventDefault();
+let rect=f.parentElement.getBoundingClientRect();
+
+f.style.position="absolute";
+
+f.style.left=(e.clientX-rect.left-ox)+"px";
+
+f.style.top=(e.clientY-rect.top-oy)+"px";
+
+};
+
+f.onpointerup=()=>dragging=false;
+
 }
 
-function end(){
-dragging=false;
+/* activate fruits */
 
-document.removeEventListener("mousemove",move);
-document.removeEventListener("touchmove",move);
-document.removeEventListener("mouseup",end);
-document.removeEventListener("touchend",end);
-
-snap(el,item);
-}
-
-el.addEventListener("mousedown",start);
-el.addEventListener("touchstart",start);
-}
-
-/* SNAP */
-function snap(el,item){
-
-const rect=el.getBoundingClientRect();
-const cx=rect.left+rect.width/2;
-const cy=rect.top+rect.height/2;
-
-let found=false;
-
-document.querySelectorAll(".section").forEach(sec=>{
-
-const r=sec.getBoundingClientRect();
-
-if(cx>r.left && cx<r.right &&
-   cy>r.top && cy<r.bottom){
-
-    found=true;
-
-    const newRow=+sec.dataset.row;
-    const newCol=+sec.dataset.col;
-
-    /* DRAG RIGHT = ASK TO EXCHANGE */
-
-    if(
-        newRow===item.row &&
-        newCol===item.col+1 &&
-        item.col<4
-    ){
-
-        dragPending={
-            item:item,
-            oldRow:item.row,
-            oldCol:item.col,
-            newRow:newRow,
-            newCol:newCol
-        };
-
-        overlay.style.display="block";
-        popup.style.display="block";
-        return;
-    }
-
-    state[item.row][item.col] =
-        state[item.row][item.col]
-        .filter(x=>x.id!==item.id);
-
-    item.row=newRow;
-    item.col=newCol;
-
-    const secRect=sec.getBoundingClientRect();
-
-    item.x=cx-secRect.left;
-    item.y=cy-secRect.top;
-
-    state[newRow][newCol].push(item);
-
-    checkRegroup(newRow,newCol);
-}
-
-});
-
-render();
-}
-
-/* RENDER */
-function render(){
-
-document.querySelectorAll(".section").forEach(sec=>{
-
-sec.innerHTML="";
-
-const row=+sec.dataset.row;
-const col=+sec.dataset.col;
-
-state[row][col].forEach(item=>{
-
-const el=document.createElement("div");
-el.className=`counter c${col}`;
-el.style.left=item.x+"px";
-el.style.top=item.y+"px";
-el.textContent=values[col];
-
-makeDraggable(el,item);
-sec.appendChild(el);
-
-});
-
-});
-}
-
-/* START */
-build();
+document.querySelectorAll(".fruit").forEach(enableDrag);
 
 </script>
+
 </body>
+
 </html>
