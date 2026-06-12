@@ -1,1 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Place Value Regrouping Tool</title>
 
+<style>
+*{
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial,sans-serif;
+    margin:0;
+    background:#f4f7fb;
+    text-align:center;
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+}
+
+/* HEADER */
+h2{
+    margin:0px 0;
+    font-size:clamp(16px,2.5vw,24px);
+}
+
+/* TOOLBAR */
+.toolbar{
+    margin:5px 0;
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:3px;
+}
+
+button{
+    padding:8px 10px;
+    cursor:pointer;
+    font-size:clamp(12px,2vw,14px);
+}
+
+/* MAIN TABLE */
+.table{
+    flex:1;
+    display:flex;
+    gap:0px;
+    padding:3px;
+    overflow-x:auto;
+    overflow-y:hidden;
+    align-items:stretch;
+}
+
+/* COLUMN */
+.col{
+    flex:1;
+    min-width:140px;
+    max-width:220px;
+    background:white;
+    border:2px solid #ccc;
+    border-radius:0px;
+    padding:5px;
+    display:flex;
+    flex-direction:column;
+}
+
+/* TITLE */
+.col h4{
+    margin:0px 0;
+    font-size:clamp(11px,1.8vw,14px);
+}
+
+/* SECTION (DROP AREA) */
+.section{
+    flex:1;
+    min-height:80px;
+    border:1px dashed #999;
+    margin-bottom:4px;
+    position:relative;
+    overflow:hidden;
+    background:white;
+}
+
+/* CANVAS */
+.canvas{
+    width:100%;
+    height:60px;
+    border:1px solid #ddd;
+    background:white;
+    touch-action:none;
+    margin-bottom:6px;
+}
+
+/* COUNTER */
+.counter{
+    width:clamp(28px,5vw,36px);
+    height:clamp(28px,5vw,36px);
+    border-radius:50%;
+    position:absolute;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:10px;
+    font-weight:bold;
+    color:black;
+    cursor:grab;
+    user-select:none;
+    touch-action:none;
+    box-shadow:0 2px 4px rgba(0,0,0,.3);
+}
+
+.counter:active{
+    cursor:grabbing;
+}
+
+/* COLORS */
+.c0{background:#ff6666;}
+.c1{background:#ffcc66;}
+.c2{background:#66ff99;}
+.c3{background:#66ccff;}
+.c4{background:#cc99ff;}
+
+/* POPUP */
+.popup{
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 10px 25px rgba(0,0,0,.3);
+    z-index:1001;
+    display:none;
+    width:90%;
+    max-width:300px;
+}
+
+.overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.3);
+    z-index:1000;
+    display:none;
+}
+
+/* MOBILE IMPROVEMENT */
+@media (max-width:600px){
+    .col{
+        min-width:120px;
+    }
+
+    .section{
+        min-height:100px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<h2></h2>
+
+<div class="toolbar">
+    <button onclick="setPen()">✏️សរសេរ</button>
+    <button onclick="setEraser()">🧽លុប</button>
+    <button onclick="clearAllCanvases()">សម្អាត</button>
+    <button onclick="restartTool()">🔄សារថ្មី</button>
+</div>
+
+<div id="table" class="table"></div>
+
+<div id="overlay" class="overlay"></div>
+
+<div id="popup" class="popup">
+    <p>តើត្រូវការប្តូរទេ?</p>
+    <button onclick="confirmExchange(true)">បាទ/ចាស</button>
+    <button onclick="confirmExchange(false)">អត់ទេ</button>
+</div>
+
+<script>
+
+const cols=[
+"ខ្ទង់ម៉ឺន",
+"ខ្ទង់ពាន់",
+"ខ្ទង់រយ",
+"ខ្ទង់ដប់",
+"ខ្ទង់រាយ"
+];
+
+const values=[10000,1000,100,10,1];
+
+const table=document.getElementById("table");
+const popup=document.getElementById("popup");
+const overlay=document.getElementById("overlay");
+
+let pending=null;
+let dragPending=null;
+let drawMode="pen";
+let canvases=[];
+
+let state=Array(3).fill().map(()=>Array(5).fill().map(()=>[]));
+
+/* BUILD */
+function build(){
+table.innerHTML="";
+
+cols.forEach((name,col)=>{
+
+const column=document.createElement("div");
+column.className="col";
+
+const title=document.createElement("h4");
+title.textContent=name;
+column.appendChild(title);
+
+for(let row=0;row<3;row++){
+
+const section=document.createElement("div");
+section.className="section";
+section.dataset.row=row;
+section.dataset.col=col;
+
+section.addEventListener("click",(e)=>{
+if(e.target.classList.contains("counter")) return;
+
+const rect=section.getBoundingClientRect();
+
+addCounter(
+row,
+col,
+e.clientX-rect.left,
+e.clientY-rect.top
+);
+});
+
+column.appendChild(section);
+
+const canvas=document.createElement("canvas");
+canvas.className="canvas";
+canvas.height=60;
+canvas.width=200;
+
+column.appendChild(canvas);
+
+enableCanvas(canvas);
+canvases.push(canvas);
+}
+
+table.appendChild(column);
+});
+
+render();
+}
+
+/* DRAWING */
+function enableCanvas(canvas){
+const ctx=canvas.getContext("2d");
+
+ctx.lineWidth=2;
+ctx.lineCap="round";
+
+let drawing=false;
+
+function pos(e){
+const rect=canvas.getBoundingClientRect();
+const p=e.touches?e.touches[0]:e;
+
+return{
+x:p.clientX-rect.left,
+y:p.clientY-rect.top
+};
+}
+
+function start(e){
+drawing=true;
+const p=pos(e);
+ctx.beginPath();
+ctx.moveTo(p.x,p.y);
+}
+
+function move(e){
+if(!drawing) return;
+
+const p=pos(e);
+
+if(drawMode==="eraser"){
+ctx.globalCompositeOperation="destination-out";
+ctx.lineWidth=14;
+}else{
+ctx.globalCompositeOperation="source-over";
+ctx.lineWidth=2;
+}
+
+ctx.lineTo(p.x,p.y);
+ctx.stroke();
+}
+
+function stop(){
+drawing=false;
+ctx.beginPath();
+}
+
+canvas.addEventListener("mousedown",start);
+canvas.addEventListener("mousemove",move);
+canvas.addEventListener("mouseup",stop);
+canvas.addEventListener("mouseleave",stop);
+
+canvas.addEventListener("touchstart",start);
+canvas.addEventListener("touchmove",(e)=>{e.preventDefault();move(e);});
+canvas.addEventListener("touchend",stop);
+}
+
+/* TOOLS */
+function setPen(){drawMode="pen";}
+function setEraser(){drawMode="eraser";}
+
+function clearAllCanvases(){
+canvases.forEach(c=>{
+c.getContext("2d").clearRect(0,0,c.width,c.height);
+});
+}
+
+function restartTool(){
+if(!confirm("Restart everything?")) return;
+
+state=Array(3).fill().map(()=>Array(5).fill().map(()=>[]));
+clearAllCanvases();
+render();
+}
+
+/* COUNTERS */
+function addCounter(row,col,x,y){
+state[row][col].push({
+id:Date.now()+Math.random(),
+row,col,x,y
+});
+checkRegroup(row,col);
+render();
+}
+
+function checkRegroup(row,col){
+if(state[row][col].length>=10){
+pending={row,col};
+overlay.style.display="block";
+popup.style.display="block";
+}
+}
+function confirmExchange(ok){
+
+popup.style.display="none";
+overlay.style.display="none";
+
+if(!ok){
+    pending=null;
+    dragPending=null;
+    return;
+}
+
+/* 10 smaller -> 1 bigger */
+if(pending){
+
+    const {row,col}=pending;
+
+    state[row][col].splice(0,10);
+
+    if(col>0){
+        state[row][col-1].push({
+            id:Date.now()+Math.random(),
+            row,
+            col:col-1,
+            x:30,
+            y:30
+        });
+    }
+
+    pending=null;
+}
+
+/* 1 bigger -> 10 smaller */
+if(dragPending){
+
+    const {
+        item,
+        oldRow,
+        oldCol,
+        newRow,
+        newCol
+    } = dragPending;
+
+    state[oldRow][oldCol] =
+        state[oldRow][oldCol]
+        .filter(x=>x.id!==item.id);
+
+    for(let i=0;i<10;i++){
+
+        state[newRow][newCol].push({
+            id:Date.now()+Math.random()+i,
+            row:newRow,
+            col:newCol,
+            x:15+(i%5)*25,
+            y:15+Math.floor(i/5)*25
+        });
+
+    }
+
+    dragPending=null;
+}
+
+render();
+}
+
+/* DRAG */
+function makeDraggable(el,item){
+
+let dragging=false,dx=0,dy=0;
+
+function start(e){
+dragging=true;
+const p=e.touches?e.touches[0]:e;
+
+dx=p.clientX-el.offsetLeft;
+dy=p.clientY-el.offsetTop;
+
+document.addEventListener("mousemove",move);
+document.addEventListener("mouseup",end);
+document.addEventListener("touchmove",move,{passive:false});
+document.addEventListener("touchend",end);
+}
+
+function move(e){
+if(!dragging) return;
+
+const p=e.touches?e.touches[0]:e;
+
+el.style.left=(p.clientX-dx)+"px";
+el.style.top=(p.clientY-dy)+"px";
+
+e.preventDefault();
+}
+
+function end(){
+dragging=false;
+
+document.removeEventListener("mousemove",move);
+document.removeEventListener("touchmove",move);
+document.removeEventListener("mouseup",end);
+document.removeEventListener("touchend",end);
+
+snap(el,item);
+}
+
+el.addEventListener("mousedown",start);
+el.addEventListener("touchstart",start);
+}
+
+/* SNAP */
+function snap(el,item){
+
+const rect=el.getBoundingClientRect();
+const cx=rect.left+rect.width/2;
+const cy=rect.top+rect.height/2;
+
+let found=false;
+
+document.querySelectorAll(".section").forEach(sec=>{
+
+const r=sec.getBoundingClientRect();
+
+if(cx>r.left && cx<r.right &&
+   cy>r.top && cy<r.bottom){
+
+    found=true;
+
+    const newRow=+sec.dataset.row;
+    const newCol=+sec.dataset.col;
+
+    /* DRAG RIGHT = ASK TO EXCHANGE */
+
+    if(
+        newRow===item.row &&
+        newCol===item.col+1 &&
+        item.col<4
+    ){
+
+        dragPending={
+            item:item,
+            oldRow:item.row,
+            oldCol:item.col,
+            newRow:newRow,
+            newCol:newCol
+        };
+
+        overlay.style.display="block";
+        popup.style.display="block";
+        return;
+    }
+
+    state[item.row][item.col] =
+        state[item.row][item.col]
+        .filter(x=>x.id!==item.id);
+
+    item.row=newRow;
+    item.col=newCol;
+
+    const secRect=sec.getBoundingClientRect();
+
+    item.x=cx-secRect.left;
+    item.y=cy-secRect.top;
+
+    state[newRow][newCol].push(item);
+
+    checkRegroup(newRow,newCol);
+}
+
+});
+
+render();
+}
+
+/* RENDER */
+function render(){
+
+document.querySelectorAll(".section").forEach(sec=>{
+
+sec.innerHTML="";
+
+const row=+sec.dataset.row;
+const col=+sec.dataset.col;
+
+state[row][col].forEach(item=>{
+
+const el=document.createElement("div");
+el.className=`counter c${col}`;
+el.style.left=item.x+"px";
+el.style.top=item.y+"px";
+el.textContent=values[col];
+
+makeDraggable(el,item);
+sec.appendChild(el);
+
+});
+
+});
+}
+
+/* START */
+build();
+
+</script>
+</body>
+</html>
