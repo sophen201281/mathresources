@@ -8,7 +8,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Stable Trace Flip App</title>
+<title>Number Learning App</title>
 
 <style>
 
@@ -98,7 +98,7 @@ margin:auto;
 
 }
 
-/* card system (FIXED) */
+/* card */
 
 .card{
 
@@ -144,11 +144,11 @@ z-index:10;
 
 position:absolute;
 
-top:15px;
+top:10px;
 
 width:100%;
 
-font-size:190px;
+font-size:150px;
 
 font-weight:bold;
 
@@ -157,6 +157,28 @@ color:#dbeafe;
 -webkit-text-stroke:5px #60a5fa;
 
 z-index:2;
+
+}
+
+/* 🖼 number image */
+
+.number-img{
+
+position:absolute;
+
+top:120px;
+
+left:50%;
+
+transform:translateX(-50%);
+
+width:120px;
+
+height:120px;
+
+object-fit:contain;
+
+z-index:3;
 
 }
 
@@ -215,8 +237,6 @@ color:white;
 cursor:pointer;
 
 z-index:50;
-
-box-shadow:0 5px 10px rgba(0,0,0,0.2);
 
 }
 
@@ -348,7 +368,7 @@ z-index:100;
 
 <body>
 
-<h1>🔢 Stable Trace Flip App 🍎</h1>
+<h1>🔢 Number Learn + Images 🍎</h1>
 
 <div class="tools">
 
@@ -391,6 +411,32 @@ let strokeSize=8;
 let eraserMode=false;
 
 const canvases=[];
+
+/* number images (you can replace with your own PNG files) */
+
+const numberImages=[
+
+"https://cdn-icons-png.flaticon.com/512/1828/1828884.png", //0
+
+"https://cdn-icons-png.flaticon.com/512/1828/1828919.png", //1
+
+"https://cdn-icons-png.flaticon.com/512/1828/1828885.png", //2
+
+"https://cdn-icons-png.flaticon.com/512/1828/1828886.png", //3
+
+"https://cdn-icons-png.flaticon.com/512/1828/1828887.png", //4
+
+"https://cdn-icons-png.flaticon.com/512/1828/1828888.png", //5
+
+"https://cdn-icons-png.flaticon.com/512/1828/1828889.png", //6
+
+"https://cdn-icons-png.flaticon.com/512/1828/1828890.png", //7
+
+"https://cdn-icons-png.flaticon.com/512/1828/1828891.png", //8
+
+"https://cdn-icons-png.flaticon.com/512/1828/1828892.png"  //9
+
+];
 
 /* controls */
 
@@ -441,6 +487,8 @@ ${fruits[num%fruits.length]}
 card.innerHTML=`
 
 <div class="number">${num}</div>
+
+<img class="number-img" src="${numberImages[num]}">
 
 <canvas></canvas>
 
@@ -502,7 +550,7 @@ card.querySelectorAll(".fruit").forEach(enableDrag);
 
 }
 
-/* FIXED FLIP */
+/* navigation */
 
 function showCard(index){
 
@@ -538,25 +586,17 @@ showCard(Math.floor(Math.random()*10));
 
 /* attach handles */
 
-document.querySelectorAll(".handle-right").forEach(b=>{
+document.querySelectorAll(".handle-right").forEach(b=>b.onclick=nextCard);
 
-b.onclick=nextCard;
+document.querySelectorAll(".handle-left").forEach(b=>b.onclick=prevCard);
 
-});
-
-document.querySelectorAll(".handle-left").forEach(b=>{
-
-b.onclick=prevCard;
-
-});
-
-/* clear */
+/* clear drawing */
 
 function clearTrace(){
 
-const ctx=canvases[current].getContext("2d");
+canvases[current].getContext("2d")
 
-ctx.clearRect(0,0,340,460);
+.clearRect(0,0,340,460);
 
 }
 
