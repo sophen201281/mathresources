@@ -1,228 +1,364 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Number Learning App (Fully Fixed)</title>
+
+<title>Number Learning App (Canvas Background Fixed)</title>
 
 <style>
 
 *{
+
 box-sizing:border-box;
+
 user-select:none;
+
 }
 
 body{
+
 margin:0;
+
 height:100vh;
+
 overflow:hidden;
+
 background:#eaf6ff;
+
 font-family:"Comic Sans MS",Arial;
+
 text-align:center;
+
 }
 
 h1{
+
 color:#2563eb;
+
 margin:10px 0;
+
 }
 
 /* TOOLBAR */
+
 .tools{
+
 display:flex;
+
 justify-content:center;
+
 gap:10px;
+
 flex-wrap:wrap;
+
 align-items:center;
+
 padding:8px;
+
 }
 
 input[type="color"],
+
 input[type="range"]{
+
 cursor:pointer;
+
 }
 
 button{
+
 padding:8px 12px;
+
 border:0;
+
 border-radius:20px;
+
 cursor:pointer;
+
 color:white;
+
 font-weight:bold;
+
 }
 
 .draw{background:#16a34a;}
+
 .erase{background:#f59e0b;}
+
 .clean{background:#ef4444;}
 
 /* DECK */
+
 .deck{
+
 position:relative;
+
 width:340px;
+
 height:460px;
+
 margin:auto;
+
 }
 
 /* CARD */
+
 .card{
+
 position:absolute;
+
 width:340px;
+
 height:460px;
+
 background:white;
+
 border-radius:25px;
+
 overflow:hidden;
+
 box-shadow:0 8px 20px rgba(0,0,0,0.25);
 
 opacity:0;
+
 pointer-events:none;
+
 transform:scale(0.95);
+
 transition:0.25s;
+
 }
 
 .card.active{
-opacity:1;
-pointer-events:auto;
-transform:scale(1);
-z-index:10;
-}
 
-/* NUMBER */
-.number-img{
-position:absolute;
-top:25px;
-left:50%;
-transform:translateX(-50%);
-width:120px;
-height:120px;
-object-fit:contain;
-z-index:3;
+opacity:1;
+
+pointer-events:auto;
+
+transform:scale(1);
+
+z-index:10;
+
 }
 
 /* CANVAS */
+
 canvas{
+
 position:absolute;
+
 inset:0;
-background-image:url("image.png");
-background-size:cover;
-background-position:center;
-opacity:0.25;
+
 z-index:1;
 
 touch-action:none;
+
 }
 
 /* FRUIT AREA */
+
 .fruit-area{
+
 position:absolute;
+
 bottom:0;
+
 width:100%;
+
 height:130px;
+
 background:#dcfce7;
+
 display:flex;
+
 flex-wrap:wrap;
+
 justify-content:center;
+
 align-items:center;
+
 gap:8px;
+
 padding:10px;
+
 z-index:20;
+
 }
 
 /* FRUIT */
+
 .fruit{
+
 position:relative;
+
 width:45px;
+
 height:45px;
+
 touch-action:none;
+
 cursor:grab;
+
 z-index:21;
+
 }
 
 .fruit img{
+
 width:100%;
+
 height:100%;
+
 object-fit:contain;
+
 }
 
-/* COPY BUTTON */
+/* COPY */
+
 .copy{
+
 position:absolute;
+
 right:-8px;
+
 top:-8px;
+
 width:20px;
+
 height:20px;
+
 border-radius:50%;
+
 background:white;
+
 border:1px solid #2563eb;
+
 color:#2563eb;
+
 font-size:14px;
+
 display:flex;
+
 align-items:center;
+
 justify-content:center;
+
 }
 
 /* NAV */
+
 .handle-left,
+
 .handle-right{
+
 position:absolute;
+
 top:160px;
+
 width:80px;
+
 height:130px;
+
 display:flex;
+
 align-items:center;
+
 justify-content:center;
+
 font-size:40px;
+
 color:white;
+
 cursor:pointer;
+
 z-index:50;
+
 }
 
 .handle-left{
+
 left:-60px;
+
 background:#16a34a;
+
 border-radius:25px 0 0 25px;
+
 }
 
 .handle-right{
+
 right:-60px;
+
 background:#2563eb;
+
 border-radius:0 25px 25px 0;
+
 }
 
 /* RANDOM */
+
 .bottom-handle{
+
 position:absolute;
+
 bottom:15px;
+
 left:50%;
+
 transform:translateX(-50%);
+
 width:160px;
+
 height:60px;
+
 background:#f59e0b;
+
 color:white;
+
 border-radius:30px;
+
 display:flex;
+
 align-items:center;
+
 justify-content:center;
+
 font-size:24px;
+
 font-weight:bold;
+
 cursor:pointer;
+
 z-index:100;
+
 }
 
 </style>
+
 </head>
 
 <body>
 
-<h1>🎨 Fully Fixed Number + Fruit App</h1>
+<h1>🎨 Number Learning App (Fixed Canvas Background)</h1>
 
 <!-- TOOLBAR -->
+
 <div class="tools">
 
 <input type="color" id="colorPicker" value="#16a34a">
+
 <input type="range" id="sizePicker" min="2" max="20" value="6">
 
-<button class="draw" onclick="mode='draw'">✏️សរសេរ</button>
-<button class="erase" onclick="mode='erase'">🧽លុប</button>
-<button class="clean" onclick="clearCanvas()">🧼សម្អាត</button>
+<button class="draw" onclick="mode='draw'">✏️ Draw</button>
+
+<button class="erase" onclick="mode='erase'">🧽 Eraser</button>
+
+<button class="clean" onclick="clearCanvas()">🧼 Clean</button>
 
 </div>
 
@@ -233,152 +369,245 @@ z-index:100;
 <script>
 
 const deck=document.getElementById("deck");
+
 let current=0;
 
 let mode="draw";
+
 let strokeColor="#16a34a";
+
 let strokeSize=6;
 
 /* TOOL CONTROLS */
+
 document.getElementById("colorPicker").oninput=e=>{
+
 strokeColor=e.target.value;
+
 };
 
 document.getElementById("sizePicker").oninput=e=>{
+
 strokeSize=e.target.value;
+
 };
 
-/* CLEAR CANVAS */
-function clearCanvas(){
-const ctx=canvases[current].getContext("2d");
-ctx.clearRect(0,0,340,460);
-}
-
 /* IMAGES */
+
 const numberImages=[
+
 "image/0.png","image/1.png","image/2.png","image/3.png","image/4.png",
+
 "image/5.png","image/6.png","image/7.png","image/8.png","image/9.png"
+
 ];
 
 const fruitImages=[
+
 "fruits/apple.png",
+
 "fruits/banana.png",
+
 "fruits/orange.png",
+
 "fruits/strawberry.png",
+
 "fruits/grape.png"
+
 ];
 
 const canvases=[];
 
+/* CLEAR */
+
+function clearCanvas(){
+
+const ctx=canvases[current].ctx;
+
+ctx.clearRect(0,0,340,460);
+
+canvases[current].drawBg(); // redraw number background
+
+}
+
 /* BUILD CARDS */
+
 for(let i=0;i<10;i++){
 
 const card=document.createElement("div");
+
 card.className="card"+(i===0?" active":"");
 
-let fruitHTML="";
-for(let j=0;j<5;j++){
-fruitHTML+=`
-<div class="fruit">
-<img src="${fruitImages[j%fruitImages.length]}">
-<span class="copy">+</span>
-</div>`;
-}
-
 card.innerHTML=`
-<img class="number-img" src="${numberImages[i]}">
 
 <canvas></canvas>
 
-<div class="fruit-area">${fruitHTML}</div>
+<div class="fruit-area"></div>
 
 <div class="handle-left">⬅</div>
+
 <div class="handle-right">➜</div>
+
 `;
 
 deck.appendChild(card);
 
 /* CANVAS */
+
 const canvas=card.querySelector("canvas");
+
 const ctx=canvas.getContext("2d");
 
 canvas.width=340;
+
 canvas.height=460;
+
+/* LOAD NUMBER IMAGE */
+
+const bg=new Image();
+
+bg.src=numberImages[i];
+
+/* DRAW BACKGROUND */
+
+function drawBg(){
+
+ctx.globalAlpha=0.15;
+
+ctx.drawImage(bg,70,60,200,200);
+
+ctx.globalAlpha=1;
+
+}
+
+bg.onload=drawBg;
+
+/* STORE */
+
+canvases.push({canvas,ctx,drawBg});
+
+/* DRAWING */
 
 let drawing=false;
 
 canvas.addEventListener("pointerdown",(e)=>{
+
 drawing=true;
+
 canvas.setPointerCapture(e.pointerId);
 
 ctx.beginPath();
+
 ctx.moveTo(e.offsetX,e.offsetY);
+
 });
 
 canvas.addEventListener("pointermove",(e)=>{
+
 if(!drawing) return;
 
 ctx.lineWidth=strokeSize;
+
 ctx.lineCap="round";
 
 if(mode==="erase"){
+
 ctx.globalCompositeOperation="destination-out";
+
 ctx.lineWidth=strokeSize*2;
+
 }else{
+
 ctx.globalCompositeOperation="source-over";
+
 ctx.strokeStyle=strokeColor;
+
 }
 
 ctx.lineTo(e.offsetX,e.offsetY);
+
 ctx.stroke();
+
 });
 
-canvas.addEventListener("pointerup",()=>{
-drawing=false;
-});
+canvas.addEventListener("pointerup",()=>drawing=false);
 
-canvas.addEventListener("pointercancel",()=>{
-drawing=false;
-});
+canvas.addEventListener("pointercancel",()=>drawing=false);
 
-canvases.push(canvas);
+/* FRUITS */
 
-/* FRUIT SYSTEM (FIXED) */
-card.querySelectorAll(".fruit").forEach(enableDrag);
+const fruitArea=card.querySelector(".fruit-area");
+
+for(let j=0;j<5;j++){
+
+const f=document.createElement("div");
+
+f.className="fruit";
+
+f.innerHTML=`
+
+<img src="${fruitImages[j%fruitImages.length]}">
+
+<span class="copy">+</span>
+
+`;
+
+fruitArea.appendChild(f);
+
+enableDrag(f);
+
+}
+
 }
 
 /* NAV */
+
 function showCard(i){
+
 document.querySelectorAll(".card").forEach(c=>c.classList.remove("active"));
+
 current=i;
+
 document.querySelectorAll(".card")[i].classList.add("active");
+
 }
 
 function randomCard(){
+
 showCard(Math.floor(Math.random()*10));
+
 }
 
 document.querySelectorAll(".handle-right")
+
 .forEach(b=>b.onclick=()=>showCard((current+1)%10));
 
 document.querySelectorAll(".handle-left")
+
 .forEach(b=>b.onclick=()=>showCard((current+9)%10));
 
 /* =========================
-   FIXED FRUIT SYSTEM
+
+   FRUIT SYSTEM FIXED
+
 ========================= */
 
 function enableDrag(f){
 
 let dragging=false;
+
 let offsetX=0;
+
 let offsetY=0;
+
 let lastTap=0;
 
 f.style.touchAction="none";
 
 function deleteFruit(){
+
 f.remove();
+
 }
 
 f.addEventListener("pointerdown",(e)=>{
@@ -388,9 +617,13 @@ e.preventDefault();
 const now=Date.now();
 
 /* DOUBLE TAP DELETE */
+
 if(now-lastTap < 300){
+
 deleteFruit();
+
 return;
+
 }
 
 lastTap=now;
@@ -398,38 +631,53 @@ lastTap=now;
 dragging=true;
 
 const rect=f.getBoundingClientRect();
+
 offsetX=e.clientX - rect.left;
+
 offsetY=e.clientY - rect.top;
 
 f.setPointerCapture(e.pointerId);
 
 /* COPY */
+
 const copyBtn=f.querySelector(".copy");
 
-if(e.target === copyBtn || e.target.closest(".copy")){
+if(e.target===copyBtn || e.target.closest(".copy")){
+
 const clone=f.cloneNode(true);
+
 f.parentElement.appendChild(clone);
+
 enableDrag(clone);
+
 }
 
 });
 
 f.addEventListener("pointermove",(e)=>{
+
 if(!dragging) return;
 
 const parentRect=f.parentElement.getBoundingClientRect();
 
 f.style.position="absolute";
+
 f.style.left=(e.clientX - parentRect.left - offsetX)+"px";
+
 f.style.top=(e.clientY - parentRect.top - offsetY)+"px";
+
 });
 
 f.addEventListener("pointerup",()=>{
+
 dragging=false;
+
 });
 
 f.addEventListener("pointercancel",()=>{
+
 dragging=false;
+
 });
 
 }
@@ -437,4 +685,5 @@ dragging=false;
 </script>
 
 </body>
+
 </html>
