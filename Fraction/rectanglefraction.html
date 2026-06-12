@@ -8,7 +8,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Number Learning App (Canvas Background Fixed)</title>
+<title>Number Tracing App (Final Fix)</title>
 
 <style>
 
@@ -344,7 +344,7 @@ z-index:100;
 
 <body>
 
-<h1>🎨 Number Learning App (Fixed Canvas Background)</h1>
+<h1>🎨 Number Tracing App (Final Stable)</h1>
 
 <!-- TOOLBAR -->
 
@@ -378,7 +378,7 @@ let strokeColor="#16a34a";
 
 let strokeSize=6;
 
-/* TOOL CONTROLS */
+/* TOOL */
 
 document.getElementById("colorPicker").oninput=e=>{
 
@@ -426,7 +426,7 @@ const ctx=canvases[current].ctx;
 
 ctx.clearRect(0,0,340,460);
 
-canvases[current].drawBg(); // redraw number background
+canvases[current].drawBg();
 
 }
 
@@ -452,8 +452,6 @@ card.innerHTML=`
 
 deck.appendChild(card);
 
-/* CANVAS */
-
 const canvas=card.querySelector("canvas");
 
 const ctx=canvas.getContext("2d");
@@ -462,17 +460,19 @@ canvas.width=340;
 
 canvas.height=460;
 
-/* LOAD NUMBER IMAGE */
+/* FIX: PROPER BACKGROUND DRAWING */
 
 const bg=new Image();
 
 bg.src=numberImages[i];
 
-/* DRAW BACKGROUND */
-
 function drawBg(){
 
-ctx.globalAlpha=0.15;
+ctx.clearRect(0,0,340,460);
+
+/* soft visible tracing image */
+
+ctx.globalAlpha=0.28;
 
 ctx.drawImage(bg,70,60,200,200);
 
@@ -530,9 +530,19 @@ ctx.stroke();
 
 });
 
-canvas.addEventListener("pointerup",()=>drawing=false);
+canvas.addEventListener("pointerup",()=>{
 
-canvas.addEventListener("pointercancel",()=>drawing=false);
+drawing=false;
+
+ctx.globalCompositeOperation="source-over";
+
+});
+
+canvas.addEventListener("pointercancel",()=>{
+
+drawing=false;
+
+});
 
 /* FRUITS */
 
