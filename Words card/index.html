@@ -60,7 +60,7 @@ h2{
 
 }
 
-/* CARD (single side now) */
+/* CARD */
 
 .card{
 
@@ -70,7 +70,7 @@ h2{
 
   height:100%;
 
-  transition:opacity .3s, transform .3s;
+  transition:opacity .3s;
 
   cursor:pointer;
 
@@ -86,7 +86,7 @@ h2{
 
 }
 
-/* SINGLE FACE */
+/* FACE */
 
 .face{
 
@@ -128,7 +128,7 @@ h2{
 
 }
 
-/* DRAWING CANVAS */
+/* CANVAS */
 
 .drawCanvas{
 
@@ -145,8 +145,6 @@ h2{
   z-index:1;
 
   border-radius:14px;
-
-  /* IMPORTANT FIX */
 
   pointer-events:auto;
 
@@ -296,8 +294,6 @@ button:hover{
 
     <input id="frontInput" placeholder="Word / Text">
 
-    <input id="backInput" placeholder="(Optional unused)">
-
     <button onclick="addCard()">➕ Add</button>
 
   </div>
@@ -362,7 +358,7 @@ function renderCards(){
 
   `;
 
-  /* NAVIGATION */
+  /* NAV */
 
   let startX = 0;
 
@@ -384,8 +380,6 @@ function renderCards(){
 
     const w = rect.width;
 
-    // swipe
-
     if(Math.abs(diff) > 60){
 
       if(diff > 0) prev();
@@ -395,8 +389,6 @@ function renderCards(){
       return;
 
     }
-
-    // tap zones
 
     if(x < w*0.2) prev();
 
@@ -439,8 +431,6 @@ function addCard(){
   current = cards.length - 1;
 
   document.getElementById("frontInput").value = "";
-
-  document.getElementById("backInput").value = "";
 
   renderCards();
 
@@ -516,7 +506,7 @@ function changeFontSize(v){
 
 }
 
-/* DRAWING FIXED */
+/* DRAWING */
 
 function enableDrawing(canvas){
 
