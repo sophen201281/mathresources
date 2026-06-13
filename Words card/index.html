@@ -50,64 +50,6 @@ h2{
 
 }
 
-.controls{
-
-  display:flex;
-
-  gap:10px;
-
-  flex-wrap:wrap;
-
-  justify-content:center;
-
-  margin-bottom:15px;
-
-}
-
-input[type="text"]{
-
-  padding:10px;
-
-  width:180px;
-
-  border:1px solid #ccc;
-
-  border-radius:8px;
-
-}
-
-button,a{
-
-  padding:10px 14px;
-
-  border:none;
-
-  background:#4a6cf7;
-
-  color:white;
-
-  border-radius:8px;
-
-  cursor:pointer;
-
-  text-decoration:none;
-
-}
-
-button:hover,
-
-a:hover{
-
-  background:#3a57d6;
-
-}
-
-.font-control{
-
-  margin-bottom:15px;
-
-}
-
 .stack{
 
   position:relative;
@@ -202,8 +144,6 @@ a:hover{
 
 }
 
-/* Visual edge hints */
-
 .card::before,
 
 .card::after{
@@ -248,9 +188,79 @@ a:hover{
 
 }
 
-.nav{
+.bottom-controls{
+
+  width:min(340px,90vw);
 
   margin-top:15px;
+
+}
+
+.controls{
+
+  display:flex;
+
+  flex-wrap:wrap;
+
+  gap:8px;
+
+  justify-content:center;
+
+  margin-bottom:12px;
+
+}
+
+.controls input{
+
+  flex:1;
+
+  min-width:120px;
+
+  padding:10px;
+
+  border:1px solid #ccc;
+
+  border-radius:8px;
+
+}
+
+button,
+
+a{
+
+  padding:10px 14px;
+
+  border:none;
+
+  background:#4a6cf7;
+
+  color:white;
+
+  border-radius:8px;
+
+  cursor:pointer;
+
+  text-decoration:none;
+
+}
+
+button:hover,
+
+a:hover{
+
+  background:#3a57d6;
+
+}
+
+.font-control{
+
+  text-align:center;
+
+  margin-bottom:12px;
+
+}
+
+.nav{
 
   display:flex;
 
@@ -288,47 +298,51 @@ a:hover{
 
 <h2>📚 Flashcard Stack App</h2>
 
-<div class="controls">
-
-  <input id="frontInput" type="text" placeholder="Front word">
-
-  <input id="backInput" type="text" placeholder="Back meaning">
-
-  <button onclick="addCard()">➕ Add</button>
-
-</div>
-
-<div class="font-control">
-
-  🎚 Font Size:
-
-  <input
-
-    type="range"
-
-    min="16"
-
-    max="100"
-
-    value="28"
-
-    oninput="changeFontSize(this.value)">
-
-</div>
-
 <div class="stack" id="stack"></div>
 
-<div class="nav">
+<div class="bottom-controls">
 
-  <button onclick="prevCard()">⏮ ខាងដើម</button>
+  <div class="controls">
 
-  <button onclick="flipCard()">🔄 បង្វិល</button>
+    <input id="frontInput" type="text" placeholder="Front word">
 
-  <button onclick="nextCard()">⏭ បន្ទាប់</button>
+    <input id="backInput" type="text" placeholder="Back meaning">
 
-  <button onclick="deleteCard()">🗑 លុប</button>
+    <button onclick="addCard()">➕ Add</button>
 
-  <a href="../index.html">🏠 Home</a>
+  </div>
+
+  <div class="font-control">
+
+    🎚 Font Size:
+
+    <input
+
+      type="range"
+
+      min="16"
+
+      max="100"
+
+      value="28"
+
+      oninput="changeFontSize(this.value)">
+
+  </div>
+
+  <div class="nav">
+
+    <button onclick="prevCard()">⏮ ខាងដើម</button>
+
+    <button onclick="flipCard()">🔄 បង្វិល</button>
+
+    <button onclick="nextCard()">⏭ បន្ទាប់</button>
+
+    <button onclick="deleteCard()">🗑 លុប</button>
+
+    <a href="../index.html">🏠 Home</a>
+
+  </div>
 
 </div>
 
@@ -394,8 +408,6 @@ function renderCards(){
 
       const diff = endX - startX;
 
-      // Swipe Right
-
       if(diff > 50){
 
         prevCard();
@@ -403,8 +415,6 @@ function renderCards(){
         return;
 
       }
-
-      // Swipe Left
 
       if(diff < -50){
 
