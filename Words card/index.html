@@ -194,15 +194,15 @@ h2{
 
 }
 
+/* INPUT AREA STACKED */
+
 .controls{
 
   display:flex;
 
+  flex-direction:column;
+
   gap:8px;
-
-  flex-wrap:wrap;
-
-  justify-content:center;
 
   margin-bottom:10px;
 
@@ -210,15 +210,39 @@ h2{
 
 .controls input{
 
-  flex:1;
-
-  min-width:120px;
+  width:100%;
 
   padding:10px;
 
   border:1px solid #ccc;
 
   border-radius:8px;
+
+}
+
+/* ADD BUTTON UNDER INPUT */
+
+.add-btn{
+
+  width:100%;
+
+  padding:10px 12px;
+
+  border:none;
+
+  background:#4a6cf7;
+
+  color:white;
+
+  border-radius:8px;
+
+  cursor:pointer;
+
+}
+
+.add-btn:hover{
+
+  background:#3a57d6;
 
 }
 
@@ -284,23 +308,25 @@ button:hover{
 
 <body>
 
-<h2></h2>
+<h2>📚 Flashcard Stack App</h2>
 
 <div class="stack" id="stack"></div>
 
 <div class="bottom-controls">
 
+  <!-- INPUT + ADD BUTTON MOVED HERE -->
+
   <div class="controls">
 
     <input id="frontInput" placeholder="Word / Text">
 
-    <button onclick="addCard()">➕ Add</button>
+    <button class="add-btn" onclick="addCard()">➕ Add</button>
 
   </div>
 
   <div class="font-control">
 
-    ប្តូរទំហំអក្សរ
+    🎚 Font Size
 
     <input type="range" min="16" max="100" value="28"
 
@@ -323,8 +349,6 @@ button:hover{
 let cards = [];
 
 let current = 0;
-
-/* RENDER */
 
 function renderCards(){
 
@@ -357,8 +381,6 @@ function renderCards(){
     </div>
 
   `;
-
-  /* NAV */
 
   let startX = 0;
 
@@ -418,8 +440,6 @@ function renderCards(){
 
 }
 
-/* ADD */
-
 function addCard(){
 
   const t = document.getElementById("frontInput").value.trim();
@@ -436,8 +456,6 @@ function addCard(){
 
 }
 
-/* DELETE */
-
 function deleteCard(){
 
   if(!cards.length) return;
@@ -451,8 +469,6 @@ function deleteCard(){
   renderCards();
 
 }
-
-/* RANDOM */
 
 function randomCard(){
 
@@ -471,8 +487,6 @@ function randomCard(){
   renderCards();
 
 }
-
-/* NAV */
 
 function next(){
 
@@ -498,15 +512,11 @@ function prev(){
 
 }
 
-/* FONT */
-
 function changeFontSize(v){
 
   document.documentElement.style.setProperty("--card-font-size", v+"px");
 
 }
-
-/* DRAWING */
 
 function enableDrawing(canvas){
 
