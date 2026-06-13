@@ -44,8 +44,6 @@ body{
 
 h2{
 
-  text-align:center;
-
   margin-bottom:20px;
 
 }
@@ -56,11 +54,13 @@ h2{
 
   width:min(340px,90vw);
 
-  height:220px;
+  height:240px;
 
   perspective:1400px;
 
 }
+
+/* CARD (single side now) */
 
 .card{
 
@@ -70,17 +70,11 @@ h2{
 
   height:100%;
 
-  transform-style:preserve-3d;
-
-  transition:transform .6s, opacity .3s;
+  transition:opacity .3s, transform .3s;
 
   cursor:pointer;
 
-  touch-action:pan-y;
-
   user-select:none;
-
-  -webkit-user-select:none;
 
 }
 
@@ -92,11 +86,7 @@ h2{
 
 }
 
-.card.flipped{
-
-  transform:rotateY(180deg);
-
-}
+/* SINGLE FACE */
 
 .face{
 
@@ -114,35 +104,55 @@ h2{
 
   justify-content:center;
 
-  padding:20px;
-
-  text-align:center;
-
   font-size:var(--card-font-size);
-
-  backface-visibility:hidden;
 
   box-shadow:0 10px 25px rgba(0,0,0,.15);
 
-  word-break:break-word;
-
-}
-
-.front{
+  overflow:hidden;
 
   background:white;
 
 }
 
-.back{
+/* TEXT */
 
-  background:#4a6cf7;
+.text{
 
-  color:white;
+  position:relative;
 
-  transform:rotateY(180deg);
+  z-index:2;
+
+  text-align:center;
+
+  padding:10px;
 
 }
+
+/* DRAWING CANVAS */
+
+.drawCanvas{
+
+  position:absolute;
+
+  top:0;
+
+  left:0;
+
+  width:100%;
+
+  height:100%;
+
+  z-index:1;
+
+  border-radius:14px;
+
+  /* IMPORTANT FIX */
+
+  pointer-events:auto;
+
+}
+
+/* EDGE HINTS */
 
 .card::before,
 
@@ -162,31 +172,21 @@ h2{
 
   justify-content:center;
 
-  font-size:30px;
+  font-size:28px;
 
   color:rgba(0,0,0,.15);
 
-  z-index:5;
-
   pointer-events:none;
 
-}
-
-.card::before{
-
-  content:"◀";
-
-  left:0;
+  z-index:3;
 
 }
 
-.card::after{
+.card::before{ content:"◀"; left:0; }
 
-  content:"▶";
+.card::after{ content:"▶"; right:0; }
 
-  right:0;
-
-}
+/* CONTROLS */
 
 .bottom-controls{
 
@@ -200,13 +200,13 @@ h2{
 
   display:flex;
 
-  flex-wrap:wrap;
-
   gap:8px;
+
+  flex-wrap:wrap;
 
   justify-content:center;
 
-  margin-bottom:12px;
+  margin-bottom:10px;
 
 }
 
@@ -224,11 +224,9 @@ h2{
 
 }
 
-button,
+button{
 
-a{
-
-  padding:10px 14px;
+  padding:10px 12px;
 
   border:none;
 
@@ -240,13 +238,9 @@ a{
 
   cursor:pointer;
 
-  text-decoration:none;
-
 }
 
-button:hover,
-
-a:hover{
+button:hover{
 
   background:#3a57d6;
 
@@ -256,7 +250,7 @@ a:hover{
 
   text-align:center;
 
-  margin-bottom:12px;
+  margin-bottom:10px;
 
 }
 
@@ -280,11 +274,7 @@ a:hover{
 
   justify-content:center;
 
-  width:100%;
-
   height:100%;
-
-  font-size:20px;
 
   color:#666;
 
@@ -304,9 +294,9 @@ a:hover{
 
   <div class="controls">
 
-    <input id="frontInput" type="text" placeholder="Front word">
+    <input id="frontInput" placeholder="Word / Text">
 
-    <input id="backInput" type="text" placeholder="Back meaning">
+    <input id="backInput" placeholder="(Optional unused)">
 
     <button onclick="addCard()">➕ Add</button>
 
@@ -314,17 +304,9 @@ a:hover{
 
   <div class="font-control">
 
-    🎚 Font Size:
+    🎚 Font Size
 
-    <input
-
-      type="range"
-
-      min="16"
-
-      max="100"
-
-      value="28"
+    <input type="range" min="16" max="100" value="28"
 
       oninput="changeFontSize(this.value)">
 
@@ -332,15 +314,9 @@ a:hover{
 
   <div class="nav">
 
-    <button onclick="prevCard()">⏮ ខាងដើម</button>
+    <button onclick="randomCard()">🎲 Random</button>
 
-    <button onclick="flipCard()">🔄 បង្វិល</button>
-
-    <button onclick="nextCard()">⏭ បន្ទាប់</button>
-
-    <button onclick="deleteCard()">🗑 លុប</button>
-
-    <a href="../index.html">🏠 Home</a>
+    <button onclick="deleteCard()">🗑 Delete</button>
 
   </div>
 
@@ -352,6 +328,8 @@ let cards = [];
 
 let current = 0;
 
+/* RENDER */
+
 function renderCards(){
 
   const stack = document.getElementById("stack");
@@ -360,193 +338,155 @@ function renderCards(){
 
   if(cards.length === 0){
 
-    stack.innerHTML =
-
-      '<div class="empty">មិនទាន់មានបណ្ណ</div>';
+    stack.innerHTML = `<div class="empty">No cards yet</div>`;
 
     return;
 
   }
 
-  cards.forEach((c,i)=>{
+  const c = cards[current];
 
-    const card = document.createElement("div");
+  const card = document.createElement("div");
 
-    card.className = "card";
+  card.className = "card";
 
-    if(i !== current){
+  card.innerHTML = `
 
-      card.classList.add("hidden");
+    <div class="face">
+
+      <canvas class="drawCanvas"></canvas>
+
+      <div class="text">${c.text}</div>
+
+    </div>
+
+  `;
+
+  /* NAVIGATION */
+
+  let startX = 0;
+
+  card.addEventListener("touchstart",(e)=>{
+
+    startX = e.touches[0].clientX;
+
+  },{passive:true});
+
+  card.addEventListener("touchend",(e)=>{
+
+    const endX = e.changedTouches[0].clientX;
+
+    const diff = endX - startX;
+
+    const rect = card.getBoundingClientRect();
+
+    const x = endX - rect.left;
+
+    const w = rect.width;
+
+    // swipe
+
+    if(Math.abs(diff) > 60){
+
+      if(diff > 0) prev();
+
+      else next();
+
+      return;
 
     }
 
-    if(c.flipped){
+    // tap zones
 
-      card.classList.add("flipped");
+    if(x < w*0.2) prev();
 
-    }
+    else if(x > w*0.8) next();
 
-    card.innerHTML = `
+  },{passive:true});
 
-      <div class="face front">${c.front}</div>
+  card.addEventListener("click",(e)=>{
 
-      <div class="face back">${c.back}</div>
+    const rect = card.getBoundingClientRect();
 
-    `;
+    const x = e.clientX - rect.left;
 
-    let startX = 0;
+    const w = rect.width;
 
-    card.addEventListener("touchstart",(e)=>{
+    if(x < w*0.2) prev();
 
-      startX = e.touches[0].clientX;
-
-    });
-
-    card.addEventListener("touchend",(e)=>{
-
-      const endX = e.changedTouches[0].clientX;
-
-      const diff = endX - startX;
-
-      if(diff > 50){
-
-        prevCard();
-
-        return;
-
-      }
-
-      if(diff < -50){
-
-        nextCard();
-
-        return;
-
-      }
-
-      const rect = card.getBoundingClientRect();
-
-      const x = endX - rect.left;
-
-      const width = rect.width;
-
-      if(x < width * 0.2){
-
-        prevCard();
-
-      }
-
-      else if(x > width * 0.8){
-
-        nextCard();
-
-      }
-
-      else{
-
-        cards[current].flipped =
-
-          !cards[current].flipped;
-
-        renderCards();
-
-      }
-
-    });
-
-    card.addEventListener("click",(e)=>{
-
-      const rect = card.getBoundingClientRect();
-
-      const x = e.clientX - rect.left;
-
-      const width = rect.width;
-
-      if(x < width * 0.2){
-
-        prevCard();
-
-      }
-
-      else if(x > width * 0.8){
-
-        nextCard();
-
-      }
-
-      else{
-
-        cards[current].flipped =
-
-          !cards[current].flipped;
-
-        renderCards();
-
-      }
-
-    });
-
-    stack.appendChild(card);
+    else if(x > w*0.8) next();
 
   });
+
+  stack.appendChild(card);
+
+  card.querySelectorAll(".drawCanvas")
+
+    .forEach(enableDrawing);
 
 }
 
+/* ADD */
+
 function addCard(){
 
-  const front =
+  const t = document.getElementById("frontInput").value.trim();
 
-    document.getElementById("frontInput")
+  if(!t) return;
 
-    .value.trim();
+  cards.push({ text:t });
 
-  const back =
-
-    document.getElementById("backInput")
-
-    .value.trim();
-
-  if(!front || !back){
-
-    return;
-
-  }
-
-  cards.push({
-
-    front,
-
-    back,
-
-    flipped:false
-
-  });
+  current = cards.length - 1;
 
   document.getElementById("frontInput").value = "";
 
   document.getElementById("backInput").value = "";
 
-  current = cards.length - 1;
+  renderCards();
+
+}
+
+/* DELETE */
+
+function deleteCard(){
+
+  if(!cards.length) return;
+
+  cards.splice(current,1);
+
+  if(current >= cards.length) current = cards.length-1;
+
+  if(current < 0) current = 0;
 
   renderCards();
 
 }
 
-function flipCard(){
+/* RANDOM */
 
-  if(cards.length === 0) return;
+function randomCard(){
 
-  cards[current].flipped =
+  if(cards.length < 2) return;
 
-    !cards[current].flipped;
+  let r;
+
+  do{
+
+    r = Math.floor(Math.random()*cards.length);
+
+  }while(r === current);
+
+  current = r;
 
   renderCards();
 
 }
 
-function nextCard(){
+/* NAV */
 
-  if(current < cards.length - 1){
+function next(){
+
+  if(current < cards.length-1){
 
     current++;
 
@@ -556,7 +496,7 @@ function nextCard(){
 
 }
 
-function prevCard(){
+function prev(){
 
   if(current > 0){
 
@@ -568,33 +508,103 @@ function prevCard(){
 
 }
 
-function deleteCard(){
+/* FONT */
 
-  if(cards.length === 0) return;
+function changeFontSize(v){
 
-  cards.splice(current,1);
-
-  if(current >= cards.length){
-
-    current = cards.length - 1;
-
-  }
-
-  if(current < 0){
-
-    current = 0;
-
-  }
-
-  renderCards();
+  document.documentElement.style.setProperty("--card-font-size", v+"px");
 
 }
 
-function changeFontSize(size){
+/* DRAWING FIXED */
 
-  document.documentElement.style
+function enableDrawing(canvas){
 
-    .setProperty('--card-font-size', size + 'px');
+  const ctx = canvas.getContext("2d");
+
+  function resize(){
+
+    const ratio = window.devicePixelRatio || 1;
+
+    const rect = canvas.getBoundingClientRect();
+
+    canvas.width = rect.width * ratio;
+
+    canvas.height = rect.height * ratio;
+
+    ctx.setTransform(ratio,0,0,ratio,0,0);
+
+  }
+
+  resize();
+
+  let drawing = false;
+
+  function pos(e){
+
+    const r = canvas.getBoundingClientRect();
+
+    const p = e.touches ? e.touches[0] : e;
+
+    return {
+
+      x: p.clientX - r.left,
+
+      y: p.clientY - r.top
+
+    };
+
+  }
+
+  function start(e){
+
+    drawing = true;
+
+    const p = pos(e);
+
+    ctx.beginPath();
+
+    ctx.moveTo(p.x,p.y);
+
+  }
+
+  function move(e){
+
+    if(!drawing) return;
+
+    e.preventDefault();
+
+    const p = pos(e);
+
+    ctx.lineWidth = 3;
+
+    ctx.lineCap = "round";
+
+    ctx.lineTo(p.x,p.y);
+
+    ctx.stroke();
+
+  }
+
+  function end(){
+
+    drawing = false;
+
+  }
+
+  canvas.addEventListener("mousedown",start);
+
+  canvas.addEventListener("mousemove",move);
+
+  canvas.addEventListener("mouseup",end);
+
+  canvas.addEventListener("mouseleave",end);
+
+  canvas.addEventListener("touchstart",start,{passive:true});
+
+  canvas.addEventListener("touchmove",move,{passive:false});
+
+  canvas.addEventListener("touchend",end);
 
 }
 
