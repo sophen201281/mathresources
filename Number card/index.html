@@ -360,7 +360,14 @@ z-index:100;
 
 <button class="clean" onclick="clearCanvas()">🧼សម្អាត</button>
 
-<button class="../index.html">🏡 Home</button>
+<button class="home-btn" onclick="goHome()">🏡 Home</button>
+
+<script>
+// JavaScript function
+function goHome() {
+    window.location.href = "../index.html";
+}
+</script>
 </div>
 
 <div class="deck" id="deck"></div>
