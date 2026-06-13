@@ -14,7 +14,7 @@
 
 :root {
 
-  --card-font-size: 50px;
+  --card-font-size: 100px;
 
 }
 
@@ -252,15 +252,15 @@ button:hover {
 
 <div class="nav">
 
-  <button onclick="prevCard()">⬅ Prev</button>
+  <button onclick="prevCard()">ខាងដើម</button>
 
-  <button onclick="flipCard()">🔄 Flip</button>
+  <button onclick="flipCard()">បង្វិល</button>
 
-  <button onclick="nextCard()">Next ➡</button>
+  <button onclick="nextCard()">បន្ទាប់</button>
 
-  <button onclick="deleteCard()">🗑 Delete</button>
+  <button onclick="deleteCard()">លុប</button>
 
-  <a href="../index.html">🏡 Home</a>
+  <a href="../index.html">🏡Home</a>
 
 </div>
 
@@ -280,7 +280,7 @@ function renderCards() {
 
   if (cards.length === 0) {
 
-    stack.innerHTML = "<p>No cards yet 📭</p>";
+    stack.innerHTML = "<p>មិនទាន់មានបណ្ណ</p>";
 
     return;
 
