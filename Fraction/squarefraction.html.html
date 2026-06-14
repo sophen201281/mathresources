@@ -1,308 +1,419 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sticky Notes + Stable Fraction Circle</title>
+
+<title>Magnetic Fraction Circle</title>
 
 <style>
-body{
+
+html,body{
+
     margin:0;
-    overflow:hidden;
-    font-family:Arial;
-    background:#f2f4f8;
-}
 
-#ui{
-    position:fixed;
-    top:10px;
-    left:10px;
-    z-index:1000;
-    background:white;
-    padding:10px;
-    border-radius:10px;
-    box-shadow:0 2px 10px rgba(0,0,0,.2);
-}
-
-/* NOTES */
-#board{
-    position:fixed;
-    inset:0;
-}
-
-.note{
-    position:absolute;
-    width:180px;
-    height:180px;
-    background:#fff8a6;
-    border-radius:10px;
-    box-shadow:0 6px 15px rgba(0,0,0,.2);
-    overflow:hidden;
-}
-
-.note-header{
-    height:25px;
-    background:#ffd84d;
-    cursor:grab;
-    display:flex;
-    align-items:center;
-    padding:0 6px;
-    font-size:12px;
-    font-weight:bold;
-}
-
-.note canvas{
     width:100%;
-    height:calc(100% - 25px);
-    touch-action:none;
-}
 
-/* SVG FULL SCREEN */
-#circleContainer{
-    position:fixed;
-    inset:0;
-    pointer-events:none;
-}
-
-svg{
-    width:100%;
     height:100%;
+
+    overflow:hidden;
+
+    font-family:Arial,sans-serif;
+
+    background:#f2f5fa;
+
 }
 
-/* PIECES */
-.path-piece{
-    cursor:grab;
-    touch-action:none;
+#toolbar{
+
+    position:absolute;
+
+    top:10px;
+
+    left:10px;
+
+    z-index:100;
+
+    background:white;
+
+    padding:10px;
+
+    border-radius:10px;
+
+    box-shadow:0 3px 10px rgba(0,0,0,.15);
+
 }
+
+input{
+
+    width:60px;
+
+}
+
+button{
+
+    padding:6px 12px;
+
+    cursor:pointer;
+
+}
+
+canvas{
+
+    display:block;
+
+    touch-action:none;
+
+}
+
 </style>
+
 </head>
 
 <body>
 
-<div id="ui">
-    <button onclick="createNote()">➕ Note</button>
-    <button onclick="buildCircle()">🔵 Circle</button>
+<div id="toolbar">
 
     Parts:
-    <select id="parts">
-        <option>2</option>
-        <option>3</option>
-        <option selected>4</option>
-        <option>5</option>
-        <option>6</option>
-        <option>8</option>
-    </select>
+
+    <input id="partsInput" type="number" min="2" max="24" value="6">
+
+    <button onclick="createPuzzle()">Create</button>
+
 </div>
 
-<div id="board"></div>
-
-<div id="circleContainer">
-    <svg id="svg" viewBox="0 0 400 400"></svg>
-</div>
+<canvas id="canvas"></canvas>
 
 <script>
 
-/* =========================
-   STICKY NOTES (UNCHANGED)
-========================= */
+const canvas = document.getElementById("canvas");
 
-const board = document.getElementById("board");
+const ctx = canvas.getContext("2d");
 
-function createNote(x=80,y=80){
+function resize(){
 
-    const note=document.createElement("div");
-    note.className="note";
-    note.style.left=x+"px";
-    note.style.top=y+"px";
+    canvas.width=window.innerWidth;
 
-    const header=document.createElement("div");
-    header.className="note-header";
-    header.textContent="Drag me";
+    canvas.height=window.innerHeight;
 
-    const canvas=document.createElement("canvas");
-    const ctx=canvas.getContext("2d");
-
-    note.appendChild(header);
-    note.appendChild(canvas);
-    board.appendChild(note);
-
-    function resize(){
-        canvas.width=note.clientWidth;
-        canvas.height=note.clientHeight-25;
-    }
-    resize();
-
-    let drawing=false;
-
-    canvas.addEventListener("pointerdown",e=>{
-        drawing=true;
-        ctx.beginPath();
-        ctx.moveTo(e.offsetX,e.offsetY);
-    });
-
-    canvas.addEventListener("pointermove",e=>{
-        if(!drawing) return;
-
-        ctx.lineWidth=3;
-        ctx.lineCap="round";
-        ctx.strokeStyle="#333";
-
-        ctx.lineTo(e.offsetX,e.offsetY);
-        ctx.stroke();
-    });
-
-    window.addEventListener("pointerup",()=>drawing=false);
-
-    let dragging=false;
-    let ox=0, oy=0;
-
-    header.addEventListener("pointerdown",e=>{
-        dragging=true;
-
-        const r=note.getBoundingClientRect();
-        ox=e.clientX-r.left;
-        oy=e.clientY-r.top;
-
-        header.setPointerCapture(e.pointerId);
-    });
-
-    header.addEventListener("pointermove",e=>{
-        if(!dragging) return;
-
-        note.style.left=(e.clientX-ox)+"px";
-        note.style.top=(e.clientY-oy)+"px";
-    });
-
-    header.addEventListener("pointerup",()=>dragging=false);
 }
 
-/* =========================
-   FRACTION CIRCLE (FIXED CORE)
-========================= */
+resize();
 
-const svg=document.getElementById("svg");
+window.addEventListener("resize",resize);
+
 let pieces=[];
 
-/* FIXED CENTER (viewBox system) */
-function center(){
-    return { cx:200, cy:200, R:160 };
+let dragPiece=null;
+
+let offsetX=0;
+
+let offsetY=0;
+
+const circleRadius=120;
+
+let centerX;
+
+let centerY;
+
+function randomColor(i,total){
+
+    return `hsl(${i*360/total},80%,65%)`;
+
 }
 
-function polar(a,r,cx,cy){
-    return {
-        x:cx+Math.cos(a)*r,
-        y:cy+Math.sin(a)*r
-    };
-}
+function createPuzzle(){
 
-/* SIMPLE SVG COORDS (NO BUGS NOW) */
-function getPoint(e){
-    const rect=svg.getBoundingClientRect();
-    const scaleX=400/rect.width;
-    const scaleY=400/rect.height;
-
-    return {
-        x:(e.clientX-rect.left)*scaleX,
-        y:(e.clientY-rect.top)*scaleY
-    };
-}
-
-function createSlice(i,n){
-
-    const {cx,cy,R}=center();
-
-    const start=(Math.PI*2/n)*i;
-    const end=(Math.PI*2/n)*(i+1);
-
-    const p1=polar(start,R,cx,cy);
-    const p2=polar(end,R,cx,cy);
-
-    const large=(end-start)>Math.PI?1:0;
-
-    const d=`
-        M ${cx} ${cy}
-        L ${p1.x} ${p1.y}
-        A ${R} ${R} 0 ${large} 1 ${p2.x} ${p2.y}
-        Z
-    `;
-
-    const path=document.createElementNS("http://www.w3.org/2000/svg","path");
-
-    path.setAttribute("d",d);
-    path.setAttribute("fill",`hsl(${i*60},70%,60%)`);
-    path.setAttribute("stroke","#222");
-
-    path.classList.add("path-piece");
-
-    path.x=0;
-    path.y=0;
-
-    let dragging=false;
-    let ox=0, oy=0;
-
-    function apply(){
-        path.setAttribute("transform",`translate(${path.x},${path.y})`);
-    }
-
-    path.addEventListener("pointerdown",e=>{
-        dragging=true;
-        path.setPointerCapture(e.pointerId);
-
-        const pt=getPoint(e);
-
-        ox=pt.x-path.x;
-        oy=pt.y-path.y;
-    });
-
-    path.addEventListener("pointermove",e=>{
-        if(!dragging) return;
-
-        const pt=getPoint(e);
-
-        path.x=pt.x-ox;
-        path.y=pt.y-oy;
-
-        apply();
-    });
-
-    function release(){
-        if(!dragging) return;
-        dragging=false;
-
-        const {R}=center();
-
-        if(Math.hypot(path.x-0,path.y-0)<R*0.8){
-            path.x=0;
-            path.y=0;
-            apply();
-        }
-    }
-
-    path.addEventListener("pointerup",release);
-    path.addEventListener("pointercancel",release);
-
-    apply();
-    svg.appendChild(path);
-
-    pieces.push(path);
-}
-
-function buildCircle(){
-    svg.innerHTML="";
     pieces=[];
 
-    const n=parseInt(document.getElementById("parts").value);
+    const count=Math.max(
 
-    for(let i=0;i<n;i++){
-        createSlice(i,n);
+        2,
+
+        parseInt(document.getElementById("partsInput").value)||6
+
+    );
+
+    centerX=canvas.width/2;
+
+    centerY=canvas.height/2;
+
+    const angleStep=(Math.PI*2)/count;
+
+    for(let i=0;i<count;i++){
+
+        let angleStart=i*angleStep;
+
+        let angleEnd=angleStart+angleStep;
+
+        let piece={
+
+            id:i,
+
+            correctX:centerX,
+
+            correctY:centerY,
+
+            x:centerX+(Math.random()*500-250),
+
+            y:centerY+(Math.random()*400-200),
+
+            start:angleStart,
+
+            end:angleEnd,
+
+            color:randomColor(i,count),
+
+            locked:false
+
+        };
+
+        pieces.push(piece);
+
     }
+
 }
 
-/* INIT */
-createNote(80,80);
-buildCircle();
+createPuzzle();
+
+function drawPiece(piece){
+
+    ctx.save();
+
+    ctx.translate(piece.x,piece.y);
+
+    ctx.beginPath();
+
+    ctx.moveTo(0,0);
+
+    ctx.arc(
+
+        0,
+
+        0,
+
+        circleRadius,
+
+        piece.start,
+
+        piece.end
+
+    );
+
+    ctx.closePath();
+
+    ctx.fillStyle=piece.color;
+
+    ctx.fill();
+
+    ctx.lineWidth=3;
+
+    ctx.strokeStyle="#333";
+
+    ctx.stroke();
+
+    ctx.restore();
+
+}
+
+function drawGuide(){
+
+    ctx.save();
+
+    ctx.translate(centerX,centerY);
+
+    ctx.beginPath();
+
+    ctx.arc(0,0,circleRadius,0,Math.PI*2);
+
+    ctx.strokeStyle="rgba(0,0,0,.15)";
+
+    ctx.lineWidth=4;
+
+    ctx.setLineDash([10,10]);
+
+    ctx.stroke();
+
+    ctx.restore();
+
+}
+
+function render(){
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    drawGuide();
+
+    pieces.forEach(drawPiece);
+
+    requestAnimationFrame(render);
+
+}
+
+render();
+
+function getPointerPosition(e){
+
+    const rect=canvas.getBoundingClientRect();
+
+    let clientX,clientY;
+
+    if(e.touches){
+
+        clientX=e.touches[0].clientX;
+
+        clientY=e.touches[0].clientY;
+
+    }else{
+
+        clientX=e.clientX;
+
+        clientY=e.clientY;
+
+    }
+
+    return{
+
+        x:clientX-rect.left,
+
+        y:clientY-rect.top
+
+    };
+
+}
+
+function pointInsidePiece(px,py,piece){
+
+    const dx=px-piece.x;
+
+    const dy=py-piece.y;
+
+    const dist=Math.sqrt(dx*dx+dy*dy);
+
+    if(dist>circleRadius) return false;
+
+    let angle=Math.atan2(dy,dx);
+
+    if(angle<0) angle+=Math.PI*2;
+
+    let start=piece.start%(Math.PI*2);
+
+    let end=piece.end%(Math.PI*2);
+
+    if(end<start){
+
+        return angle>=start || angle<=end;
+
+    }
+
+    return angle>=start && angle<=end;
+
+}
+
+function pointerDown(e){
+
+    const pos=getPointerPosition(e);
+
+    for(let i=pieces.length-1;i>=0;i--){
+
+        const piece=pieces[i];
+
+        if(pointInsidePiece(pos.x,pos.y,piece)){
+
+            dragPiece=piece;
+
+            offsetX=pos.x-piece.x;
+
+            offsetY=pos.y-piece.y;
+
+            pieces.splice(i,1);
+
+            pieces.push(piece);
+
+            break;
+
+        }
+
+    }
+
+}
+
+function pointerMove(e){
+
+    if(!dragPiece) return;
+
+    const pos=getPointerPosition(e);
+
+    dragPiece.x=pos.x-offsetX;
+
+    dragPiece.y=pos.y-offsetY;
+
+    e.preventDefault();
+
+}
+
+function pointerUp(){
+
+    if(!dragPiece) return;
+
+    snapPiece(dragPiece);
+
+    dragPiece=null;
+
+}
+
+function snapPiece(piece){
+
+    const dx=piece.correctX-piece.x;
+
+    const dy=piece.correctY-piece.y;
+
+    const distance=Math.sqrt(dx*dx+dy*dy);
+
+    // Strong magnetic attraction
+
+    if(distance<120){
+
+        piece.x=piece.correctX;
+
+        piece.y=piece.correctY;
+
+        piece.locked=true;
+
+        return;
+
+    }
+
+    // Magnetic pull when nearby
+
+    if(distance<220){
+
+        piece.x += dx*0.7;
+
+        piece.y += dy*0.7;
+
+    }
+
+}
+
+canvas.addEventListener("mousedown",pointerDown);
+
+canvas.addEventListener("mousemove",pointerMove);
+
+canvas.addEventListener("mouseup",pointerUp);
+
+canvas.addEventListener("touchstart",pointerDown,{passive:false});
+
+canvas.addEventListener("touchmove",pointerMove,{passive:false});
+
+canvas.addEventListener("touchend",pointerUp);
 
 </script>
 
 </body>
+
 </html>
