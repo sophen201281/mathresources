@@ -2,285 +2,229 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Place Value Drag System</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dynamic Fraction Circle Puzzle</title>
 
 <style>
 body{
-    font-family:Arial;
     margin:0;
-    background:#eef3f7;
-    text-align:center;
-}
-
-h2{ margin:10px; }
-
-button{
-    margin:5px;
-    padding:6px 10px;
-}
-
-/* 3 SECTIONS */
-.container{
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-    padding:10px;
-}
-
-.section{
-    background:white;
-    border-radius:10px;
-    padding:10px;
-    box-shadow:0 2px 6px rgba(0,0,0,0.1);
-}
-
-/* GRID */
-.columns{
-    display:grid;
-    grid-template-columns:repeat(5, 1fr);
-    border:2px solid #333;
-    border-radius:8px;
     overflow:hidden;
+    font-family:Arial;
 }
 
-/* COLUMN */
-.col{
-    min-height:140px;
-    border-right:1px solid #aaa;
-    padding:5px;
-}
-
-.col:last-child{
-    border-right:none;
-}
-
-.col h4{
-    margin:0;
-    font-size:12px;
-    background:#f0f0f0;
-    padding:3px;
-}
-
-/* COUNTERS */
-.counter{
-    width:30px;
-    height:30px;
-    border-radius:50%;
-    background:#4CAF50;
-    color:white;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    margin:4px auto;
-    user-select:none;
-    touch-action:none;
-    cursor:grab;
-}
-
-.counter:active{
-    cursor:grabbing;
-}
-
-/* DRAG GHOST */
-.ghost{
+/* Drawing canvas background */
+#drawCanvas{
     position:fixed;
-    z-index:9999;
-    pointer-events:none;
-    opacity:0.9;
-    transform:scale(1.2);
+    inset:0;
+    background:white;
+}
+
+/* UI panel */
+#ui{
+    position:fixed;
+    top:10px;
+    left:10px;
+    z-index:10;
+    background:white;
+    padding:10px;
+    border-radius:10px;
+    box-shadow:0 2px 10px rgba(0,0,0,.2);
+}
+
+/* Center container */
+#container{
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+}
+
+/* SVG */
+svg{
+    overflow:visible;
+}
+
+/* Fraction pieces */
+.path-piece{
+    cursor:grab;
+    transition:transform .15s ease;
+}
+
+.path-piece.dragging{
+    cursor:grabbing;
 }
 </style>
 </head>
 
 <body>
 
-<h2>Place Value System 🔢</h2>
+<canvas id="drawCanvas"></canvas>
 
-<button onclick="add('A')">Add Section 1</button>
-<button onclick="add('B')">Add Section 2</button>
-<button onclick="regroup()">Regroup</button>
-
-<div class="container">
-
-<div class="section">
-<h3>Section 1</h3>
-<div class="columns" id="A"></div>
+<div id="ui">
+    Parts:
+    <select id="parts">
+        <option>2</option>
+        <option>3</option>
+        <option selected>4</option>
+        <option>5</option>
+        <option>6</option>
+        <option>8</option>
+    </select>
 </div>
 
-<div class="section">
-<h3>Section 2</h3>
-<div class="columns" id="B"></div>
-</div>
-
-<div class="section">
-<h3>Section 3 (Answer)</h3>
-<div class="columns" id="C"></div>
-</div>
-
+<div id="container">
+    <svg id="svg" width="320" height="320"></svg>
 </div>
 
 <script>
+/* =========================
+   DRAWING CANVAS
+========================= */
 
-/* ======================
-   PLACE VALUE ORDER
-====================== */
-const places = [
-    "Ten Thousands",
-    "Thousands",
-    "Hundreds",
-    "Tens",
-    "Ones"
-];
+const canvas = document.getElementById("drawCanvas");
+const ctx = canvas.getContext("2d");
 
-/* ======================
-   DATA
-====================== */
-let A = [0,0,0,0,0];
-let B = [0,0,0,0,0];
-let C = [0,0,0,0,0];
-
-function getArr(name){
-    if(name==="A") return A;
-    if(name==="B") return B;
-    return C;
+function resize(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 }
+resize();
+window.addEventListener("resize", resize);
 
-/* ======================
-   RENDER
-====================== */
-function render(){
-    draw("A",A);
-    draw("B",B);
-    draw("C",C);
-}
+let drawing = false;
 
-function draw(id,data){
-    const box = document.getElementById(id);
-    box.innerHTML = "";
+canvas.addEventListener("pointerdown", e=>{
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(e.clientX, e.clientY);
+});
 
-    for(let i=0;i<5;i++){
-        let col = document.createElement("div");
-        col.className="col";
-        col.dataset.col=i;
+canvas.addEventListener("pointermove", e=>{
+    if(!drawing) return;
 
-        col.ondragover = e => e.preventDefault();
+    ctx.lineWidth = 4;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = "#0066ff";
 
-        col.ondrop = drop;
+    ctx.lineTo(e.clientX, e.clientY);
+    ctx.stroke();
+});
 
-        let title = document.createElement("h4");
-        title.innerText = places[i];
-        col.appendChild(title);
+window.addEventListener("pointerup", ()=>{
+    drawing = false;
+});
 
-        for(let j=0;j<data[i];j++){
-            let c = document.createElement("div");
-            c.className="counter";
-            c.innerText="●";
 
-            c.dataset.from = id;
-            c.dataset.col = i;
 
-            c.addEventListener("pointerdown",startDrag);
+/* =========================
+   FRACTION GENERATOR
+========================= */
 
-            col.appendChild(c);
-        }
+const svg = document.getElementById("svg");
+const cx = 160, cy = 160;
+const R = 140;
 
-        box.appendChild(col);
-    }
-}
+let pieces = [];
 
-/* ======================
-   ADD COUNTERS
-====================== */
-function add(section){
-    getArr(section)[4]++;
-    render();
-}
-
-/* ======================
-   DRAG SYSTEM
-====================== */
-let drag = null;
-let ghost = null;
-
-function startDrag(e){
-    const el = e.target;
-
-    drag = {
-        from: el.dataset.from,
-        col: parseInt(el.dataset.col)
+function polar(angle, r){
+    return {
+        x: cx + Math.cos(angle)*r,
+        y: cy + Math.sin(angle)*r
     };
-
-    ghost = el.cloneNode(true);
-    ghost.classList.add("ghost");
-    document.body.appendChild(ghost);
-
-    move(e);
-
-    el.setPointerCapture(e.pointerId);
-
-    el.addEventListener("pointermove",move);
-    el.addEventListener("pointerup",end);
 }
 
-function move(e){
-    if(!ghost) return;
+function createSlice(i, n){
 
-    ghost.style.left = (e.clientX - 15) + "px";
-    ghost.style.top = (e.clientY - 15) + "px";
-}
+    const start = (Math.PI*2/n)*i;
+    const end = (Math.PI*2/n)*(i+1);
 
-/* ======================
-   DROP LOGIC (STABLE)
-====================== */
-function end(e){
-    if(!ghost) return;
+    const p1 = polar(start, R);
+    const p2 = polar(end, R);
 
-    const cols = document.querySelectorAll(".col");
+    const largeArc = (end-start) > Math.PI ? 1 : 0;
 
-    for(let col of cols){
-        const r = col.getBoundingClientRect();
+    const d = `
+        M ${cx} ${cy}
+        L ${p1.x} ${p1.y}
+        A ${R} ${R} 0 ${largeArc} 1 ${p2.x} ${p2.y}
+        Z
+    `;
 
-        if(
-            e.clientX >= r.left &&
-            e.clientX <= r.right &&
-            e.clientY >= r.top &&
-            e.clientY <= r.bottom
-        ){
-            let toCol = parseInt(col.dataset.col);
+    const path = document.createElementNS("http://www.w3.org/2000/svg","path");
 
-            let fromArr = getArr(drag.from);
+    path.setAttribute("d", d);
+    path.setAttribute("fill", `hsl(${i*60},70%,60%)`);
+    path.setAttribute("stroke", "#222");
+    path.classList.add("path-piece");
 
-            if(fromArr[drag.col] > 0){
-                fromArr[drag.col]--;
-                C[toCol]++; // always goes to answer section
-            }
+    path.dataset.tx = 0;
+    path.dataset.ty = 0;
+
+    let dragging = false;
+    let ox = 0, oy = 0;
+
+    path.addEventListener("pointerdown", e=>{
+        dragging = true;
+        path.classList.add("dragging");
+        path.setPointerCapture(e.pointerId);
+
+        ox = e.clientX - path.dataset.tx;
+        oy = e.clientY - path.dataset.ty;
+    });
+
+    path.addEventListener("pointermove", e=>{
+        if(!dragging) return;
+
+        const tx = e.clientX - ox;
+        const ty = e.clientY - oy;
+
+        path.dataset.tx = tx;
+        path.dataset.ty = ty;
+
+        path.setAttribute("transform", `translate(${tx},${ty})`);
+    });
+
+    path.addEventListener("pointerup", ()=>{
+        dragging = false;
+        path.classList.remove("dragging");
+
+        const tx = parseFloat(path.dataset.tx);
+        const ty = parseFloat(path.dataset.ty);
+
+        const dist = Math.hypot(tx, ty);
+
+        // STRONG SNAP BACK 🔥
+        if(dist < 140){
+            path.dataset.tx = 0;
+            path.dataset.ty = 0;
+            path.setAttribute("transform", "translate(0,0)");
         }
-    }
+    });
 
-    ghost.remove();
-    ghost = null;
-    drag = null;
-
-    render();
+    svg.appendChild(path);
+    pieces.push(path);
 }
 
-/* ======================
-   REGROUP LOGIC
-====================== */
-function regroup(){
-    for(let i=4;i>0;i--){
-        if(C[i] >= 10){
-            let carry = Math.floor(C[i]/10);
-            C[i] %= 10;
-            C[i-1] += carry;
-        }
+
+
+/* =========================
+   BUILD SYSTEM
+========================= */
+
+function build(){
+    svg.innerHTML = "";
+    pieces = [];
+
+    const n = parseInt(document.getElementById("parts").value);
+
+    for(let i=0;i<n;i++){
+        createSlice(i,n);
     }
-    render();
 }
 
-render();
+document.getElementById("parts").addEventListener("change", build);
 
+build();
 </script>
 
 </body>
