@@ -1,299 +1,299 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Magnetic Circle Puzzle + Drawing Canvas</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Magnetic Fraction Circle</title>
 
 <style>
 html,body{
     margin:0;
+    width:100%;
     height:100%;
     overflow:hidden;
-    font-family:Arial;
-    background:#f3f6fb;
+    font-family:Arial,sans-serif;
+    background:#f2f5fa;
 }
 
-/* Drawing canvas background */
-#draw{
-    position:absolute;
-    top:0;
-    left:0;
-    z-index:0;
-    touch-action:none;
-}
-
-/* Puzzle canvas on top */
-#puzzle{
-    position:absolute;
-    top:0;
-    left:0;
-    z-index:1;
-    touch-action:none;
-}
-
-/* Toolbar */
 #toolbar{
     position:absolute;
     top:10px;
     left:10px;
-    z-index:5;
+    z-index:100;
     background:white;
     padding:10px;
     border-radius:10px;
-    box-shadow:0 4px 12px rgba(0,0,0,.15);
+    box-shadow:0 3px 10px rgba(0,0,0,.15);
 }
 
-button,input{
-    font-size:14px;
+input{
+    width:60px;
+}
+
+button{
+    padding:6px 12px;
+    cursor:pointer;
+}
+
+canvas{
+    display:block;
+    touch-action:none;
 }
 </style>
 </head>
-
 <body>
-
-<canvas id="draw"></canvas>
-<canvas id="puzzle"></canvas>
 
 <div id="toolbar">
     Parts:
-    <input id="count" type="number" min="2" max="24" value="6">
-    <button onclick="build()">Build</button>
-    <button onclick="clearDraw()">Clear Draw</button>
+    <input id="partsInput" type="number" min="2" max="24" value="6">
+    <button onclick="createPuzzle()">Create</button>
 </div>
+
+<canvas id="canvas"></canvas>
 
 <script>
 
-/* =========================
-   CANVAS SETUP
-========================= */
-const drawCanvas = document.getElementById("draw");
-const drawCtx = drawCanvas.getContext("2d");
-
-const puzzleCanvas = document.getElementById("puzzle");
-const ctx = puzzleCanvas.getContext("2d");
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
 
 function resize(){
-    drawCanvas.width = puzzleCanvas.width = window.innerWidth;
-    drawCanvas.height = puzzleCanvas.height = window.innerHeight;
+    canvas.width=window.innerWidth;
+    canvas.height=window.innerHeight;
 }
-window.addEventListener("resize", resize);
 resize();
+window.addEventListener("resize",resize);
 
-/* =========================
-   DRAWING LAYER
-========================= */
-let drawing = false;
+let pieces=[];
+let dragPiece=null;
+let offsetX=0;
+let offsetY=0;
 
-drawCanvas.addEventListener("mousedown", e=>{
-    drawing = true;
-    drawCtx.beginPath();
-    drawCtx.moveTo(e.clientX, e.clientY);
-});
+const circleRadius=120;
+let centerX;
+let centerY;
 
-drawCanvas.addEventListener("mousemove", e=>{
-    if(!drawing) return;
-    drawCtx.lineWidth = 2;
-    drawCtx.strokeStyle = "#333";
-    drawCtx.lineTo(e.clientX, e.clientY);
-    drawCtx.stroke();
-});
-
-drawCanvas.addEventListener("mouseup", ()=> drawing=false);
-
-drawCanvas.addEventListener("touchstart", e=>{
-    drawing = true;
-    const t = e.touches[0];
-    drawCtx.beginPath();
-    drawCtx.moveTo(t.clientX, t.clientY);
-});
-
-drawCanvas.addEventListener("touchmove", e=>{
-    if(!drawing) return;
-    const t = e.touches[0];
-    drawCtx.lineWidth = 2;
-    drawCtx.strokeStyle = "#333";
-    drawCtx.lineTo(t.clientX, t.clientY);
-    drawCtx.stroke();
-});
-
-drawCanvas.addEventListener("touchend", ()=> drawing=false);
-
-function clearDraw(){
-    drawCtx.clearRect(0,0,drawCanvas.width,drawCanvas.height);
+function randomColor(i,total){
+    return `hsl(${i*360/total},80%,65%)`;
 }
 
-/* =========================
-   PUZZLE DATA
-========================= */
-let pieces = [];
-let drag = null;
+function createPuzzle(){
 
-const RADIUS = 110;
-const SNAP_DIST = 90;
+    pieces=[];
 
-function color(i,n){
-    return `hsl(${i*360/n},80%,60%)`;
-}
+    const count=Math.max(
+        2,
+        parseInt(document.getElementById("partsInput").value)||6
+    );
 
-function build(){
+    centerX=canvas.width/2;
+    centerY=canvas.height/2;
 
-    const n = +document.getElementById("count").value;
+    const angleStep=(Math.PI*2)/count;
 
-    pieces = [];
+    for(let i=0;i<count;i++){
 
-    const cx = window.innerWidth/2;
-    const cy = window.innerHeight/2;
+        let angleStart=i*angleStep;
+        let angleEnd=angleStart+angleStep;
 
-    const step = (Math.PI*2)/n;
-
-    for(let i=0;i<n;i++){
-
-        pieces.push({
+        let piece={
             id:i,
-            angleStart:i*step,
-            angleEnd:(i+1)*step,
 
-            correctX:cx,
-            correctY:cy,
+            correctX:centerX,
+            correctY:centerY,
 
-            x:cx + (Math.random()*400-200),
-            y:cy + (Math.random()*300-150),
+            x:centerX+(Math.random()*500-250),
+            y:centerY+(Math.random()*400-200),
 
-            locked:false,
-            color:color(i,n)
-        });
+            start:angleStart,
+            end:angleEnd,
+
+            color:randomColor(i,count),
+
+            locked:false
+        };
+
+        pieces.push(piece);
     }
 }
 
-build();
+createPuzzle();
 
-/* =========================
-   DRAW PIECES
-========================= */
-function drawPiece(p){
+function drawPiece(piece){
 
     ctx.save();
-    ctx.translate(p.x,p.y);
+
+    ctx.translate(piece.x,piece.y);
 
     ctx.beginPath();
     ctx.moveTo(0,0);
-    ctx.arc(0,0,RADIUS,p.angleStart,p.angleEnd);
+    ctx.arc(
+        0,
+        0,
+        circleRadius,
+        piece.start,
+        piece.end
+    );
     ctx.closePath();
 
-    ctx.fillStyle = p.color;
+    ctx.fillStyle=piece.color;
     ctx.fill();
 
-    ctx.strokeStyle = "#222";
-    ctx.lineWidth = 2;
+    ctx.lineWidth=3;
+    ctx.strokeStyle="#333";
     ctx.stroke();
 
     ctx.restore();
 }
 
-/* =========================
-   RENDER LOOP
-========================= */
+function drawGuide(){
+
+    ctx.save();
+
+    ctx.translate(centerX,centerY);
+
+    ctx.beginPath();
+    ctx.arc(0,0,circleRadius,0,Math.PI*2);
+
+    ctx.strokeStyle="rgba(0,0,0,.15)";
+    ctx.lineWidth=4;
+    ctx.setLineDash([10,10]);
+
+    ctx.stroke();
+
+    ctx.restore();
+}
+
 function render(){
-    ctx.clearRect(0,0,puzzleCanvas.width,puzzleCanvas.height);
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    drawGuide();
+
     pieces.forEach(drawPiece);
+
     requestAnimationFrame(render);
 }
 render();
 
-/* =========================
-   POINTER HELPERS
-========================= */
-function pos(e){
-    const r = puzzleCanvas.getBoundingClientRect();
-    const t = e.touches ? e.touches[0] : e;
-    return { x:t.clientX-r.left, y:t.clientY-r.top };
+function getPointerPosition(e){
+
+    const rect=canvas.getBoundingClientRect();
+
+    let clientX,clientY;
+
+    if(e.touches){
+        clientX=e.touches[0].clientX;
+        clientY=e.touches[0].clientY;
+    }else{
+        clientX=e.clientX;
+        clientY=e.clientY;
+    }
+
+    return{
+        x:clientX-rect.left,
+        y:clientY-rect.top
+    };
 }
 
-function inside(px,py,p){
-    const dx=px-p.x, dy=py-p.y;
-    return Math.sqrt(dx*dx+dy*dy) < RADIUS;
+function pointInsidePiece(px,py,piece){
+
+    const dx=px-piece.x;
+    const dy=py-piece.y;
+
+    const dist=Math.sqrt(dx*dx+dy*dy);
+
+    if(dist>circleRadius) return false;
+
+    let angle=Math.atan2(dy,dx);
+
+    if(angle<0) angle+=Math.PI*2;
+
+    let start=piece.start%(Math.PI*2);
+    let end=piece.end%(Math.PI*2);
+
+    if(end<start){
+        return angle>=start || angle<=end;
+    }
+
+    return angle>=start && angle<=end;
 }
 
-/* =========================
-   DRAG SYSTEM
-========================= */
-puzzleCanvas.addEventListener("mousedown",start);
-puzzleCanvas.addEventListener("mousemove",move);
-puzzleCanvas.addEventListener("mouseup",end);
+function pointerDown(e){
 
-puzzleCanvas.addEventListener("touchstart",start,{passive:false});
-puzzleCanvas.addEventListener("touchmove",move,{passive:false});
-puzzleCanvas.addEventListener("touchend",end);
-
-function start(e){
-    const p = pos(e);
+    const pos=getPointerPosition(e);
 
     for(let i=pieces.length-1;i>=0;i--){
-        if(inside(p.x,p.y,pieces[i])){
-            drag = pieces[i];
-            drag.offX = p.x - drag.x;
-            drag.offY = p.y - drag.y;
+
+        const piece=pieces[i];
+
+        if(pointInsidePiece(pos.x,pos.y,piece)){
+
+            dragPiece=piece;
+
+            offsetX=pos.x-piece.x;
+            offsetY=pos.y-piece.y;
+
+            pieces.splice(i,1);
+            pieces.push(piece);
+
             break;
         }
     }
 }
 
-function move(e){
-    if(!drag) return;
-    const p = pos(e);
-    drag.x = p.x - drag.offX;
-    drag.y = p.y - drag.offY;
+function pointerMove(e){
+
+    if(!dragPiece) return;
+
+    const pos=getPointerPosition(e);
+
+    dragPiece.x=pos.x-offsetX;
+    dragPiece.y=pos.y-offsetY;
+
     e.preventDefault();
 }
 
-function end(){
-    if(drag){
-        magneticSnap(drag);
-        drag = null;
+function pointerUp(){
+
+    if(!dragPiece) return;
+
+    snapPiece(dragPiece);
+
+    dragPiece=null;
+}
+
+function snapPiece(piece){
+
+    const dx=piece.correctX-piece.x;
+    const dy=piece.correctY-piece.y;
+
+    const distance=Math.sqrt(dx*dx+dy*dy);
+
+    // Strong magnetic attraction
+    if(distance<120){
+
+        piece.x=piece.correctX;
+        piece.y=piece.correctY;
+        piece.locked=true;
+
+        return;
+    }
+
+    // Magnetic pull when nearby
+    if(distance<220){
+
+        piece.x += dx*0.7;
+        piece.y += dy*0.7;
     }
 }
 
-/* =========================
-   🧲 MAGNETIC NEIGHBOR SNAP
-========================= */
-function magneticSnap(p){
+canvas.addEventListener("mousedown",pointerDown);
+canvas.addEventListener("mousemove",pointerMove);
+canvas.addEventListener("mouseup",pointerUp);
 
-    let best = null;
-    let bestDist = Infinity;
-
-    for(const q of pieces){
-        if(q === p) continue;
-
-        const dx = q.x - p.x;
-        const dy = q.y - p.y;
-        const d = Math.sqrt(dx*dx + dy*dy);
-
-        // check if they are "angle neighbors"
-        const angleDiff = Math.abs(p.angleStart - q.angleEnd);
-
-        if(d < SNAP_DIST && angleDiff < 0.6){
-
-            if(d < bestDist){
-                bestDist = d;
-                best = q;
-            }
-        }
-    }
-
-    if(best){
-
-        // snap p next to best neighbor direction
-        const dx = best.x - p.x;
-        const dy = best.y - p.y;
-
-        const len = Math.sqrt(dx*dx + dy*dy) || 1;
-
-        // place tightly connected
-        p.x = best.x + (dx/len)*RADIUS*1.8;
-        p.y = best.y + (dy/len)*RADIUS*1.8;
-    }
-}
+canvas.addEventListener("touchstart",pointerDown,{passive:false});
+canvas.addEventListener("touchmove",pointerMove,{passive:false});
+canvas.addEventListener("touchend",pointerUp);
 
 </script>
 </body>
