@@ -3,64 +3,86 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dynamic Fraction Circle Puzzle</title>
+<title>Sticky Notes + Stable Fraction Circle</title>
 
 <style>
 body{
     margin:0;
     overflow:hidden;
     font-family:Arial;
+    background:#f2f4f8;
 }
 
-/* Drawing canvas background */
-#drawCanvas{
-    position:fixed;
-    inset:0;
-    background:white;
-}
-
-/* UI panel */
 #ui{
     position:fixed;
     top:10px;
     left:10px;
-    z-index:10;
+    z-index:1000;
     background:white;
     padding:10px;
     border-radius:10px;
     box-shadow:0 2px 10px rgba(0,0,0,.2);
 }
 
-/* Center container */
-#container{
+/* NOTES */
+#board{
+    position:fixed;
+    inset:0;
+}
+
+.note{
     position:absolute;
-    left:50%;
-    top:50%;
-    transform:translate(-50%,-50%);
+    width:180px;
+    height:180px;
+    background:#fff8a6;
+    border-radius:10px;
+    box-shadow:0 6px 15px rgba(0,0,0,.2);
+    overflow:hidden;
 }
 
-/* SVG */
+.note-header{
+    height:25px;
+    background:#ffd84d;
+    cursor:grab;
+    display:flex;
+    align-items:center;
+    padding:0 6px;
+    font-size:12px;
+    font-weight:bold;
+}
+
+.note canvas{
+    width:100%;
+    height:calc(100% - 25px);
+    touch-action:none;
+}
+
+/* SVG FULL SCREEN */
+#circleContainer{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+}
+
 svg{
-    overflow:visible;
+    width:100%;
+    height:100%;
 }
 
-/* Fraction pieces */
+/* PIECES */
 .path-piece{
     cursor:grab;
-    transition:transform .15s ease;
-}
-
-.path-piece.dragging{
-    cursor:grabbing;
+    touch-action:none;
 }
 </style>
 </head>
 
 <body>
 
-<canvas id="drawCanvas"></canvas>
-
 <div id="ui">
+    <button onclick="createNote()">➕ Note</button>
+    <button onclick="buildCircle()">🔵 Circle</button>
+
     Parts:
     <select id="parts">
         <option>2</option>
@@ -72,159 +94,214 @@ svg{
     </select>
 </div>
 
-<div id="container">
-    <svg id="svg" width="320" height="320"></svg>
+<div id="board"></div>
+
+<div id="circleContainer">
+    <svg id="svg" viewBox="0 0 400 400"></svg>
 </div>
 
 <script>
+
 /* =========================
-   DRAWING CANVAS
+   STICKY NOTES (UNCHANGED)
 ========================= */
 
-const canvas = document.getElementById("drawCanvas");
-const ctx = canvas.getContext("2d");
+const board = document.getElementById("board");
 
-function resize(){
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+function createNote(x=80,y=80){
+
+    const note=document.createElement("div");
+    note.className="note";
+    note.style.left=x+"px";
+    note.style.top=y+"px";
+
+    const header=document.createElement("div");
+    header.className="note-header";
+    header.textContent="Drag me";
+
+    const canvas=document.createElement("canvas");
+    const ctx=canvas.getContext("2d");
+
+    note.appendChild(header);
+    note.appendChild(canvas);
+    board.appendChild(note);
+
+    function resize(){
+        canvas.width=note.clientWidth;
+        canvas.height=note.clientHeight-25;
+    }
+    resize();
+
+    let drawing=false;
+
+    canvas.addEventListener("pointerdown",e=>{
+        drawing=true;
+        ctx.beginPath();
+        ctx.moveTo(e.offsetX,e.offsetY);
+    });
+
+    canvas.addEventListener("pointermove",e=>{
+        if(!drawing) return;
+
+        ctx.lineWidth=3;
+        ctx.lineCap="round";
+        ctx.strokeStyle="#333";
+
+        ctx.lineTo(e.offsetX,e.offsetY);
+        ctx.stroke();
+    });
+
+    window.addEventListener("pointerup",()=>drawing=false);
+
+    let dragging=false;
+    let ox=0, oy=0;
+
+    header.addEventListener("pointerdown",e=>{
+        dragging=true;
+
+        const r=note.getBoundingClientRect();
+        ox=e.clientX-r.left;
+        oy=e.clientY-r.top;
+
+        header.setPointerCapture(e.pointerId);
+    });
+
+    header.addEventListener("pointermove",e=>{
+        if(!dragging) return;
+
+        note.style.left=(e.clientX-ox)+"px";
+        note.style.top=(e.clientY-oy)+"px";
+    });
+
+    header.addEventListener("pointerup",()=>dragging=false);
 }
-resize();
-window.addEventListener("resize", resize);
-
-let drawing = false;
-
-canvas.addEventListener("pointerdown", e=>{
-    drawing = true;
-    ctx.beginPath();
-    ctx.moveTo(e.clientX, e.clientY);
-});
-
-canvas.addEventListener("pointermove", e=>{
-    if(!drawing) return;
-
-    ctx.lineWidth = 4;
-    ctx.lineCap = "round";
-    ctx.strokeStyle = "#0066ff";
-
-    ctx.lineTo(e.clientX, e.clientY);
-    ctx.stroke();
-});
-
-window.addEventListener("pointerup", ()=>{
-    drawing = false;
-});
-
-
 
 /* =========================
-   FRACTION GENERATOR
+   FRACTION CIRCLE (FIXED CORE)
 ========================= */
 
-const svg = document.getElementById("svg");
-const cx = 160, cy = 160;
-const R = 140;
+const svg=document.getElementById("svg");
+let pieces=[];
 
-let pieces = [];
+/* FIXED CENTER (viewBox system) */
+function center(){
+    return { cx:200, cy:200, R:160 };
+}
 
-function polar(angle, r){
+function polar(a,r,cx,cy){
     return {
-        x: cx + Math.cos(angle)*r,
-        y: cy + Math.sin(angle)*r
+        x:cx+Math.cos(a)*r,
+        y:cy+Math.sin(a)*r
     };
 }
 
-function createSlice(i, n){
+/* SIMPLE SVG COORDS (NO BUGS NOW) */
+function getPoint(e){
+    const rect=svg.getBoundingClientRect();
+    const scaleX=400/rect.width;
+    const scaleY=400/rect.height;
 
-    const start = (Math.PI*2/n)*i;
-    const end = (Math.PI*2/n)*(i+1);
+    return {
+        x:(e.clientX-rect.left)*scaleX,
+        y:(e.clientY-rect.top)*scaleY
+    };
+}
 
-    const p1 = polar(start, R);
-    const p2 = polar(end, R);
+function createSlice(i,n){
 
-    const largeArc = (end-start) > Math.PI ? 1 : 0;
+    const {cx,cy,R}=center();
 
-    const d = `
+    const start=(Math.PI*2/n)*i;
+    const end=(Math.PI*2/n)*(i+1);
+
+    const p1=polar(start,R,cx,cy);
+    const p2=polar(end,R,cx,cy);
+
+    const large=(end-start)>Math.PI?1:0;
+
+    const d=`
         M ${cx} ${cy}
         L ${p1.x} ${p1.y}
-        A ${R} ${R} 0 ${largeArc} 1 ${p2.x} ${p2.y}
+        A ${R} ${R} 0 ${large} 1 ${p2.x} ${p2.y}
         Z
     `;
 
-    const path = document.createElementNS("http://www.w3.org/2000/svg","path");
+    const path=document.createElementNS("http://www.w3.org/2000/svg","path");
 
-    path.setAttribute("d", d);
-    path.setAttribute("fill", `hsl(${i*60},70%,60%)`);
-    path.setAttribute("stroke", "#222");
+    path.setAttribute("d",d);
+    path.setAttribute("fill",`hsl(${i*60},70%,60%)`);
+    path.setAttribute("stroke","#222");
+
     path.classList.add("path-piece");
 
-    path.dataset.tx = 0;
-    path.dataset.ty = 0;
+    path.x=0;
+    path.y=0;
 
-    let dragging = false;
-    let ox = 0, oy = 0;
+    let dragging=false;
+    let ox=0, oy=0;
 
-    path.addEventListener("pointerdown", e=>{
-        dragging = true;
-        path.classList.add("dragging");
+    function apply(){
+        path.setAttribute("transform",`translate(${path.x},${path.y})`);
+    }
+
+    path.addEventListener("pointerdown",e=>{
+        dragging=true;
         path.setPointerCapture(e.pointerId);
 
-        ox = e.clientX - path.dataset.tx;
-        oy = e.clientY - path.dataset.ty;
+        const pt=getPoint(e);
+
+        ox=pt.x-path.x;
+        oy=pt.y-path.y;
     });
 
-    path.addEventListener("pointermove", e=>{
+    path.addEventListener("pointermove",e=>{
         if(!dragging) return;
 
-        const tx = e.clientX - ox;
-        const ty = e.clientY - oy;
+        const pt=getPoint(e);
 
-        path.dataset.tx = tx;
-        path.dataset.ty = ty;
+        path.x=pt.x-ox;
+        path.y=pt.y-oy;
 
-        path.setAttribute("transform", `translate(${tx},${ty})`);
+        apply();
     });
 
-    path.addEventListener("pointerup", ()=>{
-        dragging = false;
-        path.classList.remove("dragging");
+    function release(){
+        if(!dragging) return;
+        dragging=false;
 
-        const tx = parseFloat(path.dataset.tx);
-        const ty = parseFloat(path.dataset.ty);
+        const {R}=center();
 
-        const dist = Math.hypot(tx, ty);
-
-        // STRONG SNAP BACK 🔥
-        if(dist < 140){
-            path.dataset.tx = 0;
-            path.dataset.ty = 0;
-            path.setAttribute("transform", "translate(0,0)");
+        if(Math.hypot(path.x-0,path.y-0)<R*0.8){
+            path.x=0;
+            path.y=0;
+            apply();
         }
-    });
+    }
 
+    path.addEventListener("pointerup",release);
+    path.addEventListener("pointercancel",release);
+
+    apply();
     svg.appendChild(path);
+
     pieces.push(path);
 }
 
+function buildCircle(){
+    svg.innerHTML="";
+    pieces=[];
 
-
-/* =========================
-   BUILD SYSTEM
-========================= */
-
-function build(){
-    svg.innerHTML = "";
-    pieces = [];
-
-    const n = parseInt(document.getElementById("parts").value);
+    const n=parseInt(document.getElementById("parts").value);
 
     for(let i=0;i<n;i++){
         createSlice(i,n);
     }
 }
 
-document.getElementById("parts").addEventListener("change", build);
+/* INIT */
+createNote(80,80);
+buildCircle();
 
-build();
 </script>
 
 </body>
