@@ -322,7 +322,7 @@ function toggleEraser() {
 }
 
 function clearCanvas() {
-    if (confirm("Clear all drawings? This cannot be undone.")) {
+    if (confirm("សម្អាតទាំងអស់មែនទេ?")) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 }
@@ -492,7 +492,7 @@ function addFruit(imageFile) {
     if (!selectedTree) {
         const trees = document.querySelectorAll(".treeGroup");
         if (trees.length === 0) {
-            alert("Please add a tree first! Click 'Add Tree' button.");
+            alert("សូមដាំដើមឈើសិន ដោយចុចលើប៊ូតុង ដើមឈើ ។");
             return;
         }
         selectedTree = trees[0];
@@ -619,7 +619,7 @@ function init() {
 document.addEventListener("keydown", (e) => {
     // Delete key to delete selected fruit
     if (e.key === 'Delete' && selectedFruit) {
-        if (confirm("Remove selected fruit?")) {
+        if (confirm("តើដកផ្លែឈើនេះចេញមែនទេ?")) {
             selectedFruit.remove();
             selectedFruit = null;
         }
