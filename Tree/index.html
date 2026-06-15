@@ -209,7 +209,7 @@ canvas{
 
 <!-- BOTTOM TOOLBAR: Action buttons + Home -->
 <div id="bottombar">
-    <button onclick="addNewTree()" title="Add new tree">Add Tree</button>
+    <button onclick="addNewTree()" title="Add new tree">ដើមឈើ</button>
     <button onclick="toggleDraw()" title="Draw mode (brush)">សរសេរ</button>
     <button onclick="toggleEraser()" title="Erase mode">លុប</button>
     <button onclick="clearCanvas()" title="Clear drawing">សម្អាត</button>
@@ -402,7 +402,7 @@ function setupTreeDoubleTap(tree) {
         if (tapCount === 2) {
             // Double tap detected - delete tree
             e.preventDefault();
-            if (confirm("Delete this tree and all its fruits?")) {
+            if (confirm("តើដកដើមឈើនិងផ្លែវាចេញមែនទេ?")) {
                 // Remove all fruits on this tree to clear references
                 const fruits = tree.querySelectorAll(".fruit");
                 fruits.forEach(fruit => {
