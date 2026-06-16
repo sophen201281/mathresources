@@ -109,7 +109,6 @@
 
   <div id="toolbar">
     <!-- ADD COUNTER BUTTON REMOVED — counters appear via touch on canvas -->
-
     <button id="copyBtn" touch-action="manipulation">📄 Copy</button>
     <button id="deleteBtn" touch-action="manipulation">🗑 លុប</button>
     <button id="eraserBtn" touch-action="manipulation">🩹ជ័រលុប</button>
@@ -144,9 +143,6 @@
       let isDragging = false;
       let lastTap = 0;
 
-      // Touch-draw counter mode: when user taps/draws on empty space, add counters
-      let isCounterMode = true; // always true — counters appear on touch
-
       const statusEl = document.getElementById('status');
       const eraserBtn = document.getElementById('eraserBtn');
       const copyBtn = document.getElementById('copyBtn');
@@ -161,6 +157,7 @@
       }
 
       function combineBlocks() {
+        // Only combine if we have at least 10 ones
         let ones = blocks.filter(b => b.type === 'one');
         while (ones.length >= 10) {
           const first = ones[0];
@@ -183,6 +180,7 @@
           ones = blocks.filter(b => b.type === 'one');
         }
 
+        // Only combine if we have at least 10 tens
         let tens = blocks.filter(b => b.type === 'ten');
         while (tens.length >= 10) {
           const first = tens[0];
@@ -207,15 +205,12 @@
         updateStatus();
       }
 
-      // Add a counter at given position (used for touch placement)
+      // Add a single counter at given position
       function addCounterAt(x, y) {
-        // Slightly offset so they don't stack perfectly on top
-        const offsetX = (Math.random() - 0.5) * 6;
-        const offsetY = (Math.random() - 0.5) * 6;
         blocks.push({
           type: 'one',
-          x: x + offsetX,
-          y: y + offsetY,
+          x: x - SIZE/2,
+          y: y - SIZE/2,
           w: SIZE,
           h: SIZE,
           color: '#ffd166'
@@ -226,6 +221,7 @@
       function drawScene() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+        // Draw freehand lines
         for (const line of drawings) {
           if (line.points.length < 2) continue;
           ctx.beginPath();
@@ -241,6 +237,7 @@
           ctx.stroke();
         }
 
+        // Draw blocks
         for (const b of blocks) {
           if (b.type === 'one') {
             ctx.fillStyle = b.color;
@@ -342,7 +339,7 @@
         updateStatus();
       }
 
-      // ----- TOUCH / POINTER EVENTS: counters appear on touch -----
+      // ----- POINTER EVENTS -----
       function startAction(e) {
         e.preventDefault();
         const pos = pointerPos(e);
@@ -366,15 +363,12 @@
           return;
         }
 
-        // TAPPING / TOUCHING EMPTY SPACE → ADD A COUNTER!
-        // This is the key change: touch on empty canvas creates a counter.
+        // TAPPING EMPTY SPACE → ADD A COUNTER (single tap)
         addCounterAt(pos.x, pos.y);
-
-        // Also start drawing mode so that dragging adds more counters
+        
+        // Start drawing mode (for freehand lines, not counters)
         selected = null;
         drawing = true;
-        // We track the drawing path but we'll add counters on move as well
-        // We'll store points for drawing (but we also add counters)
         drawings.push({ points: [{ x: pos.x, y: pos.y }] });
       }
 
@@ -394,23 +388,17 @@
           return;
         }
 
-        // DRAWING mode: add counters as we move (touch drag)
+        // DRAWING mode: only draw freehand lines, NO counters
         if (drawing) {
-          // Add a counter at each new point (with slight spacing to avoid overwhelming)
-          // Only add if we've moved far enough from last added point
-          const lastPoints = drawings[drawings.length - 1].points;
-          const last = lastPoints[lastPoints.length - 1];
+          const currentLine = drawings[drawings.length - 1];
+          const last = currentLine.points[currentLine.points.length - 1];
           if (last) {
             const dx = pos.x - last.x;
             const dy = pos.y - last.y;
-            if (Math.sqrt(dx * dx + dy * dy) > 12) { // distance threshold
-              addCounterAt(pos.x, pos.y);
+            if (Math.sqrt(dx * dx + dy * dy) > 3) {
+              currentLine.points.push({ x: pos.x, y: pos.y });
             }
-          } else {
-            addCounterAt(pos.x, pos.y);
           }
-          // Record the point for the drawing line
-          drawings[drawings.length - 1].points.push({ x: pos.x, y: pos.y });
         }
       }
 
@@ -469,7 +457,7 @@
         updateStatus();
       });
 
-      // Init with a few counters so canvas isn't empty
+      // Init with a few counters
       addCounterAt(120, 130);
       addCounterAt(150, 130);
       addCounterAt(180, 130);
