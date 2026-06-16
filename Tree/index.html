@@ -322,9 +322,7 @@ function toggleEraser() {
 }
 
 function clearCanvas() {
-    if (confirm("សម្អាតទាំងអស់មែនទេ?")) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
 // Add new tree function
@@ -402,26 +400,24 @@ function setupTreeDoubleTap(tree) {
         if (tapCount === 2) {
             // Double tap detected - delete tree
             e.preventDefault();
-            if (confirm("តើដកដើមឈើនិងផ្លែវាចេញមែនទេ?")) {
-                // Remove all fruits on this tree to clear references
-                const fruits = tree.querySelectorAll(".fruit");
-                fruits.forEach(fruit => {
-                    if (selectedFruit === fruit) selectedFruit = null;
-                });
-                
-                tree.remove();
-                
-                // Clear selection if this was the selected tree
-                if (selectedTree === tree) {
-                    selectedTree = null;
-                }
-                
-                // Select another tree if available
-                const remainingTrees = document.querySelectorAll(".treeGroup");
-                if (remainingTrees.length > 0) {
-                    selectedTree = remainingTrees[0];
-                    selectedTree.classList.add("treeSelected");
-                }
+            // Remove all fruits on this tree to clear references
+            const fruits = tree.querySelectorAll(".fruit");
+            fruits.forEach(fruit => {
+                if (selectedFruit === fruit) selectedFruit = null;
+            });
+            
+            tree.remove();
+            
+            // Clear selection if this was the selected tree
+            if (selectedTree === tree) {
+                selectedTree = null;
+            }
+            
+            // Select another tree if available
+            const remainingTrees = document.querySelectorAll(".treeGroup");
+            if (remainingTrees.length > 0) {
+                selectedTree = remainingTrees[0];
+                selectedTree.classList.add("treeSelected");
             }
             tapCount = 0;
         }
@@ -589,10 +585,8 @@ function setupFruitDrag(fruit) {
         }, 300);
         
         if (tapCount === 2) {
-            if (confirm("ដកផ្លែឈើនេះចេញមែនទេ?")) {
-                fruit.remove();
-                if (selectedFruit === fruit) selectedFruit = null;
-            }
+            fruit.remove();
+            if (selectedFruit === fruit) selectedFruit = null;
             tapCount = 0;
         }
     });
@@ -619,27 +613,23 @@ function init() {
 document.addEventListener("keydown", (e) => {
     // Delete key to delete selected fruit
     if (e.key === 'Delete' && selectedFruit) {
-        if (confirm("តើដកផ្លែឈើនេះចេញមែនទេ?")) {
-            selectedFruit.remove();
-            selectedFruit = null;
-        }
+        selectedFruit.remove();
+        selectedFruit = null;
     }
     // Delete tree with Shift+Delete
     else if (e.key === 'Delete' && e.shiftKey && selectedTree) {
-        if (confirm("Delete selected tree and all its fruits?")) {
-            const fruits = selectedTree.querySelectorAll(".fruit");
-            fruits.forEach(fruit => {
-                if (selectedFruit === fruit) selectedFruit = null;
-            });
-            selectedTree.remove();
-            selectedTree = null;
-            
-            // Select another tree if available
-            const remainingTrees = document.querySelectorAll(".treeGroup");
-            if (remainingTrees.length > 0) {
-                selectedTree = remainingTrees[0];
-                selectedTree.classList.add("treeSelected");
-            }
+        const fruits = selectedTree.querySelectorAll(".fruit");
+        fruits.forEach(fruit => {
+            if (selectedFruit === fruit) selectedFruit = null;
+        });
+        selectedTree.remove();
+        selectedTree = null;
+        
+        // Select another tree if available
+        const remainingTrees = document.querySelectorAll(".treeGroup");
+        if (remainingTrees.length > 0) {
+            selectedTree = remainingTrees[0];
+            selectedTree.classList.add("treeSelected");
         }
     }
     // Escape to clear selection
