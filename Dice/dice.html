@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>តម្លៃលេខតាមខ្ទង់ · Automatic Regroup</title>
+  <title>តម្លៃលេខតាមខ្ទង់ · Right‑side regroup</title>
   <style>
     * {
       box-sizing: border-box;
@@ -158,7 +158,7 @@
     #deleteBtn { background: #c0392b; }
     #clearDrawBtn { background: #f39c12; }
 
-    /* Flying counter animation - flies to right edge */
+    /* Flying counter animation */
     .flying-counter {
       position: fixed;
       width: 20px;
@@ -167,7 +167,7 @@
       border: 2px solid #333;
       pointer-events: none;
       z-index: 100;
-      transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transition: all 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
       border-radius: 2px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
@@ -208,7 +208,7 @@
     <canvas id="canvas"></canvas>
   </div>
 
-  <!-- BOTTOM TOOLBAR (all buttons here) -->
+  <!-- BOTTOM TOOLBAR -->
   <div id="toolbar">
     <button id="counterBtn" touch-action="manipulation">
       🧱 រាយ
@@ -219,7 +219,7 @@
     <button id="deleteBtn" touch-action="manipulation">🗑 លុប</button>
     <button id="eraserBtn" touch-action="manipulation">🩹ជ័រលុប</button>
     <button id="clearDrawBtn" touch-action="manipulation">🧹សម្អាត</button>
-    <a href="../index.html" class="home-btn" touch-action="manipulation">🏡 Home</a>
+    <a href="#" class="home-btn" touch-action="manipulation">🏡 Home</a>
   </div>
 
   <script>
@@ -261,21 +261,22 @@
       const deleteBtn = document.getElementById('deleteBtn');
       const clearDrawBtn = document.getElementById('clearDrawBtn');
 
-      // ----- NEW ROW MANAGEMENT: counters stack from left to right, then wrap -----
-      // We'll store ones in a grid, starting at left edge (x=20) and going right.
-      // When a row reaches 10, we regroup into a ten (placed near the right side)
-      // but we keep the ones in their own area.
-      // For simplicity, we'll just use the same row/col logic but with a left-aligned start.
+      // ---- RIGHT-ALIGNED LAYOUT ----
+      // We'll place counters starting from the right edge, moving left.
+      // Each row holds up to 10 counters (ones) or one ten-block (width = 10*SIZE)
+      // Starting X: canvas.width - 60 (right margin)
+      // Then move left by ROW_SPACING for each column.
+      // Y grows downward.
       let currentRow = 0;
       let currentCol = 0;
-      // Start X near left edge, Y below the status bar
-      const ROW_START_X = 20;
-      const ROW_START_Y = 60;
 
       function getNextPosition() {
+        const w = canvas.width;
+        // start from right edge: right margin 40px, then each block moves left
+        const startX = w - 40 - SIZE; // rightmost position
         const pos = {
-          x: ROW_START_X + currentCol * ROW_SPACING,
-          y: ROW_START_Y + currentRow * ROW_SPACING
+          x: startX - currentCol * ROW_SPACING,
+          y: 60 + currentRow * ROW_SPACING
         };
         currentCol++;
         if (currentCol >= MAX_PER_ROW) {
@@ -285,7 +286,6 @@
         return pos;
       }
 
-      // Reset row position based on current ones (so new ones get placed after existing ones)
       function resetRowPosition() {
         const ones = blocks.filter(b => b.type === 'one');
         const count = ones.length;
@@ -302,7 +302,7 @@
         counterBadge.textContent = total;
       }
 
-      // ----- AUTOMATIC COMBINE: ones→tens, tens→hundreds (called after every addition) -----
+      // ----- AUTOMATIC COMBINE: ones→tens, tens→hundreds -----
       function combineBlocks() {
         let combined = false;
         
@@ -311,12 +311,8 @@
         while (ones.length >= 10) {
           combined = true;
           const firstTen = ones.slice(0, 10);
-          // Find the leftmost/topmost position to place the ten (near the right side, but we'll place it in a dedicated area)
-          // For better UX: place tens in a column on the right side, starting from top.
-          // We'll just use the position of the first one as anchor, but we'll adjust so tens stack to the right.
           const first = firstTen[0];
           
-          // Remove the 10 ones
           let removed = 0;
           blocks = blocks.filter(b => {
             if (b.type === 'one' && removed < 10) {
@@ -329,16 +325,11 @@
             return true;
           });
           
-          // Place the new ten: we want it on the right side, but keep it in the grid.
-          // We'll place it at x = canvas.width - 100, and y = 60 + (number of tens)*30
-          const tensCount = blocks.filter(b => b.type === 'ten').length;
-          const tenX = canvas.width - 120;
-          const tenY = 60 + tensCount * 30;
-          
+          // place the new ten-block at the position of the first one
           blocks.push({
             type: 'ten',
-            x: tenX,
-            y: tenY,
+            x: first.x,
+            y: first.y,
             w: SIZE * 10,
             h: SIZE,
             color: '#06d6a0'
@@ -366,15 +357,10 @@
             return true;
           });
           
-          // Place hundred on the far right, stacked vertically
-          const hundredsCount = blocks.filter(b => b.type === 'hundred').length;
-          const hundredX = canvas.width - 180;
-          const hundredY = 60 + hundredsCount * 120;
-          
           blocks.push({
             type: 'hundred',
-            x: hundredX,
-            y: hundredY,
+            x: first.x,
+            y: first.y,
             w: SIZE * 10,
             h: SIZE * 10,
             color: '#ef476f'
@@ -396,10 +382,8 @@
         
         if (block.type === 'hundred') {
           blocks = blocks.filter(b => b !== block);
-          // Place tens in a column on the right
-          const tensCount = blocks.filter(b => b.type === 'ten').length;
-          const startX = canvas.width - 120;
-          const startY = 60 + tensCount * 30;
+          const startX = block.x;
+          const startY = block.y;
           for (let i = 0; i < 10; i++) {
             blocks.push({
               type: 'ten',
@@ -416,12 +400,8 @@
         } 
         else if (block.type === 'ten') {
           blocks = blocks.filter(b => b !== block);
-          // Place ones in the left grid
-          const onesCount = blocks.filter(b => b.type === 'one').length;
-          const row = Math.floor(onesCount / MAX_PER_ROW);
-          const col = onesCount % MAX_PER_ROW;
-          const startX = ROW_START_X + col * ROW_SPACING;
-          const startY = ROW_START_Y + row * ROW_SPACING;
+          const startX = block.x;
+          const startY = block.y;
           for (let i = 0; i < 10; i++) {
             blocks.push({
               type: 'one',
@@ -440,32 +420,26 @@
       }
 
       function addCounterAt(x, y) {
-        // We ignore x,y from flying animation; we place in grid.
-        // Instead, we get the next position in the left grid.
-        const pos = getNextPosition();
         blocks.push({
           type: 'one',
-          x: pos.x,
-          y: pos.y,
+          x: x - SIZE/2,
+          y: y - SIZE/2,
           w: SIZE,
           h: SIZE,
           color: '#ffd166'
         });
-        // Auto regroup after each addition
         combineBlocks();
       }
 
-      // ----- FLYING COUNTER: flies to the right edge and then appears in left grid -----
       function spawnFlyingCounter() {
         const btnRect = counterBtn.getBoundingClientRect();
         const startX = btnRect.left + btnRect.width / 2;
         const startY = btnRect.top + btnRect.height / 2;
 
-        // Target: right edge of the screen (we'll animate the flying element to the right)
-        // But we want the block to appear in the left grid after animation.
-        // So we fly the element to the right edge, then remove it and add to grid.
-        const targetX = window.innerWidth - 60;
-        const targetY = startY; // keep same vertical level
+        const canvasRect = canvas.getBoundingClientRect();
+        const pos = getNextPosition();
+        const targetX = canvasRect.left + pos.x;
+        const targetY = canvasRect.top + pos.y;
 
         const el = document.createElement('div');
         el.className = 'flying-counter';
@@ -486,25 +460,17 @@
 
         setTimeout(() => {
           el.remove();
-          // Now add the counter to the left grid
-          const pos = getNextPosition();
-          blocks.push({
-            type: 'one',
-            x: pos.x,
-            y: pos.y,
-            w: SIZE,
-            h: SIZE,
-            color: '#ffd166'
-          });
-          // Auto regroup
-          combineBlocks();
+          const canvasPos = canvas.getBoundingClientRect();
+          const x = targetX - canvasPos.left;
+          const y = targetY - canvasPos.top;
+          addCounterAt(x, y);
           
           isProcessing = false;
           if (pendingCounters > 0) {
             pendingCounters--;
             spawnFlyingCounter();
           }
-        }, 500);
+        }, 450);
       }
 
       counterBtn.addEventListener('click', function(e) {
@@ -517,11 +483,10 @@
         }
       });
 
-      // ----- DRAWING -----
       function drawScene() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Draw drawings
+        // Draw drawings (freehand)
         for (const line of drawings) {
           if (line.points.length < 2) continue;
           ctx.beginPath();
@@ -573,7 +538,6 @@
       }
       drawScene();
 
-      // ----- POINTER EVENTS (drag, draw, erase, double-tap split) -----
       function pointerPos(e) {
         const rect = canvas.getBoundingClientRect();
         let clientX, clientY;
@@ -611,6 +575,7 @@
         });
       }
 
+      // ----- POINTER EVENTS WITH DOUBLE-TAP -----
       function startAction(e) {
         e.preventDefault();
         const pos = pointerPos(e);
@@ -750,16 +715,16 @@
         }
       });
 
-      // Initialize
+      // Initialize layout
       resetRowPosition();
 
-      // Start with some counters to demonstrate
+      // Seed a few counters to show right‑side placement
       setTimeout(() => {
         isProcessing = true;
         for (let i = 0; i < 5; i++) {
           setTimeout(() => {
             spawnFlyingCounter();
-          }, i * 200);
+          }, i * 180);
         }
       }, 300);
 
