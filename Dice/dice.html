@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>តម្លៃលេខតាមខ្ទង់ · Flying counters</title>
+  <title>តម្លៃលេខតាមខ្ទង់ · Smooth Drag</title>
   <style>
     * {
       box-sizing: border-box;
@@ -145,7 +145,6 @@
 <body>
 
   <div id="toolbar">
-    <!-- COUNTER BUTTON with badge -->
     <button id="counterBtn" touch-action="manipulation">
       🧱 រាយ
       <span class="badge" id="counterBadge">0</span>
@@ -183,10 +182,11 @@
       let selected = null;
       let dragOffsetX = 0;
       let dragOffsetY = 0;
+      let isDragging = false;
+      let hasMoved = false;
       let drawing = false;
       let eraseMode = false;
       let drawings = [];
-      let isDragging = false;
       let lastTap = 0;
       let isProcessing = false;
       let pendingCounters = 0;
@@ -197,7 +197,6 @@
       const deleteBtn = document.getElementById('deleteBtn');
       const clearDrawBtn = document.getElementById('clearDrawBtn');
 
-      // Track the next position for counters (row layout with exactly 10 per row)
       let currentRow = 0;
       let currentCol = 0;
       const ROW_START_X = 80;
@@ -216,9 +215,7 @@
         return pos;
       }
 
-      // Reset row position (called when combining blocks)
       function resetRowPosition() {
-        // Count existing ones to determine where to place new ones
         const ones = blocks.filter(b => b.type === 'one');
         const count = ones.length;
         currentRow = Math.floor(count / MAX_PER_ROW);
@@ -235,21 +232,17 @@
       }
 
       function combineBlocks() {
-        // Check for 10 ones → make a ten
         let ones = blocks.filter(b => b.type === 'one');
         let combined = false;
         
         while (ones.length >= 10) {
           combined = true;
-          // Get the first 10 ones (they should be in a row)
           const firstTen = ones.slice(0, 10);
           const first = firstTen[0];
           
-          // Remove these 10 ones
           let removed = 0;
           blocks = blocks.filter(b => {
             if (b.type === 'one' && removed < 10) {
-              // Check if this is one of the first 10
               const isInFirstTen = firstTen.some(f => f === b);
               if (isInFirstTen) {
                 removed++;
@@ -259,7 +252,6 @@
             return true;
           });
           
-          // Add a ten block at the position of the first one
           blocks.push({
             type: 'ten',
             x: first.x,
@@ -272,7 +264,6 @@
           ones = blocks.filter(b => b.type === 'one');
         }
 
-        // Check for 10 tens → make a hundred
         let tens = blocks.filter(b => b.type === 'ten');
         while (tens.length >= 10) {
           combined = true;
@@ -303,7 +294,6 @@
           tens = blocks.filter(b => b.type === 'ten');
         }
 
-        // Reset row position after combining
         if (combined) {
           resetRowPosition();
         }
@@ -323,7 +313,6 @@
         combineBlocks();
       }
 
-      // Spawn a single flying counter
       function spawnFlyingCounter() {
         const btnRect = counterBtn.getBoundingClientRect();
         const startX = btnRect.left + btnRect.width / 2;
@@ -342,10 +331,8 @@
         el.style.transform = 'scale(0.3)';
         document.body.appendChild(el);
 
-        // Force reflow
         el.offsetHeight;
 
-        // Animate to position
         requestAnimationFrame(() => {
           el.style.left = targetX + 'px';
           el.style.top = targetY + 'px';
@@ -353,7 +340,6 @@
           el.style.opacity = '1';
         });
 
-        // Remove element and add counter after animation
         setTimeout(() => {
           el.remove();
           const canvasPos = canvas.getBoundingClientRect();
@@ -362,7 +348,6 @@
           addCounterAt(x, y);
           
           isProcessing = false;
-          // Process next in queue
           if (pendingCounters > 0) {
             pendingCounters--;
             spawnFlyingCounter();
@@ -370,7 +355,6 @@
         }, 500);
       }
 
-      // Handle counter button click - add one counter
       counterBtn.addEventListener('click', function(e) {
         e.preventDefault();
         if (isProcessing) {
@@ -384,7 +368,6 @@
       function drawScene() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Draw freehand lines
         for (const line of drawings) {
           if (line.points.length < 2) continue;
           ctx.beginPath();
@@ -400,7 +383,6 @@
           ctx.stroke();
         }
 
-        // Draw blocks
         for (const b of blocks) {
           if (b.type === 'one') {
             ctx.fillStyle = b.color;
@@ -476,7 +458,6 @@
       function splitBlock(block) {
         if (block.type === 'ten') {
           blocks = blocks.filter(b => b !== block);
-          // Place ones in a row
           const startX = block.x;
           const startY = block.y;
           for (let i = 0; i < 10; i++) {
@@ -511,31 +492,37 @@
         updateStatus();
       }
 
-      // ----- POINTER EVENTS (only for drawing, no counters) -----
+      // ----- IMPROVED POINTER EVENTS WITH CLEAR SEPARATION -----
       function startAction(e) {
         e.preventDefault();
         const pos = pointerPos(e);
         isDragging = false;
+        hasMoved = false;
 
         if (eraseMode) {
           eraseAt(pos.x, pos.y);
           return;
         }
 
+        // Check if clicking on a block
         const block = getBlock(pos.x, pos.y);
         if (block) {
+          // Start dragging the block
           selected = block;
           dragOffsetX = pos.x - block.x;
           dragOffsetY = pos.y - block.y;
+          // Bring to front
           blocks = blocks.filter(b => b !== block);
           blocks.push(block);
           drawing = false;
+          isDragging = true;
           return;
         }
 
-        // Start drawing (no counters on tap)
+        // Click on empty space - start drawing
         selected = null;
         drawing = true;
+        isDragging = false;
         drawings.push({ points: [{ x: pos.x, y: pos.y }] });
       }
 
@@ -548,14 +535,16 @@
           return;
         }
 
-        if (selected) {
-          isDragging = true;
+        // If we're dragging a selected block
+        if (selected && isDragging) {
+          hasMoved = true;
           selected.x = pos.x - dragOffsetX;
           selected.y = pos.y - dragOffsetY;
           return;
         }
 
-        if (drawing) {
+        // If we're drawing
+        if (drawing && !selected) {
           const currentLine = drawings[drawings.length - 1];
           const last = currentLine.points[currentLine.points.length - 1];
           if (last) {
@@ -569,15 +558,35 @@
       }
 
       function endAction(e) {
-        drawing = false;
-        if (selected && !isDragging) {
-          const now = Date.now();
-          if (now - lastTap < 300) {
-            splitBlock(selected);
+        // If we were dragging a block
+        if (selected && isDragging) {
+          // Double tap detection for split
+          if (!hasMoved) {
+            const now = Date.now();
+            if (now - lastTap < 300) {
+              splitBlock(selected);
+            }
+            lastTap = now;
           }
-          lastTap = now;
+          // Clear selection after drag ends
+          // Don't clear selection - keep it selected for toolbar actions
+          isDragging = false;
+          drawing = false;
+          return;
         }
+
+        // If we were drawing
+        if (drawing) {
+          drawing = false;
+          // Clean up empty drawings
+          const lastLine = drawings[drawings.length - 1];
+          if (lastLine && lastLine.points.length < 2) {
+            drawings.pop();
+          }
+        }
+
         isDragging = false;
+        // Don't clear selected on end - keep it for toolbar
       }
 
       canvas.addEventListener('mousedown', startAction);
@@ -592,6 +601,10 @@
         e.preventDefault();
         eraseMode = !eraseMode;
         eraserBtn.innerHTML = eraseMode ? '✏️ Draw' : '🩹ជ័រលុប';
+        // Clear selection when entering eraser mode
+        if (eraseMode) {
+          selected = null;
+        }
       });
 
       clearDrawBtn.addEventListener('click', function(e) {
@@ -623,7 +636,19 @@
         updateStatus();
       });
 
-      // Initialize row position
+      // Click outside to deselect (on canvas background)
+      canvas.addEventListener('click', function(e) {
+        const pos = pointerPos(e);
+        const block = getBlock(pos.x, pos.y);
+        if (!block) {
+          // Only deselect if not dragging and not in eraser mode
+          if (!isDragging && !eraseMode) {
+            selected = null;
+          }
+        }
+      });
+
+      // Initialize
       resetRowPosition();
 
       // Start with 5 counters
