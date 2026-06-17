@@ -176,6 +176,9 @@
       window.addEventListener('resize', resizeCanvas);
 
       const SIZE = 20;
+      const ROW_SPACING = 25;
+      const MAX_PER_ROW = 10;
+
       let blocks = [];
       let selected = null;
       let dragOffsetX = 0;
@@ -194,26 +197,32 @@
       const deleteBtn = document.getElementById('deleteBtn');
       const clearDrawBtn = document.getElementById('clearDrawBtn');
 
-      // Track where the next counter should go (row layout)
-      let nextRowX = 80;
-      let nextRowY = 120;
-      const ROW_SPACING = 25;
-      const MAX_PER_ROW = 10;
+      // Track the next position for counters (row layout with exactly 10 per row)
+      let currentRow = 0;
+      let currentCol = 0;
+      const ROW_START_X = 80;
+      const ROW_START_Y = 120;
 
       function getNextPosition() {
-        const pos = { x: nextRowX, y: nextRowY };
-        nextRowX += ROW_SPACING;
-        if (nextRowX >= 80 + MAX_PER_ROW * ROW_SPACING) {
-          nextRowX = 80;
-          nextRowY += ROW_SPACING;
+        const pos = {
+          x: ROW_START_X + currentCol * ROW_SPACING,
+          y: ROW_START_Y + currentRow * ROW_SPACING
+        };
+        currentCol++;
+        if (currentCol >= MAX_PER_ROW) {
+          currentCol = 0;
+          currentRow++;
         }
         return pos;
       }
 
-      // Reset row position (useful when blocks are cleared)
+      // Reset row position (called when combining blocks)
       function resetRowPosition() {
-        nextRowX = 80;
-        nextRowY = 120;
+        // Count existing ones to determine where to place new ones
+        const ones = blocks.filter(b => b.type === 'one');
+        const count = ones.length;
+        currentRow = Math.floor(count / MAX_PER_ROW);
+        currentCol = count % MAX_PER_ROW;
       }
 
       function updateStatus() {
@@ -228,16 +237,29 @@
       function combineBlocks() {
         // Check for 10 ones → make a ten
         let ones = blocks.filter(b => b.type === 'one');
+        let combined = false;
+        
         while (ones.length >= 10) {
-          const first = ones[0];
+          combined = true;
+          // Get the first 10 ones (they should be in a row)
+          const firstTen = ones.slice(0, 10);
+          const first = firstTen[0];
+          
+          // Remove these 10 ones
           let removed = 0;
           blocks = blocks.filter(b => {
             if (b.type === 'one' && removed < 10) {
-              removed++;
-              return false;
+              // Check if this is one of the first 10
+              const isInFirstTen = firstTen.some(f => f === b);
+              if (isInFirstTen) {
+                removed++;
+                return false;
+              }
             }
             return true;
           });
+          
+          // Add a ten block at the position of the first one
           blocks.push({
             type: 'ten',
             x: first.x,
@@ -246,21 +268,29 @@
             h: SIZE,
             color: '#06d6a0'
           });
+          
           ones = blocks.filter(b => b.type === 'one');
         }
 
         // Check for 10 tens → make a hundred
         let tens = blocks.filter(b => b.type === 'ten');
         while (tens.length >= 10) {
-          const first = tens[0];
+          combined = true;
+          const firstTen = tens.slice(0, 10);
+          const first = firstTen[0];
+          
           let removed = 0;
           blocks = blocks.filter(b => {
             if (b.type === 'ten' && removed < 10) {
-              removed++;
-              return false;
+              const isInFirstTen = firstTen.some(f => f === b);
+              if (isInFirstTen) {
+                removed++;
+                return false;
+              }
             }
             return true;
           });
+          
           blocks.push({
             type: 'hundred',
             x: first.x,
@@ -269,8 +299,15 @@
             h: SIZE * 10,
             color: '#ef476f'
           });
+          
           tens = blocks.filter(b => b.type === 'ten');
         }
+
+        // Reset row position after combining
+        if (combined) {
+          resetRowPosition();
+        }
+        
         updateStatus();
       }
 
@@ -439,29 +476,35 @@
       function splitBlock(block) {
         if (block.type === 'ten') {
           blocks = blocks.filter(b => b !== block);
+          // Place ones in a row
+          const startX = block.x;
+          const startY = block.y;
           for (let i = 0; i < 10; i++) {
             blocks.push({
               type: 'one',
-              x: block.x + i * (SIZE + 4),
-              y: block.y,
+              x: startX + i * (SIZE + 2),
+              y: startY,
               w: SIZE,
               h: SIZE,
               color: '#ffd166'
             });
           }
-          // Reset row position when splitting
           resetRowPosition();
         } else if (block.type === 'hundred') {
           blocks = blocks.filter(b => b !== block);
-          for (let i = 0; i < 10; i++) {
-            blocks.push({
-              type: 'ten',
-              x: block.x,
-              y: block.y + i * (SIZE + 5),
-              w: SIZE * 10,
-              h: SIZE,
-              color: '#06d6a0'
-            });
+          const startX = block.x;
+          const startY = block.y;
+          for (let r = 0; r < 10; r++) {
+            for (let c = 0; c < 10; c++) {
+              blocks.push({
+                type: 'one',
+                x: startX + c * SIZE,
+                y: startY + r * SIZE,
+                w: SIZE,
+                h: SIZE,
+                color: '#ffd166'
+              });
+            }
           }
           resetRowPosition();
         }
@@ -580,10 +623,17 @@
         updateStatus();
       });
 
-      // Start with a few counters
+      // Initialize row position
+      resetRowPosition();
+
+      // Start with 5 counters
       setTimeout(() => {
         isProcessing = true;
-        spawnFlyingCounter();
+        for (let i = 0; i < 5; i++) {
+          setTimeout(() => {
+            spawnFlyingCounter();
+          }, i * 200);
+        }
       }, 300);
 
       updateStatus();
