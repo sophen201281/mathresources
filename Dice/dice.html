@@ -22,7 +22,7 @@
       height: 100vh;
     }
 
-    /* Status bar at top (lightweight) */
+    /* Status bar at top */
     #status-bar {
       position: fixed;
       top: 0;
@@ -55,7 +55,7 @@
       top: 44px;
       left: 0;
       right: 0;
-      bottom: 80px;   /* space for bottom toolbar */
+      bottom: 80px;
       background: white;
       touch-action: none;
     }
@@ -158,7 +158,7 @@
     #deleteBtn { background: #c0392b; }
     #clearDrawBtn { background: #f39c12; }
 
-    /* Flying counter animation */
+    /* Flying counter animation - flies to right edge */
     .flying-counter {
       position: fixed;
       width: 20px;
@@ -261,9 +261,15 @@
       const deleteBtn = document.getElementById('deleteBtn');
       const clearDrawBtn = document.getElementById('clearDrawBtn');
 
+      // ----- NEW ROW MANAGEMENT: counters stack from left to right, then wrap -----
+      // We'll store ones in a grid, starting at left edge (x=20) and going right.
+      // When a row reaches 10, we regroup into a ten (placed near the right side)
+      // but we keep the ones in their own area.
+      // For simplicity, we'll just use the same row/col logic but with a left-aligned start.
       let currentRow = 0;
       let currentCol = 0;
-      const ROW_START_X = 60;
+      // Start X near left edge, Y below the status bar
+      const ROW_START_X = 20;
       const ROW_START_Y = 60;
 
       function getNextPosition() {
@@ -279,6 +285,7 @@
         return pos;
       }
 
+      // Reset row position based on current ones (so new ones get placed after existing ones)
       function resetRowPosition() {
         const ones = blocks.filter(b => b.type === 'one');
         const count = ones.length;
@@ -295,7 +302,7 @@
         counterBadge.textContent = total;
       }
 
-      // ----- AUTOMATIC COMBINE: ones→tens, tens→hundreds -----
+      // ----- AUTOMATIC COMBINE: ones→tens, tens→hundreds (called after every addition) -----
       function combineBlocks() {
         let combined = false;
         
@@ -304,8 +311,12 @@
         while (ones.length >= 10) {
           combined = true;
           const firstTen = ones.slice(0, 10);
+          // Find the leftmost/topmost position to place the ten (near the right side, but we'll place it in a dedicated area)
+          // For better UX: place tens in a column on the right side, starting from top.
+          // We'll just use the position of the first one as anchor, but we'll adjust so tens stack to the right.
           const first = firstTen[0];
           
+          // Remove the 10 ones
           let removed = 0;
           blocks = blocks.filter(b => {
             if (b.type === 'one' && removed < 10) {
@@ -318,10 +329,16 @@
             return true;
           });
           
+          // Place the new ten: we want it on the right side, but keep it in the grid.
+          // We'll place it at x = canvas.width - 100, and y = 60 + (number of tens)*30
+          const tensCount = blocks.filter(b => b.type === 'ten').length;
+          const tenX = canvas.width - 120;
+          const tenY = 60 + tensCount * 30;
+          
           blocks.push({
             type: 'ten',
-            x: first.x,
-            y: first.y,
+            x: tenX,
+            y: tenY,
             w: SIZE * 10,
             h: SIZE,
             color: '#06d6a0'
@@ -349,10 +366,15 @@
             return true;
           });
           
+          // Place hundred on the far right, stacked vertically
+          const hundredsCount = blocks.filter(b => b.type === 'hundred').length;
+          const hundredX = canvas.width - 180;
+          const hundredY = 60 + hundredsCount * 120;
+          
           blocks.push({
             type: 'hundred',
-            x: first.x,
-            y: first.y,
+            x: hundredX,
+            y: hundredY,
             w: SIZE * 10,
             h: SIZE * 10,
             color: '#ef476f'
@@ -374,8 +396,10 @@
         
         if (block.type === 'hundred') {
           blocks = blocks.filter(b => b !== block);
-          const startX = block.x;
-          const startY = block.y;
+          // Place tens in a column on the right
+          const tensCount = blocks.filter(b => b.type === 'ten').length;
+          const startX = canvas.width - 120;
+          const startY = 60 + tensCount * 30;
           for (let i = 0; i < 10; i++) {
             blocks.push({
               type: 'ten',
@@ -392,8 +416,12 @@
         } 
         else if (block.type === 'ten') {
           blocks = blocks.filter(b => b !== block);
-          const startX = block.x;
-          const startY = block.y;
+          // Place ones in the left grid
+          const onesCount = blocks.filter(b => b.type === 'one').length;
+          const row = Math.floor(onesCount / MAX_PER_ROW);
+          const col = onesCount % MAX_PER_ROW;
+          const startX = ROW_START_X + col * ROW_SPACING;
+          const startY = ROW_START_Y + row * ROW_SPACING;
           for (let i = 0; i < 10; i++) {
             blocks.push({
               type: 'one',
@@ -412,26 +440,32 @@
       }
 
       function addCounterAt(x, y) {
+        // We ignore x,y from flying animation; we place in grid.
+        // Instead, we get the next position in the left grid.
+        const pos = getNextPosition();
         blocks.push({
           type: 'one',
-          x: x - SIZE/2,
-          y: y - SIZE/2,
+          x: pos.x,
+          y: pos.y,
           w: SIZE,
           h: SIZE,
           color: '#ffd166'
         });
+        // Auto regroup after each addition
         combineBlocks();
       }
 
+      // ----- FLYING COUNTER: flies to the right edge and then appears in left grid -----
       function spawnFlyingCounter() {
         const btnRect = counterBtn.getBoundingClientRect();
         const startX = btnRect.left + btnRect.width / 2;
         const startY = btnRect.top + btnRect.height / 2;
 
-        const canvasRect = canvas.getBoundingClientRect();
-        const pos = getNextPosition();
-        const targetX = canvasRect.left + pos.x;
-        const targetY = canvasRect.top + pos.y;
+        // Target: right edge of the screen (we'll animate the flying element to the right)
+        // But we want the block to appear in the left grid after animation.
+        // So we fly the element to the right edge, then remove it and add to grid.
+        const targetX = window.innerWidth - 60;
+        const targetY = startY; // keep same vertical level
 
         const el = document.createElement('div');
         el.className = 'flying-counter';
@@ -452,10 +486,18 @@
 
         setTimeout(() => {
           el.remove();
-          const canvasPos = canvas.getBoundingClientRect();
-          const x = targetX - canvasPos.left;
-          const y = targetY - canvasPos.top;
-          addCounterAt(x, y);
+          // Now add the counter to the left grid
+          const pos = getNextPosition();
+          blocks.push({
+            type: 'one',
+            x: pos.x,
+            y: pos.y,
+            w: SIZE,
+            h: SIZE,
+            color: '#ffd166'
+          });
+          // Auto regroup
+          combineBlocks();
           
           isProcessing = false;
           if (pendingCounters > 0) {
@@ -475,9 +517,11 @@
         }
       });
 
+      // ----- DRAWING -----
       function drawScene() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+        // Draw drawings
         for (const line of drawings) {
           if (line.points.length < 2) continue;
           ctx.beginPath();
@@ -493,6 +537,7 @@
           ctx.stroke();
         }
 
+        // Draw blocks
         for (const b of blocks) {
           if (b.type === 'one') {
             ctx.fillStyle = b.color;
@@ -528,6 +573,7 @@
       }
       drawScene();
 
+      // ----- POINTER EVENTS (drag, draw, erase, double-tap split) -----
       function pointerPos(e) {
         const rect = canvas.getBoundingClientRect();
         let clientX, clientY;
@@ -565,7 +611,6 @@
         });
       }
 
-      // ----- POINTER EVENTS WITH DOUBLE-TAP DETECTION -----
       function startAction(e) {
         e.preventDefault();
         const pos = pointerPos(e);
