@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>តម្លៃលេខតាមខ្ទង់ · Split Blocks</title>
+  <title>តម្លៃលេខតាមខ្ទង់ · Automatic Regroup</title>
   <style>
     * {
       box-sizing: border-box;
@@ -87,10 +87,6 @@
       background: #e76f51;
     }
 
-    #regroupBtn {
-      background: #9b59b6;
-    }
-
     .home-btn {
       background: #27ae60;
     }
@@ -154,7 +150,6 @@
       <span class="badge" id="counterBadge">0</span>
     </button>
 
-    <button id="regroupBtn" touch-action="manipulation">🔀 Regroup</button>
     <button id="copyBtn" touch-action="manipulation">📄 Copy</button>
     <button id="deleteBtn" touch-action="manipulation">🗑 លុប</button>
     <button id="eraserBtn" touch-action="manipulation">🩹ជ័រលុប</button>
@@ -171,7 +166,6 @@
       const ctx = canvas.getContext('2d');
       const counterBtn = document.getElementById('counterBtn');
       const counterBadge = document.getElementById('counterBadge');
-      const regroupBtn = document.getElementById('regroupBtn');
 
       function resizeCanvas() {
         canvas.width = window.innerWidth;
@@ -194,7 +188,6 @@
       let eraseMode = false;
       let drawings = [];
       let lastTapTime = 0;
-      let tapTimeout = null;
       let isProcessing = false;
       let pendingCounters = 0;
 
@@ -238,10 +231,12 @@
         counterBadge.textContent = total;
       }
 
+      // ----- AUTOMATIC COMBINE: ones→tens, tens→hundreds -----
       function combineBlocks() {
-        let ones = blocks.filter(b => b.type === 'one');
         let combined = false;
         
+        // Step 1: Combine ones into tens (10 ones → 1 ten)
+        let ones = blocks.filter(b => b.type === 'one');
         while (ones.length >= 10) {
           combined = true;
           const firstTen = ones.slice(0, 10);
@@ -271,6 +266,7 @@
           ones = blocks.filter(b => b.type === 'one');
         }
 
+        // Step 2: Combine tens into hundreds (10 tens → 1 hundred)
         let tens = blocks.filter(b => b.type === 'ten');
         while (tens.length >= 10) {
           combined = true;
@@ -310,7 +306,7 @@
 
       // ----- SPLIT BLOCK (double-tap) -----
       function splitBlock(block) {
-        if (!block) return;
+        if (!block) return false;
         
         if (block.type === 'hundred') {
           // Split hundred into 10 tens
@@ -353,107 +349,6 @@
         
         return false;
       }
-
-      // ----- REGROUP FUNCTIONS -----
-      function regroupTensToHundreds() {
-        const tens = blocks.filter(b => b.type === 'ten');
-        if (tens.length < 10) {
-          alert(`Need 10 tens to regroup into a hundred. You have ${tens.length}.`);
-          return;
-        }
-
-        let regrouped = false;
-        while (tens.length >= 10) {
-          regrouped = true;
-          const firstTen = tens.slice(0, 10);
-          const first = firstTen[0];
-          
-          let removed = 0;
-          blocks = blocks.filter(b => {
-            if (b.type === 'ten' && removed < 10) {
-              const isInFirstTen = firstTen.some(f => f === b);
-              if (isInFirstTen) {
-                removed++;
-                return false;
-              }
-            }
-            return true;
-          });
-          
-          blocks.push({
-            type: 'hundred',
-            x: first.x,
-            y: first.y,
-            w: SIZE * 10,
-            h: SIZE * 10,
-            color: '#ef476f'
-          });
-          
-          tens.splice(0, 10);
-        }
-
-        if (regrouped) {
-          resetRowPosition();
-          updateStatus();
-        }
-      }
-
-      function regroupOnesToTens() {
-        const ones = blocks.filter(b => b.type === 'one');
-        if (ones.length < 10) {
-          alert(`Need 10 ones to regroup into a ten. You have ${ones.length}.`);
-          return;
-        }
-
-        let regrouped = false;
-        while (ones.length >= 10) {
-          regrouped = true;
-          const firstTen = ones.slice(0, 10);
-          const first = firstTen[0];
-          
-          let removed = 0;
-          blocks = blocks.filter(b => {
-            if (b.type === 'one' && removed < 10) {
-              const isInFirstTen = firstTen.some(f => f === b);
-              if (isInFirstTen) {
-                removed++;
-                return false;
-              }
-            }
-            return true;
-          });
-          
-          blocks.push({
-            type: 'ten',
-            x: first.x,
-            y: first.y,
-            w: SIZE * 10,
-            h: SIZE,
-            color: '#06d6a0'
-          });
-          
-          ones.splice(0, 10);
-        }
-
-        if (regrouped) {
-          resetRowPosition();
-          updateStatus();
-        }
-      }
-
-      regroupBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        const choice = confirm(
-          `Press OK to regroup 10 tens → 1 hundred\n` +
-          `Press Cancel to regroup 10 ones → 1 ten`
-        );
-        
-        if (choice) {
-          regroupTensToHundreds();
-        } else {
-          regroupOnesToTens();
-        }
-      });
 
       function addCounterAt(x, y) {
         blocks.push({
@@ -651,7 +546,7 @@
         drawing = true;
         isDragging = false;
         drawings.push({ points: [{ x: pos.x, y: pos.y }] });
-        lastTapTime = 0; // Reset double tap timer
+        lastTapTime = 0;
       }
 
       function moveAction(e) {
