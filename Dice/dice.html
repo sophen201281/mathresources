@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>តម្លៃលេខតាមខ្ទង់ · Smooth Drag</title>
+  <title>តម្លៃលេខតាមខ្ទង់ · Regroup Tens</title>
   <style>
     * {
       box-sizing: border-box;
@@ -87,6 +87,10 @@
       background: #e76f51;
     }
 
+    #regroupBtn {
+      background: #9b59b6;
+    }
+
     .home-btn {
       background: #27ae60;
     }
@@ -150,6 +154,7 @@
       <span class="badge" id="counterBadge">0</span>
     </button>
 
+    <button id="regroupBtn" touch-action="manipulation">🔀 Regroup</button>
     <button id="copyBtn" touch-action="manipulation">📄 Copy</button>
     <button id="deleteBtn" touch-action="manipulation">🗑 លុប</button>
     <button id="eraserBtn" touch-action="manipulation">🩹ជ័រលុប</button>
@@ -166,6 +171,7 @@
       const ctx = canvas.getContext('2d');
       const counterBtn = document.getElementById('counterBtn');
       const counterBadge = document.getElementById('counterBadge');
+      const regroupBtn = document.getElementById('regroupBtn');
 
       function resizeCanvas() {
         canvas.width = window.innerWidth;
@@ -300,6 +306,111 @@
         
         updateStatus();
       }
+
+      // ----- REGROUP TENS TO HUNDREDS (manual) -----
+      function regroupTensToHundreds() {
+        const tens = blocks.filter(b => b.type === 'ten');
+        if (tens.length < 10) {
+          alert(`Need 10 tens to regroup into a hundred. You have ${tens.length}.`);
+          return;
+        }
+
+        let regrouped = false;
+        while (tens.length >= 10) {
+          regrouped = true;
+          const firstTen = tens.slice(0, 10);
+          const first = firstTen[0];
+          
+          let removed = 0;
+          blocks = blocks.filter(b => {
+            if (b.type === 'ten' && removed < 10) {
+              const isInFirstTen = firstTen.some(f => f === b);
+              if (isInFirstTen) {
+                removed++;
+                return false;
+              }
+            }
+            return true;
+          });
+          
+          blocks.push({
+            type: 'hundred',
+            x: first.x,
+            y: first.y,
+            w: SIZE * 10,
+            h: SIZE * 10,
+            color: '#ef476f'
+          });
+          
+          // Update tens for next iteration
+          tens.splice(0, 10);
+        }
+
+        if (regrouped) {
+          resetRowPosition();
+          updateStatus();
+        }
+      }
+
+      // ----- REGROUP ONES TO TENS (manual) -----
+      function regroupOnesToTens() {
+        const ones = blocks.filter(b => b.type === 'one');
+        if (ones.length < 10) {
+          alert(`Need 10 ones to regroup into a ten. You have ${ones.length}.`);
+          return;
+        }
+
+        let regrouped = false;
+        while (ones.length >= 10) {
+          regrouped = true;
+          const firstTen = ones.slice(0, 10);
+          const first = firstTen[0];
+          
+          let removed = 0;
+          blocks = blocks.filter(b => {
+            if (b.type === 'one' && removed < 10) {
+              const isInFirstTen = firstTen.some(f => f === b);
+              if (isInFirstTen) {
+                removed++;
+                return false;
+              }
+            }
+            return true;
+          });
+          
+          blocks.push({
+            type: 'ten',
+            x: first.x,
+            y: first.y,
+            w: SIZE * 10,
+            h: SIZE,
+            color: '#06d6a0'
+          });
+          
+          ones.splice(0, 10);
+        }
+
+        if (regrouped) {
+          resetRowPosition();
+          updateStatus();
+        }
+      }
+
+      // ----- REGROUP BUTTON: show options -----
+      regroupBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        // Simple prompt to choose regrouping type
+        const choice = confirm(
+          `Press OK to regroup 10 tens → 1 hundred\n` +
+          `Press Cancel to regroup 10 ones → 1 ten`
+        );
+        
+        if (choice) {
+          regroupTensToHundreds();
+        } else {
+          regroupOnesToTens();
+        }
+      });
 
       function addCounterAt(x, y) {
         blocks.push({
@@ -492,7 +603,7 @@
         updateStatus();
       }
 
-      // ----- IMPROVED POINTER EVENTS WITH CLEAR SEPARATION -----
+      // ----- POINTER EVENTS -----
       function startAction(e) {
         e.preventDefault();
         const pos = pointerPos(e);
@@ -504,14 +615,11 @@
           return;
         }
 
-        // Check if clicking on a block
         const block = getBlock(pos.x, pos.y);
         if (block) {
-          // Start dragging the block
           selected = block;
           dragOffsetX = pos.x - block.x;
           dragOffsetY = pos.y - block.y;
-          // Bring to front
           blocks = blocks.filter(b => b !== block);
           blocks.push(block);
           drawing = false;
@@ -519,7 +627,6 @@
           return;
         }
 
-        // Click on empty space - start drawing
         selected = null;
         drawing = true;
         isDragging = false;
@@ -535,7 +642,6 @@
           return;
         }
 
-        // If we're dragging a selected block
         if (selected && isDragging) {
           hasMoved = true;
           selected.x = pos.x - dragOffsetX;
@@ -543,7 +649,6 @@
           return;
         }
 
-        // If we're drawing
         if (drawing && !selected) {
           const currentLine = drawings[drawings.length - 1];
           const last = currentLine.points[currentLine.points.length - 1];
@@ -558,9 +663,7 @@
       }
 
       function endAction(e) {
-        // If we were dragging a block
         if (selected && isDragging) {
-          // Double tap detection for split
           if (!hasMoved) {
             const now = Date.now();
             if (now - lastTap < 300) {
@@ -568,17 +671,13 @@
             }
             lastTap = now;
           }
-          // Clear selection after drag ends
-          // Don't clear selection - keep it selected for toolbar actions
           isDragging = false;
           drawing = false;
           return;
         }
 
-        // If we were drawing
         if (drawing) {
           drawing = false;
-          // Clean up empty drawings
           const lastLine = drawings[drawings.length - 1];
           if (lastLine && lastLine.points.length < 2) {
             drawings.pop();
@@ -586,7 +685,6 @@
         }
 
         isDragging = false;
-        // Don't clear selected on end - keep it for toolbar
       }
 
       canvas.addEventListener('mousedown', startAction);
@@ -601,7 +699,6 @@
         e.preventDefault();
         eraseMode = !eraseMode;
         eraserBtn.innerHTML = eraseMode ? '✏️ Draw' : '🩹ជ័រលុប';
-        // Clear selection when entering eraser mode
         if (eraseMode) {
           selected = null;
         }
@@ -636,25 +733,21 @@
         updateStatus();
       });
 
-      // Click outside to deselect (on canvas background)
       canvas.addEventListener('click', function(e) {
         const pos = pointerPos(e);
         const block = getBlock(pos.x, pos.y);
-        if (!block) {
-          // Only deselect if not dragging and not in eraser mode
-          if (!isDragging && !eraseMode) {
-            selected = null;
-          }
+        if (!block && !isDragging && !eraseMode) {
+          selected = null;
         }
       });
 
       // Initialize
       resetRowPosition();
 
-      // Start with 5 counters
+      // Start with some counters
       setTimeout(() => {
         isProcessing = true;
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < 12; i++) {
           setTimeout(() => {
             spawnFlyingCounter();
           }, i * 200);
