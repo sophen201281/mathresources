@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>តម្លៃលេខតាមខ្ទង់ · Right‑side regroup</title>
+  <title>តម្លៃលេខ · Right‑side regroup · tens under</title>
   <style>
     * {
       box-sizing: border-box;
@@ -22,7 +22,6 @@
       height: 100vh;
     }
 
-    /* Status bar at top */
     #status-bar {
       position: fixed;
       top: 0;
@@ -49,7 +48,6 @@
       font-size: 15px;
     }
 
-    /* Canvas fills remaining space between status bar and toolbar */
     #canvas-wrap {
       position: fixed;
       top: 44px;
@@ -68,7 +66,6 @@
       cursor: default;
     }
 
-    /* ----- BOTTOM TOOLBAR ----- */
     #toolbar {
       position: fixed;
       bottom: 0;
@@ -158,7 +155,6 @@
     #deleteBtn { background: #c0392b; }
     #clearDrawBtn { background: #f39c12; }
 
-    /* Flying counter animation */
     .flying-counter {
       position: fixed;
       width: 20px;
@@ -198,23 +194,19 @@
 </head>
 <body>
 
-  <!-- Status at top -->
   <div id="status-bar">
     <div id="status">Ones: 0 | Tens: 0 | Hundreds: 0</div>
   </div>
 
-  <!-- Canvas wrapper -->
   <div id="canvas-wrap">
     <canvas id="canvas"></canvas>
   </div>
 
-  <!-- BOTTOM TOOLBAR -->
   <div id="toolbar">
     <button id="counterBtn" touch-action="manipulation">
       🧱 រាយ
       <span class="badge" id="counterBadge">0</span>
     </button>
-
     <button id="copyBtn" touch-action="manipulation">📄 Copy</button>
     <button id="deleteBtn" touch-action="manipulation">🗑 លុប</button>
     <button id="eraserBtn" touch-action="manipulation">🩹ជ័រលុប</button>
@@ -262,18 +254,12 @@
       const clearDrawBtn = document.getElementById('clearDrawBtn');
 
       // ---- RIGHT-ALIGNED LAYOUT ----
-      // We'll place counters starting from the right edge, moving left.
-      // Each row holds up to 10 counters (ones) or one ten-block (width = 10*SIZE)
-      // Starting X: canvas.width - 60 (right margin)
-      // Then move left by ROW_SPACING for each column.
-      // Y grows downward.
       let currentRow = 0;
       let currentCol = 0;
 
       function getNextPosition() {
         const w = canvas.width;
-        // start from right edge: right margin 40px, then each block moves left
-        const startX = w - 40 - SIZE; // rightmost position
+        const startX = w - 40 - SIZE;
         const pos = {
           x: startX - currentCol * ROW_SPACING,
           y: 60 + currentRow * ROW_SPACING
@@ -286,6 +272,7 @@
         return pos;
       }
 
+      // Reset row/col based on number of ones (only ones affect grid)
       function resetRowPosition() {
         const ones = blocks.filter(b => b.type === 'one');
         const count = ones.length;
@@ -302,7 +289,7 @@
         counterBadge.textContent = total;
       }
 
-      // ----- AUTOMATIC COMBINE: ones→tens, tens→hundreds -----
+      // ----- COMBINE: ones→tens (place ten-block UNDER the ones) -----
       function combineBlocks() {
         let combined = false;
         
@@ -311,8 +298,15 @@
         while (ones.length >= 10) {
           combined = true;
           const firstTen = ones.slice(0, 10);
-          const first = firstTen[0];
-          
+          // find the lowest Y among the ten ones, so we place the ten-block under them
+          let minY = Infinity;
+          let sumX = 0;
+          for (const b of firstTen) {
+            if (b.y < minY) minY = b.y;
+            sumX += b.x;
+          }
+          const avgX = sumX / firstTen.length;
+          // remove the ten ones
           let removed = 0;
           blocks = blocks.filter(b => {
             if (b.type === 'one' && removed < 10) {
@@ -325,11 +319,14 @@
             return true;
           });
           
-          // place the new ten-block at the position of the first one
+          // place the new ten-block right under the lowest one (minY + SIZE + 2)
+          const tenY = minY + SIZE + 2;
+          // center the ten-block horizontally around avgX
+          const tenX = avgX - (SIZE * 10) / 2;
           blocks.push({
             type: 'ten',
-            x: first.x,
-            y: first.y,
+            x: tenX,
+            y: tenY,
             w: SIZE * 10,
             h: SIZE,
             color: '#06d6a0'
@@ -343,8 +340,16 @@
         while (tens.length >= 10) {
           combined = true;
           const firstTen = tens.slice(0, 10);
-          const first = firstTen[0];
-          
+          // find the bounding box of these tens
+          let minX = Infinity, minY = Infinity;
+          let maxX = -Infinity, maxY = -Infinity;
+          for (const b of firstTen) {
+            if (b.x < minX) minX = b.x;
+            if (b.y < minY) minY = b.y;
+            if (b.x + b.w > maxX) maxX = b.x + b.w;
+            if (b.y + b.h > maxY) maxY = b.y + b.h;
+          }
+          // remove them
           let removed = 0;
           blocks = blocks.filter(b => {
             if (b.type === 'ten' && removed < 10) {
@@ -357,10 +362,13 @@
             return true;
           });
           
+          // place hundred-block at the average position (centered)
+          const centerX = (minX + maxX) / 2 - (SIZE * 10) / 2;
+          const centerY = (minY + maxY) / 2 - (SIZE * 10) / 2;
           blocks.push({
             type: 'hundred',
-            x: first.x,
-            y: first.y,
+            x: centerX,
+            y: centerY,
             w: SIZE * 10,
             h: SIZE * 10,
             color: '#ef476f'
@@ -372,7 +380,6 @@
         if (combined) {
           resetRowPosition();
         }
-        
         updateStatus();
       }
 
@@ -486,7 +493,6 @@
       function drawScene() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Draw drawings (freehand)
         for (const line of drawings) {
           if (line.points.length < 2) continue;
           ctx.beginPath();
@@ -502,7 +508,6 @@
           ctx.stroke();
         }
 
-        // Draw blocks
         for (const b of blocks) {
           if (b.type === 'one') {
             ctx.fillStyle = b.color;
@@ -575,7 +580,6 @@
         });
       }
 
-      // ----- POINTER EVENTS WITH DOUBLE-TAP -----
       function startAction(e) {
         e.preventDefault();
         const pos = pointerPos(e);
@@ -669,7 +673,6 @@
       canvas.addEventListener('touchmove', moveAction, { passive: false });
       canvas.addEventListener('touchend', endAction, { passive: false });
 
-      // ----- TOOLBAR BUTTONS -----
       eraserBtn.addEventListener('click', function(e) {
         e.preventDefault();
         eraseMode = !eraseMode;
@@ -715,16 +718,15 @@
         }
       });
 
-      // Initialize layout
       resetRowPosition();
 
       // Seed a few counters to show right‑side placement
       setTimeout(() => {
         isProcessing = true;
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < 8; i++) {
           setTimeout(() => {
             spawnFlyingCounter();
-          }, i * 180);
+          }, i * 160);
         }
       }, 300);
 
