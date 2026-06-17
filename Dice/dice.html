@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>តម្លៃលេខតាមខ្ទង់ · Regroup Tens</title>
+  <title>តម្លៃលេខតាមខ្ទង់ · Split Blocks</title>
   <style>
     * {
       box-sizing: border-box;
@@ -193,7 +193,8 @@
       let drawing = false;
       let eraseMode = false;
       let drawings = [];
-      let lastTap = 0;
+      let lastTapTime = 0;
+      let tapTimeout = null;
       let isProcessing = false;
       let pendingCounters = 0;
 
@@ -307,7 +308,53 @@
         updateStatus();
       }
 
-      // ----- REGROUP TENS TO HUNDREDS (manual) -----
+      // ----- SPLIT BLOCK (double-tap) -----
+      function splitBlock(block) {
+        if (!block) return;
+        
+        if (block.type === 'hundred') {
+          // Split hundred into 10 tens
+          blocks = blocks.filter(b => b !== block);
+          const startX = block.x;
+          const startY = block.y;
+          for (let i = 0; i < 10; i++) {
+            blocks.push({
+              type: 'ten',
+              x: startX,
+              y: startY + i * (SIZE + 2),
+              w: SIZE * 10,
+              h: SIZE,
+              color: '#06d6a0'
+            });
+          }
+          resetRowPosition();
+          updateStatus();
+          return true;
+        } 
+        else if (block.type === 'ten') {
+          // Split ten into 10 ones
+          blocks = blocks.filter(b => b !== block);
+          const startX = block.x;
+          const startY = block.y;
+          for (let i = 0; i < 10; i++) {
+            blocks.push({
+              type: 'one',
+              x: startX + i * (SIZE + 2),
+              y: startY,
+              w: SIZE,
+              h: SIZE,
+              color: '#ffd166'
+            });
+          }
+          resetRowPosition();
+          updateStatus();
+          return true;
+        }
+        
+        return false;
+      }
+
+      // ----- REGROUP FUNCTIONS -----
       function regroupTensToHundreds() {
         const tens = blocks.filter(b => b.type === 'ten');
         if (tens.length < 10) {
@@ -342,7 +389,6 @@
             color: '#ef476f'
           });
           
-          // Update tens for next iteration
           tens.splice(0, 10);
         }
 
@@ -352,7 +398,6 @@
         }
       }
 
-      // ----- REGROUP ONES TO TENS (manual) -----
       function regroupOnesToTens() {
         const ones = blocks.filter(b => b.type === 'one');
         if (ones.length < 10) {
@@ -396,10 +441,8 @@
         }
       }
 
-      // ----- REGROUP BUTTON: show options -----
       regroupBtn.addEventListener('click', function(e) {
         e.preventDefault();
-        // Simple prompt to choose regrouping type
         const choice = confirm(
           `Press OK to regroup 10 tens → 1 hundred\n` +
           `Press Cancel to regroup 10 ones → 1 ten`
@@ -566,44 +609,7 @@
         });
       }
 
-      function splitBlock(block) {
-        if (block.type === 'ten') {
-          blocks = blocks.filter(b => b !== block);
-          const startX = block.x;
-          const startY = block.y;
-          for (let i = 0; i < 10; i++) {
-            blocks.push({
-              type: 'one',
-              x: startX + i * (SIZE + 2),
-              y: startY,
-              w: SIZE,
-              h: SIZE,
-              color: '#ffd166'
-            });
-          }
-          resetRowPosition();
-        } else if (block.type === 'hundred') {
-          blocks = blocks.filter(b => b !== block);
-          const startX = block.x;
-          const startY = block.y;
-          for (let r = 0; r < 10; r++) {
-            for (let c = 0; c < 10; c++) {
-              blocks.push({
-                type: 'one',
-                x: startX + c * SIZE,
-                y: startY + r * SIZE,
-                w: SIZE,
-                h: SIZE,
-                color: '#ffd166'
-              });
-            }
-          }
-          resetRowPosition();
-        }
-        updateStatus();
-      }
-
-      // ----- POINTER EVENTS -----
+      // ----- POINTER EVENTS WITH DOUBLE-TAP DETECTION -----
       function startAction(e) {
         e.preventDefault();
         const pos = pointerPos(e);
@@ -617,6 +623,19 @@
 
         const block = getBlock(pos.x, pos.y);
         if (block) {
+          // Check for double tap
+          const now = Date.now();
+          if (now - lastTapTime < 300 && selected === block) {
+            // Double tap detected - split the block
+            if (splitBlock(block)) {
+              selected = null;
+              lastTapTime = 0;
+              return;
+            }
+          }
+          lastTapTime = now;
+          
+          // Start dragging
           selected = block;
           dragOffsetX = pos.x - block.x;
           dragOffsetY = pos.y - block.y;
@@ -627,10 +646,12 @@
           return;
         }
 
+        // Click on empty space
         selected = null;
         drawing = true;
         isDragging = false;
         drawings.push({ points: [{ x: pos.x, y: pos.y }] });
+        lastTapTime = 0; // Reset double tap timer
       }
 
       function moveAction(e) {
@@ -664,13 +685,6 @@
 
       function endAction(e) {
         if (selected && isDragging) {
-          if (!hasMoved) {
-            const now = Date.now();
-            if (now - lastTap < 300) {
-              splitBlock(selected);
-            }
-            lastTap = now;
-          }
           isDragging = false;
           drawing = false;
           return;
@@ -744,10 +758,10 @@
       // Initialize
       resetRowPosition();
 
-      // Start with some counters
+      // Start with some counters to demonstrate
       setTimeout(() => {
         isProcessing = true;
-        for (let i = 0; i < 12; i++) {
+        for (let i = 0; i < 5; i++) {
           setTimeout(() => {
             spawnFlyingCounter();
           }, i * 200);
