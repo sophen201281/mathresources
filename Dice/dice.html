@@ -17,60 +17,118 @@
       overflow: hidden;
       font-family: Arial, sans-serif;
       background: #eef3f8;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
     }
 
-    #toolbar {
+    /* Status bar at top (lightweight) */
+    #status-bar {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
-      min-height: 75px;
+      z-index: 20;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(4px);
+      padding: 8px 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+      font-weight: bold;
+      color: #1e2b3a;
+      font-size: 16px;
+      min-height: 44px;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    #status {
+      background: #f0f4fa;
+      padding: 4px 16px;
+      border-radius: 30px;
+      font-size: 15px;
+    }
+
+    /* Canvas fills remaining space between status bar and toolbar */
+    #canvas-wrap {
+      position: fixed;
+      top: 44px;
+      left: 0;
+      right: 0;
+      bottom: 80px;   /* space for bottom toolbar */
+      background: white;
+      touch-action: none;
+    }
+    #canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      background: white;
+      touch-action: none;
+      cursor: default;
+    }
+
+    /* ----- BOTTOM TOOLBAR ----- */
+    #toolbar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 80px;
       background: white;
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 10px;
-      z-index: 10;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
-      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      padding: 8px 10px;
+      z-index: 30;
+      box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.12);
+      border-top: 1px solid rgba(0,0,0,0.05);
+      flex-wrap: nowrap;
+      overflow-x: auto;
       touch-action: manipulation;
     }
 
     button,
     .home-btn {
-      padding: 10px 14px;
+      padding: 8px 12px;
       border: none;
-      border-radius: 10px;
+      border-radius: 30px;
       background: #2f80ed;
       color: white;
-      font-size: 16px;
+      font-size: 14px;
+      font-weight: 600;
       cursor: pointer;
       text-decoration: none;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       touch-action: manipulation;
-      min-height: 48px;
-      min-width: 48px;
-      transition: transform 0.1s;
+      min-height: 44px;
+      min-width: 44px;
+      transition: transform 0.1s, background 0.2s;
+      white-space: nowrap;
+      flex-shrink: 0;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
     }
 
     button:active,
     .home-btn:active {
-      transform: scale(0.93);
+      transform: scale(0.92);
     }
 
     #counterBtn {
       background: #ffd166;
-      color: #333;
+      color: #1e2b3a;
       font-weight: bold;
       position: relative;
+      padding-right: 28px;
     }
 
     #counterBtn .badge {
       position: absolute;
-      top: -6px;
-      right: -6px;
+      top: -4px;
+      right: -4px;
       background: #e76f51;
       color: white;
       border-radius: 50%;
@@ -81,34 +139,24 @@
       align-items: center;
       justify-content: center;
       font-weight: bold;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
 
     #eraserBtn {
       background: #e76f51;
+    }
+    #eraserBtn.active {
+      background: #2f80ed;
+      box-shadow: 0 0 0 3px #ffd166;
     }
 
     .home-btn {
       background: #27ae60;
     }
 
-    #status {
-      font-weight: bold;
-      color: #1e2b3a;
-      background: #f0f4fa;
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 15px;
-      white-space: nowrap;
-    }
-
-    #canvas {
-      position: absolute;
-      top: 80px;
-      left: 0;
-      background: white;
-      touch-action: none;
-      cursor: default;
-    }
+    #copyBtn { background: #8e44ad; }
+    #deleteBtn { background: #c0392b; }
+    #clearDrawBtn { background: #f39c12; }
 
     /* Flying counter animation */
     .flying-counter {
@@ -121,29 +169,46 @@
       z-index: 100;
       transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
       border-radius: 2px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
 
-    @media (max-width: 650px) {
+    @media (max-width: 600px) {
       #toolbar {
-        gap: 6px;
-        padding: 8px;
+        gap: 5px;
+        padding: 6px 8px;
+        height: 72px;
       }
-      button,
-      .home-btn {
-        font-size: 14px;
-        padding: 8px 10px;
-        min-height: 42px;
-        min-width: 42px;
+      button, .home-btn {
+        font-size: 12px;
+        padding: 6px 10px;
+        min-height: 38px;
+        min-width: 38px;
       }
-      #status {
-        font-size: 13px;
-        padding: 4px 10px;
-      }
+      #counterBtn { padding-right: 24px; }
+      #status { font-size: 13px; padding: 2px 12px; }
+      #status-bar { min-height: 38px; }
+      #canvas-wrap { top: 38px; bottom: 72px; }
+    }
+    @media (max-width: 480px) {
+      #toolbar { gap: 3px; padding: 4px 4px; height: 64px; }
+      button, .home-btn { font-size: 11px; padding: 4px 6px; min-height: 34px; min-width: 34px; border-radius: 20px; }
+      #counterBtn .badge { width: 18px; height: 18px; font-size: 10px; top: -3px; right: -3px; }
     }
   </style>
 </head>
 <body>
 
+  <!-- Status at top -->
+  <div id="status-bar">
+    <div id="status">Ones: 0 | Tens: 0 | Hundreds: 0</div>
+  </div>
+
+  <!-- Canvas wrapper -->
+  <div id="canvas-wrap">
+    <canvas id="canvas"></canvas>
+  </div>
+
+  <!-- BOTTOM TOOLBAR (all buttons here) -->
   <div id="toolbar">
     <button id="counterBtn" touch-action="manipulation">
       🧱 រាយ
@@ -155,10 +220,7 @@
     <button id="eraserBtn" touch-action="manipulation">🩹ជ័រលុប</button>
     <button id="clearDrawBtn" touch-action="manipulation">🧹សម្អាត</button>
     <a href="../index.html" class="home-btn" touch-action="manipulation">🏡 Home</a>
-    <div id="status">Ones: 0 | Tens: 0 | Hundreds: 0</div>
   </div>
-
-  <canvas id="canvas"></canvas>
 
   <script>
     (function() {
@@ -168,8 +230,10 @@
       const counterBadge = document.getElementById('counterBadge');
 
       function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight - 80;
+        const wrap = document.getElementById('canvas-wrap');
+        const rect = wrap.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
       }
       resizeCanvas();
       window.addEventListener('resize', resizeCanvas);
@@ -199,8 +263,8 @@
 
       let currentRow = 0;
       let currentCol = 0;
-      const ROW_START_X = 80;
-      const ROW_START_Y = 120;
+      const ROW_START_X = 60;
+      const ROW_START_Y = 60;
 
       function getNextPosition() {
         const pos = {
@@ -309,7 +373,6 @@
         if (!block) return false;
         
         if (block.type === 'hundred') {
-          // Split hundred into 10 tens
           blocks = blocks.filter(b => b !== block);
           const startX = block.x;
           const startY = block.y;
@@ -328,7 +391,6 @@
           return true;
         } 
         else if (block.type === 'ten') {
-          // Split ten into 10 ones
           blocks = blocks.filter(b => b !== block);
           const startX = block.x;
           const startY = block.y;
@@ -346,7 +408,6 @@
           updateStatus();
           return true;
         }
-        
         return false;
       }
 
@@ -518,10 +579,8 @@
 
         const block = getBlock(pos.x, pos.y);
         if (block) {
-          // Check for double tap
           const now = Date.now();
           if (now - lastTapTime < 300 && selected === block) {
-            // Double tap detected - split the block
             if (splitBlock(block)) {
               selected = null;
               lastTapTime = 0;
@@ -530,7 +589,6 @@
           }
           lastTapTime = now;
           
-          // Start dragging
           selected = block;
           dragOffsetX = pos.x - block.x;
           dragOffsetY = pos.y - block.y;
@@ -541,7 +599,6 @@
           return;
         }
 
-        // Click on empty space
         selected = null;
         drawing = true;
         isDragging = false;
@@ -592,7 +649,6 @@
             drawings.pop();
           }
         }
-
         isDragging = false;
       }
 
@@ -608,9 +664,8 @@
         e.preventDefault();
         eraseMode = !eraseMode;
         eraserBtn.innerHTML = eraseMode ? '✏️ Draw' : '🩹ជ័រលុប';
-        if (eraseMode) {
-          selected = null;
-        }
+        eraserBtn.classList.toggle('active', eraseMode);
+        if (eraseMode) selected = null;
       });
 
       clearDrawBtn.addEventListener('click', function(e) {
