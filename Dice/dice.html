@@ -40,12 +40,61 @@
       font-size: 16px;
       min-height: 44px;
       border-bottom: 1px solid rgba(0,0,0,0.05);
+      gap: 12px;
+      flex-wrap: wrap;
     }
     #status {
       background: #f0f4fa;
       padding: 4px 16px;
       border-radius: 30px;
       font-size: 15px;
+    }
+
+    #init-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #f0f4fa;
+      padding: 4px 12px;
+      border-radius: 30px;
+    }
+    #init-controls label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1e2b3a;
+    }
+    #initInput {
+      width: 50px;
+      padding: 4px 6px;
+      border: 2px solid #2f80ed;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: bold;
+      text-align: center;
+      background: white;
+      color: #1e2b3a;
+      touch-action: manipulation;
+    }
+    #initInput:focus {
+      outline: none;
+      border-color: #ffd166;
+      box-shadow: 0 0 0 3px rgba(255, 209, 102, 0.3);
+    }
+    #initBtn {
+      padding: 4px 12px;
+      border: none;
+      border-radius: 20px;
+      background: #2f80ed;
+      color: white;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      touch-action: manipulation;
+      min-height: 30px;
+      transition: transform 0.1s, background 0.2s;
+    }
+    #initBtn:active {
+      transform: scale(0.92);
     }
 
     #canvas-wrap {
@@ -169,6 +218,17 @@
     }
 
     @media (max-width: 600px) {
+      #status-bar {
+        gap: 6px;
+        padding: 6px 10px;
+        min-height: 38px;
+      }
+      #status { font-size: 13px; padding: 2px 12px; }
+      #init-controls { padding: 2px 8px; }
+      #init-controls label { font-size: 11px; }
+      #initInput { width: 40px; font-size: 12px; padding: 2px 4px; }
+      #initBtn { font-size: 11px; padding: 2px 8px; min-height: 24px; }
+      
       #toolbar {
         gap: 5px;
         padding: 6px 8px;
@@ -181,11 +241,15 @@
         min-width: 38px;
       }
       #counterBtn { padding-right: 24px; }
-      #status { font-size: 13px; padding: 2px 12px; }
-      #status-bar { min-height: 38px; }
       #canvas-wrap { top: 38px; bottom: 72px; }
     }
     @media (max-width: 480px) {
+      #status-bar { gap: 4px; padding: 4px 6px; min-height: 34px; }
+      #status { font-size: 11px; padding: 2px 8px; }
+      #init-controls label { font-size: 10px; }
+      #initInput { width: 34px; font-size: 10px; }
+      #initBtn { font-size: 10px; padding: 2px 6px; min-height: 20px; }
+      
       #toolbar { gap: 3px; padding: 4px 4px; height: 64px; }
       button, .home-btn { font-size: 11px; padding: 4px 6px; min-height: 34px; min-width: 34px; border-radius: 20px; }
       #counterBtn .badge { width: 18px; height: 18px; font-size: 10px; top: -3px; right: -3px; }
@@ -196,6 +260,11 @@
 
   <div id="status-bar">
     <div id="status">Ones: 0 | Tens: 0 | Hundreds: 0</div>
+    <div id="init-controls">
+      <label for="initInput">Start:</label>
+      <input type="number" id="initInput" value="12" min="0" max="999" />
+      <button id="initBtn">Set</button>
+    </div>
   </div>
 
   <div id="canvas-wrap">
@@ -220,6 +289,8 @@
       const ctx = canvas.getContext('2d');
       const counterBtn = document.getElementById('counterBtn');
       const counterBadge = document.getElementById('counterBadge');
+      const initInput = document.getElementById('initInput');
+      const initBtn = document.getElementById('initBtn');
 
       function resizeCanvas() {
         const wrap = document.getElementById('canvas-wrap');
@@ -480,6 +551,31 @@
         }, 450);
       }
 
+      // Function to initialize counters with a specific number
+      function initializeCounters(count) {
+        // Clear all existing blocks
+        blocks = [];
+        drawings = [];
+        selected = null;
+        resetRowPosition();
+        
+        // Reset processing state
+        isProcessing = true;
+        pendingCounters = 0;
+        
+        // Add the specified number of counters
+        for (let i = 0; i < count; i++) {
+          setTimeout(() => {
+            spawnFlyingCounter();
+          }, i * 120);
+        }
+        
+        // Update status after all counters are added
+        setTimeout(() => {
+          updateStatus();
+        }, count * 120 + 500);
+      }
+
       counterBtn.addEventListener('click', function(e) {
         e.preventDefault();
         if (isProcessing) {
@@ -487,6 +583,24 @@
         } else {
           isProcessing = true;
           spawnFlyingCounter();
+        }
+      });
+
+      // Set initial counters when "Set" button is clicked
+      initBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        let count = parseInt(initInput.value);
+        if (isNaN(count) || count < 0) count = 0;
+        if (count > 999) count = 999;
+        initInput.value = count;
+        initializeCounters(count);
+      });
+
+      // Allow Enter key on input field
+      initInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          initBtn.click();
         }
       });
 
@@ -720,15 +834,10 @@
 
       resetRowPosition();
 
-      // ----- SEED COUNTERS - CHANGE THE NUMBER HERE -----
-      // Change the number 12 to any number you want (0, 5, 25, etc.)
+      // Initialize with default value from input (12)
       setTimeout(() => {
-        isProcessing = true;
-        for (let i = 0; i < 12; i++) {  // ← Change this number to set starting counters
-          setTimeout(() => {
-            spawnFlyingCounter();
-          }, i * 160);
-        }
+        const defaultCount = parseInt(initInput.value) || 12;
+        initializeCounters(defaultCount);
       }, 300);
 
       updateStatus();
