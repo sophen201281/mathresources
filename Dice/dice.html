@@ -720,10 +720,11 @@
 
       resetRowPosition();
 
-      // Seed a few counters to show right‑side placement
+      // ----- SEED COUNTERS - CHANGE THE NUMBER HERE -----
+      // Change the number 12 to any number you want (0, 5, 25, etc.)
       setTimeout(() => {
         isProcessing = true;
-        for (let i = 0; i < 8; i++) {
+        for (let i = 0; i < 12; i++) {  // ← Change this number to set starting counters
           setTimeout(() => {
             spawnFlyingCounter();
           }, i * 160);
