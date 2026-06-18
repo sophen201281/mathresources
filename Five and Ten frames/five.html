@@ -32,12 +32,12 @@
             pointer-events: auto;
         }
 
-        /* ========== BOTTOM TOOLBAR – SINGLE ROW ========== */
+        /* ========== BOTTOM TOOLBAR – FULL WIDTH ========== */
         #bottomBar {
             position: fixed;
             bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+            left: 10px;
+            right: 10px;
             z-index: 1000;
             display: flex;
             flex-wrap: wrap;
@@ -45,11 +45,13 @@
             align-items: center;
             gap: 10px;
             background: rgba(255, 255, 255, 0.92);
-            padding: 12px 20px;
+            padding: 12px 16px;
             border-radius: 16px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.20);
             backdrop-filter: blur(6px);
-            max-width: 95vw;
+            width: auto;
+            max-width: none;
+            transform: none;
         }
 
         #bottomBar button,
@@ -142,11 +144,15 @@
             position: absolute;
         }
 
+        /* ========== RESPONSIVE ========== */
         @media (max-width: 600px) {
             #bottomBar {
-                padding: 10px 14px;
+                padding: 10px 12px;
                 gap: 8px;
                 bottom: 12px;
+                left: 8px;
+                right: 8px;
+                border-radius: 14px;
             }
             #bottomBar button,
             #bottomBar select,
@@ -156,11 +162,32 @@
             }
         }
         @media (max-width: 400px) {
+            #bottomBar {
+                padding: 8px 10px;
+                gap: 6px;
+                bottom: 8px;
+                left: 6px;
+                right: 6px;
+                border-radius: 12px;
+            }
             #bottomBar button,
             #bottomBar select,
             .home-btn {
                 font-size: 11px;
                 padding: 5px 8px;
+                border-radius: 8px;
+            }
+        }
+        @media (max-width: 360px) {
+            #bottomBar button,
+            #bottomBar select,
+            .home-btn {
+                font-size: 10px;
+                padding: 4px 6px;
+            }
+            #bottomBar {
+                gap: 4px;
+                padding: 6px 8px;
             }
         }
     </style>
@@ -173,16 +200,16 @@
     <!-- ===== OBJECTS LAYER ===== -->
     <div id="objectsLayer"></div>
 
-    <!-- ===== BOTTOM TOOLBAR – SINGLE ROW ===== -->
+    <!-- ===== BOTTOM TOOLBAR – FULL WIDTH ===== -->
     <div id="bottomBar">
-        <a href="../index.html" class="home-btn">🏡Home</a>
+        <a href="../index.html" class="home-btn">🏡 Home</a>
         <select id="frameSelect">
-            <option value="five">បន្ទះ៥</option>
-            <option value="ten">បន្ទះ១០</option>
+            <option value="five">➕ Five Frame</option>
+            <option value="ten">➕ Ten Frame</option>
         </select>
-        <button id="counterBtn">🔴វត្ថុរាប់</button>
-        <button id="eraserBtn">✏️/🩹Eraser</button>
-        <button id="clearBtn">សម្អាត</button>
+        <button id="counterBtn">🔴 Counter</button>
+        <button id="eraserBtn">✏️ / 🩹 Eraser</button>
+        <button id="clearBtn">🧹 Clear</button>
     </div>
 
     <script>
@@ -292,7 +319,6 @@
             el.addEventListener('click', (e) => {
                 const now = Date.now();
                 if (now - lastTap < 300) {
-                    // Delete this element (and its children if it's a frame)
                     el.remove();
                     e.stopPropagation();
                 }
@@ -341,7 +367,6 @@
             frame.style.width = FRAME_W + 'px';
             frame.style.height = (isTen ? FRAME_H_TEN : FRAME_H_FIVE) + 'px';
 
-            // Compute position
             let left, top;
             if (isTen) {
                 left = START_X + tenCount * (FRAME_W + GAP);
@@ -503,7 +528,6 @@
                 frames = document.querySelectorAll('.frame');
             }
 
-            // Prefer the most recent five‑frame
             let targetFrame = null;
             for (let i = frames.length - 1; i >= 0; i--) {
                 if (frames[i].classList.contains('fiveFrame')) {
@@ -517,7 +541,6 @@
 
             const emptyIdx = findFirstEmptyCell(targetFrame);
             if (emptyIdx === -1) {
-                // All cells full → create a new five‑frame
                 const newFrame = buildFrame('five');
                 const newCells = getCellOrder(newFrame);
                 if (newCells.length > 0) {
@@ -575,17 +598,9 @@
         /* ============================================================
            STARTUP – two frames (five on top, ten below)
            ============================================================ */
-        // The first five and ten frames will be placed automatically
         const f1 = buildFrame('five');
-        // Reset counters so that the ten frame is placed correctly
-        // But we already incremented fiveCount to 1. We need to set tenCount=0 initially.
-        // However, we already created fiveCount=1. We'll adjust: we want a five and a ten, with ten below.
-        // Our buildFrame logic uses fiveCount and tenCount. After creating f1, fiveCount=1, tenCount=0.
-        // Now create ten frame: it will be at START_X + 0*(FRAME_W+GAP) = START_X, and y = START_Y_TEN.
         const f2 = buildFrame('ten');
-        // Now fiveCount=1, tenCount=1.
 
-        // Add some sample counters to the five‑frame (cells 0,1,2)
         setTimeout(() => {
             const cells1 = getCellOrder(f1);
             for (let i = 0; i < 3 && i < cells1.length; i++) {
@@ -599,7 +614,6 @@
                 makeDraggable(c, (el) => snapCounterToCell(el));
                 snapCounterToCell(c);
             }
-            // Add one counter to the ten‑frame (cell 0)
             const cells2 = getCellOrder(f2);
             if (cells2.length > 0) {
                 const c = document.createElement('div');
@@ -627,7 +641,7 @@
             }, 300);
         });
 
-        console.log('✅ Ten frames placed below five frames. Double‑tap deletes only the tapped item.');
+        console.log('✅ Toolbar now spans full width. Ten frames placed below five frames. Double‑tap deletes only the tapped item.');
     </script>
 </body>
 </html>
