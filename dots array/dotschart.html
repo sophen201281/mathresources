@@ -3,636 +3,682 @@
 
 <head>
 
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
-<title>Drawing + Eraser + Clear</title>
+    <title>Drawing + Eraser + Clear</title>
 
-<style>
+    <style>
+        /* ================= RESET ================= */
 
-/* ================= RESET ================= */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: #eef2f7;
+            font-family: Arial;
+        }
 
-body{
-    width:100vw;
-    height:100vh;
-    overflow:hidden;
-    background:#eef2f7;
-    font-family:Arial;
-}
+        /* ================= HOME BUTTON ================= */
 
-/* ================= HOME BUTTON ================= */
+        .home-btn {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            z-index: 200;
 
-.home-btn{
-    position:fixed;
-    top:12px;
-    right:12px;
-    z-index:200;
+            text-decoration: none;
+            background: white;
+            color: #111827;
 
-    text-decoration:none;
-    background:white;
-    color:#111827;
+            padding: 10px 18px;
+            border-radius: 12px;
 
-    padding:10px 18px;
-    border-radius:12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 
-    box-shadow:0 4px 10px rgba(0,0,0,0.15);
+            font-weight: bold;
 
-    font-weight:bold;
+            transition: 0.2s;
+        }
 
-    transition:0.2s;
-}
+        .home-btn:hover {
+            transform: scale(1.05);
+            background: #2563eb;
+            color: white;
+        }
 
-.home-btn:hover{
-    transform:scale(1.05);
-    background:#2563eb;
-    color:white;
-}
+        /* ================= TOOLBAR — NOW AT BOTTOM ================= */
 
-/* ================= TOOLBAR ================= */
+        .toolbar {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
 
-.toolbar{
-    position:fixed;
-    top:12px;
-    left:50%;
-    transform:translateX(-50%);
-    z-index:100;
-    display:flex;
-    gap:10px;
-}
+            display: flex;
+            gap: 12px;
 
-.tool-btn{
-    border:none;
-    padding:10px 18px;
-    border-radius:10px;
-    background:white;
-    box-shadow:0 4px 10px rgba(0,0,0,0.15);
-    cursor:pointer;
-    font-weight:bold;
-}
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
 
-.tool-btn.active{
-    background:#2563eb;
-    color:white;
-}
+            padding: 10px 18px;
+            border-radius: 60px;
 
-/* ================= CENTER ================= */
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.20);
 
-.wrapper{
-    width:100%;
-    height:100%;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-}
+            /* prevent overlap with bottom panel */
+            pointer-events: auto;
+        }
 
-/* ================= BOARD ================= */
+        .tool-btn {
+            border: none;
+            padding: 10px 22px;
+            border-radius: 40px;
+            background: transparent;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 15px;
+            transition: 0.2s;
+            color: #1e293b;
+            white-space: nowrap;
+        }
 
-.board{
-    position:relative;
-    width:min(92vw, 520px);
-    height:min(92vw, 520px);
-    background:white;
-    border-radius:16px;
-    overflow:hidden;
-    box-shadow:0 10px 30px rgba(0,0,0,0.2);
-}
+        .tool-btn:hover {
+            background: rgba(0, 0, 0, 0.06);
+        }
 
-/* ================= MAIN CANVAS ================= */
+        .tool-btn.active {
+            background: #2563eb;
+            color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+        }
 
-#mainCanvas{
-    position:absolute;
-    inset:0;
-    z-index:1;
-    touch-action:none;
-}
+        /* ================= CENTER ================= */
 
-/* ================= GRID ================= */
+        .wrapper {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-.grid{
-    position:absolute;
-    inset:0;
-    display:grid;
+        /* ================= BOARD ================= */
 
-    grid-template-columns:
-        repeat(9,1fr)
-        22px;
+        .board {
+            position: relative;
+            width: min(92vw, 520px);
+            height: min(92vw, 520px);
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
 
-    grid-template-rows:
-        repeat(9,1fr)
-        22px;
+        /* ================= MAIN CANVAS ================= */
 
-    z-index:2;
-}
+        #mainCanvas {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            touch-action: none;
+        }
 
-/* ================= DOTS ================= */
+        /* ================= GRID ================= */
 
-.dot{
-    display:flex;
-    justify-content:center;
-    align-items:center;
-}
+        .grid {
+            position: absolute;
+            inset: 0;
+            display: grid;
 
-.dot::before{
-    content:"";
-    width:55%;
-    height:55%;
-    border-radius:50%;
-    background:white;
-    border:1px solid #cbd5e1;
-}
+            grid-template-columns: repeat(9, 1fr) 22px;
 
-.dot.active::before{
-    background:#2563eb;
-    border-color:#2563eb;
-}
+            grid-template-rows: repeat(9, 1fr) 22px;
 
-/* ================= HANDLE GAP ================= */
+            z-index: 2;
+        }
 
-.dot.handle-gap{
-    pointer-events:none;
-}
+        /* ================= DOTS ================= */
 
-.dot.handle-gap::before{
-    opacity:0;
-}
+        .dot {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-/* ================= RIGHT PANEL ================= */
+        .dot::before {
+            content: "";
+            width: 55%;
+            height: 55%;
+            border-radius: 50%;
+            background: white;
+            border: 1px solid #cbd5e1;
+        }
 
-.right-panel{
-    position:absolute;
-    top:0;
-    right:0;
-    width:120px;
-    height:100%;
-    background:white;
-    border-left:2px solid #d1d5db;
-    z-index:10;
-}
+        .dot.active::before {
+            background: #2563eb;
+            border-color: #2563eb;
+        }
 
-/* BIGGER HANDLE */
+        /* ================= HANDLE GAP ================= */
 
-.mask-right{
-    position:absolute;
-    top:0;
-    left:0;
-    width:22px;
-    height:100%;
-    background:#f8fafc;
-    border-right:2px solid #cbd5e1;
-    cursor:ew-resize;
-    z-index:12;
-    touch-action:none;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-}
+        .dot.handle-gap {
+            pointer-events: none;
+        }
 
-/* HANDLE VISUAL */
+        .dot.handle-gap::before {
+            opacity: 0;
+        }
 
-.mask-right::after{
-    content:"";
-    width:6px;
-    height:60px;
-    border-radius:999px;
-    background:#94a3b8;
-}
+        /* ================= RIGHT PANEL ================= */
 
-/* RIGHT CANVAS */
+        .right-panel {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 120px;
+            height: 100%;
+            background: white;
+            border-left: 2px solid #d1d5db;
+            z-index: 10;
+        }
 
-#rightCanvas{
-    position:absolute;
-    inset:0 0 0 22px;
-    width:calc(100% - 22px);
-    height:100%;
-    touch-action:none;
-}
+        /* BIGGER HANDLE */
 
-/* ================= BOTTOM PANEL ================= */
+        .mask-right {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 22px;
+            height: 100%;
+            background: #f8fafc;
+            border-right: 2px solid #cbd5e1;
+            cursor: ew-resize;
+            z-index: 12;
+            touch-action: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-.bottom-panel{
-    position:absolute;
-    left:0;
-    bottom:0;
-    width:100%;
-    height:120px;
-    background:white;
-    border-top:2px solid #d1d5db;
-    z-index:10;
-}
+        /* HANDLE VISUAL */
 
-/* BIGGER HANDLE */
+        .mask-right::after {
+            content: "";
+            width: 6px;
+            height: 60px;
+            border-radius: 999px;
+            background: #94a3b8;
+        }
 
-.mask-bottom{
-    position:absolute;
-    top:0;
-    left:0;
-    width:100%;
-    height:22px;
-    background:#f8fafc;
-    border-bottom:2px solid #cbd5e1;
-    cursor:ns-resize;
-    z-index:12;
-    touch-action:none;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-}
+        /* RIGHT CANVAS */
 
-/* HANDLE VISUAL */
+        #rightCanvas {
+            position: absolute;
+            inset: 0 0 0 22px;
+            width: calc(100% - 22px);
+            height: 100%;
+            touch-action: none;
+        }
 
-.mask-bottom::after{
-    content:"";
-    width:60px;
-    height:6px;
-    border-radius:999px;
-    background:#94a3b8;
-}
+        /* ================= BOTTOM PANEL ================= */
 
-/* BOTTOM CANVAS */
+        .bottom-panel {
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 120px;
+            background: white;
+            border-top: 2px solid #d1d5db;
+            z-index: 10;
+        }
 
-#bottomCanvas{
-    position:absolute;
-    inset:22px 0 0 0;
-    width:100%;
-    height:calc(100% - 22px);
-    touch-action:none;
-}
+        /* BIGGER HANDLE */
 
-</style>
+        .mask-bottom {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 22px;
+            background: #f8fafc;
+            border-bottom: 2px solid #cbd5e1;
+            cursor: ns-resize;
+            z-index: 12;
+            touch-action: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* HANDLE VISUAL */
+
+        .mask-bottom::after {
+            content: "";
+            width: 60px;
+            height: 6px;
+            border-radius: 999px;
+            background: #94a3b8;
+        }
+
+        /* BOTTOM CANVAS */
+
+        #bottomCanvas {
+            position: absolute;
+            inset: 22px 0 0 0;
+            width: 100%;
+            height: calc(100% - 22px);
+            touch-action: none;
+        }
+
+        /* ================= RESPONSIVE TWEAKS ================= */
+
+        @media (max-width: 480px) {
+            .toolbar {
+                gap: 6px;
+                padding: 8px 12px;
+                bottom: 16px;
+            }
+
+            .tool-btn {
+                padding: 8px 14px;
+                font-size: 13px;
+            }
+
+            .home-btn {
+                padding: 6px 12px;
+                font-size: 14px !important;
+                top: 8px;
+                right: 8px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .tool-btn {
+                padding: 6px 10px;
+                font-size: 11px;
+            }
+
+            .toolbar {
+                gap: 4px;
+                padding: 6px 10px;
+                bottom: 12px;
+            }
+        }
+    </style>
 
 </head>
 
 <body>
 
-<!-- HOME BUTTON ON THE RIGHT -->
-<a href="../index.html"
-   class="home-btn"
-   style="font-family:'Battambang', cursive; font-size:20px;">
-    🏡Home
-</a>
+    <!-- HOME BUTTON ON THE RIGHT -->
+    <a href="../index.html" class="home-btn" style="font-family:'Battambang', cursive; font-size:20px;">
+        🏡Home
+    </a>
 
-<!-- TOOLBAR -->
+    <!-- TOOLBAR — NOW AT THE BOTTOM -->
 
-<div class="toolbar">
+    <div class="toolbar">
 
-    <button class="tool-btn active" id="drawBtn">
-        សរសេរ
-    </button>
+        <button class="tool-btn active" id="drawBtn">
+            ✏️ សរសេរ
+        </button>
 
-    <button class="tool-btn" id="eraseBtn">
-        ជ័រលុប
-    </button>
+        <button class="tool-btn" id="eraseBtn">
+            🧹 ជ័រលុប
+        </button>
 
-    <button class="tool-btn" id="clearBtn">
-        សម្អាត
-    </button>
+        <button class="tool-btn" id="clearBtn">
+            🗑️ សម្អាត
+        </button>
 
-</div>
-
-<div class="wrapper">
-
-<div class="board" id="board">
-
-    <!-- MAIN -->
-    <canvas id="mainCanvas"></canvas>
-
-    <!-- GRID -->
-    <div class="grid" id="grid"></div>
-
-    <!-- RIGHT -->
-    <div class="right-panel" id="rightPanel">
-        <div class="mask-right" id="maskRight"></div>
-        <canvas id="rightCanvas"></canvas>
     </div>
 
-    <!-- BOTTOM -->
-    <div class="bottom-panel" id="bottomPanel">
-        <div class="mask-bottom" id="maskBottom"></div>
-        <canvas id="bottomCanvas"></canvas>
+    <div class="wrapper">
+
+        <div class="board" id="board">
+
+            <!-- MAIN -->
+            <canvas id="mainCanvas"></canvas>
+
+            <!-- GRID -->
+            <div class="grid" id="grid"></div>
+
+            <!-- RIGHT -->
+            <div class="right-panel" id="rightPanel">
+                <div class="mask-right" id="maskRight"></div>
+                <canvas id="rightCanvas"></canvas>
+            </div>
+
+            <!-- BOTTOM -->
+            <div class="bottom-panel" id="bottomPanel">
+                <div class="mask-bottom" id="maskBottom"></div>
+                <canvas id="bottomCanvas"></canvas>
+            </div>
+
+        </div>
+
     </div>
 
-</div>
+    <script>
+        /* ================= TOOL MODE ================= */
 
-</div>
+        let tool = "draw";
 
-<script>
+        const drawBtn = document.getElementById("drawBtn");
+        const eraseBtn = document.getElementById("eraseBtn");
+        const clearBtn = document.getElementById("clearBtn");
 
-/* ================= TOOL MODE ================= */
-
-let tool = "draw";
-
-const drawBtn = document.getElementById("drawBtn");
-const eraseBtn = document.getElementById("eraseBtn");
-const clearBtn = document.getElementById("clearBtn");
-
-drawBtn.onclick = ()=>{
-    tool = "draw";
-    drawBtn.classList.add("active");
-    eraseBtn.classList.remove("active");
-};
-
-eraseBtn.onclick = ()=>{
-    tool = "erase";
-    eraseBtn.classList.add("active");
-    drawBtn.classList.remove("active");
-};
-
-/* ================= DOT GRID ================= */
-
-const grid = document.getElementById("grid");
-
-for(let row=0; row<10; row++){
-
-    for(let col=0; col<10; col++){
-
-        const dot = document.createElement("div");
-
-        dot.className = "dot";
-
-        if(col === 9 || row === 9){
-            dot.classList.add("handle-gap");
-        }
-
-        dot.addEventListener("pointerdown",(e)=>{
-
-            if(dot.classList.contains("handle-gap")) return;
-
-            e.stopPropagation();
-
-            dot.classList.toggle("active");
-
-        });
-
-        grid.appendChild(dot);
-
-    }
-
-}
-
-/* ================= CANVASES ================= */
-
-const mainCanvas = document.getElementById("mainCanvas");
-const rightCanvas = document.getElementById("rightCanvas");
-const bottomCanvas = document.getElementById("bottomCanvas");
-
-const mainCtx = mainCanvas.getContext("2d");
-const rightCtx = rightCanvas.getContext("2d");
-const bottomCtx = bottomCanvas.getContext("2d");
-
-const board = document.getElementById("board");
-const rightPanel = document.getElementById("rightPanel");
-const bottomPanel = document.getElementById("bottomPanel");
-
-/* ================= DRAW STORAGE ================= */
-
-let drawings = {
-    main: [],
-    right: [],
-    bottom: []
-};
-
-/* ================= RESIZE ================= */
-
-function resizeCanvases(){
-
-    mainCanvas.width = board.offsetWidth;
-    mainCanvas.height = board.offsetHeight;
-
-    rightCanvas.width = rightPanel.offsetWidth - 22;
-    rightCanvas.height = rightPanel.offsetHeight;
-
-    bottomCanvas.width = bottomPanel.offsetWidth;
-    bottomCanvas.height = bottomPanel.offsetHeight - 22;
-
-    redrawCanvas(mainCtx, drawings.main);
-    redrawCanvas(rightCtx, drawings.right);
-    redrawCanvas(bottomCtx, drawings.bottom);
-
-}
-
-window.addEventListener("resize", resizeCanvases);
-
-/* ================= REDRAW ================= */
-
-function redrawCanvas(ctx, paths){
-
-    ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
-
-    paths.forEach(path=>{
-
-        if(path.points.length < 2) return;
-
-        ctx.beginPath();
-
-        ctx.lineWidth = path.erase ? 20 : 3;
-
-        ctx.lineCap = "round";
-
-        if(path.erase){
-            ctx.globalCompositeOperation = "destination-out";
-        }else{
-            ctx.globalCompositeOperation = "source-over";
-            ctx.strokeStyle = "#ef4444";
-        }
-
-        ctx.moveTo(path.points[0].x, path.points[0].y);
-
-        for(let i=1;i<path.points.length;i++){
-            ctx.lineTo(path.points[i].x, path.points[i].y);
-        }
-
-        ctx.stroke();
-
-    });
-
-    ctx.globalCompositeOperation = "source-over";
-
-}
-
-/* ================= DRAWING ================= */
-
-function enableDrawing(canvas, ctx, storage){
-
-    let drawing = false;
-
-    let currentPath = null;
-
-    canvas.addEventListener("pointerdown",(e)=>{
-
-        drawing = true;
-
-        currentPath = {
-            erase: tool === "erase",
-            points:[]
+        drawBtn.onclick = () => {
+            tool = "draw";
+            drawBtn.classList.add("active");
+            eraseBtn.classList.remove("active");
         };
 
-        currentPath.points.push({
-            x:e.offsetX,
-            y:e.offsetY
-        });
+        eraseBtn.onclick = () => {
+            tool = "erase";
+            eraseBtn.classList.add("active");
+            drawBtn.classList.remove("active");
+        };
 
-        storage.push(currentPath);
+        /* ================= DOT GRID ================= */
 
-    });
+        const grid = document.getElementById("grid");
 
-    canvas.addEventListener("pointermove",(e)=>{
+        for (let row = 0; row < 10; row++) {
 
-        if(!drawing) return;
+            for (let col = 0; col < 10; col++) {
 
-        currentPath.points.push({
-            x:e.offsetX,
-            y:e.offsetY
-        });
+                const dot = document.createElement("div");
 
-        redrawCanvas(ctx, storage);
+                dot.className = "dot";
 
-    });
+                if (col === 9 || row === 9) {
+                    dot.classList.add("handle-gap");
+                }
 
-    window.addEventListener("pointerup",()=>{
-        drawing = false;
-    });
+                dot.addEventListener("pointerdown", (e) => {
 
-}
+                    if (dot.classList.contains("handle-gap")) return;
 
-/* ================= ENABLE ================= */
+                    e.stopPropagation();
 
-enableDrawing(mainCanvas, mainCtx, drawings.main);
-enableDrawing(rightCanvas, rightCtx, drawings.right);
-enableDrawing(bottomCanvas, bottomCtx, drawings.bottom);
+                    dot.classList.toggle("active");
 
-/* ================= CLEAR ================= */
+                });
 
-clearBtn.onclick = ()=>{
+                grid.appendChild(dot);
 
-    drawings = {
-        main: [],
-        right: [],
-        bottom: []
-    };
+            }
 
-    mainCtx.clearRect(0,0,mainCanvas.width,mainCanvas.height);
-    rightCtx.clearRect(0,0,rightCanvas.width,rightCanvas.height);
-    bottomCtx.clearRect(0,0,bottomCanvas.width,bottomCanvas.height);
+        }
 
-    document.querySelectorAll(".dot").forEach(dot=>{
-        dot.classList.remove("active");
-    });
+        /* ================= CANVASES ================= */
 
-};
+        const mainCanvas = document.getElementById("mainCanvas");
+        const rightCanvas = document.getElementById("rightCanvas");
+        const bottomCanvas = document.getElementById("bottomCanvas");
 
-/* ================= FIRST RESIZE ================= */
+        const mainCtx = mainCanvas.getContext("2d");
+        const rightCtx = rightCanvas.getContext("2d");
+        const bottomCtx = bottomCanvas.getContext("2d");
 
-resizeCanvases();
+        const board = document.getElementById("board");
+        const rightPanel = document.getElementById("rightPanel");
+        const bottomPanel = document.getElementById("bottomPanel");
 
-/* ================= RIGHT RESIZE ================= */
+        /* ================= DRAW STORAGE ================= */
 
-const maskRight = document.getElementById("maskRight");
+        let drawings = {
+            main: [],
+            right: [],
+            bottom: []
+        };
 
-let dragRight = false;
-let startX = 0;
-let startWidth = 0;
+        /* ================= RESIZE ================= */
 
-maskRight.addEventListener("pointerdown",(e)=>{
+        function resizeCanvases() {
 
-    dragRight = true;
+            mainCanvas.width = board.offsetWidth;
+            mainCanvas.height = board.offsetHeight;
 
-    startX = e.clientX;
-    startWidth = rightPanel.offsetWidth;
+            rightCanvas.width = rightPanel.offsetWidth - 22;
+            rightCanvas.height = rightPanel.offsetHeight;
 
-    maskRight.setPointerCapture(e.pointerId);
+            bottomCanvas.width = bottomPanel.offsetWidth;
+            bottomCanvas.height = bottomPanel.offsetHeight - 22;
 
-    e.preventDefault();
+            redrawCanvas(mainCtx, drawings.main);
+            redrawCanvas(rightCtx, drawings.right);
+            redrawCanvas(bottomCtx, drawings.bottom);
 
-});
+        }
 
-/* ================= BOTTOM RESIZE ================= */
+        window.addEventListener("resize", resizeCanvases);
 
-const maskBottom = document.getElementById("maskBottom");
+        /* ================= REDRAW ================= */
 
-let dragBottom = false;
-let startY = 0;
-let startHeight = 0;
+        function redrawCanvas(ctx, paths) {
 
-maskBottom.addEventListener("pointerdown",(e)=>{
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-    dragBottom = true;
+            paths.forEach(path => {
 
-    startY = e.clientY;
-    startHeight = bottomPanel.offsetHeight;
+                if (path.points.length < 2) return;
 
-    maskBottom.setPointerCapture(e.pointerId);
+                ctx.beginPath();
 
-    e.preventDefault();
+                ctx.lineWidth = path.erase ? 20 : 3;
 
-});
+                ctx.lineCap = "round";
 
-/* ================= CLAMP ================= */
+                if (path.erase) {
+                    ctx.globalCompositeOperation = "destination-out";
+                } else {
+                    ctx.globalCompositeOperation = "source-over";
+                    ctx.strokeStyle = "#ef4444";
+                }
 
-function clamp(value,min,max){
-    return Math.min(Math.max(value,min),max);
-}
+                ctx.moveTo(path.points[0].x, path.points[0].y);
 
-/* ================= MOVE ================= */
+                for (let i = 1; i < path.points.length; i++) {
+                    ctx.lineTo(path.points[i].x, path.points[i].y);
+                }
 
-window.addEventListener("pointermove",(e)=>{
+                ctx.stroke();
 
-    /* ---------- RIGHT ---------- */
+            });
 
-    if(dragRight){
+            ctx.globalCompositeOperation = "source-over";
 
-        let dx = e.clientX - startX;
+        }
 
-        let newWidth = startWidth - dx;
+        /* ================= DRAWING ================= */
 
-        const maxWidth = board.offsetWidth - 40;
+        function enableDrawing(canvas, ctx, storage) {
 
-        newWidth = clamp(newWidth,70,maxWidth);
+            let drawing = false;
 
-        rightPanel.style.width = newWidth + "px";
+            let currentPath = null;
+
+            canvas.addEventListener("pointerdown", (e) => {
+
+                drawing = true;
+
+                currentPath = {
+                    erase: tool === "erase",
+                    points: []
+                };
+
+                currentPath.points.push({
+                    x: e.offsetX,
+                    y: e.offsetY
+                });
+
+                storage.push(currentPath);
+
+            });
+
+            canvas.addEventListener("pointermove", (e) => {
+
+                if (!drawing) return;
+
+                currentPath.points.push({
+                    x: e.offsetX,
+                    y: e.offsetY
+                });
+
+                redrawCanvas(ctx, storage);
+
+            });
+
+            window.addEventListener("pointerup", () => {
+                drawing = false;
+            });
+
+        }
+
+        /* ================= ENABLE ================= */
+
+        enableDrawing(mainCanvas, mainCtx, drawings.main);
+        enableDrawing(rightCanvas, rightCtx, drawings.right);
+        enableDrawing(bottomCanvas, bottomCtx, drawings.bottom);
+
+        /* ================= CLEAR ================= */
+
+        clearBtn.onclick = () => {
+
+            drawings = {
+                main: [],
+                right: [],
+                bottom: []
+            };
+
+            mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+            rightCtx.clearRect(0, 0, rightCanvas.width, rightCanvas.height);
+            bottomCtx.clearRect(0, 0, bottomCanvas.width, bottomCanvas.height);
+
+            document.querySelectorAll(".dot").forEach(dot => {
+                dot.classList.remove("active");
+            });
+
+        };
+
+        /* ================= FIRST RESIZE ================= */
 
         resizeCanvases();
 
-    }
+        /* ================= RIGHT RESIZE ================= */
 
-    /* ---------- BOTTOM ---------- */
+        const maskRight = document.getElementById("maskRight");
 
-    if(dragBottom){
+        let dragRight = false;
+        let startX = 0;
+        let startWidth = 0;
 
-        let dy = e.clientY - startY;
+        maskRight.addEventListener("pointerdown", (e) => {
 
-        let newHeight = startHeight - dy;
+            dragRight = true;
 
-        const maxHeight = board.offsetHeight - 40;
+            startX = e.clientX;
+            startWidth = rightPanel.offsetWidth;
 
-        newHeight = clamp(newHeight,70,maxHeight);
+            maskRight.setPointerCapture(e.pointerId);
 
-        bottomPanel.style.height = newHeight + "px";
+            e.preventDefault();
 
-        resizeCanvases();
+        });
 
-    }
+        /* ================= BOTTOM RESIZE ================= */
 
-},{ passive:false });
+        const maskBottom = document.getElementById("maskBottom");
 
-/* ================= END DRAG ================= */
+        let dragBottom = false;
+        let startY = 0;
+        let startHeight = 0;
 
-function stopDragging(){
-    dragRight = false;
-    dragBottom = false;
-}
+        maskBottom.addEventListener("pointerdown", (e) => {
 
-window.addEventListener("pointerup",stopDragging);
-window.addEventListener("pointercancel",stopDragging);
+            dragBottom = true;
 
-</script>
+            startY = e.clientY;
+            startHeight = bottomPanel.offsetHeight;
+
+            maskBottom.setPointerCapture(e.pointerId);
+
+            e.preventDefault();
+
+        });
+
+        /* ================= CLAMP ================= */
+
+        function clamp(value, min, max) {
+            return Math.min(Math.max(value, min), max);
+        }
+
+        /* ================= MOVE ================= */
+
+        window.addEventListener("pointermove", (e) => {
+
+            /* ---------- RIGHT ---------- */
+
+            if (dragRight) {
+
+                let dx = e.clientX - startX;
+
+                let newWidth = startWidth - dx;
+
+                const maxWidth = board.offsetWidth - 40;
+
+                newWidth = clamp(newWidth, 70, maxWidth);
+
+                rightPanel.style.width = newWidth + "px";
+
+                resizeCanvases();
+
+            }
+
+            /* ---------- BOTTOM ---------- */
+
+            if (dragBottom) {
+
+                let dy = e.clientY - startY;
+
+                let newHeight = startHeight - dy;
+
+                const maxHeight = board.offsetHeight - 40;
+
+                newHeight = clamp(newHeight, 70, maxHeight);
+
+                bottomPanel.style.height = newHeight + "px";
+
+                resizeCanvases();
+
+            }
+
+        }, { passive: false });
+
+        /* ================= END DRAG ================= */
+
+        function stopDragging() {
+            dragRight = false;
+            dragBottom = false;
+        }
+
+        window.addEventListener("pointerup", stopDragging);
+        window.addEventListener("pointercancel", stopDragging);
+    </script>
 
 </body>
+
 </html>
