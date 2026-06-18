@@ -536,7 +536,7 @@
         };
 
         /* =========================================================
-           MANUAL CARD (example cards – stacked on right edge)
+           MANUAL CARD (example cards – stacked at right edge)
         ========================================================= */
         function createManualCard(value, type, x, y) {
             const card = document.createElement("div");
@@ -553,7 +553,7 @@
         }
 
         /* =========================================================
-           REPOSITION MANUAL CARDS – SNAPPED TO RIGHT EDGE
+           REPOSITION MANUAL CARDS – RIGHT EDGE ALIGNED
         ========================================================= */
         function repositionManualCards() {
             const types = ["thousands", "hundreds", "tens", "ones"];
@@ -566,10 +566,7 @@
                 ones: 60
             };
 
-            // Get current height of a card (or default to 60)
-            const cardHeight = 60; // Fixed base height
-
-            // Center vertically
+            const cardHeight = 60;
             const centerY = (window.innerHeight - cardHeight) / 2;
 
             const existing = playArea.querySelectorAll(".manual-card-example");
@@ -584,7 +581,6 @@
                 return;
             }
 
-            // Create cards for the first time
             for (let i = 0; i < types.length; i++) {
                 const type = types[i];
                 const val = values[i];
@@ -596,7 +592,7 @@
         }
 
         /* =========================================================
-           DRAG + DOUBLE TAP DELETE + STRONG RIGHT SNAP
+           DRAG + DOUBLE TAP DELETE (NO SNAPPING)
         ========================================================= */
         function makeDraggable(card) {
             let dragging = false;
@@ -618,7 +614,7 @@
                 offsetX = e.clientX - card.offsetLeft;
                 offsetY = e.clientY - card.offsetTop;
                 card.style.cursor = "grabbing";
-                card.style.transition = 'none'; // Disable transition during drag
+                card.style.transition = 'none';
                 card.setPointerCapture(e.pointerId);
                 e.stopPropagation();
             });
@@ -627,41 +623,17 @@
                 if (!dragging) return;
                 let x = e.clientX - offsetX;
                 let y = e.clientY - offsetY;
-                // Keep within bounds during drag
                 x = Math.max(0, Math.min(window.innerWidth - card.offsetWidth, x));
                 y = Math.max(0, Math.min(window.innerHeight - card.offsetHeight, y));
                 card.style.left = x + "px";
                 card.style.top = y + "px";
             });
 
-            card.addEventListener("pointerup", (e) => {
-                if (!dragging) return;
-
-                const rect = card.getBoundingClientRect();
-                const rightEdge = window.innerWidth;
-                const snapDistance = 200; // Strong snapping zone
-
-                // Check if card is within snap distance of the right edge
-                if (rightEdge - rect.right < snapDistance) {
-                    // Apply spring-like transition for strong snap
-                    card.style.transition = 'left 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)';
-                    card.style.left = (rightEdge - rect.width) + "px";
-                    // Snap vertically to the center
-                    const centerY = (window.innerHeight - rect.height) / 2;
-                    card.style.top = centerY + "px";
-                } else {
-                    // Keep card at current position (already bounded)
-                    // Just ensure it doesn't go out of bounds
-                    let x = parseFloat(card.style.left);
-                    let y = parseFloat(card.style.top);
-                    x = Math.max(0, Math.min(window.innerWidth - rect.width, x));
-                    y = Math.max(0, Math.min(window.innerHeight - rect.height, y));
-                    card.style.left = x + "px";
-                    card.style.top = y + "px";
+            card.addEventListener("pointerup", () => {
+                if (dragging) {
+                    dragging = false;
+                    card.style.cursor = "grab";
                 }
-
-                dragging = false;
-                card.style.cursor = "grab";
             });
 
             card.addEventListener("pointercancel", () => {
@@ -671,7 +643,7 @@
         }
 
         /* =========================================================
-           INIT – place manual cards at bottom after layout
+           INIT – place manual cards at right edge after layout
         ========================================================= */
         requestAnimationFrame(() => {
             setTimeout(() => {
