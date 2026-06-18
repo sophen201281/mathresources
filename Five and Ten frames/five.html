@@ -398,6 +398,33 @@
         }
 
         /* ============================================================
+           Find first empty cell in a frame (based on counter positions)
+           ============================================================ */
+        function findFirstEmptyCell(frame) {
+            const cells = getCellOrder(frame);
+            const frameRect = frame.getBoundingClientRect();
+            const counters = frame.querySelectorAll('.counter');
+
+            for (let i = 0; i < cells.length; i++) {
+                const cell = cells[i];
+                const cellRect = cell.getBoundingClientRect();
+                let occupied = false;
+                for (const counter of counters) {
+                    const cRect = counter.getBoundingClientRect();
+                    const cx = cRect.left + cRect.width / 2;
+                    const cy = cRect.top + cRect.height / 2;
+                    if (cx >= cellRect.left && cx <= cellRect.right &&
+                        cy >= cellRect.top && cy <= cellRect.bottom) {
+                        occupied = true;
+                        break;
+                    }
+                }
+                if (!occupied) return i;
+            }
+            return -1; // all cells occupied
+        }
+
+        /* ============================================================
            COUNTER – Sequential Fly-in (One at a time)
            ============================================================ */
         let isFlying = false;
@@ -480,30 +507,20 @@
                 frames = document.querySelectorAll('.frame');
             }
 
-            // Prioritize the five-frame for adding counters
-            let frame = null;
+            // Prioritize the five-frame (most recent one)
+            let targetFrame = null;
             for (let i = frames.length - 1; i >= 0; i--) {
                 if (frames[i].classList.contains('fiveFrame')) {
-                    frame = frames[i];
+                    targetFrame = frames[i];
                     break;
                 }
             }
             // If no five-frame exists, use the most recent frame (could be ten-frame)
-            if (!frame) {
-                frame = frames[frames.length - 1];
+            if (!targetFrame) {
+                targetFrame = frames[frames.length - 1];
             }
 
-            const cells = getCellOrder(frame);
-
-            // Find the first empty cell (left to right, top to bottom)
-            let emptyIdx = -1;
-            for (let i = 0; i < cells.length; i++) {
-                const counters = cells[i].querySelectorAll('.counter');
-                if (counters.length === 0) {
-                    emptyIdx = i;
-                    break;
-                }
-            }
+            const emptyIdx = findFirstEmptyCell(targetFrame);
 
             // If the current frame is full, create a new five-frame
             if (emptyIdx === -1) {
@@ -515,11 +532,12 @@
                 return;
             }
 
-            launchCounterToCell(frame, cells[emptyIdx]);
+            const cells = getCellOrder(targetFrame);
+            launchCounterToCell(targetFrame, cells[emptyIdx]);
         }
 
         /* ============================================================
-           SNAP COUNTER TO NEAREST CELL
+           SNAP COUNTER TO NEAREST CELL (also updates occupancy)
            ============================================================ */
         function snapCounterToCell(counter) {
             const cells = document.querySelectorAll('.cell');
@@ -613,7 +631,7 @@
             }, 300);
         });
 
-        console.log('✅ Counter button adds one counter at a time, filling the five-frame left to right.');
+        console.log('✅ Counter button now fills the next empty square sequentially.');
     </script>
 </body>
 </html>
