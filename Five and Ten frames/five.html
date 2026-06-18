@@ -254,13 +254,12 @@
         });
 
         /* ============================================================
-           IMPROVED DRAGGABLE – perfectly smooth, no drift
+           DRAGGABLE – smooth, no drift
            ============================================================ */
         function makeDraggable(el, onDrop) {
             let dragging = false;
             let offX = 0,
                 offY = 0;
-            let parentRect = null;
 
             el.addEventListener('pointerdown', (e) => {
                 if (e.target !== el && !el.contains(e.target)) return;
@@ -268,7 +267,6 @@
                 const rect = el.getBoundingClientRect();
                 offX = e.clientX - rect.left;
                 offY = e.clientY - rect.top;
-                parentRect = el.offsetParent.getBoundingClientRect();
                 el.setPointerCapture(e.pointerId);
                 if (el.classList.contains('counter')) el.classList.add('dragging');
                 e.stopPropagation();
@@ -289,10 +287,15 @@
                 if (onDrop) onDrop(el, e);
             });
 
+            // Double‑tap delete (only the tapped element)
             let lastTap = 0;
-            el.addEventListener('click', () => {
+            el.addEventListener('click', (e) => {
                 const now = Date.now();
-                if (now - lastTap < 300) el.remove();
+                if (now - lastTap < 300) {
+                    // Delete this element (and its children if it's a frame)
+                    el.remove();
+                    e.stopPropagation();
+                }
                 lastTap = now;
             });
         }
@@ -319,19 +322,38 @@
         }
 
         /* ============================================================
-           FRAME CREATION
+           FRAME CREATION – with layout: five on top, ten below
            ============================================================ */
+        let fiveCount = 0;
+        let tenCount = 0;
+        const FRAME_W = 280;
+        const FRAME_H_FIVE = 65;
+        const FRAME_H_TEN = 130;
+        const GAP = 20;
+        const START_X = 60;
+        const START_Y_FIVE = 90;
+        const START_Y_TEN = START_Y_FIVE + FRAME_H_FIVE + GAP;
+
         function buildFrame(type) {
             const isTen = type === 'ten';
             const frame = document.createElement('div');
             frame.className = `frame ${isTen ? 'tenFrame' : 'fiveFrame'}`;
-            frame.style.width = isTen ? '280px' : '280px';
-            frame.style.height = isTen ? '130px' : '65px';
+            frame.style.width = FRAME_W + 'px';
+            frame.style.height = (isTen ? FRAME_H_TEN : FRAME_H_FIVE) + 'px';
 
-            const w = window.innerWidth;
-            const h = window.innerHeight;
-            frame.style.left = (w / 2 - 140 + (Math.random() * 80 - 40)) + 'px';
-            frame.style.top = (h / 2 - (isTen ? 65 : 32) + (Math.random() * 80 - 40)) + 'px';
+            // Compute position
+            let left, top;
+            if (isTen) {
+                left = START_X + tenCount * (FRAME_W + GAP);
+                top = START_Y_TEN;
+                tenCount++;
+            } else {
+                left = START_X + fiveCount * (FRAME_W + GAP);
+                top = START_Y_FIVE;
+                fiveCount++;
+            }
+            frame.style.left = left + 'px';
+            frame.style.top = top + 'px';
 
             const grid = document.createElement('div');
             grid.className = 'grid';
@@ -359,7 +381,7 @@
         });
 
         /* ============================================================
-           CELL ORDER
+           CELL ORDER (for ten‑frame: top row L→R, then bottom)
            ============================================================ */
         function getCellOrder(frame) {
             const cells = frame.querySelectorAll('.cell');
@@ -375,7 +397,7 @@
         }
 
         /* ============================================================
-           Find first empty cell (based on counter positions)
+           Find first empty cell
            ============================================================ */
         function findFirstEmptyCell(frame) {
             const cells = getCellOrder(frame);
@@ -401,7 +423,7 @@
         }
 
         /* ============================================================
-           COUNTER – Sequential Fly-in
+           COUNTER – Sequential Fly‑in
            ============================================================ */
         let isFlying = false;
 
@@ -481,6 +503,7 @@
                 frames = document.querySelectorAll('.frame');
             }
 
+            // Prefer the most recent five‑frame
             let targetFrame = null;
             for (let i = frames.length - 1; i >= 0; i--) {
                 if (frames[i].classList.contains('fiveFrame')) {
@@ -494,6 +517,7 @@
 
             const emptyIdx = findFirstEmptyCell(targetFrame);
             if (emptyIdx === -1) {
+                // All cells full → create a new five‑frame
                 const newFrame = buildFrame('five');
                 const newCells = getCellOrder(newFrame);
                 if (newCells.length > 0) {
@@ -549,16 +573,19 @@
         document.getElementById('counterBtn').addEventListener('click', addOneCounter);
 
         /* ============================================================
-           STARTUP – two frames with sample counters
+           STARTUP – two frames (five on top, ten below)
            ============================================================ */
+        // The first five and ten frames will be placed automatically
         const f1 = buildFrame('five');
-        f1.style.left = '60px';
-        f1.style.top = '90px';
-
+        // Reset counters so that the ten frame is placed correctly
+        // But we already incremented fiveCount to 1. We need to set tenCount=0 initially.
+        // However, we already created fiveCount=1. We'll adjust: we want a five and a ten, with ten below.
+        // Our buildFrame logic uses fiveCount and tenCount. After creating f1, fiveCount=1, tenCount=0.
+        // Now create ten frame: it will be at START_X + 0*(FRAME_W+GAP) = START_X, and y = START_Y_TEN.
         const f2 = buildFrame('ten');
-        f2.style.left = '380px';
-        f2.style.top = '90px';
+        // Now fiveCount=1, tenCount=1.
 
+        // Add some sample counters to the five‑frame (cells 0,1,2)
         setTimeout(() => {
             const cells1 = getCellOrder(f1);
             for (let i = 0; i < 3 && i < cells1.length; i++) {
@@ -572,6 +599,7 @@
                 makeDraggable(c, (el) => snapCounterToCell(el));
                 snapCounterToCell(c);
             }
+            // Add one counter to the ten‑frame (cell 0)
             const cells2 = getCellOrder(f2);
             if (cells2.length > 0) {
                 const c = document.createElement('div');
@@ -587,7 +615,7 @@
         }, 100);
 
         /* ============================================================
-           RE-SNAP on resize
+           RE‑SNAP on resize
            ============================================================ */
         let resizeTimer;
         window.addEventListener('resize', () => {
@@ -599,7 +627,7 @@
             }, 300);
         });
 
-        console.log('✅ Single‑row toolbar at bottom, color picker removed.');
+        console.log('✅ Ten frames placed below five frames. Double‑tap deletes only the tapped item.');
     </script>
 </body>
 </html>
