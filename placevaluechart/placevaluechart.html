@@ -1,587 +1,387 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
-
 <title>Crocodile Compare + Drawing</title>
 
 <style>
-
-*{ box-sizing:border-box; }
+*{
+    box-sizing:border-box;
+}
 
 body{
-
     margin:0;
-
     font-family:Arial;
-
     background:#eef3f7;
-
     overflow:hidden;
-
 }
 
-/* ---------- TOOLBAR ---------- */
-
+/* ---------- TOOLBAR (BOTTOM FIXED) ---------- */
 .toolbar{
-
     display:flex;
-
     gap:8px;
-
     padding:10px;
-
     background:white;
 
-    position:relative;
+    position:fixed;
+    left:0;
+    right:0;
+    bottom:0;
 
     z-index:100;
+    justify-content:space-around;
+    flex-wrap:wrap;
 
+    box-shadow:0 -2px 10px rgba(0,0,0,0.1);
 }
 
-button{
-
+button, .toolbar a{
     padding:10px 12px;
-
     border:none;
-
     border-radius:8px;
-
     background:#2d89ef;
-
     color:white;
-
+    text-decoration:none;
+    font-size:14px;
+    text-align:center;
 }
 
 /* ---------- WORKSPACE ---------- */
-
 #workspace{
-
     position:relative;
-
     width:100vw;
-
-    height:calc(100vh - 60px);
-
+    height:100vh;
     overflow:hidden;
+}
 
+/* avoid toolbar overlap */
+#workspace{
+    padding-bottom:80px;
 }
 
 /* ---------- CANVAS ---------- */
-
 canvas{
-
     position:absolute;
-
     inset:0;
-
     z-index:1;
-
     touch-action:none;
-
 }
 
 /* ---------- COUNTERS ---------- */
-
 .counter{
-
     position:absolute;
-
     width:45px;
-
     height:45px;
-
     border-radius:50%;
-
     background:#ff9800;
-
     z-index:20;
-
     touch-action:none;
-
 }
 
 /* ---------- NUMBERS ---------- */
-
 .numBox{
-
     position:absolute;
-
     top:15px;
-
     font-size:70px;
-
     font-weight:bold;
-
     z-index:50;
-
     background:white;
-
     padding:10px 18px;
-
     border-radius:12px;
-
     box-shadow:0 3px 10px rgba(0,0,0,0.2);
-
 }
 
 #leftNum{
-
     left:20px;
-
     color:#2d89ef;
-
 }
 
 #rightNum{
-
     right:20px;
-
     color:#ff5722;
-
 }
 
 /* ---------- CROCODILE ---------- */
-
 #croc{
-
     position:absolute;
-
     left:50%;
-
     top:55%;
-
     transform:translate(-50%,-50%);
-
     z-index:60;
-
     cursor:grab;
-
     touch-action:none;
-
     text-align:center;
-
 }
 
 #croc img{
-
     width:120px;
-
     display:block;
-
 }
 
 #label{
-
     font-weight:bold;
-
     font-size:16px;
-
 }
-
 </style>
-
 </head>
 
 <body>
 
-<!-- ---------- TOOLBAR ---------- -->
-
-<div class="toolbar">
-
-<button onclick="setMode('draw')">✏️សរសេរ</button>
-
-<button onclick="setMode('erase')">🧽លុប</button>
-
-<button onclick="clearCanvas()">🧹សម្អាត</button>
-
-<button onclick="addCounter()">➕វត្ថុសម្រាប់រាប់</button>
-<a href="../index.html">🏡 Home</a>
-</div>
-
 <!-- ---------- WORKSPACE ---------- -->
-
 <div id="workspace">
 
-<canvas id="canvas"></canvas>
+    <canvas id="canvas"></canvas>
 
-<div id="leftNum" class="numBox">0</div>
+    <div id="leftNum" class="numBox">0</div>
+    <div id="rightNum" class="numBox">0</div>
 
-<div id="rightNum" class="numBox">0</div>
-
-<!-- 🐊 CROCODILE -->
-
-<div id="croc">
-
-    <img id="crocImg" src="images/a.gif">
-
-    <div id="label">NORMAL</div>
+    <!-- CROCODILE -->
+    <div id="croc">
+        <img id="crocImg" src="images/a.gif">
+        <div id="label">NORMAL</div>
+    </div>
 
 </div>
 
+<!-- ---------- TOOLBAR (BOTTOM) ---------- -->
+<div class="toolbar">
+    <button onclick="setMode('draw')">✏️សរសេរ</button>
+    <button onclick="setMode('erase')">🧽លុប</button>
+    <button onclick="clearCanvas()">🧹សម្អាត</button>
+    <button onclick="addCounter()">➕វត្ថុ</button>
+    <a href="../index.html">🏡 Home</a>
 </div>
 
 <script>
 
 const workspace = document.getElementById("workspace");
-
 const canvas = document.getElementById("canvas");
-
 const ctx = canvas.getContext("2d");
 
 const croc = document.getElementById("croc");
-
 const crocImg = document.getElementById("crocImg");
-
 const label = document.getElementById("label");
 
 const leftNum = document.getElementById("leftNum");
-
 const rightNum = document.getElementById("rightNum");
 
 let counters = [];
-
 let mode = "draw";
 
 /* ---------- CANVAS ---------- */
-
 function resize(){
-
     canvas.width = workspace.clientWidth;
-
     canvas.height = workspace.clientHeight;
-
 }
-
 resize();
-
 window.addEventListener("resize", resize);
 
 let drawing = false;
 
 function getPos(e){
-
     const p = e.touches ? e.touches[0] : e;
-
     const r = canvas.getBoundingClientRect();
-
     return {
-
         x: p.clientX - r.left,
-
         y: p.clientY - r.top
-
     };
-
 }
 
 canvas.addEventListener("mousedown", startDraw);
-
 canvas.addEventListener("mousemove", draw);
-
 document.addEventListener("mouseup", stopDraw);
 
 canvas.addEventListener("touchstart", startDraw, {passive:false});
-
 canvas.addEventListener("touchmove", draw, {passive:false});
-
 document.addEventListener("touchend", stopDraw);
 
 function startDraw(e){
-
     if(e.target.classList.contains("counter") || e.target.id==="croc") return;
-
     drawing = true;
-
     const p = getPos(e);
-
     ctx.beginPath();
-
     ctx.moveTo(p.x, p.y);
-
 }
 
 function draw(e){
-
     if(!drawing) return;
-
     e.preventDefault();
 
     const p = getPos(e);
-
     ctx.lineCap = "round";
-
     ctx.lineWidth = mode==="erase" ? 25 : 3;
-
     ctx.strokeStyle = mode==="erase" ? "#eef3f7" : "#000";
 
     ctx.lineTo(p.x, p.y);
-
     ctx.stroke();
-
 }
 
 function stopDraw(){
-
     drawing = false;
-
 }
 
 function setMode(m){
-
     mode = m;
-
 }
 
 function clearCanvas(){
-
     ctx.clearRect(0,0,canvas.width,canvas.height);
-
 }
 
 /* ---------- COUNTERS ---------- */
-
 function addCounter(){
-
     const c = document.createElement("div");
-
     c.className = "counter";
 
     c.style.left = (100 + Math.random()*300) + "px";
-
     c.style.top = (150 + Math.random()*250) + "px";
 
     workspace.appendChild(c);
-
     counters.push(c);
 
     makeDrag(c);
-
     updateCounts();
-
 }
 
-/* ---------- DRAG + DOUBLE TAP DELETE ---------- */
-
+/* ---------- DRAG + DELETE ---------- */
 function makeDrag(el){
 
     let ox=0, oy=0;
-
     let lastTap = 0;
 
     function deleteCounter(){
-
         counters = counters.filter(x => x !== el);
-
         el.remove();
-
         updateCounts();
-
     }
 
     function move(e){
-
         const p = e.touches ? e.touches[0] : e;
 
         el.style.left = (p.clientX - ox) + "px";
-
-        el.style.top = (p.clientY - oy - 60) + "px";
+        el.style.top = (p.clientY - oy) + "px";
 
         updateCounts();
-
     }
 
     function stop(){
-
         document.removeEventListener("mousemove", move);
-
         document.removeEventListener("mouseup", stop);
-
         document.removeEventListener("touchmove", move);
-
         document.removeEventListener("touchend", stop);
-
     }
 
     el.addEventListener("mousedown", e=>{
-
         const now = Date.now();
-
         if(now - lastTap < 300){
-
             deleteCounter();
-
             return;
-
         }
-
         lastTap = now;
 
         ox = e.offsetX;
-
         oy = e.offsetY;
 
         document.addEventListener("mousemove", move);
-
         document.addEventListener("mouseup", stop);
-
     });
 
     el.addEventListener("touchstart", e=>{
-
         const now = Date.now();
-
         if(now - lastTap < 300){
-
             deleteCounter();
-
             return;
-
         }
-
         lastTap = now;
 
         const r = el.getBoundingClientRect();
-
         ox = e.touches[0].clientX - r.left;
-
         oy = e.touches[0].clientY - r.top;
 
         document.addEventListener("touchmove", move, {passive:false});
-
         document.addEventListener("touchend", stop);
-
     });
-
 }
 
-/* ---------- UPDATE COUNTS ---------- */
-
+/* ---------- COUNTS ---------- */
 function updateCounts(){
-
     let left = 0;
-
     let right = 0;
-
     const mid = window.innerWidth / 2;
 
     counters.forEach(c=>{
-
         const x = c.offsetLeft;
-
         if(x < mid) left++;
-
         else right++;
-
     });
 
     leftNum.textContent = left;
-
     rightNum.textContent = right;
 
     updateCroc(left,right);
-
 }
 
-/* ---------- CROCODILE LOGIC ---------- */
-
+/* ---------- CROCODILE ---------- */
 function updateCroc(left,right){
 
     const x = croc.offsetLeft;
-
     const active = x > window.innerWidth*0.4 && x < window.innerWidth*0.6;
 
     if(!active){
-
         crocImg.src = "images/a.gif";
-
         label.textContent = "NORMAL";
-
         return;
-
     }
 
     if(left > right){
-
         crocImg.src = "images/c.gif";
-
         label.textContent = ">";
-
     }
-
     else if(right > left){
-
         crocImg.src = "images/b.gif";
-
         label.textContent = "<";
-
     }
-
     else{
-
         crocImg.src = "images/d.gif";
-
         label.textContent = "=";
-
     }
-
 }
 
-/* ---------- 🧠 FIXED CROCODILE DRAG ---------- */
-
+/* ---------- CROCODILE DRAG ---------- */
 let dragCroc = false;
-
 let ox = 0, oy = 0;
 
 croc.addEventListener("pointerdown", (e)=>{
-
     dragCroc = true;
 
     const r = croc.getBoundingClientRect();
-
     ox = e.clientX - r.left;
-
     oy = e.clientY - r.top;
 
     croc.setPointerCapture(e.pointerId);
-
 });
 
 croc.addEventListener("pointermove", (e)=>{
-
     if(!dragCroc) return;
 
     croc.style.left = (e.clientX - ox) + "px";
-
     croc.style.top = (e.clientY - oy) + "px";
 
     updateCounts();
-
 });
 
 function stopCroc(e){
-
     dragCroc = false;
-
     try{
-
         croc.releasePointerCapture(e.pointerId);
-
     }catch(err){}
-
 }
 
 croc.addEventListener("pointerup", stopCroc);
-
 croc.addEventListener("pointercancel", stopCroc);
 
 </script>
 
 </body>
-
 </html>
