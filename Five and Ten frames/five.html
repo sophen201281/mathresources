@@ -32,7 +32,7 @@
             pointer-events: auto;
         }
 
-        /* ========== BOTTOM TOOLBAR – TWO ROWS ========== */
+        /* ========== BOTTOM TOOLBAR – SINGLE ROW ========== */
         #bottomBar {
             position: fixed;
             bottom: 20px;
@@ -40,7 +40,8 @@
             transform: translateX(-50%);
             z-index: 1000;
             display: flex;
-            flex-direction: column;
+            flex-wrap: wrap;
+            justify-content: center;
             align-items: center;
             gap: 10px;
             background: rgba(255, 255, 255, 0.92);
@@ -49,19 +50,6 @@
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.20);
             backdrop-filter: blur(6px);
             max-width: 95vw;
-        }
-        .toolbar-row {
-            display: flex;
-            gap: 10px;
-            flex-wrap: nowrap;
-            justify-content: center;
-            width: 100%;
-        }
-        /* On very small screens allow wrap within rows */
-        @media (max-width: 500px) {
-            .toolbar-row {
-                flex-wrap: wrap;
-            }
         }
 
         #bottomBar button,
@@ -185,20 +173,16 @@
     <!-- ===== OBJECTS LAYER ===== -->
     <div id="objectsLayer"></div>
 
-    <!-- ===== BOTTOM TOOLBAR – TWO ROWS ===== -->
+    <!-- ===== BOTTOM TOOLBAR – SINGLE ROW ===== -->
     <div id="bottomBar">
-        <div class="toolbar-row">
-            <a href="../index.html" class="home-btn">🏡 Home</a>
-            <select id="frameSelect">
-                <option value="five">➕ Five Frame</option>
-                <option value="ten">➕ Ten Frame</option>
-            </select>
-        </div>
-        <div class="toolbar-row">
-            <button id="counterBtn">🔴 Counter</button>
-            <button id="eraserBtn">✏️ / 🩹 Eraser</button>
-            <button id="clearBtn">🧹 Clear</button>
-        </div>
+        <a href="../index.html" class="home-btn">🏡 Home</a>
+        <select id="frameSelect">
+            <option value="five">➕ Five Frame</option>
+            <option value="ten">➕ Ten Frame</option>
+        </select>
+        <button id="counterBtn">🔴 Counter</button>
+        <button id="eraserBtn">✏️ / 🩹 Eraser</button>
+        <button id="clearBtn">🧹 Clear</button>
     </div>
 
     <script>
@@ -615,7 +599,7 @@
             }, 300);
         });
 
-        console.log('✅ Two‑row toolbar at bottom, color picker removed.');
+        console.log('✅ Single‑row toolbar at bottom, color picker removed.');
     </script>
 </body>
 </html>
