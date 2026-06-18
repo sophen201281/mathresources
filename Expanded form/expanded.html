@@ -149,7 +149,7 @@
         /* ---------- CARDS ---------- */
         .card {
             position: absolute;
-            height: 52px;
+            height: 60px;
             border-radius: 8px;
             display: flex;
             align-items: center;
@@ -163,6 +163,7 @@
             border: 2px solid rgba(0, 0, 0, 0.15);
             pointer-events: auto;
             transition: box-shadow 0.15s;
+            will-change: transform, left, top;
         }
 
         .card:active {
@@ -177,8 +178,8 @@
             top: 0;
             width: 0;
             height: 0;
-            border-top: 26px solid transparent;
-            border-bottom: 26px solid transparent;
+            border-top: 30px solid transparent;
+            border-bottom: 30px solid transparent;
         }
 
         /* ---------- CARD TYPES ---------- */
@@ -237,13 +238,13 @@
                 padding: 4px 7px;
             }
             .card {
-                height: 44px;
+                height: 50px;
                 font-size: 20px;
                 padding-left: 10px;
             }
             .card::after {
-                border-top-width: 22px;
-                border-bottom-width: 22px;
+                border-top-width: 25px;
+                border-bottom-width: 25px;
                 right: -18px;
             }
             .ones {
@@ -284,13 +285,13 @@
                 padding: 3px 5px;
             }
             .card {
-                height: 38px;
+                height: 42px;
                 font-size: 17px;
                 padding-left: 8px;
             }
             .card::after {
-                border-top-width: 19px;
-                border-bottom-width: 19px;
+                border-top-width: 21px;
+                border-bottom-width: 21px;
                 right: -16px;
             }
             .ones {
@@ -503,7 +504,7 @@
             playArea.appendChild(card);
 
             const toolbarHeight = document.getElementById("toolbar").offsetHeight || 100;
-            const cardH = card.offsetHeight || 52;
+            const cardH = card.offsetHeight || 60;
             const margin = 10;
             let baseY = window.innerHeight - toolbarHeight - cardH - margin - 4;
 
@@ -535,8 +536,7 @@
         };
 
         /* =========================================================
-           MANUAL CARD  (example cards – stacked vertically)
-           Order: Thousands, Hundreds, Tens, Ones (top to bottom)
+           MANUAL CARD (example cards – stacked on right edge)
         ========================================================= */
         function createManualCard(value, type, x, y) {
             const card = document.createElement("div");
@@ -553,22 +553,12 @@
         }
 
         /* =========================================================
-           REPOSITION MANUAL CARDS – STACKED VERTICALLY
+           REPOSITION MANUAL CARDS – SNAPPED TO RIGHT EDGE
         ========================================================= */
-        let manualCards = [];
-
         function repositionManualCards() {
-            const toolbar = document.getElementById("toolbar");
-            const toolbarHeight = toolbar.offsetHeight || 100;
-            const cardH = 52;
-            const margin = 12;
-            const verticalOffset = 18; // overlap each card by this much
-
-            // Types in order: Thousands, Hundreds, Tens, Ones
             const types = ["thousands", "hundreds", "tens", "ones"];
-            const values = ["3000", "400", "10", "7"];
+            const values = ["4000", "300", "10", "7"]; // Forms 4317
 
-            // Widths for centering each card
             const widths = {
                 thousands: 158,
                 hundreds: 125,
@@ -576,21 +566,20 @@
                 ones: 60
             };
 
-            // Base Y: just above toolbar
-            const baseY = window.innerHeight - toolbarHeight - cardH - margin - 4;
+            // Get current height of a card (or default to 60)
+            const cardHeight = 60; // Fixed base height
+
+            // Center vertically
+            const centerY = (window.innerHeight - cardHeight) / 2;
 
             const existing = playArea.querySelectorAll(".manual-card-example");
             if (existing.length === 4) {
-                // Update positions of existing cards
                 for (let i = 0; i < existing.length; i++) {
                     const card = existing[i];
                     const type = types[i];
                     const w = widths[type];
-                    // Center the card horizontally
-                    const x = (window.innerWidth - w) / 2;
-                    const y = baseY - i * verticalOffset; // stack upward (top card highest)
-                    card.style.left = x + "px";
-                    card.style.top = Math.max(6, y) + "px";
+                    card.style.left = (window.innerWidth - w) + "px";
+                    card.style.top = centerY + "px";
                 }
                 return;
             }
@@ -600,15 +589,14 @@
                 const type = types[i];
                 const val = values[i];
                 const w = widths[type];
-                const x = (window.innerWidth - w) / 2;
-                const y = baseY - i * verticalOffset;
-                const card = createManualCard(val, type, x, Math.max(6, y));
+                const card = createManualCard(val, type, window.innerWidth - w, centerY);
                 card.classList.add("manual-card-example");
+                card.style.transition = 'none';
             }
         }
 
         /* =========================================================
-           DRAG + DOUBLE TAP DELETE
+           DRAG + DOUBLE TAP DELETE + STRONG RIGHT SNAP
         ========================================================= */
         function makeDraggable(card) {
             let dragging = false;
@@ -630,6 +618,7 @@
                 offsetX = e.clientX - card.offsetLeft;
                 offsetY = e.clientY - card.offsetTop;
                 card.style.cursor = "grabbing";
+                card.style.transition = 'none'; // Disable transition during drag
                 card.setPointerCapture(e.pointerId);
                 e.stopPropagation();
             });
@@ -638,13 +627,39 @@
                 if (!dragging) return;
                 let x = e.clientX - offsetX;
                 let y = e.clientY - offsetY;
+                // Keep within bounds during drag
                 x = Math.max(0, Math.min(window.innerWidth - card.offsetWidth, x));
                 y = Math.max(0, Math.min(window.innerHeight - card.offsetHeight, y));
                 card.style.left = x + "px";
                 card.style.top = y + "px";
             });
 
-            card.addEventListener("pointerup", () => {
+            card.addEventListener("pointerup", (e) => {
+                if (!dragging) return;
+
+                const rect = card.getBoundingClientRect();
+                const rightEdge = window.innerWidth;
+                const snapDistance = 200; // Strong snapping zone
+
+                // Check if card is within snap distance of the right edge
+                if (rightEdge - rect.right < snapDistance) {
+                    // Apply spring-like transition for strong snap
+                    card.style.transition = 'left 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                    card.style.left = (rightEdge - rect.width) + "px";
+                    // Snap vertically to the center
+                    const centerY = (window.innerHeight - rect.height) / 2;
+                    card.style.top = centerY + "px";
+                } else {
+                    // Keep card at current position (already bounded)
+                    // Just ensure it doesn't go out of bounds
+                    let x = parseFloat(card.style.left);
+                    let y = parseFloat(card.style.top);
+                    x = Math.max(0, Math.min(window.innerWidth - rect.width, x));
+                    y = Math.max(0, Math.min(window.innerHeight - rect.height, y));
+                    card.style.left = x + "px";
+                    card.style.top = y + "px";
+                }
+
                 dragging = false;
                 card.style.cursor = "grab";
             });
