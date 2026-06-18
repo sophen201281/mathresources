@@ -16,26 +16,6 @@
             font-family: Arial, sans-serif;
         }
 
-        .home-btn {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            z-index: 1200;
-            padding: 10px 16px;
-            background: #fff;
-            color: #222;
-            text-decoration: none;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-            transition: 0.2s;
-        }
-        .home-btn:hover {
-            background: #dfefff;
-            transform: scale(1.05);
-        }
-
         #drawCanvas {
             position: fixed;
             inset: 0;
@@ -52,33 +32,45 @@
             pointer-events: auto;
         }
 
-        #toolbar {
+        /* ========== BOTTOM TOOLBAR ========== */
+        #bottomBar {
             position: fixed;
-            top: 10px;
-            left: 10px;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
             z-index: 1000;
             display: flex;
-            gap: 8px;
+            gap: 10px;
             flex-wrap: wrap;
             align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.92);
+            padding: 12px 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.20);
+            backdrop-filter: blur(6px);
+            max-width: 95vw;
         }
-        #toolbar button,
-        #toolbar select {
-            padding: 8px 12px;
+        #bottomBar button,
+        #bottomBar select {
+            padding: 8px 14px;
             border: none;
             border-radius: 10px;
             background: #fff;
             font-size: 14px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            font-weight: 600;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
             cursor: pointer;
             outline: none;
+            transition: 0.15s;
+            white-space: nowrap;
         }
-        #toolbar button:hover {
+        #bottomBar button:hover {
             background: #dfefff;
+            transform: scale(1.03);
         }
-        #toolbar select {
+        #bottomBar select {
             background: #fff;
-            font-weight: 600;
             color: #222;
             padding-right: 28px;
             appearance: none;
@@ -86,33 +78,31 @@
             background-repeat: no-repeat;
             background-position: right 10px center;
         }
-        #toolbar select:hover {
+        #bottomBar select:hover {
             background-color: #dfefff;
         }
 
-        #colors {
-            position: fixed;
-            bottom: 10px;
-            left: 10px;
-            z-index: 1000;
-            display: flex;
-            gap: 10px;
+        /* ========== HOME BUTTON (also in bottom bar) ========== */
+        .home-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 14px;
             background: #fff;
-            padding: 10px;
-            border-radius: 12px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            color: #222;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+            transition: 0.15s;
         }
-        .color {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            border: 2px solid #333;
-            cursor: pointer;
-        }
-        .color.active {
-            outline: 4px solid #4da3ff;
+        .home-btn:hover {
+            background: #dfefff;
+            transform: scale(1.03);
         }
 
+        /* ========== FRAMES ========== */
         .frame {
             position: absolute;
             background: #fff;
@@ -141,6 +131,7 @@
             justify-content: center;
         }
 
+        /* ========== COUNTERS ========== */
         .counter {
             position: absolute;
             width: 36px;
@@ -166,42 +157,51 @@
             position: absolute;
         }
 
-        @media (max-width: 600px) {
-            #toolbar button,
-            #toolbar select {
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 700px) {
+            #bottomBar {
+                padding: 10px 14px;
+                gap: 6px;
+                bottom: 12px;
+            }
+            #bottomBar button,
+            #bottomBar select,
+            .home-btn {
                 font-size: 12px;
                 padding: 6px 10px;
             }
-            .color {
-                width: 24px;
-                height: 24px;
+        }
+        @media (max-width: 500px) {
+            #bottomBar button,
+            #bottomBar select,
+            .home-btn {
+                font-size: 11px;
+                padding: 5px 8px;
             }
         }
     </style>
 </head>
 <body>
 
-    <a href="../index.html" class="home-btn">🏡 Home</a>
+    <!-- ===== CANVAS ===== -->
+    <canvas id="drawCanvas"></canvas>
 
-    <div id="toolbar">
+    <!-- ===== OBJECTS LAYER ===== -->
+    <div id="objectsLayer"></div>
+
+    <!-- ===== BOTTOM TOOLBAR ===== -->
+    <div id="bottomBar">
+        <a href="../index.html" class="home-btn">🏡 Home</a>
+
         <select id="frameSelect">
             <option value="five">➕ Five Frame</option>
             <option value="ten">➕ Ten Frame</option>
         </select>
+
         <button id="counterBtn">🔴 Counter</button>
         <button id="eraserBtn">✏️ / 🩹 Eraser</button>
         <button id="clearBtn">🧹 Clear</button>
     </div>
-
-    <div id="colors">
-        <div class="color active" style="background:black" data-color="black"></div>
-        <div class="color" style="background:red" data-color="red"></div>
-        <div class="color" style="background:blue" data-color="blue"></div>
-        <div class="color" style="background:green" data-color="green"></div>
-    </div>
-
-    <canvas id="drawCanvas"></canvas>
-    <div id="objectsLayer"></div>
 
     <script>
         /* ============================================================
@@ -230,8 +230,7 @@
         function startDrawing(e) {
             if (e.target.closest('.frame') ||
                 e.target.closest('.counter') ||
-                e.target.closest('#toolbar') ||
-                e.target.closest('#colors') ||
+                e.target.closest('#bottomBar') ||
                 e.target.closest('.home-btn')) return;
             drawing = true;
             ctx.beginPath();
@@ -272,29 +271,19 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
         });
 
-        document.querySelectorAll('.color').forEach(el => {
-            el.addEventListener('click', () => {
-                eraserMode = false;
-                currentColor = el.dataset.color;
-                document.querySelectorAll('.color').forEach(c => c.classList.remove('active'));
-                el.classList.add('active');
-            });
-        });
-
         /* ============================================================
            IMPROVED DRAGGABLE – perfectly smooth, no drift
            ============================================================ */
         function makeDraggable(el, onDrop) {
             let dragging = false;
-            let offX = 0, offY = 0;
+            let offX = 0,
+                offY = 0;
             let parentRect = null;
 
             el.addEventListener('pointerdown', (e) => {
-                // Only allow dragging on the element itself (not on inner elements)
                 if (e.target !== el && !el.contains(e.target)) return;
                 dragging = true;
                 const rect = el.getBoundingClientRect();
-                // Offset from the element's top-left corner in viewport coordinates
                 offX = e.clientX - rect.left;
                 offY = e.clientY - rect.top;
                 parentRect = el.offsetParent.getBoundingClientRect();
@@ -306,7 +295,6 @@
             el.addEventListener('pointermove', (e) => {
                 if (!dragging) return;
                 const pRect = el.offsetParent.getBoundingClientRect();
-                // Calculate new position relative to offsetParent
                 const newLeft = (e.clientX - offX) - pRect.left;
                 const newTop = (e.clientY - offY) - pRect.top;
                 el.style.left = newLeft + 'px';
@@ -319,7 +307,6 @@
                 if (onDrop) onDrop(el, e);
             });
 
-            // double-tap delete
             let lastTap = 0;
             el.addEventListener('click', () => {
                 const now = Date.now();
@@ -396,7 +383,8 @@
             const cells = frame.querySelectorAll('.cell');
             const isTen = frame.classList.contains('tenFrame');
             if (!isTen) return Array.from(cells);
-            const top = [], bottom = [];
+            const top = [],
+                bottom = [];
             cells.forEach((c, i) => {
                 if (i < 5) top.push(c);
                 else bottom.push(c);
@@ -459,7 +447,7 @@
             counter.dataset.flying = 'true';
             objectsLayer.appendChild(counter);
 
-            void counter.offsetHeight; // force reflow
+            void counter.offsetHeight;
             counter.style.left = targetX + 'px';
             counter.style.top = targetY + 'px';
 
@@ -511,7 +499,6 @@
                 frames = document.querySelectorAll('.frame');
             }
 
-            // Prioritize the most recent five-frame
             let targetFrame = null;
             for (let i = frames.length - 1; i >= 0; i--) {
                 if (frames[i].classList.contains('fiveFrame')) {
@@ -542,7 +529,8 @@
            ============================================================ */
         function snapCounterToCell(counter) {
             const cells = document.querySelectorAll('.cell');
-            let best = null, bestDist = Infinity;
+            let best = null,
+                bestDist = Infinity;
             const cRect = counter.getBoundingClientRect();
             const cx = cRect.left + cRect.width / 2;
             const cy = cRect.top + cRect.height / 2;
@@ -552,7 +540,8 @@
                 const x = r.left + r.width / 2;
                 const y = r.top + r.height / 2;
                 const d = Math.hypot(cx - x, cy - y);
-                if (d < bestDist) { bestDist = d; best = cell; }
+                if (d < bestDist) { bestDist = d;
+                    best = cell; }
             });
 
             if (best && bestDist < 70) {
@@ -628,7 +617,8 @@
             }, 300);
         });
 
-        console.log('✅ Dragging is now perfectly smooth – counter stays exactly under your finger.');
+        console.log('✅ All controls moved to bottom, color picker removed.');
     </script>
+
 </body>
 </html>
