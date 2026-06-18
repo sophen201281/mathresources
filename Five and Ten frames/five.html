@@ -282,19 +282,22 @@
         });
 
         /* ============================================================
-           DRAGGABLE (Frames & Counters)
+           IMPROVED DRAGGABLE – smooth, no runaway
            ============================================================ */
         function makeDraggable(el, onDrop) {
             let dragging = false;
-            let offX = 0,
-                offY = 0;
+            let offX = 0, offY = 0;
+            let parentRect = null;
 
             el.addEventListener('pointerdown', (e) => {
                 if (e.target.closest('.counter') && !e.target.classList.contains('counter')) return;
                 dragging = true;
                 const rect = el.getBoundingClientRect();
-                offX = e.clientX - rect.left;
-                offY = e.clientY - rect.top;
+                const pRect = el.offsetParent.getBoundingClientRect();
+                // compute offset from the element's top-left corner relative to offsetParent's top-left
+                offX = e.clientX - (rect.left - pRect.left);
+                offY = e.clientY - (rect.top - pRect.top);
+                parentRect = pRect;
                 el.setPointerCapture(e.pointerId);
                 if (el.classList.contains('counter')) el.classList.add('dragging');
                 e.stopPropagation();
@@ -302,8 +305,12 @@
 
             el.addEventListener('pointermove', (e) => {
                 if (!dragging) return;
-                el.style.left = (e.clientX - offX) + 'px';
-                el.style.top = (e.clientY - offY) + 'px';
+                const pRect = el.offsetParent.getBoundingClientRect();
+                // desired top-left relative to offsetParent
+                const newLeft = (e.clientX - offX - pRect.left);
+                const newTop = (e.clientY - offY - pRect.top);
+                el.style.left = newLeft + 'px';
+                el.style.top = newTop + 'px';
             });
 
             el.addEventListener('pointerup', (e) => {
@@ -312,6 +319,7 @@
                 if (onDrop) onDrop(el, e);
             });
 
+            // double-tap delete
             let lastTap = 0;
             el.addEventListener('click', () => {
                 const now = Date.now();
@@ -342,7 +350,7 @@
         }
 
         /* ============================================================
-           FRAME CREATION (Smaller size)
+           FRAME CREATION
            ============================================================ */
         function buildFrame(type) {
             const isTen = type === 'ten';
@@ -372,7 +380,7 @@
         }
 
         /* ============================================================
-           DROPDOWN – Create frame on selection
+           DROPDOWN
            ============================================================ */
         const frameSelect = document.getElementById('frameSelect');
         frameSelect.addEventListener('change', () => {
@@ -382,14 +390,13 @@
         });
 
         /* ============================================================
-           CELL ORDER (Ten-frame: top row L→R, then bottom row L→R)
+           CELL ORDER
            ============================================================ */
         function getCellOrder(frame) {
             const cells = frame.querySelectorAll('.cell');
             const isTen = frame.classList.contains('tenFrame');
             if (!isTen) return Array.from(cells);
-            const top = [],
-                bottom = [];
+            const top = [], bottom = [];
             cells.forEach((c, i) => {
                 if (i < 5) top.push(c);
                 else bottom.push(c);
@@ -398,11 +405,10 @@
         }
 
         /* ============================================================
-           Find first empty cell in a frame (based on counter positions)
+           Find first empty cell (based on counter positions)
            ============================================================ */
         function findFirstEmptyCell(frame) {
             const cells = getCellOrder(frame);
-            const frameRect = frame.getBoundingClientRect();
             const counters = frame.querySelectorAll('.counter');
 
             for (let i = 0; i < cells.length; i++) {
@@ -421,11 +427,11 @@
                 }
                 if (!occupied) return i;
             }
-            return -1; // all cells occupied
+            return -1;
         }
 
         /* ============================================================
-           COUNTER – Sequential Fly-in (One at a time)
+           COUNTER – Sequential Fly-in
            ============================================================ */
         let isFlying = false;
 
@@ -453,8 +459,7 @@
             counter.dataset.flying = 'true';
             objectsLayer.appendChild(counter);
 
-            // Force reflow to trigger the transition
-            void counter.offsetHeight;
+            void counter.offsetHeight; // force reflow
             counter.style.left = targetX + 'px';
             counter.style.top = targetY + 'px';
 
@@ -475,7 +480,6 @@
             };
             counter.addEventListener('transitionend', onFinish);
 
-            // Safety fallback
             setTimeout(() => {
                 if (counter.parentNode && counter.dataset.flying === 'true') {
                     counter.removeEventListener('transitionend', onFinish);
@@ -496,7 +500,7 @@
         }
 
         /* ============================================================
-           ADD ONE COUNTER – Prioritize Five-Frame, fill left to right
+           ADD ONE COUNTER – sequential fill
            ============================================================ */
         function addOneCounter() {
             if (isFlying) return;
@@ -507,7 +511,7 @@
                 frames = document.querySelectorAll('.frame');
             }
 
-            // Prioritize the five-frame (most recent one)
+            // Prioritize the most recent five-frame
             let targetFrame = null;
             for (let i = frames.length - 1; i >= 0; i--) {
                 if (frames[i].classList.contains('fiveFrame')) {
@@ -515,14 +519,11 @@
                     break;
                 }
             }
-            // If no five-frame exists, use the most recent frame (could be ten-frame)
             if (!targetFrame) {
                 targetFrame = frames[frames.length - 1];
             }
 
             const emptyIdx = findFirstEmptyCell(targetFrame);
-
-            // If the current frame is full, create a new five-frame
             if (emptyIdx === -1) {
                 const newFrame = buildFrame('five');
                 const newCells = getCellOrder(newFrame);
@@ -537,12 +538,11 @@
         }
 
         /* ============================================================
-           SNAP COUNTER TO NEAREST CELL (also updates occupancy)
+           SNAP COUNTER TO NEAREST CELL
            ============================================================ */
         function snapCounterToCell(counter) {
             const cells = document.querySelectorAll('.cell');
-            let best = null,
-                bestDist = Infinity;
+            let best = null, bestDist = Infinity;
             const cRect = counter.getBoundingClientRect();
             const cx = cRect.left + cRect.width / 2;
             const cy = cRect.top + cRect.height / 2;
@@ -552,8 +552,7 @@
                 const x = r.left + r.width / 2;
                 const y = r.top + r.height / 2;
                 const d = Math.hypot(cx - x, cy - y);
-                if (d < bestDist) { bestDist = d;
-                    best = cell; }
+                if (d < bestDist) { bestDist = d; best = cell; }
             });
 
             if (best && bestDist < 70) {
@@ -574,12 +573,12 @@
         }
 
         /* ============================================================
-           COUNTER BUTTON – One counter per click
+           COUNTER BUTTON
            ============================================================ */
         document.getElementById('counterBtn').addEventListener('click', addOneCounter);
 
         /* ============================================================
-           STARTUP – Create initial frames with sample counters
+           STARTUP – two frames with sample counters
            ============================================================ */
         const f1 = buildFrame('five');
         f1.style.left = '60px';
@@ -589,7 +588,6 @@
         f2.style.left = '380px';
         f2.style.top = '90px';
 
-        // Add a few sample counters to the five-frame (cells 0, 1, 2)
         setTimeout(() => {
             const cells1 = getCellOrder(f1);
             for (let i = 0; i < 3 && i < cells1.length; i++) {
@@ -603,7 +601,6 @@
                 makeDraggable(c, (el) => snapCounterToCell(el));
                 snapCounterToCell(c);
             }
-            // Add a sample counter to the ten-frame (cell 0)
             const cells2 = getCellOrder(f2);
             if (cells2.length > 0) {
                 const c = document.createElement('div');
@@ -619,7 +616,7 @@
         }, 100);
 
         /* ============================================================
-           RE-SNAP counters on window resize
+           RE-SNAP on resize
            ============================================================ */
         let resizeTimer;
         window.addEventListener('resize', () => {
@@ -631,7 +628,7 @@
             }, 300);
         });
 
-        console.log('✅ Counter button now fills the next empty square sequentially.');
+        console.log('✅ Dragging now works smoothly – no more runaway counters!');
     </script>
 </body>
 </html>
