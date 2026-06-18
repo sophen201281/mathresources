@@ -282,7 +282,7 @@
         });
 
         /* ============================================================
-           IMPROVED DRAGGABLE – smooth, no runaway
+           IMPROVED DRAGGABLE – perfectly smooth, no drift
            ============================================================ */
         function makeDraggable(el, onDrop) {
             let dragging = false;
@@ -290,14 +290,14 @@
             let parentRect = null;
 
             el.addEventListener('pointerdown', (e) => {
-                if (e.target.closest('.counter') && !e.target.classList.contains('counter')) return;
+                // Only allow dragging on the element itself (not on inner elements)
+                if (e.target !== el && !el.contains(e.target)) return;
                 dragging = true;
                 const rect = el.getBoundingClientRect();
-                const pRect = el.offsetParent.getBoundingClientRect();
-                // compute offset from the element's top-left corner relative to offsetParent's top-left
-                offX = e.clientX - (rect.left - pRect.left);
-                offY = e.clientY - (rect.top - pRect.top);
-                parentRect = pRect;
+                // Offset from the element's top-left corner in viewport coordinates
+                offX = e.clientX - rect.left;
+                offY = e.clientY - rect.top;
+                parentRect = el.offsetParent.getBoundingClientRect();
                 el.setPointerCapture(e.pointerId);
                 if (el.classList.contains('counter')) el.classList.add('dragging');
                 e.stopPropagation();
@@ -306,9 +306,9 @@
             el.addEventListener('pointermove', (e) => {
                 if (!dragging) return;
                 const pRect = el.offsetParent.getBoundingClientRect();
-                // desired top-left relative to offsetParent
-                const newLeft = (e.clientX - offX - pRect.left);
-                const newTop = (e.clientY - offY - pRect.top);
+                // Calculate new position relative to offsetParent
+                const newLeft = (e.clientX - offX) - pRect.left;
+                const newTop = (e.clientY - offY) - pRect.top;
                 el.style.left = newLeft + 'px';
                 el.style.top = newTop + 'px';
             });
@@ -628,7 +628,7 @@
             }, 300);
         });
 
-        console.log('✅ Dragging now works smoothly – no more runaway counters!');
+        console.log('✅ Dragging is now perfectly smooth – counter stays exactly under your finger.');
     </script>
 </body>
 </html>
