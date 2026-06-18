@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Magnetic Math Frames + Drawing + Eraser</title>
     <style>
         * {
@@ -73,6 +73,7 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            min-height: 40px;
         }
         #bottomBar button:hover,
         #bottomBar select:hover,
@@ -97,6 +98,7 @@
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
             overflow: visible;
+            transition: left 0.25s ease, top 0.25s ease, width 0.25s ease, height 0.25s ease;
         }
         .grid {
             width: 100%;
@@ -130,6 +132,7 @@
             z-index: 20;
             transition: none;
             pointer-events: auto;
+            touch-action: none;
         }
         .counter.dragging {
             transform: scale(1.10);
@@ -159,6 +162,7 @@
             .home-btn {
                 font-size: 12px;
                 padding: 6px 10px;
+                min-height: 36px;
             }
         }
         @media (max-width: 400px) {
@@ -176,6 +180,7 @@
                 font-size: 11px;
                 padding: 5px 8px;
                 border-radius: 8px;
+                min-height: 32px;
             }
         }
         @media (max-width: 360px) {
@@ -184,6 +189,7 @@
             .home-btn {
                 font-size: 10px;
                 padding: 4px 6px;
+                min-height: 28px;
             }
             #bottomBar {
                 gap: 4px;
@@ -281,6 +287,22 @@
         });
 
         /* ============================================================
+           LAYOUT PARAMETERS – viewport-relative
+           ============================================================ */
+        function getLayoutParams() {
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
+            return {
+                startX: Math.min(60, Math.max(20, vw * 0.04)),
+                startYFive: Math.min(90, Math.max(50, vh * 0.10)),
+                frameW: Math.min(280, Math.max(160, vw * 0.55)),
+                frameHFive: Math.min(65, Math.max(42, vh * 0.07)),
+                frameHTen: Math.min(130, Math.max(84, vh * 0.14)),
+                gap: Math.min(20, Math.max(10, vw * 0.015)),
+            };
+        }
+
+        /* ============================================================
            DRAGGABLE – smooth, no drift
            ============================================================ */
         function makeDraggable(el, onDrop) {
@@ -306,6 +328,7 @@
                 const newTop = (e.clientY - offY) - pRect.top;
                 el.style.left = newLeft + 'px';
                 el.style.top = newTop + 'px';
+                el.style.transition = 'none';
             });
 
             el.addEventListener('pointerup', (e) => {
@@ -314,7 +337,6 @@
                 if (onDrop) onDrop(el, e);
             });
 
-            // Double‑tap delete (only the tapped element)
             let lastTap = 0;
             el.addEventListener('click', (e) => {
                 const now = Date.now();
@@ -339,51 +361,42 @@
                 if (Math.abs(r1.right - r2.left) < SNAP && Math.abs(r1.top - r2.top) < SNAP) {
                     frame.style.left = (other.offsetLeft - frame.offsetWidth - 4) + 'px';
                     frame.style.top = other.offsetTop + 'px';
+                    frame.style.transition = 'left 0.15s ease, top 0.15s ease';
                 }
                 if (Math.abs(r1.left - r2.right) < SNAP && Math.abs(r1.top - r2.top) < SNAP) {
                     frame.style.left = (other.offsetLeft + other.offsetWidth + 4) + 'px';
                     frame.style.top = other.offsetTop + 'px';
+                    frame.style.transition = 'left 0.15s ease, top 0.15s ease';
                 }
             });
         }
 
         /* ============================================================
-           FRAME CREATION – with layout: five on top, ten below
+           FRAME CREATION
            ============================================================ */
-        let fiveCount = 0;
-        let tenCount = 0;
-        const FRAME_W = 280;
-        const FRAME_H_FIVE = 65;
-        const FRAME_H_TEN = 130;
-        const GAP = 20;
-        const START_X = 60;
-        const START_Y_FIVE = 90;
-        const START_Y_TEN = START_Y_FIVE + FRAME_H_FIVE + GAP;
-
         function buildFrame(type) {
             const isTen = type === 'ten';
+            const params = getLayoutParams();
+            const { startX, startYFive, startYTen, frameW, frameHFive, frameHTen, gap } = params;
+
             const frame = document.createElement('div');
             frame.className = `frame ${isTen ? 'tenFrame' : 'fiveFrame'}`;
-            frame.style.width = FRAME_W + 'px';
-            frame.style.height = (isTen ? FRAME_H_TEN : FRAME_H_FIVE) + 'px';
+            frame.style.width = frameW + 'px';
+            frame.style.height = (isTen ? frameHTen : frameHFive) + 'px';
 
-            let left, top;
-            if (isTen) {
-                left = START_X + tenCount * (FRAME_W + GAP);
-                top = START_Y_TEN;
-                tenCount++;
-            } else {
-                left = START_X + fiveCount * (FRAME_W + GAP);
-                top = START_Y_FIVE;
-                fiveCount++;
-            }
-            frame.style.left = left + 'px';
-            frame.style.top = top + 'px';
+            // Count existing frames of same type to position correctly
+            const existing = document.querySelectorAll(`.frame.${isTen ? 'tenFrame' : 'fiveFrame'}`);
+            const count = existing.length;
+            const baseX = startX + count * (frameW + gap);
+            const baseY = isTen ? startYTen : startYFive;
+
+            frame.style.left = baseX + 'px';
+            frame.style.top = baseY + 'px';
 
             const grid = document.createElement('div');
             grid.className = 'grid';
-            const count = isTen ? 10 : 5;
-            for (let i = 0; i < count; i++) {
+            const cellCount = isTen ? 10 : 5;
+            for (let i = 0; i < cellCount; i++) {
                 const cell = document.createElement('div');
                 cell.className = 'cell';
                 cell.dataset.idx = i;
@@ -393,6 +406,55 @@
             objectsLayer.appendChild(frame);
             makeDraggable(frame, snapFrames);
             return frame;
+        }
+
+        /* ============================================================
+           REPOSITION ALL FRAMES ON RESIZE / ROTATION
+           ============================================================ */
+        function repositionAllFrames() {
+            const frames = document.querySelectorAll('.frame');
+            const fiveFrames = [];
+            const tenFrames = [];
+
+            frames.forEach(f => {
+                if (f.classList.contains('fiveFrame')) fiveFrames.push(f);
+                else if (f.classList.contains('tenFrame')) tenFrames.push(f);
+            });
+
+            // Sort by current left position to maintain order
+            fiveFrames.sort((a, b) => parseFloat(a.style.left) - parseFloat(b.style.left));
+            tenFrames.sort((a, b) => parseFloat(a.style.left) - parseFloat(b.style.left));
+
+            const params = getLayoutParams();
+            const { startX, startYFive, startYTen, frameW, frameHFive, frameHTen, gap } = params;
+
+            // Apply new positions with smooth transition
+            fiveFrames.forEach((f, i) => {
+                f.style.transition = 'left 0.3s ease, top 0.3s ease, width 0.3s ease, height 0.3s ease';
+                f.style.left = (startX + i * (frameW + gap)) + 'px';
+                f.style.top = startYFive + 'px';
+                f.style.width = frameW + 'px';
+                f.style.height = frameHFive + 'px';
+            });
+
+            tenFrames.forEach((f, i) => {
+                f.style.transition = 'left 0.3s ease, top 0.3s ease, width 0.3s ease, height 0.3s ease';
+                f.style.left = (startX + i * (frameW + gap)) + 'px';
+                f.style.top = startYTen + 'px';
+                f.style.width = frameW + 'px';
+                f.style.height = frameHTen + 'px';
+            });
+
+            // After transition, re-snap counters
+            setTimeout(() => {
+                document.querySelectorAll('.frame .counter').forEach(c => {
+                    snapCounterToCell(c);
+                });
+                // Clear transitions so manual drags are smooth
+                document.querySelectorAll('.frame').forEach(f => {
+                    f.style.transition = '';
+                });
+            }, 350);
         }
 
         /* ============================================================
@@ -406,7 +468,7 @@
         });
 
         /* ============================================================
-           CELL ORDER (for ten‑frame: top row L→R, then bottom)
+           CELL ORDER (ten‑frame: top row L→R, then bottom)
            ============================================================ */
         function getCellOrder(frame) {
             const cells = frame.querySelectorAll('.cell');
@@ -601,6 +663,7 @@
         const f1 = buildFrame('five');
         const f2 = buildFrame('ten');
 
+        // Add sample counters after layout settles
         setTimeout(() => {
             const cells1 = getCellOrder(f1);
             for (let i = 0; i < 3 && i < cells1.length; i++) {
@@ -626,22 +689,27 @@
                 makeDraggable(c, (el) => snapCounterToCell(el));
                 snapCounterToCell(c);
             }
-        }, 100);
+        }, 150);
 
         /* ============================================================
-           RE‑SNAP on resize
+           RE-LAYOUT ON RESIZE / ROTATION
            ============================================================ */
         let resizeTimer;
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimer);
             resizeTimer = setTimeout(() => {
-                document.querySelectorAll('.frame .counter').forEach(c => {
-                    snapCounterToCell(c);
-                });
-            }, 300);
+                repositionAllFrames();
+            }, 250);
         });
 
-        console.log('✅ Toolbar now spans full width. Ten frames placed below five frames. Double‑tap deletes only the tapped item.');
+        // Also re-layout when orientation changes (mobile)
+        window.addEventListener('orientationchange', () => {
+            setTimeout(() => {
+                repositionAllFrames();
+            }, 400);
+        });
+
+        console.log('✅ Toolbar spans full width. Frames auto-reposition on rotation. Double‑tap deletes.');
     </script>
 </body>
 </html>
