@@ -2,12 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Magnetic Math Frames + Drawing + Eraser</title>
     <style>
         * {
             box-sizing: border-box;
             touch-action: none;
+            user-select: none;
         }
         body {
             margin: 0;
@@ -20,6 +21,7 @@
             position: fixed;
             inset: 0;
             z-index: 1;
+            touch-action: none;
         }
 
         #objectsLayer {
@@ -73,7 +75,6 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            min-height: 40px;
         }
         #bottomBar button:hover,
         #bottomBar select:hover,
@@ -89,6 +90,10 @@
             background-repeat: no-repeat;
             background-position: right 10px center;
         }
+        #bottomBar .active-eraser {
+            background: #ffd6d6;
+            box-shadow: 0 0 0 2px #e74c3c;
+        }
 
         /* ========== FRAMES ========== */
         .frame {
@@ -98,7 +103,11 @@
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
             overflow: visible;
-            transition: left 0.25s ease, top 0.25s ease, width 0.25s ease, height 0.25s ease;
+            touch-action: none;
+            cursor: grab;
+        }
+        .frame:active {
+            cursor: grabbing;
         }
         .grid {
             width: 100%;
@@ -118,6 +127,11 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            background: #fafcff;
+            transition: background 0.2s;
+        }
+        .cell.highlight {
+            background: #d4edff;
         }
 
         /* ========== COUNTERS ========== */
@@ -126,21 +140,29 @@
             width: 36px;
             height: 36px;
             border-radius: 50%;
-            background: #ff5e5e;
+            background: radial-gradient(circle at 35% 35%, #ff7e7e, #e74c3c);
             border: 4px solid #c92f2f;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25), inset 0 -2px 4px rgba(0, 0, 0, 0.15);
             z-index: 20;
-            transition: none;
             pointer-events: auto;
             touch-action: none;
+            cursor: grab;
+            transition: none;
+        }
+        .counter:active {
+            cursor: grabbing;
         }
         .counter.dragging {
-            transform: scale(1.10);
+            transform: scale(1.12);
             z-index: 50;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
         }
         .counter.fly {
             transition: left 0.55s cubic-bezier(0.34, 1.56, 0.64, 1),
                 top 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .counter.snap {
+            transition: left 0.18s ease-out, top 0.18s ease-out;
         }
 
         .frame .counter {
@@ -162,7 +184,6 @@
             .home-btn {
                 font-size: 12px;
                 padding: 6px 10px;
-                min-height: 36px;
             }
         }
         @media (max-width: 400px) {
@@ -180,7 +201,6 @@
                 font-size: 11px;
                 padding: 5px 8px;
                 border-radius: 8px;
-                min-height: 32px;
             }
         }
         @media (max-width: 360px) {
@@ -189,7 +209,6 @@
             .home-btn {
                 font-size: 10px;
                 padding: 4px 6px;
-                min-height: 28px;
             }
             #bottomBar {
                 gap: 4px;
@@ -206,7 +225,7 @@
     <!-- ===== OBJECTS LAYER ===== -->
     <div id="objectsLayer"></div>
 
-    <!-- ===== BOTTOM TOOLBAR – FULL WIDTH ===== -->
+    <!-- ===== BOTTOM TOOLBAR ===== -->
     <div id="bottomBar">
         <a href="../index.html" class="home-btn">🏡 Home</a>
         <select id="frameSelect">
@@ -226,27 +245,66 @@
         const ctx = canvas.getContext('2d');
         const objectsLayer = document.getElementById('objectsLayer');
 
-        function resizeCanvas() {
-            const temp = document.createElement('canvas');
-            temp.width = canvas.width;
-            temp.height = canvas.height;
-            temp.getContext('2d').drawImage(canvas, 0, 0);
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            ctx.drawImage(temp, 0, 0);
-        }
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
+        // ---- canvas sizing with content scaling ----
+        let canvasContent = null; // stores ImageData for resize
 
+        function resizeCanvas() {
+            // Save current content as ImageData
+            if (canvas.width > 0 && canvas.height > 0) {
+                canvasContent = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            }
+
+            const newW = window.innerWidth;
+            const newH = window.innerHeight;
+
+            if (canvas.width === newW && canvas.height === newH) return;
+
+            canvas.width = newW;
+            canvas.height = newH;
+
+            // Restore content scaled to fill new canvas
+            if (canvasContent) {
+                const temp = document.createElement('canvas');
+                temp.width = canvasContent.width;
+                temp.height = canvasContent.height;
+                const tCtx = temp.getContext('2d');
+                tCtx.putImageData(canvasContent, 0, 0);
+
+                // Draw scaled to fill new canvas (maintain aspect ratio, cover)
+                const scaleX = canvas.width / temp.width;
+                const scaleY = canvas.height / temp.height;
+                const scale = Math.max(scaleX, scaleY);
+                const dw = temp.width * scale;
+                const dh = temp.height * scale;
+                const dx = (canvas.width - dw) / 2;
+                const dy = (canvas.height - dh) / 2;
+
+                ctx.drawImage(temp, 0, 0, temp.width, temp.height, dx, dy, dw, dh);
+                canvasContent = null;
+            }
+        }
+
+        resizeCanvas();
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            // Also re-snap counters after resize
+            clearTimeout(window._resizeSnapTimer);
+            window._resizeSnapTimer = setTimeout(() => {
+                document.querySelectorAll('.frame .counter').forEach(c => snapCounterToCell(c));
+            }, 400);
+        });
+
+        // ---- drawing state ----
         let drawing = false;
-        let currentColor = 'black';
         let eraserMode = false;
+        const eraserBtn = document.getElementById('eraserBtn');
 
         function startDrawing(e) {
-            if (e.target.closest('.frame') ||
-                e.target.closest('.counter') ||
-                e.target.closest('#bottomBar') ||
-                e.target.closest('.home-btn')) return;
+            const target = e.target;
+            if (target.closest('.frame') ||
+                target.closest('.counter') ||
+                target.closest('#bottomBar') ||
+                target.closest('.home-btn')) return;
             drawing = true;
             ctx.beginPath();
             ctx.moveTo(e.clientX, e.clientY);
@@ -260,7 +318,7 @@
                 ctx.lineWidth = 30;
             } else {
                 ctx.globalCompositeOperation = 'source-over';
-                ctx.strokeStyle = currentColor;
+                ctx.strokeStyle = '#222';
                 ctx.lineWidth = 5;
             }
             ctx.lineCap = 'round';
@@ -269,48 +327,39 @@
         }
 
         function stopDrawing() {
-            drawing = false;
-            ctx.beginPath();
-            ctx.globalCompositeOperation = 'source-over';
+            if (drawing) {
+                drawing = false;
+                ctx.beginPath();
+                ctx.globalCompositeOperation = 'source-over';
+                // Save content for resize
+                canvasContent = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            }
         }
 
         document.addEventListener('pointerdown', startDrawing);
         document.addEventListener('pointermove', drawLine);
         document.addEventListener('pointerup', stopDrawing);
 
-        document.getElementById('eraserBtn').addEventListener('click', () => {
+        eraserBtn.addEventListener('click', () => {
             eraserMode = !eraserMode;
+            eraserBtn.classList.toggle('active-eraser', eraserMode);
+            eraserBtn.textContent = eraserMode ? '🩹 Eraser ON' : '✏️ Draw';
         });
 
         document.getElementById('clearBtn').addEventListener('click', () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            canvasContent = null;
         });
 
         /* ============================================================
-           LAYOUT PARAMETERS – viewport-relative
-           ============================================================ */
-        function getLayoutParams() {
-            const vw = window.innerWidth;
-            const vh = window.innerHeight;
-            return {
-                startX: Math.min(60, Math.max(20, vw * 0.04)),
-                startYFive: Math.min(90, Math.max(50, vh * 0.10)),
-                frameW: Math.min(280, Math.max(160, vw * 0.55)),
-                frameHFive: Math.min(65, Math.max(42, vh * 0.07)),
-                frameHTen: Math.min(130, Math.max(84, vh * 0.14)),
-                gap: Math.min(20, Math.max(10, vw * 0.015)),
-            };
-        }
-
-        /* ============================================================
-           DRAGGABLE – smooth, no drift
+           DRAGGABLE – smooth, no drift, with bounds
            ============================================================ */
         function makeDraggable(el, onDrop) {
             let dragging = false;
             let offX = 0,
                 offY = 0;
 
-            el.addEventListener('pointerdown', (e) => {
+            const onPointerDown = (e) => {
                 if (e.target !== el && !el.contains(e.target)) return;
                 dragging = true;
                 const rect = el.getBoundingClientRect();
@@ -319,84 +368,125 @@
                 el.setPointerCapture(e.pointerId);
                 if (el.classList.contains('counter')) el.classList.add('dragging');
                 e.stopPropagation();
-            });
+            };
 
-            el.addEventListener('pointermove', (e) => {
+            const onPointerMove = (e) => {
                 if (!dragging) return;
-                const pRect = el.offsetParent.getBoundingClientRect();
-                const newLeft = (e.clientX - offX) - pRect.left;
-                const newTop = (e.clientY - offY) - pRect.top;
+                const parent = el.offsetParent || objectsLayer;
+                const pRect = parent.getBoundingClientRect();
+                let newLeft = (e.clientX - offX) - pRect.left;
+                let newTop = (e.clientY - offY) - pRect.top;
+
+                // Clamp within viewport (with margin)
+                const margin = 20;
+                const maxX = window.innerWidth - el.offsetWidth - margin;
+                const maxY = window.innerHeight - el.offsetHeight - margin;
+                newLeft = Math.max(margin, Math.min(maxX, newLeft));
+                newTop = Math.max(margin, Math.min(maxY, newTop));
+
                 el.style.left = newLeft + 'px';
                 el.style.top = newTop + 'px';
-                el.style.transition = 'none';
-            });
+            };
 
-            el.addEventListener('pointerup', (e) => {
+            const onPointerUp = (e) => {
+                if (!dragging) return;
                 dragging = false;
                 el.classList.remove('dragging');
                 if (onDrop) onDrop(el, e);
-            });
+            };
 
-            let lastTap = 0;
-            el.addEventListener('click', (e) => {
-                const now = Date.now();
-                if (now - lastTap < 300) {
-                    el.remove();
-                    e.stopPropagation();
-                }
-                lastTap = now;
-            });
+            el.addEventListener('pointerdown', onPointerDown);
+            el.addEventListener('pointermove', onPointerMove);
+            el.addEventListener('pointerup', onPointerUp);
+
+            // Store handlers for cleanup if needed
+            el._dragHandlers = { onPointerDown, onPointerMove, onPointerUp };
         }
 
         /* ============================================================
-           FRAME SNAP (Magnetic)
+           FRAME SNAP (Magnetic) – horizontal + vertical
            ============================================================ */
         function snapFrames(frame) {
             const frames = document.querySelectorAll('.frame');
             const r1 = frame.getBoundingClientRect();
+            const SNAP = 30;
+            let snapped = false;
+
             frames.forEach(other => {
                 if (other === frame) return;
                 const r2 = other.getBoundingClientRect();
-                const SNAP = 30;
-                if (Math.abs(r1.right - r2.left) < SNAP && Math.abs(r1.top - r2.top) < SNAP) {
-                    frame.style.left = (other.offsetLeft - frame.offsetWidth - 4) + 'px';
-                    frame.style.top = other.offsetTop + 'px';
-                    frame.style.transition = 'left 0.15s ease, top 0.15s ease';
+
+                // Horizontal snap
+                if (!snapped) {
+                    if (Math.abs(r1.right - r2.left) < SNAP && Math.abs(r1.top - r2.top) < SNAP) {
+                        frame.style.left = (other.offsetLeft - frame.offsetWidth - 4) + 'px';
+                        frame.style.top = other.offsetTop + 'px';
+                        snapped = true;
+                        return;
+                    }
+                    if (Math.abs(r1.left - r2.right) < SNAP && Math.abs(r1.top - r2.top) < SNAP) {
+                        frame.style.left = (other.offsetLeft + other.offsetWidth + 4) + 'px';
+                        frame.style.top = other.offsetTop + 'px';
+                        snapped = true;
+                        return;
+                    }
                 }
-                if (Math.abs(r1.left - r2.right) < SNAP && Math.abs(r1.top - r2.top) < SNAP) {
-                    frame.style.left = (other.offsetLeft + other.offsetWidth + 4) + 'px';
-                    frame.style.top = other.offsetTop + 'px';
-                    frame.style.transition = 'left 0.15s ease, top 0.15s ease';
+
+                // Vertical snap (if not already snapped horizontally)
+                if (!snapped) {
+                    if (Math.abs(r1.bottom - r2.top) < SNAP && Math.abs(r1.left - r2.left) < SNAP) {
+                        frame.style.top = (other.offsetTop - frame.offsetHeight - 4) + 'px';
+                        frame.style.left = other.offsetLeft + 'px';
+                        snapped = true;
+                        return;
+                    }
+                    if (Math.abs(r1.top - r2.bottom) < SNAP && Math.abs(r1.left - r2.left) < SNAP) {
+                        frame.style.top = (other.offsetTop + other.offsetHeight + 4) + 'px';
+                        frame.style.left = other.offsetLeft + 'px';
+                        snapped = true;
+                        return;
+                    }
                 }
             });
         }
 
         /* ============================================================
-           FRAME CREATION
+           FRAME CREATION – five on top, ten below
            ============================================================ */
+        let fiveCount = 0;
+        let tenCount = 0;
+        const FRAME_W = 280;
+        const FRAME_H_FIVE = 65;
+        const FRAME_H_TEN = 130;
+        const GAP = 20;
+        const START_X = 60;
+        const START_Y_FIVE = 90;
+        const START_Y_TEN = START_Y_FIVE + FRAME_H_FIVE + GAP;
+
         function buildFrame(type) {
             const isTen = type === 'ten';
-            const params = getLayoutParams();
-            const { startX, startYFive, startYTen, frameW, frameHFive, frameHTen, gap } = params;
-
             const frame = document.createElement('div');
             frame.className = `frame ${isTen ? 'tenFrame' : 'fiveFrame'}`;
-            frame.style.width = frameW + 'px';
-            frame.style.height = (isTen ? frameHTen : frameHFive) + 'px';
+            frame.style.width = FRAME_W + 'px';
+            frame.style.height = (isTen ? FRAME_H_TEN : FRAME_H_FIVE) + 'px';
 
-            // Count existing frames of same type to position correctly
-            const existing = document.querySelectorAll(`.frame.${isTen ? 'tenFrame' : 'fiveFrame'}`);
-            const count = existing.length;
-            const baseX = startX + count * (frameW + gap);
-            const baseY = isTen ? startYTen : startYFive;
-
-            frame.style.left = baseX + 'px';
-            frame.style.top = baseY + 'px';
+            let left, top;
+            if (isTen) {
+                left = START_X + tenCount * (FRAME_W + GAP);
+                top = START_Y_TEN;
+                tenCount++;
+            } else {
+                left = START_X + fiveCount * (FRAME_W + GAP);
+                top = START_Y_FIVE;
+                fiveCount++;
+            }
+            frame.style.left = left + 'px';
+            frame.style.top = top + 'px';
 
             const grid = document.createElement('div');
             grid.className = 'grid';
-            const cellCount = isTen ? 10 : 5;
-            for (let i = 0; i < cellCount; i++) {
+            const count = isTen ? 10 : 5;
+            for (let i = 0; i < count; i++) {
                 const cell = document.createElement('div');
                 cell.className = 'cell';
                 cell.dataset.idx = i;
@@ -404,57 +494,22 @@
             }
             frame.appendChild(grid);
             objectsLayer.appendChild(frame);
-            makeDraggable(frame, snapFrames);
+            makeDraggable(frame, (el) => snapFrames(el));
+
+            // Double-click to delete frame (only if empty)
+            frame.addEventListener('dblclick', (e) => {
+                const counters = frame.querySelectorAll('.counter');
+                if (counters.length === 0) {
+                    frame.remove();
+                    e.stopPropagation();
+                } else {
+                    // Flash to indicate not empty
+                    frame.style.borderColor = '#e74c3c';
+                    setTimeout(() => { frame.style.borderColor = '#222'; }, 400);
+                }
+            });
+
             return frame;
-        }
-
-        /* ============================================================
-           REPOSITION ALL FRAMES ON RESIZE / ROTATION
-           ============================================================ */
-        function repositionAllFrames() {
-            const frames = document.querySelectorAll('.frame');
-            const fiveFrames = [];
-            const tenFrames = [];
-
-            frames.forEach(f => {
-                if (f.classList.contains('fiveFrame')) fiveFrames.push(f);
-                else if (f.classList.contains('tenFrame')) tenFrames.push(f);
-            });
-
-            // Sort by current left position to maintain order
-            fiveFrames.sort((a, b) => parseFloat(a.style.left) - parseFloat(b.style.left));
-            tenFrames.sort((a, b) => parseFloat(a.style.left) - parseFloat(b.style.left));
-
-            const params = getLayoutParams();
-            const { startX, startYFive, startYTen, frameW, frameHFive, frameHTen, gap } = params;
-
-            // Apply new positions with smooth transition
-            fiveFrames.forEach((f, i) => {
-                f.style.transition = 'left 0.3s ease, top 0.3s ease, width 0.3s ease, height 0.3s ease';
-                f.style.left = (startX + i * (frameW + gap)) + 'px';
-                f.style.top = startYFive + 'px';
-                f.style.width = frameW + 'px';
-                f.style.height = frameHFive + 'px';
-            });
-
-            tenFrames.forEach((f, i) => {
-                f.style.transition = 'left 0.3s ease, top 0.3s ease, width 0.3s ease, height 0.3s ease';
-                f.style.left = (startX + i * (frameW + gap)) + 'px';
-                f.style.top = startYTen + 'px';
-                f.style.width = frameW + 'px';
-                f.style.height = frameHTen + 'px';
-            });
-
-            // After transition, re-snap counters
-            setTimeout(() => {
-                document.querySelectorAll('.frame .counter').forEach(c => {
-                    snapCounterToCell(c);
-                });
-                // Clear transitions so manual drags are smooth
-                document.querySelectorAll('.frame').forEach(f => {
-                    f.style.transition = '';
-                });
-            }, 350);
         }
 
         /* ============================================================
@@ -468,7 +523,7 @@
         });
 
         /* ============================================================
-           CELL ORDER (ten‑frame: top row L→R, then bottom)
+           CELL ORDER (for ten‑frame: top row L→R, then bottom)
            ============================================================ */
         function getCellOrder(frame) {
             const cells = frame.querySelectorAll('.cell');
@@ -484,7 +539,7 @@
         }
 
         /* ============================================================
-           Find first empty cell
+           Find first empty cell (improved occupancy check)
            ============================================================ */
         function findFirstEmptyCell(frame) {
             const cells = getCellOrder(frame);
@@ -494,12 +549,23 @@
                 const cell = cells[i];
                 const cellRect = cell.getBoundingClientRect();
                 let occupied = false;
+
                 for (const counter of counters) {
                     const cRect = counter.getBoundingClientRect();
+                    // Check if counter center is inside cell
                     const cx = cRect.left + cRect.width / 2;
                     const cy = cRect.top + cRect.height / 2;
                     if (cx >= cellRect.left && cx <= cellRect.right &&
                         cy >= cellRect.top && cy <= cellRect.bottom) {
+                        occupied = true;
+                        break;
+                    }
+                    // Also check overlap area (for partially overlapping counters)
+                    const overlapX = Math.max(0, Math.min(cRect.right, cellRect.right) - Math.max(cRect.left, cellRect
+                    .left));
+                    const overlapY = Math.max(0, Math.min(cRect.bottom, cellRect.bottom) - Math.max(cRect.top, cellRect
+                    .top));
+                    if (overlapX > 10 && overlapY > 10) {
                         occupied = true;
                         break;
                     }
@@ -538,15 +604,25 @@
             counter.dataset.flying = 'true';
             objectsLayer.appendChild(counter);
 
+            // Force reflow
             void counter.offsetHeight;
+
+            // Set target position
             counter.style.left = targetX + 'px';
             counter.style.top = targetY + 'px';
 
+            let finished = false;
+
             const onFinish = () => {
+                if (finished) return;
+                finished = true;
                 counter.removeEventListener('transitionend', onFinish);
+
+                // Move counter into frame
                 const fRect = frame.getBoundingClientRect();
                 const relX = targetX - fRect.left;
                 const relY = targetY - fRect.top;
+
                 counter.classList.remove('fly');
                 counter.style.transition = 'none';
                 counter.style.left = relX + 'px';
@@ -557,29 +633,19 @@
                 counter.dataset.flying = 'false';
                 isFlying = false;
             };
+
             counter.addEventListener('transitionend', onFinish);
 
+            // Safety fallback if transitionend doesn't fire
             setTimeout(() => {
-                if (counter.parentNode && counter.dataset.flying === 'true') {
-                    counter.removeEventListener('transitionend', onFinish);
-                    const fRect = frame.getBoundingClientRect();
-                    const relX = targetX - fRect.left;
-                    const relY = targetY - fRect.top;
-                    counter.classList.remove('fly');
-                    counter.style.transition = 'none';
-                    counter.style.left = relX + 'px';
-                    counter.style.top = relY + 'px';
-                    frame.appendChild(counter);
-                    makeDraggable(counter, (el) => snapCounterToCell(el));
-                    snapCounterToCell(counter);
-                    counter.dataset.flying = 'false';
-                    isFlying = false;
+                if (!finished && counter.parentNode) {
+                    onFinish();
                 }
             }, 900);
         }
 
         /* ============================================================
-           ADD ONE COUNTER – sequential fill
+           ADD ONE COUNTER – sequential fill (smart frame selection)
            ============================================================ */
         function addOneCounter() {
             if (isFlying) return;
@@ -590,33 +656,38 @@
                 frames = document.querySelectorAll('.frame');
             }
 
+            // Prefer the last five-frame that has space, otherwise the last ten-frame
             let targetFrame = null;
-            for (let i = frames.length - 1; i >= 0; i--) {
-                if (frames[i].classList.contains('fiveFrame')) {
-                    targetFrame = frames[i];
-                    break;
+            let candidateFrames = [];
+
+            // Check all frames for empty cells
+            for (const f of frames) {
+                const emptyIdx = findFirstEmptyCell(f);
+                if (emptyIdx !== -1) {
+                    candidateFrames.push({ frame: f, emptyIdx, isFive: f.classList.contains('fiveFrame') });
                 }
             }
-            if (!targetFrame) {
-                targetFrame = frames[frames.length - 1];
-            }
 
-            const emptyIdx = findFirstEmptyCell(targetFrame);
-            if (emptyIdx === -1) {
+            if (candidateFrames.length === 0) {
+                // All frames full → create a new five-frame
                 const newFrame = buildFrame('five');
-                const newCells = getCellOrder(newFrame);
-                if (newCells.length > 0) {
-                    launchCounterToCell(newFrame, newCells[0]);
+                const cells = getCellOrder(newFrame);
+                if (cells.length > 0) {
+                    launchCounterToCell(newFrame, cells[0]);
                 }
                 return;
             }
 
-            const cells = getCellOrder(targetFrame);
-            launchCounterToCell(targetFrame, cells[emptyIdx]);
+            // Prefer five-frames over ten-frames
+            const fiveCandidates = candidateFrames.filter(c => c.isFive);
+            const selected = fiveCandidates.length > 0 ? fiveCandidates[0] : candidateFrames[0];
+
+            const cells = getCellOrder(selected.frame);
+            launchCounterToCell(selected.frame, cells[selected.emptyIdx]);
         }
 
         /* ============================================================
-           SNAP COUNTER TO NEAREST CELL
+           SNAP COUNTER TO NEAREST CELL (improved)
            ============================================================ */
         function snapCounterToCell(counter) {
             const cells = document.querySelectorAll('.cell');
@@ -635,20 +706,24 @@
                     best = cell; }
             });
 
-            if (best && bestDist < 70) {
+            if (best && bestDist < 80) {
                 const frame = best.closest('.frame');
                 if (!frame) return;
                 const fRect = frame.getBoundingClientRect();
                 const bRect = best.getBoundingClientRect();
-                const relX = bRect.left - fRect.left + 2;
-                const relY = bRect.top - fRect.top + 2;
+                const relX = bRect.left - fRect.left + (bRect.width - 36) / 2;
+                const relY = bRect.top - fRect.top + (bRect.height - 36) / 2;
+
                 if (counter.parentNode !== frame) {
                     frame.appendChild(counter);
                 }
+                counter.classList.add('snap');
                 counter.style.left = relX + 'px';
                 counter.style.top = relY + 'px';
-                counter.style.transition = 'left 0.15s ease, top 0.15s ease';
-                setTimeout(() => { counter.style.transition = ''; }, 200);
+                // Remove snap class after animation
+                setTimeout(() => {
+                    counter.classList.remove('snap');
+                }, 250);
             }
         }
 
@@ -658,58 +733,92 @@
         document.getElementById('counterBtn').addEventListener('click', addOneCounter);
 
         /* ============================================================
-           STARTUP – two frames (five on top, ten below)
+           DOUBLE-CLICK TO DELETE COUNTER
            ============================================================ */
-        const f1 = buildFrame('five');
-        const f2 = buildFrame('ten');
-
-        // Add sample counters after layout settles
-        setTimeout(() => {
-            const cells1 = getCellOrder(f1);
-            for (let i = 0; i < 3 && i < cells1.length; i++) {
-                const c = document.createElement('div');
-                c.className = 'counter';
-                const r = cells1[i].getBoundingClientRect();
-                const fr = f1.getBoundingClientRect();
-                c.style.left = (r.left - fr.left + 2) + 'px';
-                c.style.top = (r.top - fr.top + 2) + 'px';
-                f1.appendChild(c);
-                makeDraggable(c, (el) => snapCounterToCell(el));
-                snapCounterToCell(c);
+        document.addEventListener('dblclick', (e) => {
+            const counter = e.target.closest('.counter');
+            if (counter && !counter.dataset.flying) {
+                counter.remove();
+                e.stopPropagation();
             }
-            const cells2 = getCellOrder(f2);
-            if (cells2.length > 0) {
-                const c = document.createElement('div');
-                c.className = 'counter';
-                const r = cells2[0].getBoundingClientRect();
-                const fr = f2.getBoundingClientRect();
-                c.style.left = (r.left - fr.left + 2) + 'px';
-                c.style.top = (r.top - fr.top + 2) + 'px';
-                f2.appendChild(c);
-                makeDraggable(c, (el) => snapCounterToCell(el));
-                snapCounterToCell(c);
-            }
-        }, 150);
+        });
 
         /* ============================================================
-           RE-LAYOUT ON RESIZE / ROTATION
+           STARTUP – two frames (five on top, ten below) with counters
            ============================================================ */
-        let resizeTimer;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(() => {
-                repositionAllFrames();
-            }, 250);
+        function initStartupCounters() {
+            const f1 = buildFrame('five');
+            const f2 = buildFrame('ten');
+
+            // Use requestAnimationFrame to ensure layout is done
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    // Add 3 counters to five-frame
+                    const cells1 = getCellOrder(f1);
+                    for (let i = 0; i < 3 && i < cells1.length; i++) {
+                        const c = document.createElement('div');
+                        c.className = 'counter';
+                        const r = cells1[i].getBoundingClientRect();
+                        const fr = f1.getBoundingClientRect();
+                        c.style.left = (r.left - fr.left + (r.width - 36) / 2) + 'px';
+                        c.style.top = (r.top - fr.top + (r.height - 36) / 2) + 'px';
+                        f1.appendChild(c);
+                        makeDraggable(c, (el) => snapCounterToCell(el));
+                        snapCounterToCell(c);
+                    }
+
+                    // Add 1 counter to ten-frame
+                    const cells2 = getCellOrder(f2);
+                    if (cells2.length > 0) {
+                        const c = document.createElement('div');
+                        c.className = 'counter';
+                        const r = cells2[0].getBoundingClientRect();
+                        const fr = f2.getBoundingClientRect();
+                        c.style.left = (r.left - fr.left + (r.width - 36) / 2) + 'px';
+                        c.style.top = (r.top - fr.top + (r.height - 36) / 2) + 'px';
+                        f2.appendChild(c);
+                        makeDraggable(c, (el) => snapCounterToCell(el));
+                        snapCounterToCell(c);
+                    }
+                });
+            });
+        }
+
+        initStartupCounters();
+
+        /* ============================================================
+           KEYBOARD SHORTCUTS
+           ============================================================ */
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'c' || e.key === 'C') {
+                e.preventDefault();
+                addOneCounter();
+            }
+            if (e.key === 'e' || e.key === 'E') {
+                e.preventDefault();
+                eraserBtn.click();
+            }
+            if (e.key === 'Delete' || e.key === 'Backspace') {
+                // Delete selected counter or clear canvas if no counter selected
+                const selected = document.querySelector('.counter.dragging');
+                if (selected) {
+                    selected.remove();
+                }
+            }
         });
 
-        // Also re-layout when orientation changes (mobile)
-        window.addEventListener('orientationchange', () => {
-            setTimeout(() => {
-                repositionAllFrames();
-            }, 400);
+        /* ============================================================
+           RE-SNAP on any frame movement
+           ============================================================ */
+        // Observe DOM changes to re-snap counters when frames are added/removed
+        const observer = new MutationObserver(() => {
+            document.querySelectorAll('.frame .counter').forEach(c => {
+                if (!c.dataset.flying) snapCounterToCell(c);
+            });
         });
+        observer.observe(objectsLayer, { childList: true, subtree: true });
 
-        console.log('✅ Toolbar spans full width. Frames auto-reposition on rotation. Double‑tap deletes.');
+        console.log('✅ Fixed: canvas scaling on resize, vertical frame snap, double-click delete, improved counter fly-in, and keyboard shortcuts (C=add counter, E=eraser).');
     </script>
 </body>
 </html>
