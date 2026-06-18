@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Magnetic Math Frames + Drawing + Eraser</title>
     <style>
         * {
@@ -98,7 +98,6 @@
             background-position: right 10px center;
         }
 
-        /* ---- Draw & Eraser buttons (mutually exclusive) ---- */
         .toolbar-row .draw-btn {
             background: #e8f0fe;
             color: #1a73e8;
@@ -120,7 +119,6 @@
             box-shadow: 0 0 0 3px #c62828, 0 2px 12px rgba(198, 40, 40, 0.40);
         }
 
-        /* ---- Counter button ---- */
         .toolbar-row .counter-btn {
             background: #fff0e6;
             color: #d84315;
@@ -129,7 +127,6 @@
             background: #ffddd0;
         }
 
-        /* ---- Clear button ---- */
         .toolbar-row .clear-btn {
             background: #f5f5f5;
             color: #555;
@@ -138,7 +135,6 @@
             background: #e8e8e8;
         }
 
-        /* ---- Home button ---- */
         .home-btn {
             background: #e3f2fd;
             color: #0d47a1;
@@ -318,42 +314,111 @@
         const drawBtn = document.getElementById('drawBtn');
         const eraserBtn = document.getElementById('eraserBtn');
 
-        // ---- canvas sizing with content scaling ----
+        // ---- canvas sizing with content scaling (fit & center) ----
         let canvasContent = null;
 
         function resizeCanvas() {
+            // Save current content as ImageData
             if (canvas.width > 0 && canvas.height > 0) {
                 canvasContent = ctx.getImageData(0, 0, canvas.width, canvas.height);
             }
+
             const newW = window.innerWidth;
             const newH = window.innerHeight;
+
+            // Skip if dimensions unchanged
             if (canvas.width === newW && canvas.height === newH) return;
+
             canvas.width = newW;
             canvas.height = newH;
+
+            // Restore content scaled to fit (Math.min) and centered
             if (canvasContent) {
                 const temp = document.createElement('canvas');
                 temp.width = canvasContent.width;
                 temp.height = canvasContent.height;
                 const tCtx = temp.getContext('2d');
                 tCtx.putImageData(canvasContent, 0, 0);
+
+                // Calculate fit scale and offset to center
                 const scaleX = canvas.width / temp.width;
                 const scaleY = canvas.height / temp.height;
-                const scale = Math.max(scaleX, scaleY);
+                const scale = Math.min(scaleX, scaleY); // fit, not cover
                 const dw = temp.width * scale;
                 const dh = temp.height * scale;
                 const dx = (canvas.width - dw) / 2;
                 const dy = (canvas.height - dh) / 2;
+
                 ctx.drawImage(temp, 0, 0, temp.width, temp.height, dx, dy, dw, dh);
                 canvasContent = null;
             }
         }
-        resizeCanvas();
-        window.addEventListener('resize', () => {
+
+        // ---- reposition frames only if they are completely outside viewport ----
+        function repositionFrames() {
+            const margin = 5; // small buffer
+            const frames = document.querySelectorAll('.frame');
+            frames.forEach(frame => {
+                const rect = frame.getBoundingClientRect();
+                let left = parseFloat(frame.style.left) || 0;
+                let top = parseFloat(frame.style.top) || 0;
+                let changed = false;
+
+                // Check if frame is outside viewport (completely or partially)
+                if (rect.right < margin) {
+                    left += (margin - rect.right);
+                    changed = true;
+                } else if (rect.left > window.innerWidth - margin) {
+                    left -= (rect.left - window.innerWidth + margin);
+                    changed = true;
+                }
+                if (rect.bottom < margin) {
+                    top += (margin - rect.bottom);
+                    changed = true;
+                } else if (rect.top > window.innerHeight - margin) {
+                    top -= (rect.top - window.innerHeight + margin);
+                    changed = true;
+                }
+
+                // Also clamp to ensure frame is within viewport (positive offsets)
+                if (left < 0) { left = margin;
+                    changed = true; }
+                if (top < 0) { top = margin;
+                    changed = true; }
+                if (left + frame.offsetWidth > window.innerWidth - margin) {
+                    left = window.innerWidth - frame.offsetWidth - margin;
+                    changed = true;
+                }
+                if (top + frame.offsetHeight > window.innerHeight - margin) {
+                    top = window.innerHeight - frame.offsetHeight - margin;
+                    changed = true;
+                }
+
+                if (changed) {
+                    frame.style.left = left + 'px';
+                    frame.style.top = top + 'px';
+                }
+            });
+        }
+
+        // ---- resize handler with debounce ----
+        let resizeTimeout = null;
+
+        function handleResize() {
             resizeCanvas();
-            clearTimeout(window._resizeSnapTimer);
-            window._resizeSnapTimer = setTimeout(() => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                repositionFrames();
+                // Re-snap frames to each other (optional)
+                document.querySelectorAll('.frame').forEach(f => snapFrames(f));
+                // Re-snap counters
                 document.querySelectorAll('.frame .counter').forEach(c => snapCounterToCell(c));
-            }, 400);
+            }, 200);
+        }
+
+        window.addEventListener('resize', handleResize);
+        window.addEventListener('orientationchange', () => {
+            setTimeout(handleResize, 300);
         });
 
         // ---- drawing state ----
@@ -862,7 +927,14 @@
         });
         observer.observe(objectsLayer, { childList: true, subtree: true });
 
-        console.log('✅ Fixed: separate Draw / Eraser buttons, two‑row toolbar, keyboard shortcuts (D=draw, E=eraser, C=counter).');
+        // Initial reposition to ensure everything is within viewport (gentle)
+        setTimeout(() => {
+            repositionFrames();
+            // Also snap frames to each other
+            document.querySelectorAll('.frame').forEach(f => snapFrames(f));
+        }, 150);
+
+        console.log('✅ Fixed: screen rotation now preserves drawing position and frame layout.');
     </script>
 </body>
 </html>
