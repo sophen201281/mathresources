@@ -34,7 +34,7 @@
             pointer-events: auto;
         }
 
-        /* ========== BOTTOM TOOLBAR – FULL WIDTH ========== */
+        /* ========== BOTTOM TOOLBAR – TWO ROWS ========== */
         #bottomBar {
             position: fixed;
             bottom: 20px;
@@ -42,22 +42,29 @@
             right: 10px;
             z-index: 1000;
             display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             background: rgba(255, 255, 255, 0.92);
-            padding: 12px 16px;
+            padding: 10px 14px;
             border-radius: 16px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.20);
             backdrop-filter: blur(6px);
             width: auto;
             max-width: none;
-            transform: none;
         }
 
-        #bottomBar button,
-        #bottomBar select,
+        .toolbar-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .toolbar-row button,
+        .toolbar-row select,
         .home-btn {
             padding: 8px 14px;
             border: none;
@@ -76,13 +83,13 @@
             align-items: center;
             justify-content: center;
         }
-        #bottomBar button:hover,
-        #bottomBar select:hover,
+        .toolbar-row button:hover,
+        .toolbar-row select:hover,
         .home-btn:hover {
             background: #dfefff;
             transform: scale(1.03);
         }
-        #bottomBar select {
+        .toolbar-row select {
             background: #fff;
             padding-right: 28px;
             appearance: none;
@@ -90,9 +97,54 @@
             background-repeat: no-repeat;
             background-position: right 10px center;
         }
-        #bottomBar .active-eraser {
-            background: #ffd6d6;
-            box-shadow: 0 0 0 2px #e74c3c;
+
+        /* ---- Draw & Eraser buttons (mutually exclusive) ---- */
+        .toolbar-row .draw-btn {
+            background: #e8f0fe;
+            color: #1a73e8;
+            box-shadow: 0 2px 6px rgba(26, 115, 232, 0.20);
+        }
+        .toolbar-row .draw-btn.active-draw {
+            background: #1a73e8;
+            color: #fff;
+            box-shadow: 0 0 0 3px #1a73e8, 0 2px 12px rgba(26, 115, 232, 0.40);
+        }
+        .toolbar-row .eraser-btn {
+            background: #fef0f0;
+            color: #c62828;
+            box-shadow: 0 2px 6px rgba(198, 40, 40, 0.20);
+        }
+        .toolbar-row .eraser-btn.active-eraser {
+            background: #c62828;
+            color: #fff;
+            box-shadow: 0 0 0 3px #c62828, 0 2px 12px rgba(198, 40, 40, 0.40);
+        }
+
+        /* ---- Counter button ---- */
+        .toolbar-row .counter-btn {
+            background: #fff0e6;
+            color: #d84315;
+        }
+        .toolbar-row .counter-btn:hover {
+            background: #ffddd0;
+        }
+
+        /* ---- Clear button ---- */
+        .toolbar-row .clear-btn {
+            background: #f5f5f5;
+            color: #555;
+        }
+        .toolbar-row .clear-btn:hover {
+            background: #e8e8e8;
+        }
+
+        /* ---- Home button ---- */
+        .home-btn {
+            background: #e3f2fd;
+            color: #0d47a1;
+        }
+        .home-btn:hover {
+            background: #bbdefb;
         }
 
         /* ========== FRAMES ========== */
@@ -172,15 +224,18 @@
         /* ========== RESPONSIVE ========== */
         @media (max-width: 600px) {
             #bottomBar {
-                padding: 10px 12px;
-                gap: 8px;
+                padding: 8px 10px;
+                gap: 6px;
                 bottom: 12px;
                 left: 8px;
                 right: 8px;
                 border-radius: 14px;
             }
-            #bottomBar button,
-            #bottomBar select,
+            .toolbar-row {
+                gap: 6px;
+            }
+            .toolbar-row button,
+            .toolbar-row select,
             .home-btn {
                 font-size: 12px;
                 padding: 6px 10px;
@@ -188,15 +243,18 @@
         }
         @media (max-width: 400px) {
             #bottomBar {
-                padding: 8px 10px;
-                gap: 6px;
+                padding: 6px 8px;
+                gap: 5px;
                 bottom: 8px;
                 left: 6px;
                 right: 6px;
                 border-radius: 12px;
             }
-            #bottomBar button,
-            #bottomBar select,
+            .toolbar-row {
+                gap: 4px;
+            }
+            .toolbar-row button,
+            .toolbar-row select,
             .home-btn {
                 font-size: 11px;
                 padding: 5px 8px;
@@ -204,15 +262,18 @@
             }
         }
         @media (max-width: 360px) {
-            #bottomBar button,
-            #bottomBar select,
+            .toolbar-row button,
+            .toolbar-row select,
             .home-btn {
                 font-size: 10px;
                 padding: 4px 6px;
             }
+            .toolbar-row {
+                gap: 3px;
+            }
             #bottomBar {
+                padding: 4px 6px;
                 gap: 4px;
-                padding: 6px 8px;
             }
         }
     </style>
@@ -225,52 +286,56 @@
     <!-- ===== OBJECTS LAYER ===== -->
     <div id="objectsLayer"></div>
 
-    <!-- ===== BOTTOM TOOLBAR ===== -->
+    <!-- ===== BOTTOM TOOLBAR – TWO ROWS ===== -->
     <div id="bottomBar">
-        <a href="../index.html" class="home-btn">🏡 Home</a>
-        <select id="frameSelect">
-            <option value="five">➕ Five Frame</option>
-            <option value="ten">➕ Ten Frame</option>
-        </select>
-        <button id="counterBtn">🔴 Counter</button>
-        <button id="eraserBtn">✏️ / 🩹 Eraser</button>
-        <button id="clearBtn">🧹 Clear</button>
+        <!-- ROW 1: Home · Frame Select · Counter · Clear -->
+        <div class="toolbar-row">
+            <a href="../index.html" class="home-btn">🏡 Home</a>
+            <select id="frameSelect">
+                <option value="five">➕ Five Frame</option>
+                <option value="ten">➕ Ten Frame</option>
+            </select>
+            <button id="counterBtn" class="counter-btn">🔴 Counter</button>
+            <button id="clearBtn" class="clear-btn">🧹 Clear</button>
+        </div>
+        <!-- ROW 2: Draw · Eraser -->
+        <div class="toolbar-row">
+            <button id="drawBtn" class="draw-btn active-draw">✏️ Draw</button>
+            <button id="eraserBtn" class="eraser-btn">🩹 Eraser</button>
+        </div>
     </div>
 
     <script>
         /* ============================================================
-           CANVAS – Drawing & Eraser
+           CANVAS – Drawing & Eraser (mutually exclusive modes)
            ============================================================ */
         const canvas = document.getElementById('drawCanvas');
         const ctx = canvas.getContext('2d');
         const objectsLayer = document.getElementById('objectsLayer');
 
+        let currentMode = 'draw'; // 'draw' | 'eraser'
+
+        const drawBtn = document.getElementById('drawBtn');
+        const eraserBtn = document.getElementById('eraserBtn');
+
         // ---- canvas sizing with content scaling ----
-        let canvasContent = null; // stores ImageData for resize
+        let canvasContent = null;
 
         function resizeCanvas() {
-            // Save current content as ImageData
             if (canvas.width > 0 && canvas.height > 0) {
                 canvasContent = ctx.getImageData(0, 0, canvas.width, canvas.height);
             }
-
             const newW = window.innerWidth;
             const newH = window.innerHeight;
-
             if (canvas.width === newW && canvas.height === newH) return;
-
             canvas.width = newW;
             canvas.height = newH;
-
-            // Restore content scaled to fill new canvas
             if (canvasContent) {
                 const temp = document.createElement('canvas');
                 temp.width = canvasContent.width;
                 temp.height = canvasContent.height;
                 const tCtx = temp.getContext('2d');
                 tCtx.putImageData(canvasContent, 0, 0);
-
-                // Draw scaled to fill new canvas (maintain aspect ratio, cover)
                 const scaleX = canvas.width / temp.width;
                 const scaleY = canvas.height / temp.height;
                 const scale = Math.max(scaleX, scaleY);
@@ -278,16 +343,13 @@
                 const dh = temp.height * scale;
                 const dx = (canvas.width - dw) / 2;
                 const dy = (canvas.height - dh) / 2;
-
                 ctx.drawImage(temp, 0, 0, temp.width, temp.height, dx, dy, dw, dh);
                 canvasContent = null;
             }
         }
-
         resizeCanvas();
         window.addEventListener('resize', () => {
             resizeCanvas();
-            // Also re-snap counters after resize
             clearTimeout(window._resizeSnapTimer);
             window._resizeSnapTimer = setTimeout(() => {
                 document.querySelectorAll('.frame .counter').forEach(c => snapCounterToCell(c));
@@ -296,8 +358,6 @@
 
         // ---- drawing state ----
         let drawing = false;
-        let eraserMode = false;
-        const eraserBtn = document.getElementById('eraserBtn');
 
         function startDrawing(e) {
             const target = e.target;
@@ -313,7 +373,7 @@
         function drawLine(e) {
             if (!drawing) return;
             ctx.lineTo(e.clientX, e.clientY);
-            if (eraserMode) {
+            if (currentMode === 'eraser') {
                 ctx.globalCompositeOperation = 'destination-out';
                 ctx.lineWidth = 30;
             } else {
@@ -331,7 +391,6 @@
                 drawing = false;
                 ctx.beginPath();
                 ctx.globalCompositeOperation = 'source-over';
-                // Save content for resize
                 canvasContent = ctx.getImageData(0, 0, canvas.width, canvas.height);
             }
         }
@@ -340,12 +399,24 @@
         document.addEventListener('pointermove', drawLine);
         document.addEventListener('pointerup', stopDrawing);
 
-        eraserBtn.addEventListener('click', () => {
-            eraserMode = !eraserMode;
-            eraserBtn.classList.toggle('active-eraser', eraserMode);
-            eraserBtn.textContent = eraserMode ? '🩹 Eraser ON' : '✏️ Draw';
+        // ---- mode switching ----
+        function setMode(mode) {
+            currentMode = mode;
+            drawBtn.classList.toggle('active-draw', mode === 'draw');
+            eraserBtn.classList.toggle('active-eraser', mode === 'eraser');
+        }
+
+        drawBtn.addEventListener('click', () => {
+            if (currentMode === 'draw') return;
+            setMode('draw');
         });
 
+        eraserBtn.addEventListener('click', () => {
+            if (currentMode === 'eraser') return;
+            setMode('eraser');
+        });
+
+        // ---- clear canvas ----
         document.getElementById('clearBtn').addEventListener('click', () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             canvasContent = null;
@@ -376,14 +447,11 @@
                 const pRect = parent.getBoundingClientRect();
                 let newLeft = (e.clientX - offX) - pRect.left;
                 let newTop = (e.clientY - offY) - pRect.top;
-
-                // Clamp within viewport (with margin)
                 const margin = 20;
                 const maxX = window.innerWidth - el.offsetWidth - margin;
                 const maxY = window.innerHeight - el.offsetHeight - margin;
                 newLeft = Math.max(margin, Math.min(maxX, newLeft));
                 newTop = Math.max(margin, Math.min(maxY, newTop));
-
                 el.style.left = newLeft + 'px';
                 el.style.top = newTop + 'px';
             };
@@ -398,8 +466,6 @@
             el.addEventListener('pointerdown', onPointerDown);
             el.addEventListener('pointermove', onPointerMove);
             el.addEventListener('pointerup', onPointerUp);
-
-            // Store handlers for cleanup if needed
             el._dragHandlers = { onPointerDown, onPointerMove, onPointerUp };
         }
 
@@ -416,7 +482,6 @@
                 if (other === frame) return;
                 const r2 = other.getBoundingClientRect();
 
-                // Horizontal snap
                 if (!snapped) {
                     if (Math.abs(r1.right - r2.left) < SNAP && Math.abs(r1.top - r2.top) < SNAP) {
                         frame.style.left = (other.offsetLeft - frame.offsetWidth - 4) + 'px';
@@ -431,8 +496,6 @@
                         return;
                     }
                 }
-
-                // Vertical snap (if not already snapped horizontally)
                 if (!snapped) {
                     if (Math.abs(r1.bottom - r2.top) < SNAP && Math.abs(r1.left - r2.left) < SNAP) {
                         frame.style.top = (other.offsetTop - frame.offsetHeight - 4) + 'px';
@@ -496,19 +559,16 @@
             objectsLayer.appendChild(frame);
             makeDraggable(frame, (el) => snapFrames(el));
 
-            // Double-click to delete frame (only if empty)
             frame.addEventListener('dblclick', (e) => {
                 const counters = frame.querySelectorAll('.counter');
                 if (counters.length === 0) {
                     frame.remove();
                     e.stopPropagation();
                 } else {
-                    // Flash to indicate not empty
                     frame.style.borderColor = '#e74c3c';
                     setTimeout(() => { frame.style.borderColor = '#222'; }, 400);
                 }
             });
-
             return frame;
         }
 
@@ -544,15 +604,12 @@
         function findFirstEmptyCell(frame) {
             const cells = getCellOrder(frame);
             const counters = frame.querySelectorAll('.counter');
-
             for (let i = 0; i < cells.length; i++) {
                 const cell = cells[i];
                 const cellRect = cell.getBoundingClientRect();
                 let occupied = false;
-
                 for (const counter of counters) {
                     const cRect = counter.getBoundingClientRect();
-                    // Check if counter center is inside cell
                     const cx = cRect.left + cRect.width / 2;
                     const cy = cRect.top + cRect.height / 2;
                     if (cx >= cellRect.left && cx <= cellRect.right &&
@@ -560,7 +617,6 @@
                         occupied = true;
                         break;
                     }
-                    // Also check overlap area (for partially overlapping counters)
                     const overlapX = Math.max(0, Math.min(cRect.right, cellRect.right) - Math.max(cRect.left, cellRect
                     .left));
                     const overlapY = Math.max(0, Math.min(cRect.bottom, cellRect.bottom) - Math.max(cRect.top, cellRect
@@ -604,10 +660,7 @@
             counter.dataset.flying = 'true';
             objectsLayer.appendChild(counter);
 
-            // Force reflow
             void counter.offsetHeight;
-
-            // Set target position
             counter.style.left = targetX + 'px';
             counter.style.top = targetY + 'px';
 
@@ -618,7 +671,6 @@
                 finished = true;
                 counter.removeEventListener('transitionend', onFinish);
 
-                // Move counter into frame
                 const fRect = frame.getBoundingClientRect();
                 const relX = targetX - fRect.left;
                 const relY = targetY - fRect.top;
@@ -635,8 +687,6 @@
             };
 
             counter.addEventListener('transitionend', onFinish);
-
-            // Safety fallback if transitionend doesn't fire
             setTimeout(() => {
                 if (!finished && counter.parentNode) {
                     onFinish();
@@ -656,11 +706,9 @@
                 frames = document.querySelectorAll('.frame');
             }
 
-            // Prefer the last five-frame that has space, otherwise the last ten-frame
             let targetFrame = null;
             let candidateFrames = [];
 
-            // Check all frames for empty cells
             for (const f of frames) {
                 const emptyIdx = findFirstEmptyCell(f);
                 if (emptyIdx !== -1) {
@@ -669,7 +717,6 @@
             }
 
             if (candidateFrames.length === 0) {
-                // All frames full → create a new five-frame
                 const newFrame = buildFrame('five');
                 const cells = getCellOrder(newFrame);
                 if (cells.length > 0) {
@@ -678,7 +725,6 @@
                 return;
             }
 
-            // Prefer five-frames over ten-frames
             const fiveCandidates = candidateFrames.filter(c => c.isFive);
             const selected = fiveCandidates.length > 0 ? fiveCandidates[0] : candidateFrames[0];
 
@@ -720,7 +766,6 @@
                 counter.classList.add('snap');
                 counter.style.left = relX + 'px';
                 counter.style.top = relY + 'px';
-                // Remove snap class after animation
                 setTimeout(() => {
                     counter.classList.remove('snap');
                 }, 250);
@@ -750,10 +795,8 @@
             const f1 = buildFrame('five');
             const f2 = buildFrame('ten');
 
-            // Use requestAnimationFrame to ensure layout is done
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => {
-                    // Add 3 counters to five-frame
                     const cells1 = getCellOrder(f1);
                     for (let i = 0; i < 3 && i < cells1.length; i++) {
                         const c = document.createElement('div');
@@ -767,7 +810,6 @@
                         snapCounterToCell(c);
                     }
 
-                    // Add 1 counter to ten-frame
                     const cells2 = getCellOrder(f2);
                     if (cells2.length > 0) {
                         const c = document.createElement('div');
@@ -794,12 +836,15 @@
                 e.preventDefault();
                 addOneCounter();
             }
+            if (e.key === 'd' || e.key === 'D') {
+                e.preventDefault();
+                setMode('draw');
+            }
             if (e.key === 'e' || e.key === 'E') {
                 e.preventDefault();
-                eraserBtn.click();
+                setMode('eraser');
             }
             if (e.key === 'Delete' || e.key === 'Backspace') {
-                // Delete selected counter or clear canvas if no counter selected
                 const selected = document.querySelector('.counter.dragging');
                 if (selected) {
                     selected.remove();
@@ -810,7 +855,6 @@
         /* ============================================================
            RE-SNAP on any frame movement
            ============================================================ */
-        // Observe DOM changes to re-snap counters when frames are added/removed
         const observer = new MutationObserver(() => {
             document.querySelectorAll('.frame .counter').forEach(c => {
                 if (!c.dataset.flying) snapCounterToCell(c);
@@ -818,7 +862,7 @@
         });
         observer.observe(objectsLayer, { childList: true, subtree: true });
 
-        console.log('✅ Fixed: canvas scaling on resize, vertical frame snap, double-click delete, improved counter fly-in, and keyboard shortcuts (C=add counter, E=eraser).');
+        console.log('✅ Fixed: separate Draw / Eraser buttons, two‑row toolbar, keyboard shortcuts (D=draw, E=eraser, C=counter).');
     </script>
 </body>
 </html>
