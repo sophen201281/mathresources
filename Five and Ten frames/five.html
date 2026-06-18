@@ -2,13 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Magnetic Math Frames + Drawing + Eraser</title>
     <style>
         * {
             box-sizing: border-box;
             touch-action: none;
-            user-select: none;
         }
         body {
             margin: 0;
@@ -21,8 +20,6 @@
             position: fixed;
             inset: 0;
             z-index: 1;
-            touch-action: none;
-            background: white; /* ensures no transparency */
         }
 
         #objectsLayer {
@@ -35,37 +32,28 @@
             pointer-events: auto;
         }
 
-        /* ========== BOTTOM TOOLBAR – TWO ROWS ========== */
+        /* ========== BOTTOM TOOLBAR – SINGLE ROW ========== */
         #bottomBar {
             position: fixed;
             bottom: 20px;
-            left: 10px;
-            right: 10px;
+            left: 50%;
+            transform: translateX(-50%);
             z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            background: rgba(255, 255, 255, 0.92);
-            padding: 10px 14px;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.20);
-            backdrop-filter: blur(6px);
-            width: auto;
-            max-width: none;
-        }
-
-        .toolbar-row {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
             align-items: center;
-            gap: 8px;
-            width: 100%;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.92);
+            padding: 12px 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.20);
+            backdrop-filter: blur(6px);
+            max-width: 95vw;
         }
 
-        .toolbar-row button,
-        .toolbar-row select,
+        #bottomBar button,
+        #bottomBar select,
         .home-btn {
             padding: 8px 14px;
             border: none;
@@ -84,64 +72,19 @@
             align-items: center;
             justify-content: center;
         }
-        .toolbar-row button:hover,
-        .toolbar-row select:hover,
+        #bottomBar button:hover,
+        #bottomBar select:hover,
         .home-btn:hover {
             background: #dfefff;
             transform: scale(1.03);
         }
-        .toolbar-row select {
+        #bottomBar select {
             background: #fff;
             padding-right: 28px;
             appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 10px center;
-        }
-
-        .toolbar-row .draw-btn {
-            background: #e8f0fe;
-            color: #1a73e8;
-            box-shadow: 0 2px 6px rgba(26, 115, 232, 0.20);
-        }
-        .toolbar-row .draw-btn.active-draw {
-            background: #1a73e8;
-            color: #fff;
-            box-shadow: 0 0 0 3px #1a73e8, 0 2px 12px rgba(26, 115, 232, 0.40);
-        }
-        .toolbar-row .eraser-btn {
-            background: #fef0f0;
-            color: #c62828;
-            box-shadow: 0 2px 6px rgba(198, 40, 40, 0.20);
-        }
-        .toolbar-row .eraser-btn.active-eraser {
-            background: #c62828;
-            color: #fff;
-            box-shadow: 0 0 0 3px #c62828, 0 2px 12px rgba(198, 40, 40, 0.40);
-        }
-
-        .toolbar-row .counter-btn {
-            background: #fff0e6;
-            color: #d84315;
-        }
-        .toolbar-row .counter-btn:hover {
-            background: #ffddd0;
-        }
-
-        .toolbar-row .clear-btn {
-            background: #f5f5f5;
-            color: #555;
-        }
-        .toolbar-row .clear-btn:hover {
-            background: #e8e8e8;
-        }
-
-        .home-btn {
-            background: #e3f2fd;
-            color: #0d47a1;
-        }
-        .home-btn:hover {
-            background: #bbdefb;
         }
 
         /* ========== FRAMES ========== */
@@ -152,11 +95,6 @@
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
             overflow: visible;
-            touch-action: none;
-            cursor: grab;
-        }
-        .frame:active {
-            cursor: grabbing;
         }
         .grid {
             width: 100%;
@@ -176,11 +114,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #fafcff;
-            transition: background 0.2s;
-        }
-        .cell.highlight {
-            background: #d4edff;
         }
 
         /* ========== COUNTERS ========== */
@@ -189,88 +122,45 @@
             width: 36px;
             height: 36px;
             border-radius: 50%;
-            background: radial-gradient(circle at 35% 35%, #ff7e7e, #e74c3c);
+            background: #ff5e5e;
             border: 4px solid #c92f2f;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25), inset 0 -2px 4px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
             z-index: 20;
-            pointer-events: auto;
-            touch-action: none;
-            cursor: grab;
             transition: none;
-        }
-        .counter:active {
-            cursor: grabbing;
+            pointer-events: auto;
         }
         .counter.dragging {
-            transform: scale(1.12);
+            transform: scale(1.10);
             z-index: 50;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
         }
         .counter.fly {
             transition: left 0.55s cubic-bezier(0.34, 1.56, 0.64, 1),
                 top 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        .counter.snap {
-            transition: left 0.18s ease-out, top 0.18s ease-out;
         }
 
         .frame .counter {
             position: absolute;
         }
 
-        /* ========== RESPONSIVE ========== */
         @media (max-width: 600px) {
             #bottomBar {
-                padding: 8px 10px;
-                gap: 6px;
+                padding: 10px 14px;
+                gap: 8px;
                 bottom: 12px;
-                left: 8px;
-                right: 8px;
-                border-radius: 14px;
             }
-            .toolbar-row {
-                gap: 6px;
-            }
-            .toolbar-row button,
-            .toolbar-row select,
+            #bottomBar button,
+            #bottomBar select,
             .home-btn {
                 font-size: 12px;
                 padding: 6px 10px;
             }
         }
         @media (max-width: 400px) {
-            #bottomBar {
-                padding: 6px 8px;
-                gap: 5px;
-                bottom: 8px;
-                left: 6px;
-                right: 6px;
-                border-radius: 12px;
-            }
-            .toolbar-row {
-                gap: 4px;
-            }
-            .toolbar-row button,
-            .toolbar-row select,
+            #bottomBar button,
+            #bottomBar select,
             .home-btn {
                 font-size: 11px;
                 padding: 5px 8px;
-                border-radius: 8px;
-            }
-        }
-        @media (max-width: 360px) {
-            .toolbar-row button,
-            .toolbar-row select,
-            .home-btn {
-                font-size: 10px;
-                padding: 4px 6px;
-            }
-            .toolbar-row {
-                gap: 3px;
-            }
-            #bottomBar {
-                padding: 4px 6px;
-                gap: 4px;
             }
         }
     </style>
@@ -283,91 +173,47 @@
     <!-- ===== OBJECTS LAYER ===== -->
     <div id="objectsLayer"></div>
 
-    <!-- ===== BOTTOM TOOLBAR – TWO ROWS ===== -->
+    <!-- ===== BOTTOM TOOLBAR – SINGLE ROW ===== -->
     <div id="bottomBar">
-        <!-- ROW 1: Home · Frame Select · Counter · Clear -->
-        <div class="toolbar-row">
-            <a href="../index.html" class="home-btn">🏡 Home</a>
-            <select id="frameSelect">
-                <option value="five">➕ Five Frame</option>
-                <option value="ten">➕ Ten Frame</option>
-            </select>
-            <button id="counterBtn" class="counter-btn">🔴 Counter</button>
-            <button id="clearBtn" class="clear-btn">🧹 Clear</button>
-        </div>
-        <!-- ROW 2: Draw · Eraser -->
-        <div class="toolbar-row">
-            <button id="drawBtn" class="draw-btn active-draw">✏️ Draw</button>
-            <button id="eraserBtn" class="eraser-btn">🩹 Eraser</button>
-        </div>
+        <a href="../index.html" class="home-btn">🏡 Home</a>
+        <select id="frameSelect">
+            <option value="five">➕ Five Frame</option>
+            <option value="ten">➕ Ten Frame</option>
+        </select>
+        <button id="counterBtn">🔴 Counter</button>
+        <button id="eraserBtn">✏️ / 🩹 Eraser</button>
+        <button id="clearBtn">🧹 Clear</button>
     </div>
 
     <script>
         /* ============================================================
-           CANVAS – Drawing & Eraser (mutually exclusive modes)
+           CANVAS – Drawing & Eraser
            ============================================================ */
         const canvas = document.getElementById('drawCanvas');
         const ctx = canvas.getContext('2d');
         const objectsLayer = document.getElementById('objectsLayer');
 
-        let currentMode = 'draw'; // 'draw' | 'eraser'
-
-        const drawBtn = document.getElementById('drawBtn');
-        const eraserBtn = document.getElementById('eraserBtn');
-
-        // ---- canvas sizing with NO scaling (content stays at same pixel coords) ----
-        let canvasContent = null;
-
         function resizeCanvas() {
-            // Save current content as ImageData
-            if (canvas.width > 0 && canvas.height > 0) {
-                canvasContent = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            }
-
-            const newW = window.innerWidth;
-            const newH = window.innerHeight;
-
-            // Skip if dimensions unchanged
-            if (canvas.width === newW && canvas.height === newH) return;
-
-            canvas.width = newW;
-            canvas.height = newH;
-
-            // Restore content at top-left (0,0) without scaling
-            if (canvasContent) {
-                ctx.putImageData(canvasContent, 0, 0);
-                canvasContent = null;
-            }
+            const temp = document.createElement('canvas');
+            temp.width = canvas.width;
+            temp.height = canvas.height;
+            temp.getContext('2d').drawImage(canvas, 0, 0);
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            ctx.drawImage(temp, 0, 0);
         }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
 
-        // ---- We do NOT reposition frames or counters on resize to keep them fixed ----
-        // Only canvas resizes, everything else stays as is.
-
-        // ---- resize handler (only canvas) ----
-        let resizeTimeout = null;
-
-        function handleResize() {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(() => {
-                resizeCanvas();
-            }, 100);
-        }
-
-        window.addEventListener('resize', handleResize);
-        window.addEventListener('orientationchange', () => {
-            // orientationchange fires before resize, so we need to handle after a short delay
-            setTimeout(handleResize, 200);
-        });
-
-        // ---- drawing state ----
         let drawing = false;
+        let currentColor = 'black';
+        let eraserMode = false;
 
         function startDrawing(e) {
-            const target = e.target;
-            if (target.closest('.frame') ||
-                target.closest('.counter') ||
-                target.closest('#bottomBar') ||
-                target.closest('.home-btn')) return;
+            if (e.target.closest('.frame') ||
+                e.target.closest('.counter') ||
+                e.target.closest('#bottomBar') ||
+                e.target.closest('.home-btn')) return;
             drawing = true;
             ctx.beginPath();
             ctx.moveTo(e.clientX, e.clientY);
@@ -376,12 +222,12 @@
         function drawLine(e) {
             if (!drawing) return;
             ctx.lineTo(e.clientX, e.clientY);
-            if (currentMode === 'eraser') {
+            if (eraserMode) {
                 ctx.globalCompositeOperation = 'destination-out';
                 ctx.lineWidth = 30;
             } else {
                 ctx.globalCompositeOperation = 'source-over';
-                ctx.strokeStyle = '#222';
+                ctx.strokeStyle = currentColor;
                 ctx.lineWidth = 5;
             }
             ctx.lineCap = 'round';
@@ -390,51 +236,32 @@
         }
 
         function stopDrawing() {
-            if (drawing) {
-                drawing = false;
-                ctx.beginPath();
-                ctx.globalCompositeOperation = 'source-over';
-                // Save content after drawing
-                canvasContent = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            }
+            drawing = false;
+            ctx.beginPath();
+            ctx.globalCompositeOperation = 'source-over';
         }
 
         document.addEventListener('pointerdown', startDrawing);
         document.addEventListener('pointermove', drawLine);
         document.addEventListener('pointerup', stopDrawing);
 
-        // ---- mode switching ----
-        function setMode(mode) {
-            currentMode = mode;
-            drawBtn.classList.toggle('active-draw', mode === 'draw');
-            eraserBtn.classList.toggle('active-eraser', mode === 'eraser');
-        }
-
-        drawBtn.addEventListener('click', () => {
-            if (currentMode === 'draw') return;
-            setMode('draw');
+        document.getElementById('eraserBtn').addEventListener('click', () => {
+            eraserMode = !eraserMode;
         });
 
-        eraserBtn.addEventListener('click', () => {
-            if (currentMode === 'eraser') return;
-            setMode('eraser');
-        });
-
-        // ---- clear canvas ----
         document.getElementById('clearBtn').addEventListener('click', () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            canvasContent = null;
         });
 
         /* ============================================================
-           DRAGGABLE – smooth, no drift, with bounds
+           DRAGGABLE – smooth, no drift
            ============================================================ */
         function makeDraggable(el, onDrop) {
             let dragging = false;
             let offX = 0,
                 offY = 0;
 
-            const onPointerDown = (e) => {
+            el.addEventListener('pointerdown', (e) => {
                 if (e.target !== el && !el.contains(e.target)) return;
                 dragging = true;
                 const rect = el.getBoundingClientRect();
@@ -443,82 +270,59 @@
                 el.setPointerCapture(e.pointerId);
                 if (el.classList.contains('counter')) el.classList.add('dragging');
                 e.stopPropagation();
-            };
+            });
 
-            const onPointerMove = (e) => {
+            el.addEventListener('pointermove', (e) => {
                 if (!dragging) return;
-                const parent = el.offsetParent || objectsLayer;
-                const pRect = parent.getBoundingClientRect();
-                let newLeft = (e.clientX - offX) - pRect.left;
-                let newTop = (e.clientY - offY) - pRect.top;
-                const margin = 20;
-                const maxX = window.innerWidth - el.offsetWidth - margin;
-                const maxY = window.innerHeight - el.offsetHeight - margin;
-                newLeft = Math.max(margin, Math.min(maxX, newLeft));
-                newTop = Math.max(margin, Math.min(maxY, newTop));
+                const pRect = el.offsetParent.getBoundingClientRect();
+                const newLeft = (e.clientX - offX) - pRect.left;
+                const newTop = (e.clientY - offY) - pRect.top;
                 el.style.left = newLeft + 'px';
                 el.style.top = newTop + 'px';
-            };
+            });
 
-            const onPointerUp = (e) => {
-                if (!dragging) return;
+            el.addEventListener('pointerup', (e) => {
                 dragging = false;
                 el.classList.remove('dragging');
                 if (onDrop) onDrop(el, e);
-            };
+            });
 
-            el.addEventListener('pointerdown', onPointerDown);
-            el.addEventListener('pointermove', onPointerMove);
-            el.addEventListener('pointerup', onPointerUp);
-            el._dragHandlers = { onPointerDown, onPointerMove, onPointerUp };
+            // Double‑tap delete (only the tapped element)
+            let lastTap = 0;
+            el.addEventListener('click', (e) => {
+                const now = Date.now();
+                if (now - lastTap < 300) {
+                    // Delete this element (and its children if it's a frame)
+                    el.remove();
+                    e.stopPropagation();
+                }
+                lastTap = now;
+            });
         }
 
         /* ============================================================
-           FRAME SNAP (Magnetic) – horizontal + vertical
+           FRAME SNAP (Magnetic)
            ============================================================ */
         function snapFrames(frame) {
             const frames = document.querySelectorAll('.frame');
             const r1 = frame.getBoundingClientRect();
-            const SNAP = 30;
-            let snapped = false;
-
             frames.forEach(other => {
                 if (other === frame) return;
                 const r2 = other.getBoundingClientRect();
-
-                if (!snapped) {
-                    if (Math.abs(r1.right - r2.left) < SNAP && Math.abs(r1.top - r2.top) < SNAP) {
-                        frame.style.left = (other.offsetLeft - frame.offsetWidth - 4) + 'px';
-                        frame.style.top = other.offsetTop + 'px';
-                        snapped = true;
-                        return;
-                    }
-                    if (Math.abs(r1.left - r2.right) < SNAP && Math.abs(r1.top - r2.top) < SNAP) {
-                        frame.style.left = (other.offsetLeft + other.offsetWidth + 4) + 'px';
-                        frame.style.top = other.offsetTop + 'px';
-                        snapped = true;
-                        return;
-                    }
+                const SNAP = 30;
+                if (Math.abs(r1.right - r2.left) < SNAP && Math.abs(r1.top - r2.top) < SNAP) {
+                    frame.style.left = (other.offsetLeft - frame.offsetWidth - 4) + 'px';
+                    frame.style.top = other.offsetTop + 'px';
                 }
-                if (!snapped) {
-                    if (Math.abs(r1.bottom - r2.top) < SNAP && Math.abs(r1.left - r2.left) < SNAP) {
-                        frame.style.top = (other.offsetTop - frame.offsetHeight - 4) + 'px';
-                        frame.style.left = other.offsetLeft + 'px';
-                        snapped = true;
-                        return;
-                    }
-                    if (Math.abs(r1.top - r2.bottom) < SNAP && Math.abs(r1.left - r2.left) < SNAP) {
-                        frame.style.top = (other.offsetTop + other.offsetHeight + 4) + 'px';
-                        frame.style.left = other.offsetLeft + 'px';
-                        snapped = true;
-                        return;
-                    }
+                if (Math.abs(r1.left - r2.right) < SNAP && Math.abs(r1.top - r2.top) < SNAP) {
+                    frame.style.left = (other.offsetLeft + other.offsetWidth + 4) + 'px';
+                    frame.style.top = other.offsetTop + 'px';
                 }
             });
         }
 
         /* ============================================================
-           FRAME CREATION – five on top, ten below
+           FRAME CREATION – with layout: five on top, ten below
            ============================================================ */
         let fiveCount = 0;
         let tenCount = 0;
@@ -537,6 +341,7 @@
             frame.style.width = FRAME_W + 'px';
             frame.style.height = (isTen ? FRAME_H_TEN : FRAME_H_FIVE) + 'px';
 
+            // Compute position
             let left, top;
             if (isTen) {
                 left = START_X + tenCount * (FRAME_W + GAP);
@@ -561,18 +366,7 @@
             }
             frame.appendChild(grid);
             objectsLayer.appendChild(frame);
-            makeDraggable(frame, (el) => snapFrames(el));
-
-            frame.addEventListener('dblclick', (e) => {
-                const counters = frame.querySelectorAll('.counter');
-                if (counters.length === 0) {
-                    frame.remove();
-                    e.stopPropagation();
-                } else {
-                    frame.style.borderColor = '#e74c3c';
-                    setTimeout(() => { frame.style.borderColor = '#222'; }, 400);
-                }
-            });
+            makeDraggable(frame, snapFrames);
             return frame;
         }
 
@@ -603,11 +397,12 @@
         }
 
         /* ============================================================
-           Find first empty cell (improved occupancy check)
+           Find first empty cell
            ============================================================ */
         function findFirstEmptyCell(frame) {
             const cells = getCellOrder(frame);
             const counters = frame.querySelectorAll('.counter');
+
             for (let i = 0; i < cells.length; i++) {
                 const cell = cells[i];
                 const cellRect = cell.getBoundingClientRect();
@@ -618,14 +413,6 @@
                     const cy = cRect.top + cRect.height / 2;
                     if (cx >= cellRect.left && cx <= cellRect.right &&
                         cy >= cellRect.top && cy <= cellRect.bottom) {
-                        occupied = true;
-                        break;
-                    }
-                    const overlapX = Math.max(0, Math.min(cRect.right, cellRect.right) - Math.max(cRect.left, cellRect
-                    .left));
-                    const overlapY = Math.max(0, Math.min(cRect.bottom, cellRect.bottom) - Math.max(cRect.top, cellRect
-                    .top));
-                    if (overlapX > 10 && overlapY > 10) {
                         occupied = true;
                         break;
                     }
@@ -668,17 +455,11 @@
             counter.style.left = targetX + 'px';
             counter.style.top = targetY + 'px';
 
-            let finished = false;
-
             const onFinish = () => {
-                if (finished) return;
-                finished = true;
                 counter.removeEventListener('transitionend', onFinish);
-
                 const fRect = frame.getBoundingClientRect();
                 const relX = targetX - fRect.left;
                 const relY = targetY - fRect.top;
-
                 counter.classList.remove('fly');
                 counter.style.transition = 'none';
                 counter.style.left = relX + 'px';
@@ -689,17 +470,29 @@
                 counter.dataset.flying = 'false';
                 isFlying = false;
             };
-
             counter.addEventListener('transitionend', onFinish);
+
             setTimeout(() => {
-                if (!finished && counter.parentNode) {
-                    onFinish();
+                if (counter.parentNode && counter.dataset.flying === 'true') {
+                    counter.removeEventListener('transitionend', onFinish);
+                    const fRect = frame.getBoundingClientRect();
+                    const relX = targetX - fRect.left;
+                    const relY = targetY - fRect.top;
+                    counter.classList.remove('fly');
+                    counter.style.transition = 'none';
+                    counter.style.left = relX + 'px';
+                    counter.style.top = relY + 'px';
+                    frame.appendChild(counter);
+                    makeDraggable(counter, (el) => snapCounterToCell(el));
+                    snapCounterToCell(counter);
+                    counter.dataset.flying = 'false';
+                    isFlying = false;
                 }
             }, 900);
         }
 
         /* ============================================================
-           ADD ONE COUNTER – sequential fill (smart frame selection)
+           ADD ONE COUNTER – sequential fill
            ============================================================ */
         function addOneCounter() {
             if (isFlying) return;
@@ -710,34 +503,35 @@
                 frames = document.querySelectorAll('.frame');
             }
 
+            // Prefer the most recent five‑frame
             let targetFrame = null;
-            let candidateFrames = [];
-
-            for (const f of frames) {
-                const emptyIdx = findFirstEmptyCell(f);
-                if (emptyIdx !== -1) {
-                    candidateFrames.push({ frame: f, emptyIdx, isFive: f.classList.contains('fiveFrame') });
+            for (let i = frames.length - 1; i >= 0; i--) {
+                if (frames[i].classList.contains('fiveFrame')) {
+                    targetFrame = frames[i];
+                    break;
                 }
             }
+            if (!targetFrame) {
+                targetFrame = frames[frames.length - 1];
+            }
 
-            if (candidateFrames.length === 0) {
+            const emptyIdx = findFirstEmptyCell(targetFrame);
+            if (emptyIdx === -1) {
+                // All cells full → create a new five‑frame
                 const newFrame = buildFrame('five');
-                const cells = getCellOrder(newFrame);
-                if (cells.length > 0) {
-                    launchCounterToCell(newFrame, cells[0]);
+                const newCells = getCellOrder(newFrame);
+                if (newCells.length > 0) {
+                    launchCounterToCell(newFrame, newCells[0]);
                 }
                 return;
             }
 
-            const fiveCandidates = candidateFrames.filter(c => c.isFive);
-            const selected = fiveCandidates.length > 0 ? fiveCandidates[0] : candidateFrames[0];
-
-            const cells = getCellOrder(selected.frame);
-            launchCounterToCell(selected.frame, cells[selected.emptyIdx]);
+            const cells = getCellOrder(targetFrame);
+            launchCounterToCell(targetFrame, cells[emptyIdx]);
         }
 
         /* ============================================================
-           SNAP COUNTER TO NEAREST CELL (improved)
+           SNAP COUNTER TO NEAREST CELL
            ============================================================ */
         function snapCounterToCell(counter) {
             const cells = document.querySelectorAll('.cell');
@@ -756,23 +550,20 @@
                     best = cell; }
             });
 
-            if (best && bestDist < 80) {
+            if (best && bestDist < 70) {
                 const frame = best.closest('.frame');
                 if (!frame) return;
                 const fRect = frame.getBoundingClientRect();
                 const bRect = best.getBoundingClientRect();
-                const relX = bRect.left - fRect.left + (bRect.width - 36) / 2;
-                const relY = bRect.top - fRect.top + (bRect.height - 36) / 2;
-
+                const relX = bRect.left - fRect.left + 2;
+                const relY = bRect.top - fRect.top + 2;
                 if (counter.parentNode !== frame) {
                     frame.appendChild(counter);
                 }
-                counter.classList.add('snap');
                 counter.style.left = relX + 'px';
                 counter.style.top = relY + 'px';
-                setTimeout(() => {
-                    counter.classList.remove('snap');
-                }, 250);
+                counter.style.transition = 'left 0.15s ease, top 0.15s ease';
+                setTimeout(() => { counter.style.transition = ''; }, 200);
             }
         }
 
@@ -782,94 +573,61 @@
         document.getElementById('counterBtn').addEventListener('click', addOneCounter);
 
         /* ============================================================
-           DOUBLE-CLICK TO DELETE COUNTER
+           STARTUP – two frames (five on top, ten below)
            ============================================================ */
-        document.addEventListener('dblclick', (e) => {
-            const counter = e.target.closest('.counter');
-            if (counter && !counter.dataset.flying) {
-                counter.remove();
-                e.stopPropagation();
+        // The first five and ten frames will be placed automatically
+        const f1 = buildFrame('five');
+        // Reset counters so that the ten frame is placed correctly
+        // But we already incremented fiveCount to 1. We need to set tenCount=0 initially.
+        // However, we already created fiveCount=1. We'll adjust: we want a five and a ten, with ten below.
+        // Our buildFrame logic uses fiveCount and tenCount. After creating f1, fiveCount=1, tenCount=0.
+        // Now create ten frame: it will be at START_X + 0*(FRAME_W+GAP) = START_X, and y = START_Y_TEN.
+        const f2 = buildFrame('ten');
+        // Now fiveCount=1, tenCount=1.
+
+        // Add some sample counters to the five‑frame (cells 0,1,2)
+        setTimeout(() => {
+            const cells1 = getCellOrder(f1);
+            for (let i = 0; i < 3 && i < cells1.length; i++) {
+                const c = document.createElement('div');
+                c.className = 'counter';
+                const r = cells1[i].getBoundingClientRect();
+                const fr = f1.getBoundingClientRect();
+                c.style.left = (r.left - fr.left + 2) + 'px';
+                c.style.top = (r.top - fr.top + 2) + 'px';
+                f1.appendChild(c);
+                makeDraggable(c, (el) => snapCounterToCell(el));
+                snapCounterToCell(c);
             }
-        });
+            // Add one counter to the ten‑frame (cell 0)
+            const cells2 = getCellOrder(f2);
+            if (cells2.length > 0) {
+                const c = document.createElement('div');
+                c.className = 'counter';
+                const r = cells2[0].getBoundingClientRect();
+                const fr = f2.getBoundingClientRect();
+                c.style.left = (r.left - fr.left + 2) + 'px';
+                c.style.top = (r.top - fr.top + 2) + 'px';
+                f2.appendChild(c);
+                makeDraggable(c, (el) => snapCounterToCell(el));
+                snapCounterToCell(c);
+            }
+        }, 100);
 
         /* ============================================================
-           STARTUP – two frames (five on top, ten below) with counters
+           RE‑SNAP on resize
            ============================================================ */
-        function initStartupCounters() {
-            const f1 = buildFrame('five');
-            const f2 = buildFrame('ten');
-
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    const cells1 = getCellOrder(f1);
-                    for (let i = 0; i < 3 && i < cells1.length; i++) {
-                        const c = document.createElement('div');
-                        c.className = 'counter';
-                        const r = cells1[i].getBoundingClientRect();
-                        const fr = f1.getBoundingClientRect();
-                        c.style.left = (r.left - fr.left + (r.width - 36) / 2) + 'px';
-                        c.style.top = (r.top - fr.top + (r.height - 36) / 2) + 'px';
-                        f1.appendChild(c);
-                        makeDraggable(c, (el) => snapCounterToCell(el));
-                        snapCounterToCell(c);
-                    }
-
-                    const cells2 = getCellOrder(f2);
-                    if (cells2.length > 0) {
-                        const c = document.createElement('div');
-                        c.className = 'counter';
-                        const r = cells2[0].getBoundingClientRect();
-                        const fr = f2.getBoundingClientRect();
-                        c.style.left = (r.left - fr.left + (r.width - 36) / 2) + 'px';
-                        c.style.top = (r.top - fr.top + (r.height - 36) / 2) + 'px';
-                        f2.appendChild(c);
-                        makeDraggable(c, (el) => snapCounterToCell(el));
-                        snapCounterToCell(c);
-                    }
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                document.querySelectorAll('.frame .counter').forEach(c => {
+                    snapCounterToCell(c);
                 });
-            });
-        }
-
-        initStartupCounters();
-
-        /* ============================================================
-           KEYBOARD SHORTCUTS
-           ============================================================ */
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'c' || e.key === 'C') {
-                e.preventDefault();
-                addOneCounter();
-            }
-            if (e.key === 'd' || e.key === 'D') {
-                e.preventDefault();
-                setMode('draw');
-            }
-            if (e.key === 'e' || e.key === 'E') {
-                e.preventDefault();
-                setMode('eraser');
-            }
-            if (e.key === 'Delete' || e.key === 'Backspace') {
-                const selected = document.querySelector('.counter.dragging');
-                if (selected) {
-                    selected.remove();
-                }
-            }
+            }, 300);
         });
 
-        /* ============================================================
-           RE-SNAP on any frame movement (counters)
-           ============================================================ */
-        const observer = new MutationObserver(() => {
-            document.querySelectorAll('.frame .counter').forEach(c => {
-                if (!c.dataset.flying) snapCounterToCell(c);
-            });
-        });
-        observer.observe(objectsLayer, { childList: true, subtree: true });
-
-        // Initial canvas sizing
-        resizeCanvas();
-
-        console.log('✅ Fixed: screen rotation now preserves drawing position and frame layout without shifting.');
+        console.log('✅ Ten frames placed below five frames. Double‑tap deletes only the tapped item.');
     </script>
 </body>
 </html>
