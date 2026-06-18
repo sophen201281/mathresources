@@ -205,7 +205,7 @@
 
     <script>
         /* ============================================================
-           CANVAS
+           CANVAS – Drawing & Eraser
            ============================================================ */
         const canvas = document.getElementById('drawCanvas');
         const ctx = canvas.getContext('2d');
@@ -282,7 +282,7 @@
         });
 
         /* ============================================================
-           DRAGGABLE
+           DRAGGABLE (Frames & Counters)
            ============================================================ */
         function makeDraggable(el, onDrop) {
             let dragging = false;
@@ -321,7 +321,7 @@
         }
 
         /* ============================================================
-           FRAME SNAP
+           FRAME SNAP (Magnetic)
            ============================================================ */
         function snapFrames(frame) {
             const frames = document.querySelectorAll('.frame');
@@ -342,7 +342,7 @@
         }
 
         /* ============================================================
-           FRAME CREATION (smaller)
+           FRAME CREATION (Smaller size)
            ============================================================ */
         function buildFrame(type) {
             const isTen = type === 'ten';
@@ -372,7 +372,7 @@
         }
 
         /* ============================================================
-           DROPDOWN – create frame on selection
+           DROPDOWN – Create frame on selection
            ============================================================ */
         const frameSelect = document.getElementById('frameSelect');
         frameSelect.addEventListener('change', () => {
@@ -382,7 +382,7 @@
         });
 
         /* ============================================================
-           CELL ORDER (ten-frame: top row L→R, then bottom row L→R)
+           CELL ORDER (Ten-frame: top row L→R, then bottom row L→R)
            ============================================================ */
         function getCellOrder(frame) {
             const cells = frame.querySelectorAll('.cell');
@@ -398,7 +398,7 @@
         }
 
         /* ============================================================
-           COUNTER – one at a time
+           COUNTER – Sequential Fly-in (One at a time)
            ============================================================ */
         let isFlying = false;
 
@@ -426,7 +426,7 @@
             counter.dataset.flying = 'true';
             objectsLayer.appendChild(counter);
 
-            // force reflow
+            // Force reflow to trigger the transition
             void counter.offsetHeight;
             counter.style.left = targetX + 'px';
             counter.style.top = targetY + 'px';
@@ -448,7 +448,7 @@
             };
             counter.addEventListener('transitionend', onFinish);
 
-            // safety fallback
+            // Safety fallback
             setTimeout(() => {
                 if (counter.parentNode && counter.dataset.flying === 'true') {
                     counter.removeEventListener('transitionend', onFinish);
@@ -468,20 +468,34 @@
             }, 900);
         }
 
+        /* ============================================================
+           ADD ONE COUNTER – Prioritize Five-Frame, fill left to right
+           ============================================================ */
         function addOneCounter() {
             if (isFlying) return;
 
             let frames = document.querySelectorAll('.frame');
             if (frames.length === 0) {
-                const f = buildFrame('five');
+                buildFrame('five');
                 frames = document.querySelectorAll('.frame');
             }
 
-            // Use the most recently created frame
-            const frame = frames[frames.length - 1];
+            // Prioritize the five-frame for adding counters
+            let frame = null;
+            for (let i = frames.length - 1; i >= 0; i--) {
+                if (frames[i].classList.contains('fiveFrame')) {
+                    frame = frames[i];
+                    break;
+                }
+            }
+            // If no five-frame exists, use the most recent frame (could be ten-frame)
+            if (!frame) {
+                frame = frames[frames.length - 1];
+            }
+
             const cells = getCellOrder(frame);
 
-            // Find first empty cell (no counter inside)
+            // Find the first empty cell (left to right, top to bottom)
             let emptyIdx = -1;
             for (let i = 0; i < cells.length; i++) {
                 const counters = cells[i].querySelectorAll('.counter');
@@ -491,8 +505,8 @@
                 }
             }
 
+            // If the current frame is full, create a new five-frame
             if (emptyIdx === -1) {
-                // All cells full → create a new five-frame and add to it
                 const newFrame = buildFrame('five');
                 const newCells = getCellOrder(newFrame);
                 if (newCells.length > 0) {
@@ -505,7 +519,7 @@
         }
 
         /* ============================================================
-           SNAP COUNTER TO CELL
+           SNAP COUNTER TO NEAREST CELL
            ============================================================ */
         function snapCounterToCell(counter) {
             const cells = document.querySelectorAll('.cell');
@@ -542,12 +556,12 @@
         }
 
         /* ============================================================
-           COUNTER BUTTON – one per click
+           COUNTER BUTTON – One counter per click
            ============================================================ */
         document.getElementById('counterBtn').addEventListener('click', addOneCounter);
 
         /* ============================================================
-           STARTUP – two frames with a few initial counters
+           STARTUP – Create initial frames with sample counters
            ============================================================ */
         const f1 = buildFrame('five');
         f1.style.left = '60px';
@@ -557,7 +571,7 @@
         f2.style.left = '380px';
         f2.style.top = '90px';
 
-        // Put a few counters in the five-frame (cells 0,1,2)
+        // Add a few sample counters to the five-frame (cells 0, 1, 2)
         setTimeout(() => {
             const cells1 = getCellOrder(f1);
             for (let i = 0; i < 3 && i < cells1.length; i++) {
@@ -571,12 +585,12 @@
                 makeDraggable(c, (el) => snapCounterToCell(el));
                 snapCounterToCell(c);
             }
-            // Put a few counters in the ten-frame (top row cells 0,1)
+            // Add a sample counter to the ten-frame (cell 0)
             const cells2 = getCellOrder(f2);
-            for (let i = 0; i < 2 && i < cells2.length; i++) {
+            if (cells2.length > 0) {
                 const c = document.createElement('div');
                 c.className = 'counter';
-                const r = cells2[i].getBoundingClientRect();
+                const r = cells2[0].getBoundingClientRect();
                 const fr = f2.getBoundingClientRect();
                 c.style.left = (r.left - fr.left + 2) + 'px';
                 c.style.top = (r.top - fr.top + 2) + 'px';
@@ -587,7 +601,7 @@
         }, 100);
 
         /* ============================================================
-           RE-SNAP on resize
+           RE-SNAP counters on window resize
            ============================================================ */
         let resizeTimer;
         window.addEventListener('resize', () => {
@@ -599,8 +613,7 @@
             }, 300);
         });
 
-        console.log('✅ One counter per click!');
-        console.log('📐 Use dropdown to add frames, click Counter to add one at a time.');
+        console.log('✅ Counter button adds one counter at a time, filling the five-frame left to right.');
     </script>
 </body>
 </html>
