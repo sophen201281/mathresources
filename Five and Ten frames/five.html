@@ -22,6 +22,7 @@
             inset: 0;
             z-index: 1;
             touch-action: none;
+            background: white; /* ensures no transparency */
         }
 
         #objectsLayer {
@@ -314,7 +315,7 @@
         const drawBtn = document.getElementById('drawBtn');
         const eraserBtn = document.getElementById('eraserBtn');
 
-        // ---- canvas sizing with content scaling (fit & center) ----
+        // ---- canvas sizing with NO scaling (content stays at same pixel coords) ----
         let canvasContent = null;
 
         function resizeCanvas() {
@@ -332,93 +333,30 @@
             canvas.width = newW;
             canvas.height = newH;
 
-            // Restore content scaled to fit (Math.min) and centered
+            // Restore content at top-left (0,0) without scaling
             if (canvasContent) {
-                const temp = document.createElement('canvas');
-                temp.width = canvasContent.width;
-                temp.height = canvasContent.height;
-                const tCtx = temp.getContext('2d');
-                tCtx.putImageData(canvasContent, 0, 0);
-
-                // Calculate fit scale and offset to center
-                const scaleX = canvas.width / temp.width;
-                const scaleY = canvas.height / temp.height;
-                const scale = Math.min(scaleX, scaleY); // fit, not cover
-                const dw = temp.width * scale;
-                const dh = temp.height * scale;
-                const dx = (canvas.width - dw) / 2;
-                const dy = (canvas.height - dh) / 2;
-
-                ctx.drawImage(temp, 0, 0, temp.width, temp.height, dx, dy, dw, dh);
+                ctx.putImageData(canvasContent, 0, 0);
                 canvasContent = null;
             }
         }
 
-        // ---- reposition frames only if they are completely outside viewport ----
-        function repositionFrames() {
-            const margin = 5; // small buffer
-            const frames = document.querySelectorAll('.frame');
-            frames.forEach(frame => {
-                const rect = frame.getBoundingClientRect();
-                let left = parseFloat(frame.style.left) || 0;
-                let top = parseFloat(frame.style.top) || 0;
-                let changed = false;
+        // ---- We do NOT reposition frames or counters on resize to keep them fixed ----
+        // Only canvas resizes, everything else stays as is.
 
-                // Check if frame is outside viewport (completely or partially)
-                if (rect.right < margin) {
-                    left += (margin - rect.right);
-                    changed = true;
-                } else if (rect.left > window.innerWidth - margin) {
-                    left -= (rect.left - window.innerWidth + margin);
-                    changed = true;
-                }
-                if (rect.bottom < margin) {
-                    top += (margin - rect.bottom);
-                    changed = true;
-                } else if (rect.top > window.innerHeight - margin) {
-                    top -= (rect.top - window.innerHeight + margin);
-                    changed = true;
-                }
-
-                // Also clamp to ensure frame is within viewport (positive offsets)
-                if (left < 0) { left = margin;
-                    changed = true; }
-                if (top < 0) { top = margin;
-                    changed = true; }
-                if (left + frame.offsetWidth > window.innerWidth - margin) {
-                    left = window.innerWidth - frame.offsetWidth - margin;
-                    changed = true;
-                }
-                if (top + frame.offsetHeight > window.innerHeight - margin) {
-                    top = window.innerHeight - frame.offsetHeight - margin;
-                    changed = true;
-                }
-
-                if (changed) {
-                    frame.style.left = left + 'px';
-                    frame.style.top = top + 'px';
-                }
-            });
-        }
-
-        // ---- resize handler with debounce ----
+        // ---- resize handler (only canvas) ----
         let resizeTimeout = null;
 
         function handleResize() {
-            resizeCanvas();
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(() => {
-                repositionFrames();
-                // Re-snap frames to each other (optional)
-                document.querySelectorAll('.frame').forEach(f => snapFrames(f));
-                // Re-snap counters
-                document.querySelectorAll('.frame .counter').forEach(c => snapCounterToCell(c));
-            }, 200);
+                resizeCanvas();
+            }, 100);
         }
 
         window.addEventListener('resize', handleResize);
         window.addEventListener('orientationchange', () => {
-            setTimeout(handleResize, 300);
+            // orientationchange fires before resize, so we need to handle after a short delay
+            setTimeout(handleResize, 200);
         });
 
         // ---- drawing state ----
@@ -456,6 +394,7 @@
                 drawing = false;
                 ctx.beginPath();
                 ctx.globalCompositeOperation = 'source-over';
+                // Save content after drawing
                 canvasContent = ctx.getImageData(0, 0, canvas.width, canvas.height);
             }
         }
@@ -918,7 +857,7 @@
         });
 
         /* ============================================================
-           RE-SNAP on any frame movement
+           RE-SNAP on any frame movement (counters)
            ============================================================ */
         const observer = new MutationObserver(() => {
             document.querySelectorAll('.frame .counter').forEach(c => {
@@ -927,14 +866,10 @@
         });
         observer.observe(objectsLayer, { childList: true, subtree: true });
 
-        // Initial reposition to ensure everything is within viewport (gentle)
-        setTimeout(() => {
-            repositionFrames();
-            // Also snap frames to each other
-            document.querySelectorAll('.frame').forEach(f => snapFrames(f));
-        }, 150);
+        // Initial canvas sizing
+        resizeCanvas();
 
-        console.log('✅ Fixed: screen rotation now preserves drawing position and frame layout.');
+        console.log('✅ Fixed: screen rotation now preserves drawing position and frame layout without shifting.');
     </script>
 </body>
 </html>
