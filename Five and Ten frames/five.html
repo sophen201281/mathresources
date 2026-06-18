@@ -1,248 +1,415 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Math Frames + Drawing Tool</title>
+
+<title>Responsive Five & Ten Frames</title>
 
 <style>
+
 *{
+
     box-sizing:border-box;
+
     user-select:none;
+
     touch-action:none;
+
 }
 
 body{
+
     margin:0;
+
     font-family:Arial,sans-serif;
+
     background:#eef2f7;
+
     overflow:hidden;
+
 }
 
 /* ================= WORKSPACE ================= */
+
 #workspace{
+
     position:absolute;
-    inset:0 0 70px 0;
+
+    inset:0 0 80px 0;
+
 }
 
 /* ================= CANVAS ================= */
+
 #drawCanvas{
+
     position:absolute;
+
     inset:0;
+
     z-index:1;
+
 }
 
 /* ================= FRAME ================= */
+
 .frame{
+
     position:absolute;
-    background:white;
+
+    background:#fff;
+
     border:3px solid #333;
-    border-radius:10px;
+
+    border-radius:12px;
+
     padding:6px;
+
     z-index:5;
+
     cursor:move;
+
 }
 
+/* GRID */
+
 .grid{
+
     display:grid;
+
     gap:4px;
+
 }
 
 .five{
+
     grid-template-columns:repeat(5,1fr);
+
 }
 
 .ten{
+
     grid-template-columns:repeat(5,1fr);
+
     grid-template-rows:repeat(2,1fr);
+
 }
+
+/* RESPONSIVE CELLS */
 
 .cell{
-    width:55px;
-    height:55px;
+
+    width:min(12vw,60px);
+
+    height:min(12vw,60px);
+
     border:2px solid #aaa;
+
     display:flex;
+
     align-items:center;
+
     justify-content:center;
+
 }
 
-/* COUNTER */
+/* COUNTER (no numbers) */
+
 .counter{
-    width:35px;
-    height:35px;
+
+    width:70%;
+
+    height:70%;
+
     border-radius:50%;
+
     background:#ff4d4d;
+
 }
 
 /* ================= TOOLBAR ================= */
+
 #toolbar{
+
     position:fixed;
+
     bottom:0;
+
     left:0;
+
     right:0;
-    height:70px;
+
+    min-height:80px;
+
     background:#fff;
+
     display:flex;
+
+    flex-wrap:wrap;
+
     align-items:center;
+
     justify-content:center;
+
     gap:8px;
+
     padding:8px;
+
     box-shadow:0 -2px 10px rgba(0,0,0,.15);
+
     z-index:1000;
+
 }
 
 button,select{
+
     padding:8px 10px;
+
     font-size:13px;
+
 }
+
+@media (max-width:600px){
+
+    button,select{
+
+        font-size:12px;
+
+        padding:6px 8px;
+
+    }
+
+}
+
 </style>
+
 </head>
 
 <body>
 
 <div id="workspace">
+
 <canvas id="drawCanvas"></canvas>
+
 </div>
 
 <!-- TOOLBAR -->
+
 <div id="toolbar">
 
 <select id="frameType">
+
     <option value="five">Five Frame</option>
+
     <option value="ten">Ten Frame</option>
+
 </select>
 
 <button id="addFrameBtn">Frame</button>
+
 <button id="addCounterBtn">Counter</button>
 
 <button id="penBtn">Pen</button>
+
 <button id="eraserBtn">Eraser</button>
+
 <button id="clearBtn">Clear</button>
 
 </div>
 
 <script>
-const workspace = document.getElementById("workspace");
-const canvas = document.getElementById("drawCanvas");
-const ctx = canvas.getContext("2d");
 
-let selectedFrame = null;
+const workspace=document.getElementById("workspace");
 
-/* ================= RESIZE ================= */
+const canvas=document.getElementById("drawCanvas");
+
+const ctx=canvas.getContext("2d");
+
+let selectedFrame=null;
+
+/* ================= CANVAS ================= */
+
 function resize(){
-    canvas.width = workspace.clientWidth;
-    canvas.height = workspace.clientHeight;
-}
-resize();
-window.addEventListener("resize", resize);
 
-/* ================= DRAWING ================= */
+    canvas.width=workspace.clientWidth;
+
+    canvas.height=workspace.clientHeight;
+
+}
+
+resize();
+
+window.addEventListener("resize",resize);
+
 let drawing=false;
+
 let erasing=false;
 
 canvas.addEventListener("pointerdown",(e)=>{
+
     drawing=true;
+
     ctx.beginPath();
+
     ctx.moveTo(e.offsetX,e.offsetY);
+
 });
 
 canvas.addEventListener("pointermove",(e)=>{
+
     if(!drawing) return;
 
     if(erasing){
+
         ctx.globalCompositeOperation="destination-out";
+
         ctx.lineWidth=25;
+
     }else{
+
         ctx.globalCompositeOperation="source-over";
+
         ctx.strokeStyle="black";
+
         ctx.lineWidth=3;
+
     }
 
     ctx.lineTo(e.offsetX,e.offsetY);
+
     ctx.stroke();
+
 });
 
 window.addEventListener("pointerup",()=>drawing=false);
 
 /* ================= TOOLS ================= */
+
 document.getElementById("penBtn").onclick=()=>erasing=false;
+
 document.getElementById("eraserBtn").onclick=()=>erasing=true;
+
 document.getElementById("clearBtn").onclick=()=>{
+
     ctx.clearRect(0,0,canvas.width,canvas.height);
+
 };
 
 /* ================= DOUBLE TAP DELETE ================= */
-function addDoubleTapDelete(el){
-    let last=0;
+
+function doubleTapDelete(el){
+
+    let lastTap=0;
 
     el.addEventListener("pointerdown",(e)=>{
+
         const now=Date.now();
 
-        if(now-last<300){
+        if(now-lastTap < 300){
+
+            const parent = el.parentElement;
+
+            if(parent && parent.classList.contains("cell")){
+
+                parent.dataset.occupied="0";
+
+            }
+
             el.remove();
+
             return;
+
         }
 
-        last=now;
+        lastTap=now;
+
         e.stopPropagation();
+
     });
+
 }
 
-/* ================= FRAME ================= */
+/* ================= ADD FRAME ================= */
+
 document.getElementById("addFrameBtn").onclick=()=>{
 
     const type=document.getElementById("frameType").value;
 
     const frame=document.createElement("div");
+
     frame.className="frame";
-    frame.style.left="120px";
-    frame.style.top="120px";
+
+    frame.style.left="10vw";
+
+    frame.style.top="10vh";
 
     const grid=document.createElement("div");
+
     grid.className="grid "+type;
 
-    const count = type==="five" ? 5 : 10;
+    const count=type==="five"?5:10;
 
     for(let i=0;i<count;i++){
+
         const cell=document.createElement("div");
+
         cell.className="cell";
+
+        cell.dataset.occupied="0";
+
         grid.appendChild(cell);
+
     }
 
     frame.appendChild(grid);
+
     workspace.appendChild(frame);
 
-    frame.nextIndex=0;
+    frame.cells=Array.from(frame.querySelectorAll(".cell"));
+
     selectedFrame=frame;
 
     frame.addEventListener("pointerdown",()=>{
+
         selectedFrame=frame;
+
     });
 
     makeDraggable(frame);
-    addDoubleTapDelete(frame);
+
+    doubleTapDelete(frame);
+
 };
 
-/* ================= COUNTER ================= */
+/* ================= ADD COUNTER (FIXED SLOT LOGIC) ================= */
+
 document.getElementById("addCounterBtn").onclick=()=>{
 
     if(!selectedFrame) return;
 
-    const cells=selectedFrame.querySelectorAll(".cell");
+    const cell = selectedFrame.cells.find(c => c.dataset.occupied==="0");
 
-    if(selectedFrame.nextIndex>=cells.length) return;
+    if(!cell) return;
 
-    const cell=cells[selectedFrame.nextIndex++];
-    
+    cell.dataset.occupied="1";
+
     const counter=document.createElement("div");
+
     counter.className="counter";
 
     cell.appendChild(counter);
 
-    addDoubleTapDelete(counter);
+    doubleTapDelete(counter);
+
 };
 
-/* ================= FRAME DRAG ================= */
+/* ================= DRAG FRAME ================= */
+
 function makeDraggable(el){
 
     let dx,dy,drag=false;
@@ -252,20 +419,29 @@ function makeDraggable(el){
         if(e.target.classList.contains("counter")) return;
 
         drag=true;
+
         dx=e.clientX-el.offsetLeft;
+
         dy=e.clientY-el.offsetTop;
+
     });
 
     window.addEventListener("pointermove",(e)=>{
+
         if(!drag) return;
 
         el.style.left=(e.clientX-dx)+"px";
+
         el.style.top=(e.clientY-dy)+"px";
+
     });
 
     window.addEventListener("pointerup",()=>drag=false);
+
 }
+
 </script>
 
 </body>
+
 </html>
