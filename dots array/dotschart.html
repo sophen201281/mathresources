@@ -21,7 +21,7 @@
             font-family: Arial;
         }
 
-        /* ================= TOOLBAR — BOTTOM ================= */
+        /* ================= TOOLBAR — BOTTOM, SINGLE ROW ================= */
         .toolbar {
             position: fixed;
             bottom: 24px;
@@ -30,31 +30,34 @@
             z-index: 100;
 
             display: flex;
-            gap: 8px;
+            flex-wrap: nowrap;
+            /* force single row */
             align-items: center;
+            gap: 6px;
 
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
 
-            padding: 8px 16px;
+            padding: 8px 14px;
             border-radius: 60px;
 
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.20);
 
             pointer-events: auto;
-            flex-wrap: wrap;
-            justify-content: center;
+            max-width: 95vw;
+            overflow-x: auto;
+            /* safe fallback, but we try to avoid scroll */
         }
 
         .tool-btn {
             border: none;
-            padding: 8px 16px;
+            padding: 6px 12px;
             border-radius: 40px;
             background: transparent;
             cursor: pointer;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 13px;
             transition: 0.2s;
             color: #1e293b;
             white-space: nowrap;
@@ -62,6 +65,9 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
+            flex-shrink: 1;
+            /* allow shrinking if needed */
+            min-width: 0;
         }
 
         .tool-btn:hover {
@@ -76,7 +82,7 @@
 
         .tool-btn.home-link {
             background: #f1f5f9;
-            padding: 8px 14px;
+            padding: 6px 12px;
         }
 
         .tool-btn.home-link:hover {
@@ -237,7 +243,7 @@
             touch-action: none;
         }
 
-        /* ================= RESPONSIVE ================= */
+        /* ================= RESPONSIVE — keep single row ================= */
         @media (max-width: 480px) {
             .toolbar {
                 gap: 4px;
@@ -247,41 +253,46 @@
             }
 
             .tool-btn {
-                padding: 6px 10px;
-                font-size: 12px;
+                font-size: 11px;
+                padding: 4px 8px;
             }
 
             .tool-btn.home-link {
-                padding: 6px 10px;
+                padding: 4px 8px;
             }
         }
 
         @media (max-width: 380px) {
             .tool-btn {
-                font-size: 10px;
-                padding: 4px 8px;
+                font-size: 9px;
+                padding: 3px 6px;
             }
 
             .toolbar {
                 gap: 2px;
-                padding: 4px 8px;
+                padding: 4px 6px;
             }
+        }
+
+        /* prevent horizontal scroll on very tiny screens */
+        .toolbar::-webkit-scrollbar {
+            display: none;
+        }
+        .toolbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
     </style>
 </head>
 
 <body>
 
-    <!-- ===== TOOLBAR AT BOTTOM ===== -->
+    <!-- ===== TOOLBAR AT BOTTOM — SINGLE ROW ===== -->
     <div class="toolbar">
-
         <button class="tool-btn active" id="drawBtn">✏️ សរសេរ</button>
         <button class="tool-btn" id="eraseBtn">🧹 ជ័រលុប</button>
         <button class="tool-btn" id="clearBtn">🗑️ សម្អាត</button>
-
-        <!-- Home button right next to the others -->
         <a href="../index.html" class="tool-btn home-link">🏡 Home</a>
-
     </div>
 
     <!-- ===== BOARD ===== -->
@@ -447,19 +458,17 @@
 
         /* ================= CLEAR — only drawings, keep dots ================= */
         clearBtn.onclick = () => {
-            // Reset drawing arrays (so they don't reappear on resize)
-            drawings = {
-                main: [],
-                right: [],
-                bottom: []
-            };
+            // Clear arrays in place (keep the same references)
+            drawings.main.length = 0;
+            drawings.right.length = 0;
+            drawings.bottom.length = 0;
 
-            // Clear all canvas content
+            // Clear all canvases
             mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
             rightCtx.clearRect(0, 0, rightCanvas.width, rightCanvas.height);
             bottomCtx.clearRect(0, 0, bottomCanvas.width, bottomCanvas.height);
 
-            // Do NOT touch the dots — they stay as they are
+            // Dots are untouched
         };
 
         /* ================= FIRST RESIZE ================= */
