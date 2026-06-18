@@ -502,20 +502,15 @@
             card.appendChild(number);
             playArea.appendChild(card);
 
-            // Position near the bottom, above toolbar, but offset slightly based on button
             const toolbarHeight = document.getElementById("toolbar").offsetHeight || 100;
             const cardH = card.offsetHeight || 52;
             const margin = 10;
             let baseY = window.innerHeight - toolbarHeight - cardH - margin - 4;
 
-            // Spread cards horizontally near the bottom, but we want them centered
-            // For toolbar-created cards, we position them relative to the button click
-            // but we'll place them at the bottom instead.
             const rect = buttonElement.getBoundingClientRect();
             let x = rect.left + rect.width / 2 - card.offsetWidth / 2;
             let y = baseY;
 
-            // Clamp
             x = Math.max(6, Math.min(window.innerWidth - card.offsetWidth - 6, x));
             y = Math.max(6, Math.min(window.innerHeight - toolbarHeight - cardH - 6, y));
 
@@ -567,7 +562,7 @@
             const cardH = 52;
             const margin = 12;
 
-            // cards we want to position: 3000(thousands), 400(hundreds), 10(tens), 0(ones)
+            // Updated values: 3000, 400, 10, 7  →  sum = 3417
             const widths = {
                 thousands: 158,
                 hundreds: 125,
@@ -575,9 +570,8 @@
                 ones: 60
             };
             const types = ["thousands", "hundreds", "tens", "ones"];
-            const values = ["3000", "400", "10", "0"];
+            const values = ["3000", "400", "10", "7"];   // <-- fixed ones digit
 
-            // total width
             let totalW = 0;
             for (let t of types) {
                 totalW += widths[t];
@@ -588,7 +582,6 @@
             const startX = (window.innerWidth - totalW) / 2;
             const baseY = window.innerHeight - toolbarHeight - cardH - margin - 4;
 
-            // If we have existing manual cards, update their positions
             const existing = playArea.querySelectorAll(".manual-card-example");
             if (existing.length === 4) {
                 let cx = startX;
@@ -602,9 +595,6 @@
                 return;
             }
 
-            // Otherwise create them (first time)
-            // But if they already exist as regular cards, we need to handle that.
-            // We'll just check if they exist by class.
             let cx = startX;
             for (let i = 0; i < types.length; i++) {
                 const type = types[i];
@@ -667,14 +657,12 @@
         /* =========================================================
            INIT – place manual cards at bottom after layout
         ========================================================= */
-        // Wait for toolbar to render, then place cards
         requestAnimationFrame(() => {
             setTimeout(() => {
                 repositionManualCards();
             }, 50);
         });
 
-        // Also reposition on orientation change
         window.addEventListener("orientationchange", () => {
             setTimeout(repositionManualCards, 300);
         });
