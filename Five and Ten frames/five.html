@@ -16,7 +16,6 @@
             font-family: Arial, sans-serif;
         }
 
-        /* ========== HOME BUTTON ========== */
         .home-btn {
             position: fixed;
             top: 10px;
@@ -37,14 +36,12 @@
             transform: scale(1.05);
         }
 
-        /* ========== CANVAS ========== */
         #drawCanvas {
             position: fixed;
             inset: 0;
             z-index: 1;
         }
 
-        /* ========== OBJECTS ========== */
         #objectsLayer {
             position: fixed;
             inset: 0;
@@ -55,7 +52,6 @@
             pointer-events: auto;
         }
 
-        /* ========== TOOLBAR ========== */
         #toolbar {
             position: fixed;
             top: 10px;
@@ -94,7 +90,6 @@
             background-color: #dfefff;
         }
 
-        /* ========== COLORS ========== */
         #colors {
             position: fixed;
             bottom: 10px;
@@ -118,7 +113,6 @@
             outline: 4px solid #4da3ff;
         }
 
-        /* ========== FRAMES (smaller) ========== */
         .frame {
             position: absolute;
             background: #fff;
@@ -147,11 +141,10 @@
             justify-content: center;
         }
 
-        /* ========== COUNTERS (smaller) ========== */
         .counter {
             position: absolute;
-            width: 38px;
-            height: 38px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             background: #ff5e5e;
             border: 4px solid #c92f2f;
@@ -165,17 +158,14 @@
             z-index: 50;
         }
         .counter.fly {
-            transition: left 0.50s cubic-bezier(0.34, 1.56, 0.64, 1),
-                top 0.50s cubic-bezier(0.34, 1.56, 0.64, 1),
-                transform 0.40s ease;
+            transition: left 0.55s cubic-bezier(0.34, 1.56, 0.64, 1),
+                top 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        /* counter inside frame: position relative to frame */
         .frame .counter {
             position: absolute;
         }
 
-        /* ========== RESPONSIVE TWEAKS ========== */
         @media (max-width: 600px) {
             #toolbar button,
             #toolbar select {
@@ -191,22 +181,18 @@
 </head>
 <body>
 
-    <!-- ===== HOME BUTTON ===== -->
     <a href="../index.html" class="home-btn">🏡 Home</a>
 
-    <!-- ===== TOOLBAR ===== -->
     <div id="toolbar">
         <select id="frameSelect">
             <option value="five">➕ Five Frame</option>
             <option value="ten">➕ Ten Frame</option>
         </select>
-
         <button id="counterBtn">🔴 Counter</button>
         <button id="eraserBtn">✏️ / 🩹 Eraser</button>
         <button id="clearBtn">🧹 Clear</button>
     </div>
 
-    <!-- ===== COLORS ===== -->
     <div id="colors">
         <div class="color active" style="background:black" data-color="black"></div>
         <div class="color" style="background:red" data-color="red"></div>
@@ -214,15 +200,12 @@
         <div class="color" style="background:green" data-color="green"></div>
     </div>
 
-    <!-- ===== CANVAS ===== -->
     <canvas id="drawCanvas"></canvas>
-
-    <!-- ===== OBJECTS LAYER ===== -->
     <div id="objectsLayer"></div>
 
     <script>
         /* ============================================================
-           CANVAS – drawing & eraser
+           CANVAS
            ============================================================ */
         const canvas = document.getElementById('drawCanvas');
         const ctx = canvas.getContext('2d');
@@ -299,7 +282,7 @@
         });
 
         /* ============================================================
-           DRAGGABLE (frames + counters)
+           DRAGGABLE
            ============================================================ */
         function makeDraggable(el, onDrop) {
             let dragging = false;
@@ -329,7 +312,6 @@
                 if (onDrop) onDrop(el, e);
             });
 
-            // double-tap delete
             let lastTap = 0;
             el.addEventListener('click', () => {
                 const now = Date.now();
@@ -339,7 +321,7 @@
         }
 
         /* ============================================================
-           FRAME SNAP (magnetic)
+           FRAME SNAP
            ============================================================ */
         function snapFrames(frame) {
             const frames = document.querySelectorAll('.frame');
@@ -369,11 +351,10 @@
             frame.style.width = isTen ? '280px' : '280px';
             frame.style.height = isTen ? '130px' : '65px';
 
-            // position near center
             const w = window.innerWidth;
             const h = window.innerHeight;
-            frame.style.left = (w / 2 - 140 + (Math.random() * 60 - 30)) + 'px';
-            frame.style.top = (h / 2 - (isTen ? 65 : 32) + (Math.random() * 60 - 30)) + 'px';
+            frame.style.left = (w / 2 - 140 + (Math.random() * 80 - 40)) + 'px';
+            frame.style.top = (h / 2 - (isTen ? 65 : 32) + (Math.random() * 80 - 40)) + 'px';
 
             const grid = document.createElement('div');
             grid.className = 'grid';
@@ -397,20 +378,16 @@
         frameSelect.addEventListener('change', () => {
             const val = frameSelect.value;
             buildFrame(val);
-            frameSelect.selectedIndex = 0; // reset to placeholder
+            frameSelect.selectedIndex = 0;
         });
 
         /* ============================================================
-           COUNTER – fly into frame cells
+           CELL ORDER (ten-frame: top row L→R, then bottom row L→R)
            ============================================================ */
-        let activeFrame = null;
-        let isAnimating = false;
-
         function getCellOrder(frame) {
             const cells = frame.querySelectorAll('.cell');
             const isTen = frame.classList.contains('tenFrame');
             if (!isTen) return Array.from(cells);
-            // ten-frame: top row left→right, then bottom row left→right
             const top = [],
                 bottom = [];
             cells.forEach((c, i) => {
@@ -420,57 +397,61 @@
             return [...top, ...bottom];
         }
 
+        /* ============================================================
+           COUNTER – one at a time
+           ============================================================ */
+        let isFlying = false;
+
         function getCounterStartPos() {
             const btn = document.getElementById('counterBtn');
             const rect = btn.getBoundingClientRect();
-            return { x: rect.left + rect.width / 2 - 19, y: rect.top + rect.height / 2 - 19 };
+            return { x: rect.left + rect.width / 2 - 18, y: rect.top + rect.height / 2 - 18 };
         }
 
-        function flyCountersIntoFrame(frame) {
-            if (!frame) return;
-            if (isAnimating) return;
-            const cells = getCellOrder(frame);
-            if (cells.length === 0) return;
+        function launchCounterToCell(frame, cell) {
+            if (isFlying) return;
+            isFlying = true;
 
-            isAnimating = true;
             const start = getCounterStartPos();
-            const frameRect = frame.getBoundingClientRect();
+            const cellRect = cell.getBoundingClientRect();
+            const targetX = cellRect.left + cellRect.width / 2 - 18;
+            const targetY = cellRect.top + cellRect.height / 2 - 18;
 
-            // counters will be placed inside the frame, so we need frame-relative coords
-            // but we want them to fly from the button (viewport coords) to the cell (viewport coords)
-            // we'll create counters in objectsLayer, fly them, then move into frame
+            const counter = document.createElement('div');
+            counter.className = 'counter fly';
+            counter.style.left = start.x + 'px';
+            counter.style.top = start.y + 'px';
+            counter.style.width = '36px';
+            counter.style.height = '36px';
+            counter.dataset.flying = 'true';
+            objectsLayer.appendChild(counter);
 
-            let idx = 0;
+            // force reflow
+            void counter.offsetHeight;
+            counter.style.left = targetX + 'px';
+            counter.style.top = targetY + 'px';
 
-            function launchNext() {
-                if (idx >= cells.length) {
-                    isAnimating = false;
-                    return;
-                }
-                const cell = cells[idx];
-                const cellRect = cell.getBoundingClientRect();
-                const targetX = cellRect.left + cellRect.width / 2 - 19;
-                const targetY = cellRect.top + cellRect.height / 2 - 19;
+            const onFinish = () => {
+                counter.removeEventListener('transitionend', onFinish);
+                const fRect = frame.getBoundingClientRect();
+                const relX = targetX - fRect.left;
+                const relY = targetY - fRect.top;
+                counter.classList.remove('fly');
+                counter.style.transition = 'none';
+                counter.style.left = relX + 'px';
+                counter.style.top = relY + 'px';
+                frame.appendChild(counter);
+                makeDraggable(counter, (el) => snapCounterToCell(el));
+                snapCounterToCell(counter);
+                counter.dataset.flying = 'false';
+                isFlying = false;
+            };
+            counter.addEventListener('transitionend', onFinish);
 
-                // create counter in objectsLayer at start position
-                const counter = document.createElement('div');
-                counter.className = 'counter fly';
-                counter.style.left = start.x + 'px';
-                counter.style.top = start.y + 'px';
-                counter.style.width = '38px';
-                counter.style.height = '38px';
-                counter.dataset.flying = 'true';
-                objectsLayer.appendChild(counter);
-
-                // force reflow then animate
-                void counter.offsetHeight;
-                counter.style.left = targetX + 'px';
-                counter.style.top = targetY + 'px';
-
-                // when transition ends, move counter into frame
-                const onFinish = () => {
+            // safety fallback
+            setTimeout(() => {
+                if (counter.parentNode && counter.dataset.flying === 'true') {
                     counter.removeEventListener('transitionend', onFinish);
-                    // now move it into the frame at the correct relative position
                     const fRect = frame.getBoundingClientRect();
                     const relX = targetX - fRect.left;
                     const relY = targetY - fRect.top;
@@ -479,44 +460,52 @@
                     counter.style.left = relX + 'px';
                     counter.style.top = relY + 'px';
                     frame.appendChild(counter);
-                    // make it draggable with snap
-                    makeDraggable(counter, (el) => {
-                        snapCounterToCell(el);
-                    });
-                    // also snap immediately
+                    makeDraggable(counter, (el) => snapCounterToCell(el));
                     snapCounterToCell(counter);
                     counter.dataset.flying = 'false';
-                    idx++;
-                    setTimeout(launchNext, 80);
-                };
-                counter.addEventListener('transitionend', onFinish);
+                    isFlying = false;
+                }
+            }, 900);
+        }
 
-                // safety fallback
-                setTimeout(() => {
-                    if (counter.parentNode && counter.dataset.flying === 'true') {
-                        counter.removeEventListener('transitionend', onFinish);
-                        const fRect = frame.getBoundingClientRect();
-                        const relX = targetX - fRect.left;
-                        const relY = targetY - fRect.top;
-                        counter.classList.remove('fly');
-                        counter.style.transition = 'none';
-                        counter.style.left = relX + 'px';
-                        counter.style.top = relY + 'px';
-                        frame.appendChild(counter);
-                        makeDraggable(counter, (el) => snapCounterToCell(el));
-                        snapCounterToCell(counter);
-                        counter.dataset.flying = 'false';
-                        idx++;
-                        setTimeout(launchNext, 80);
-                    }
-                }, 700);
+        function addOneCounter() {
+            if (isFlying) return;
+
+            let frames = document.querySelectorAll('.frame');
+            if (frames.length === 0) {
+                const f = buildFrame('five');
+                frames = document.querySelectorAll('.frame');
             }
 
-            launchNext();
+            // Use the most recently created frame
+            const frame = frames[frames.length - 1];
+            const cells = getCellOrder(frame);
+
+            // Find first empty cell (no counter inside)
+            let emptyIdx = -1;
+            for (let i = 0; i < cells.length; i++) {
+                const counters = cells[i].querySelectorAll('.counter');
+                if (counters.length === 0) {
+                    emptyIdx = i;
+                    break;
+                }
+            }
+
+            if (emptyIdx === -1) {
+                // All cells full → create a new five-frame and add to it
+                const newFrame = buildFrame('five');
+                const newCells = getCellOrder(newFrame);
+                if (newCells.length > 0) {
+                    launchCounterToCell(newFrame, newCells[0]);
+                }
+                return;
+            }
+
+            launchCounterToCell(frame, cells[emptyIdx]);
         }
 
         /* ============================================================
-           SNAP COUNTER TO CELL (improved)
+           SNAP COUNTER TO CELL
            ============================================================ */
         function snapCounterToCell(counter) {
             const cells = document.querySelectorAll('.cell');
@@ -542,7 +531,6 @@
                 const bRect = best.getBoundingClientRect();
                 const relX = bRect.left - fRect.left + 2;
                 const relY = bRect.top - fRect.top + 2;
-                // only move if this counter is already in the frame or we move it
                 if (counter.parentNode !== frame) {
                     frame.appendChild(counter);
                 }
@@ -554,44 +542,24 @@
         }
 
         /* ============================================================
-           COUNTER BUTTON – triggers fly-in
+           COUNTER BUTTON – one per click
            ============================================================ */
-        document.getElementById('counterBtn').addEventListener('click', () => {
-            // find the most recently created frame (last in DOM)
-            const frames = document.querySelectorAll('.frame');
-            if (frames.length === 0) {
-                // auto-create a five frame
-                const f = buildFrame('five');
-                activeFrame = f;
-                flyCountersIntoFrame(f);
-                return;
-            }
-            const last = frames[frames.length - 1];
-            activeFrame = last;
-            flyCountersIntoFrame(last);
-        });
+        document.getElementById('counterBtn').addEventListener('click', addOneCounter);
 
         /* ============================================================
-           Also snap counters when dragged – use the same function
-           ============================================================ */
-        // override the old snapCounter with our improved version
-        // We already use snapCounterToCell in makeDraggable callback
-
-        /* ============================================================
-           STARTUP – create one five-frame and one ten-frame
+           STARTUP – two frames with a few initial counters
            ============================================================ */
         const f1 = buildFrame('five');
-        f1.style.left = '80px';
-        f1.style.top = '100px';
+        f1.style.left = '60px';
+        f1.style.top = '90px';
 
         const f2 = buildFrame('ten');
-        f2.style.left = '420px';
-        f2.style.top = '100px';
+        f2.style.left = '380px';
+        f2.style.top = '90px';
 
-        // initial counters: put a few in the frames
+        // Put a few counters in the five-frame (cells 0,1,2)
         setTimeout(() => {
-            // put 3 counters in the five-frame
-            const cells1 = f1.querySelectorAll('.cell');
+            const cells1 = getCellOrder(f1);
             for (let i = 0; i < 3 && i < cells1.length; i++) {
                 const c = document.createElement('div');
                 c.className = 'counter';
@@ -603,9 +571,9 @@
                 makeDraggable(c, (el) => snapCounterToCell(el));
                 snapCounterToCell(c);
             }
-            // put 5 counters in the ten-frame (top row)
-            const cells2 = f2.querySelectorAll('.cell');
-            for (let i = 0; i < 5 && i < cells2.length; i++) {
+            // Put a few counters in the ten-frame (top row cells 0,1)
+            const cells2 = getCellOrder(f2);
+            for (let i = 0; i < 2 && i < cells2.length; i++) {
                 const c = document.createElement('div');
                 c.className = 'counter';
                 const r = cells2[i].getBoundingClientRect();
@@ -619,7 +587,7 @@
         }, 100);
 
         /* ============================================================
-           Also re-snap all counters on window resize
+           RE-SNAP on resize
            ============================================================ */
         let resizeTimer;
         window.addEventListener('resize', () => {
@@ -631,9 +599,8 @@
             }, 300);
         });
 
-        console.log('✅ Magnetic Math Frames ready!');
-        console.log('📐 Use dropdown to add frames, click Counter to fill with flying counters.');
+        console.log('✅ One counter per click!');
+        console.log('📐 Use dropdown to add frames, click Counter to add one at a time.');
     </script>
-
 </body>
 </html>
