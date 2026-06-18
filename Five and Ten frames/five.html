@@ -1,333 +1,824 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<title>Math Frames Classroom Edition</title>
-<style>
-*{box-sizing:border-box;touch-action:none;user-select:none}
-body{margin:0;overflow:hidden;background:#eef3f9;font-family:Arial,sans-serif}
-#drawCanvas{position:fixed;inset:0;z-index:1}
-#objectsLayer{position:fixed;inset:0;z-index:5;pointer-events:none}
-#objectsLayer>*{pointer-events:auto}
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Magnetic Math Frames + Drawing + Eraser</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            touch-action: none;
+            user-select: none;
+        }
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #eef3f9;
+            font-family: Arial, sans-serif;
+        }
 
-/* ===== TOOLBAR – BIG TAPPABLE BUTTONS ===== */
-#toolbar{
-  position:fixed;
-  left:10px;
-  right:10px;
-  bottom:16px;
-  z-index:1000;
-  display:flex;
-  gap:12px;
-  flex-wrap:wrap;
-  justify-content:center;
-  align-items:center;
-  padding:16px 20px;
-  background:rgba(255,255,255,.96);
-  border-radius:20px;
-  box-shadow:0 4px 24px rgba(0,0,0,.18);
-  backdrop-filter:blur(6px);
-  -webkit-backdrop-filter:blur(6px);
-  border:1px solid rgba(255,255,255,.3);
-}
+        #drawCanvas {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            touch-action: none;
+        }
 
-#toolbar button,
-#toolbar select{
-  padding:14px 24px;
-  min-height:54px;
-  min-width:60px;
-  border:none;
-  border-radius:14px;
-  font-weight:bold;
-  font-size:16px;
-  background:white;
-  box-shadow:0 2px 8px rgba(0,0,0,.08);
-  cursor:pointer;
-  touch-action:manipulation;
-  -webkit-tap-highlight-color:transparent;
-  transition:transform 0.1s, background 0.15s;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  white-space:nowrap;
-  border:2px solid transparent;
-}
+        #objectsLayer {
+            position: fixed;
+            inset: 0;
+            z-index: 5;
+            pointer-events: none;
+        }
+        #objectsLayer>* {
+            pointer-events: auto;
+        }
 
-#toolbar button:active,
-#toolbar select:active{
-  transform:scale(0.94);
-  background:#e8f0fe;
-}
+        /* ========== BOTTOM TOOLBAR – FULL WIDTH ========== */
+        #bottomBar {
+            position: fixed;
+            bottom: 20px;
+            left: 10px;
+            right: 10px;
+            z-index: 1000;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.92);
+            padding: 12px 16px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.20);
+            backdrop-filter: blur(6px);
+            width: auto;
+            max-width: none;
+            transform: none;
+        }
 
-#toolbar select{
-  padding-right:38px;
-  appearance:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;
-  background-position:right 14px center;
-  min-width:150px;
-}
+        #bottomBar button,
+        #bottomBar select,
+        .home-btn {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 10px;
+            background: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+            cursor: pointer;
+            outline: none;
+            transition: 0.15s;
+            white-space: nowrap;
+            text-decoration: none;
+            color: #222;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #bottomBar button:hover,
+        #bottomBar select:hover,
+        .home-btn:hover {
+            background: #dfefff;
+            transform: scale(1.03);
+        }
+        #bottomBar select {
+            background: #fff;
+            padding-right: 28px;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+        }
+        #bottomBar .active-eraser {
+            background: #ffd6d6;
+            box-shadow: 0 0 0 2px #e74c3c;
+        }
 
-#toolbar .active{
-  background:#ffd8d8 !important;
-  border-color:#e74c3c;
-  box-shadow:0 0 0 3px #e74c3c;
-}
+        /* ========== FRAMES ========== */
+        .frame {
+            position: absolute;
+            background: #fff;
+            border: 4px solid #222;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+            overflow: visible;
+            touch-action: none;
+            cursor: grab;
+        }
+        .frame:active {
+            cursor: grabbing;
+        }
+        .grid {
+            width: 100%;
+            height: 100%;
+            display: grid;
+        }
+        .fiveFrame .grid {
+            grid-template-columns: repeat(5, 1fr);
+        }
+        .tenFrame .grid {
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+        }
+        .cell {
+            border: 2px solid #888;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fafcff;
+            transition: background 0.2s;
+        }
+        .cell.highlight {
+            background: #d4edff;
+        }
 
-/* ===== RESPONSIVE – SMALLER SCREENS ===== */
-@media (max-width:600px){
-  #toolbar{
-    padding:12px 14px;
-    gap:10px;
-    bottom:12px;
-    left:8px;
-    right:8px;
-    border-radius:16px;
-  }
-  #toolbar button,
-  #toolbar select{
-    padding:10px 16px;
-    min-height:48px;
-    min-width:50px;
-    font-size:14px;
-    border-radius:12px;
-  }
-  #toolbar select{
-    min-width:120px;
-    padding-right:34px;
-    background-position:right 12px center;
-  }
-}
+        /* ========== COUNTERS ========== */
+        .counter {
+            position: absolute;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #ff7e7e, #e74c3c);
+            border: 4px solid #c92f2f;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25), inset 0 -2px 4px rgba(0, 0, 0, 0.15);
+            z-index: 20;
+            pointer-events: auto;
+            touch-action: none;
+            cursor: grab;
+            transition: none;
+        }
+        .counter:active {
+            cursor: grabbing;
+        }
+        .counter.dragging {
+            transform: scale(1.12);
+            z-index: 50;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+        }
+        .counter.fly {
+            transition: left 0.55s cubic-bezier(0.34, 1.56, 0.64, 1),
+                top 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .counter.snap {
+            transition: left 0.18s ease-out, top 0.18s ease-out;
+        }
 
-@media (max-width:400px){
-  #toolbar{
-    padding:10px 10px;
-    gap:8px;
-    bottom:8px;
-    left:6px;
-    right:6px;
-    border-radius:14px;
-  }
-  #toolbar button,
-  #toolbar select{
-    padding:8px 12px;
-    min-height:44px;
-    min-width:44px;
-    font-size:13px;
-    border-radius:10px;
-  }
-  #toolbar select{
-    min-width:100px;
-    padding-right:30px;
-    font-size:13px;
-    background-position:right 10px center;
-    background-size:12px;
-  }
-}
+        .frame .counter {
+            position: absolute;
+        }
 
-/* ===== FRAMES & COUNTERS (unchanged) ===== */
-.frame{
-  position:absolute;
-  background:white;
-  border:4px solid #222;
-  border-radius:10px;
-  overflow:visible;
-  touch-action:none;
-  cursor:grab;
-}
-.frame:active{cursor:grabbing}
-.grid{width:100%;height:100%;display:grid}
-.five .grid{grid-template-columns:repeat(5,1fr)}
-.ten .grid{grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(2,1fr)}
-.cell{border:1px solid #888;background:#fafcff}
-.counter{
-  position:absolute;
-  width:36px;height:36px;
-  border-radius:50%;
-  background:radial-gradient(circle at 35% 35%, #ff7e7e, #e74c3c);
-  border:4px solid #c92f2f;
-  box-shadow:0 2px 6px rgba(0,0,0,.25), inset 0 -2px 4px rgba(0,0,0,.15);
-  z-index:20;
-  touch-action:none;
-  cursor:grab;
-}
-.counter:active{cursor:grabbing}
-.counter.dragging{transform:scale(1.12);z-index:50;box-shadow:0 6px 20px rgba(0,0,0,.35)}
-</style>
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 600px) {
+            #bottomBar {
+                padding: 10px 12px;
+                gap: 8px;
+                bottom: 12px;
+                left: 8px;
+                right: 8px;
+                border-radius: 14px;
+            }
+            #bottomBar button,
+            #bottomBar select,
+            .home-btn {
+                font-size: 12px;
+                padding: 6px 10px;
+            }
+        }
+        @media (max-width: 400px) {
+            #bottomBar {
+                padding: 8px 10px;
+                gap: 6px;
+                bottom: 8px;
+                left: 6px;
+                right: 6px;
+                border-radius: 12px;
+            }
+            #bottomBar button,
+            #bottomBar select,
+            .home-btn {
+                font-size: 11px;
+                padding: 5px 8px;
+                border-radius: 8px;
+            }
+        }
+        @media (max-width: 360px) {
+            #bottomBar button,
+            #bottomBar select,
+            .home-btn {
+                font-size: 10px;
+                padding: 4px 6px;
+            }
+            #bottomBar {
+                gap: 4px;
+                padding: 6px 8px;
+            }
+        }
+    </style>
 </head>
 <body>
-<canvas id="drawCanvas"></canvas>
-<div id="objectsLayer"></div>
 
-<!-- TOOLBAR with big buttons -->
-<div id="toolbar">
-  <select id="frameType">
-    <option value="five">Add Five Frame</option>
-    <option value="ten">Add Ten Frame</option>
-  </select>
-  <button id="addFrame">➕ Frame</button>
-  <button id="addCounter">🔴 Counter</button>
-  <button id="eraser">✏️ Draw</button>
-  <button id="clear">🧹 Clear</button>
-</div>
+    <!-- ===== CANVAS ===== -->
+    <canvas id="drawCanvas"></canvas>
 
-<script>
-const canvas=document.getElementById('drawCanvas');
-const ctx=canvas.getContext('2d');
-function resize(){canvas.width=innerWidth;canvas.height=innerHeight}
-resize(); addEventListener('resize',resize);
+    <!-- ===== OBJECTS LAYER ===== -->
+    <div id="objectsLayer"></div>
 
-let erasing=false,drawing=false;
+    <!-- ===== BOTTOM TOOLBAR ===== -->
+    <div id="bottomBar">
+        <a href="../index.html" class="home-btn">🏡 Home</a>
+        <select id="frameSelect">
+            <option value="five">➕ Five Frame</option>
+            <option value="ten">➕ Ten Frame</option>
+        </select>
+        <button id="counterBtn">🔴 Counter</button>
+        <button id="eraserBtn">✏️ / 🩹 Eraser</button>
+        <button id="clearBtn">🧹 Clear</button>
+    </div>
 
-document.addEventListener('pointerdown',e=>{
- if(e.target.closest('.frame,.counter,#toolbar')) return;
- drawing=true;
- ctx.beginPath();
- ctx.moveTo(e.clientX,e.clientY);
-});
+    <script>
+        /* ============================================================
+           CANVAS – Drawing & Eraser
+           ============================================================ */
+        const canvas = document.getElementById('drawCanvas');
+        const ctx = canvas.getContext('2d');
+        const objectsLayer = document.getElementById('objectsLayer');
 
-document.addEventListener('pointermove',e=>{
- if(!drawing) return;
- ctx.lineTo(e.clientX,e.clientY);
- ctx.lineCap='round';
- ctx.lineJoin='round';
- if(erasing){
-   ctx.globalCompositeOperation='destination-out';
-   ctx.lineWidth=30;
- }else{
-   ctx.globalCompositeOperation='source-over';
-   ctx.strokeStyle='#222';
-   ctx.lineWidth=5;
- }
- ctx.stroke();
-});
+        // ---- canvas sizing with content scaling ----
+        let canvasContent = null; // stores ImageData for resize
 
-function stopDraw(){drawing=false;ctx.beginPath();ctx.globalCompositeOperation='source-over'}
-document.addEventListener('pointerup',stopDraw);
-document.addEventListener('pointercancel',stopDraw);
+        function resizeCanvas() {
+            // Save current content as ImageData
+            if (canvas.width > 0 && canvas.height > 0) {
+                canvasContent = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            }
 
-const eraserBtn=document.getElementById('eraser');
-eraserBtn.onclick=()=>{
- erasing=!erasing;
- eraserBtn.textContent=erasing?'🩹 Eraser':'✏️ Draw';
- eraserBtn.classList.toggle('active',erasing);
-};
-document.getElementById('clear').onclick=()=>ctx.clearRect(0,0,canvas.width,canvas.height);
+            const newW = window.innerWidth;
+            const newH = window.innerHeight;
 
-const layer=document.getElementById('objectsLayer');
-let frameCount=0;
+            if (canvas.width === newW && canvas.height === newH) return;
 
-function makeDrag(el,onDrop){
- let drag=false,ox=0,oy=0;
- el.addEventListener('pointerdown',e=>{
-   drag=true;
-   const r=el.getBoundingClientRect();
-   ox=e.clientX-r.left; oy=e.clientY-r.top;
-   e.stopPropagation();
- });
- document.addEventListener('pointermove',e=>{
-   if(!drag) return;
-   const p=el.offsetParent||document.body;
-   const pr=p.getBoundingClientRect();
-   let left=(e.clientX-ox-pr.left);
-   let top=(e.clientY-oy-pr.top);
-   // keep within viewport
-   const margin=20;
-   left=Math.max(margin,Math.min(innerWidth-el.offsetWidth-margin,left));
-   top=Math.max(margin,Math.min(innerHeight-el.offsetHeight-margin,top));
-   el.style.left=left+'px';
-   el.style.top=top+'px';
- });
- document.addEventListener('pointerup',e=>{
-   if(!drag) return;
-   drag=false;
-   if(onDrop) onDrop(el,e);
- });
-}
+            canvas.width = newW;
+            canvas.height = newH;
 
-function buildFrame(type){
- const frame=document.createElement('div');
- frame.className='frame '+type;
- frame.style.width='280px';
- frame.style.height=(type==='ten'?130:65)+'px';
+            // Restore content scaled to fill new canvas
+            if (canvasContent) {
+                const temp = document.createElement('canvas');
+                temp.width = canvasContent.width;
+                temp.height = canvasContent.height;
+                const tCtx = temp.getContext('2d');
+                tCtx.putImageData(canvasContent, 0, 0);
 
- const cols=Math.max(1,Math.floor((innerWidth-40)/300));
- const row=Math.floor(frameCount/cols);
- const col=frameCount%cols;
- frame.style.left=(20+col*300)+'px';
- frame.style.top=(20+row*170)+'px';
- frameCount++;
+                // Draw scaled to fill new canvas (maintain aspect ratio, cover)
+                const scaleX = canvas.width / temp.width;
+                const scaleY = canvas.height / temp.height;
+                const scale = Math.max(scaleX, scaleY);
+                const dw = temp.width * scale;
+                const dh = temp.height * scale;
+                const dx = (canvas.width - dw) / 2;
+                const dy = (canvas.height - dh) / 2;
 
- const grid=document.createElement('div');
- grid.className='grid';
- const count=type==='ten'?10:5;
- for(let i=0;i<count;i++){
-   const c=document.createElement('div');
-   c.className='cell';
-   grid.appendChild(c);
- }
- frame.appendChild(grid);
- layer.appendChild(frame);
+                ctx.drawImage(temp, 0, 0, temp.width, temp.height, dx, dy, dw, dh);
+                canvasContent = null;
+            }
+        }
 
- makeDrag(frame);
- longPressDelete(frame,()=>{
-   if(frame.querySelectorAll('.counter').length===0) frame.remove();
- });
- return frame;
-}
+        resizeCanvas();
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            // Also re-snap counters after resize
+            clearTimeout(window._resizeSnapTimer);
+            window._resizeSnapTimer = setTimeout(() => {
+                document.querySelectorAll('.frame .counter').forEach(c => snapCounterToCell(c));
+            }, 400);
+        });
 
-function snapCounter(counter){
- const cells=[...document.querySelectorAll('.cell')];
- let best=null,dist=999999;
- const cr=counter.getBoundingClientRect();
- const cx=cr.left+18, cy=cr.top+18;
+        // ---- drawing state ----
+        let drawing = false;
+        let eraserMode = false;
+        const eraserBtn = document.getElementById('eraserBtn');
 
- cells.forEach(cell=>{
-   const r=cell.getBoundingClientRect();
-   const dx=cx-(r.left+r.width/2);
-   const dy=cy-(r.top+r.height/2);
-   const d=Math.hypot(dx,dy);
-   if(d<dist){dist=d;best=cell;}
- });
+        function startDrawing(e) {
+            const target = e.target;
+            if (target.closest('.frame') ||
+                target.closest('.counter') ||
+                target.closest('#bottomBar') ||
+                target.closest('.home-btn')) return;
+            drawing = true;
+            ctx.beginPath();
+            ctx.moveTo(e.clientX, e.clientY);
+        }
 
- if(best && dist<90){
-   const frame=best.closest('.frame');
-   const fr=frame.getBoundingClientRect();
-   const br=best.getBoundingClientRect();
-   frame.appendChild(counter);
-   counter.style.left=(br.left-fr.left+(br.width-36)/2)+'px';
-   counter.style.top=(br.top-fr.top+(br.height-36)/2)+'px';
- }
-}
+        function drawLine(e) {
+            if (!drawing) return;
+            ctx.lineTo(e.clientX, e.clientY);
+            if (eraserMode) {
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.lineWidth = 30;
+            } else {
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.strokeStyle = '#222';
+                ctx.lineWidth = 5;
+            }
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.stroke();
+        }
 
-function addCounter(){
- const c=document.createElement('div');
- c.className='counter';
- c.style.left='120px';
- c.style.top='120px';
- layer.appendChild(c);
- makeDrag(c,()=>snapCounter(c));
- longPressDelete(c,()=>c.remove());
-}
+        function stopDrawing() {
+            if (drawing) {
+                drawing = false;
+                ctx.beginPath();
+                ctx.globalCompositeOperation = 'source-over';
+                // Save content for resize
+                canvasContent = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            }
+        }
 
-function longPressDelete(el,fn){
- let t;
- el.addEventListener('pointerdown',()=>{
-   t=setTimeout(fn,700);
- });
- ['pointerup','pointermove','pointercancel'].forEach(ev=>
-   el.addEventListener(ev,()=>clearTimeout(t))
- );
-}
+        document.addEventListener('pointerdown', startDrawing);
+        document.addEventListener('pointermove', drawLine);
+        document.addEventListener('pointerup', stopDrawing);
 
-document.getElementById('addFrame').onclick=()=>{
- buildFrame(document.getElementById('frameType').value);
-};
-document.getElementById('addCounter').onclick=addCounter;
+        eraserBtn.addEventListener('click', () => {
+            eraserMode = !eraserMode;
+            eraserBtn.classList.toggle('active-eraser', eraserMode);
+            eraserBtn.textContent = eraserMode ? '🩹 Eraser ON' : '✏️ Draw';
+        });
 
-buildFrame('five');
-buildFrame('ten');
-</script>
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            canvasContent = null;
+        });
+
+        /* ============================================================
+           DRAGGABLE – smooth, no drift, with bounds
+           ============================================================ */
+        function makeDraggable(el, onDrop) {
+            let dragging = false;
+            let offX = 0,
+                offY = 0;
+
+            const onPointerDown = (e) => {
+                if (e.target !== el && !el.contains(e.target)) return;
+                dragging = true;
+                const rect = el.getBoundingClientRect();
+                offX = e.clientX - rect.left;
+                offY = e.clientY - rect.top;
+                el.setPointerCapture(e.pointerId);
+                if (el.classList.contains('counter')) el.classList.add('dragging');
+                e.stopPropagation();
+            };
+
+            const onPointerMove = (e) => {
+                if (!dragging) return;
+                const parent = el.offsetParent || objectsLayer;
+                const pRect = parent.getBoundingClientRect();
+                let newLeft = (e.clientX - offX) - pRect.left;
+                let newTop = (e.clientY - offY) - pRect.top;
+
+                // Clamp within viewport (with margin)
+                const margin = 20;
+                const maxX = window.innerWidth - el.offsetWidth - margin;
+                const maxY = window.innerHeight - el.offsetHeight - margin;
+                newLeft = Math.max(margin, Math.min(maxX, newLeft));
+                newTop = Math.max(margin, Math.min(maxY, newTop));
+
+                el.style.left = newLeft + 'px';
+                el.style.top = newTop + 'px';
+            };
+
+            const onPointerUp = (e) => {
+                if (!dragging) return;
+                dragging = false;
+                el.classList.remove('dragging');
+                if (onDrop) onDrop(el, e);
+            };
+
+            el.addEventListener('pointerdown', onPointerDown);
+            el.addEventListener('pointermove', onPointerMove);
+            el.addEventListener('pointerup', onPointerUp);
+
+            // Store handlers for cleanup if needed
+            el._dragHandlers = { onPointerDown, onPointerMove, onPointerUp };
+        }
+
+        /* ============================================================
+           FRAME SNAP (Magnetic) – horizontal + vertical
+           ============================================================ */
+        function snapFrames(frame) {
+            const frames = document.querySelectorAll('.frame');
+            const r1 = frame.getBoundingClientRect();
+            const SNAP = 30;
+            let snapped = false;
+
+            frames.forEach(other => {
+                if (other === frame) return;
+                const r2 = other.getBoundingClientRect();
+
+                // Horizontal snap
+                if (!snapped) {
+                    if (Math.abs(r1.right - r2.left) < SNAP && Math.abs(r1.top - r2.top) < SNAP) {
+                        frame.style.left = (other.offsetLeft - frame.offsetWidth - 4) + 'px';
+                        frame.style.top = other.offsetTop + 'px';
+                        snapped = true;
+                        return;
+                    }
+                    if (Math.abs(r1.left - r2.right) < SNAP && Math.abs(r1.top - r2.top) < SNAP) {
+                        frame.style.left = (other.offsetLeft + other.offsetWidth + 4) + 'px';
+                        frame.style.top = other.offsetTop + 'px';
+                        snapped = true;
+                        return;
+                    }
+                }
+
+                // Vertical snap (if not already snapped horizontally)
+                if (!snapped) {
+                    if (Math.abs(r1.bottom - r2.top) < SNAP && Math.abs(r1.left - r2.left) < SNAP) {
+                        frame.style.top = (other.offsetTop - frame.offsetHeight - 4) + 'px';
+                        frame.style.left = other.offsetLeft + 'px';
+                        snapped = true;
+                        return;
+                    }
+                    if (Math.abs(r1.top - r2.bottom) < SNAP && Math.abs(r1.left - r2.left) < SNAP) {
+                        frame.style.top = (other.offsetTop + other.offsetHeight + 4) + 'px';
+                        frame.style.left = other.offsetLeft + 'px';
+                        snapped = true;
+                        return;
+                    }
+                }
+            });
+        }
+
+        /* ============================================================
+           FRAME CREATION – five on top, ten below
+           ============================================================ */
+        let fiveCount = 0;
+        let tenCount = 0;
+        const FRAME_W = 280;
+        const FRAME_H_FIVE = 65;
+        const FRAME_H_TEN = 130;
+        const GAP = 20;
+        const START_X = 60;
+        const START_Y_FIVE = 90;
+        const START_Y_TEN = START_Y_FIVE + FRAME_H_FIVE + GAP;
+
+        function buildFrame(type) {
+            const isTen = type === 'ten';
+            const frame = document.createElement('div');
+            frame.className = `frame ${isTen ? 'tenFrame' : 'fiveFrame'}`;
+            frame.style.width = FRAME_W + 'px';
+            frame.style.height = (isTen ? FRAME_H_TEN : FRAME_H_FIVE) + 'px';
+
+            let left, top;
+            if (isTen) {
+                left = START_X + tenCount * (FRAME_W + GAP);
+                top = START_Y_TEN;
+                tenCount++;
+            } else {
+                left = START_X + fiveCount * (FRAME_W + GAP);
+                top = START_Y_FIVE;
+                fiveCount++;
+            }
+            frame.style.left = left + 'px';
+            frame.style.top = top + 'px';
+
+            const grid = document.createElement('div');
+            grid.className = 'grid';
+            const count = isTen ? 10 : 5;
+            for (let i = 0; i < count; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.dataset.idx = i;
+                grid.appendChild(cell);
+            }
+            frame.appendChild(grid);
+            objectsLayer.appendChild(frame);
+            makeDraggable(frame, (el) => snapFrames(el));
+
+            // Double-click to delete frame (only if empty)
+            frame.addEventListener('dblclick', (e) => {
+                const counters = frame.querySelectorAll('.counter');
+                if (counters.length === 0) {
+                    frame.remove();
+                    e.stopPropagation();
+                } else {
+                    // Flash to indicate not empty
+                    frame.style.borderColor = '#e74c3c';
+                    setTimeout(() => { frame.style.borderColor = '#222'; }, 400);
+                }
+            });
+
+            return frame;
+        }
+
+        /* ============================================================
+           DROPDOWN
+           ============================================================ */
+        const frameSelect = document.getElementById('frameSelect');
+        frameSelect.addEventListener('change', () => {
+            const val = frameSelect.value;
+            buildFrame(val);
+            frameSelect.selectedIndex = 0;
+        });
+
+        /* ============================================================
+           CELL ORDER (for ten‑frame: top row L→R, then bottom)
+           ============================================================ */
+        function getCellOrder(frame) {
+            const cells = frame.querySelectorAll('.cell');
+            const isTen = frame.classList.contains('tenFrame');
+            if (!isTen) return Array.from(cells);
+            const top = [],
+                bottom = [];
+            cells.forEach((c, i) => {
+                if (i < 5) top.push(c);
+                else bottom.push(c);
+            });
+            return [...top, ...bottom];
+        }
+
+        /* ============================================================
+           Find first empty cell (improved occupancy check)
+           ============================================================ */
+        function findFirstEmptyCell(frame) {
+            const cells = getCellOrder(frame);
+            const counters = frame.querySelectorAll('.counter');
+
+            for (let i = 0; i < cells.length; i++) {
+                const cell = cells[i];
+                const cellRect = cell.getBoundingClientRect();
+                let occupied = false;
+
+                for (const counter of counters) {
+                    const cRect = counter.getBoundingClientRect();
+                    // Check if counter center is inside cell
+                    const cx = cRect.left + cRect.width / 2;
+                    const cy = cRect.top + cRect.height / 2;
+                    if (cx >= cellRect.left && cx <= cellRect.right &&
+                        cy >= cellRect.top && cy <= cellRect.bottom) {
+                        occupied = true;
+                        break;
+                    }
+                    // Also check overlap area (for partially overlapping counters)
+                    const overlapX = Math.max(0, Math.min(cRect.right, cellRect.right) - Math.max(cRect.left, cellRect
+                    .left));
+                    const overlapY = Math.max(0, Math.min(cRect.bottom, cellRect.bottom) - Math.max(cRect.top, cellRect
+                    .top));
+                    if (overlapX > 10 && overlapY > 10) {
+                        occupied = true;
+                        break;
+                    }
+                }
+                if (!occupied) return i;
+            }
+            return -1;
+        }
+
+        /* ============================================================
+           COUNTER – Sequential Fly‑in
+           ============================================================ */
+        let isFlying = false;
+
+        function getCounterStartPos() {
+            const btn = document.getElementById('counterBtn');
+            const rect = btn.getBoundingClientRect();
+            return { x: rect.left + rect.width / 2 - 18, y: rect.top + rect.height / 2 - 18 };
+        }
+
+        function launchCounterToCell(frame, cell) {
+            if (isFlying) return;
+            isFlying = true;
+
+            const start = getCounterStartPos();
+            const cellRect = cell.getBoundingClientRect();
+            const targetX = cellRect.left + cellRect.width / 2 - 18;
+            const targetY = cellRect.top + cellRect.height / 2 - 18;
+
+            const counter = document.createElement('div');
+            counter.className = 'counter fly';
+            counter.style.left = start.x + 'px';
+            counter.style.top = start.y + 'px';
+            counter.style.width = '36px';
+            counter.style.height = '36px';
+            counter.dataset.flying = 'true';
+            objectsLayer.appendChild(counter);
+
+            // Force reflow
+            void counter.offsetHeight;
+
+            // Set target position
+            counter.style.left = targetX + 'px';
+            counter.style.top = targetY + 'px';
+
+            let finished = false;
+
+            const onFinish = () => {
+                if (finished) return;
+                finished = true;
+                counter.removeEventListener('transitionend', onFinish);
+
+                // Move counter into frame
+                const fRect = frame.getBoundingClientRect();
+                const relX = targetX - fRect.left;
+                const relY = targetY - fRect.top;
+
+                counter.classList.remove('fly');
+                counter.style.transition = 'none';
+                counter.style.left = relX + 'px';
+                counter.style.top = relY + 'px';
+                frame.appendChild(counter);
+                makeDraggable(counter, (el) => snapCounterToCell(el));
+                snapCounterToCell(counter);
+                counter.dataset.flying = 'false';
+                isFlying = false;
+            };
+
+            counter.addEventListener('transitionend', onFinish);
+
+            // Safety fallback if transitionend doesn't fire
+            setTimeout(() => {
+                if (!finished && counter.parentNode) {
+                    onFinish();
+                }
+            }, 900);
+        }
+
+        /* ============================================================
+           ADD ONE COUNTER – sequential fill (smart frame selection)
+           ============================================================ */
+        function addOneCounter() {
+            if (isFlying) return;
+
+            let frames = document.querySelectorAll('.frame');
+            if (frames.length === 0) {
+                buildFrame('five');
+                frames = document.querySelectorAll('.frame');
+            }
+
+            // Prefer the last five-frame that has space, otherwise the last ten-frame
+            let targetFrame = null;
+            let candidateFrames = [];
+
+            // Check all frames for empty cells
+            for (const f of frames) {
+                const emptyIdx = findFirstEmptyCell(f);
+                if (emptyIdx !== -1) {
+                    candidateFrames.push({ frame: f, emptyIdx, isFive: f.classList.contains('fiveFrame') });
+                }
+            }
+
+            if (candidateFrames.length === 0) {
+                // All frames full → create a new five-frame
+                const newFrame = buildFrame('five');
+                const cells = getCellOrder(newFrame);
+                if (cells.length > 0) {
+                    launchCounterToCell(newFrame, cells[0]);
+                }
+                return;
+            }
+
+            // Prefer five-frames over ten-frames
+            const fiveCandidates = candidateFrames.filter(c => c.isFive);
+            const selected = fiveCandidates.length > 0 ? fiveCandidates[0] : candidateFrames[0];
+
+            const cells = getCellOrder(selected.frame);
+            launchCounterToCell(selected.frame, cells[selected.emptyIdx]);
+        }
+
+        /* ============================================================
+           SNAP COUNTER TO NEAREST CELL (improved)
+           ============================================================ */
+        function snapCounterToCell(counter) {
+            const cells = document.querySelectorAll('.cell');
+            let best = null,
+                bestDist = Infinity;
+            const cRect = counter.getBoundingClientRect();
+            const cx = cRect.left + cRect.width / 2;
+            const cy = cRect.top + cRect.height / 2;
+
+            cells.forEach(cell => {
+                const r = cell.getBoundingClientRect();
+                const x = r.left + r.width / 2;
+                const y = r.top + r.height / 2;
+                const d = Math.hypot(cx - x, cy - y);
+                if (d < bestDist) { bestDist = d;
+                    best = cell; }
+            });
+
+            if (best && bestDist < 80) {
+                const frame = best.closest('.frame');
+                if (!frame) return;
+                const fRect = frame.getBoundingClientRect();
+                const bRect = best.getBoundingClientRect();
+                const relX = bRect.left - fRect.left + (bRect.width - 36) / 2;
+                const relY = bRect.top - fRect.top + (bRect.height - 36) / 2;
+
+                if (counter.parentNode !== frame) {
+                    frame.appendChild(counter);
+                }
+                counter.classList.add('snap');
+                counter.style.left = relX + 'px';
+                counter.style.top = relY + 'px';
+                // Remove snap class after animation
+                setTimeout(() => {
+                    counter.classList.remove('snap');
+                }, 250);
+            }
+        }
+
+        /* ============================================================
+           COUNTER BUTTON
+           ============================================================ */
+        document.getElementById('counterBtn').addEventListener('click', addOneCounter);
+
+        /* ============================================================
+           DOUBLE-CLICK TO DELETE COUNTER
+           ============================================================ */
+        document.addEventListener('dblclick', (e) => {
+            const counter = e.target.closest('.counter');
+            if (counter && !counter.dataset.flying) {
+                counter.remove();
+                e.stopPropagation();
+            }
+        });
+
+        /* ============================================================
+           STARTUP – two frames (five on top, ten below) with counters
+           ============================================================ */
+        function initStartupCounters() {
+            const f1 = buildFrame('five');
+            const f2 = buildFrame('ten');
+
+            // Use requestAnimationFrame to ensure layout is done
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    // Add 3 counters to five-frame
+                    const cells1 = getCellOrder(f1);
+                    for (let i = 0; i < 3 && i < cells1.length; i++) {
+                        const c = document.createElement('div');
+                        c.className = 'counter';
+                        const r = cells1[i].getBoundingClientRect();
+                        const fr = f1.getBoundingClientRect();
+                        c.style.left = (r.left - fr.left + (r.width - 36) / 2) + 'px';
+                        c.style.top = (r.top - fr.top + (r.height - 36) / 2) + 'px';
+                        f1.appendChild(c);
+                        makeDraggable(c, (el) => snapCounterToCell(el));
+                        snapCounterToCell(c);
+                    }
+
+                    // Add 1 counter to ten-frame
+                    const cells2 = getCellOrder(f2);
+                    if (cells2.length > 0) {
+                        const c = document.createElement('div');
+                        c.className = 'counter';
+                        const r = cells2[0].getBoundingClientRect();
+                        const fr = f2.getBoundingClientRect();
+                        c.style.left = (r.left - fr.left + (r.width - 36) / 2) + 'px';
+                        c.style.top = (r.top - fr.top + (r.height - 36) / 2) + 'px';
+                        f2.appendChild(c);
+                        makeDraggable(c, (el) => snapCounterToCell(el));
+                        snapCounterToCell(c);
+                    }
+                });
+            });
+        }
+
+        initStartupCounters();
+
+        /* ============================================================
+           KEYBOARD SHORTCUTS
+           ============================================================ */
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'c' || e.key === 'C') {
+                e.preventDefault();
+                addOneCounter();
+            }
+            if (e.key === 'e' || e.key === 'E') {
+                e.preventDefault();
+                eraserBtn.click();
+            }
+            if (e.key === 'Delete' || e.key === 'Backspace') {
+                // Delete selected counter or clear canvas if no counter selected
+                const selected = document.querySelector('.counter.dragging');
+                if (selected) {
+                    selected.remove();
+                }
+            }
+        });
+
+        /* ============================================================
+           RE-SNAP on any frame movement
+           ============================================================ */
+        // Observe DOM changes to re-snap counters when frames are added/removed
+        const observer = new MutationObserver(() => {
+            document.querySelectorAll('.frame .counter').forEach(c => {
+                if (!c.dataset.flying) snapCounterToCell(c);
+            });
+        });
+        observer.observe(objectsLayer, { childList: true, subtree: true });
+
+        console.log('✅ Fixed: canvas scaling on resize, vertical frame snap, double-click delete, improved counter fly-in, and keyboard shortcuts (C=add counter, E=eraser).');
+    </script>
 </body>
 </html>
