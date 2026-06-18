@@ -34,7 +34,7 @@ body{
 
 }
 
-/* ================= TOOLBAR ================= */
+/* TOOLBAR */
 
 #toolbar{
 
@@ -72,7 +72,7 @@ button,select{
 
 }
 
-/* ================= WORKSPACE ================= */
+/* WORKSPACE */
 
 #workspace{
 
@@ -84,7 +84,7 @@ button,select{
 
 }
 
-/* ================= CANVAS ================= */
+/* CANVAS */
 
 #drawCanvas{
 
@@ -96,7 +96,7 @@ button,select{
 
 }
 
-/* ================= FRAMES ================= */
+/* FRAME */
 
 .frame{
 
@@ -115,6 +115,8 @@ button,select{
     cursor:move;
 
 }
+
+/* GRID */
 
 .grid{
 
@@ -148,37 +150,27 @@ button,select{
 
     position:relative;
 
-}
-
-/* ================= COUNTERS ================= */
-
-.counter{
-
-    width:40px;
-
-    height:40px;
-
-    border-radius:50%;
-
-    background:#ff4d4d;
-
-    color:white;
-
     display:flex;
 
     align-items:center;
 
     justify-content:center;
 
-    font-weight:bold;
+}
 
-    position:absolute;
+/* COUNTER (NO NUMBER NOW) */
 
-    z-index:1000;
+.counter{
 
-    transition:left .5s ease, top .5s ease;
+    width:35px;
 
-    touch-action:none;
+    height:35px;
+
+    border-radius:50%;
+
+    background:#ff4d4d;
+
+    transition:transform .3s ease;
 
 }
 
@@ -187,8 +179,6 @@ button,select{
 </head>
 
 <body>
-
-<!-- ================= TOOLBAR ================= -->
 
 <div id="toolbar">
 
@@ -212,8 +202,6 @@ button,select{
 
 </div>
 
-<!-- ================= WORKSPACE ================= -->
-
 <div id="workspace">
 
 <canvas id="drawCanvas"></canvas>
@@ -230,9 +218,7 @@ const ctx = canvas.getContext("2d");
 
 let selectedFrame = null;
 
-let counterNumber = 1;
-
-/* ================= RESIZE CANVAS ================= */
+/* CANVAS */
 
 function resize(){
 
@@ -246,85 +232,83 @@ resize();
 
 window.addEventListener("resize", resize);
 
-/* ================= DRAWING ================= */
+let drawing=false;
 
-let drawing = false;
+let erasing=false;
 
-let erasing = false;
+canvas.addEventListener("pointerdown",(e)=>{
 
-canvas.addEventListener("pointerdown", (e)=>{
-
-    drawing = true;
+    drawing=true;
 
     ctx.beginPath();
 
-    ctx.moveTo(e.offsetX, e.offsetY);
+    ctx.moveTo(e.offsetX,e.offsetY);
 
 });
 
-canvas.addEventListener("pointermove", (e)=>{
+canvas.addEventListener("pointermove",(e)=>{
 
     if(!drawing) return;
 
     if(erasing){
 
-        ctx.globalCompositeOperation = "destination-out";
+        ctx.globalCompositeOperation="destination-out";
 
-        ctx.lineWidth = 25;
+        ctx.lineWidth=25;
 
     }else{
 
-        ctx.globalCompositeOperation = "source-over";
+        ctx.globalCompositeOperation="source-over";
 
-        ctx.strokeStyle = "black";
+        ctx.strokeStyle="black";
 
-        ctx.lineWidth = 3;
+        ctx.lineWidth=3;
 
     }
 
-    ctx.lineTo(e.offsetX, e.offsetY);
+    ctx.lineTo(e.offsetX,e.offsetY);
 
     ctx.stroke();
 
 });
 
-window.addEventListener("pointerup", ()=> drawing=false);
+window.addEventListener("pointerup",()=>drawing=false);
 
-document.getElementById("penBtn").onclick = ()=> erasing=false;
+document.getElementById("penBtn").onclick=()=>erasing=false;
 
-document.getElementById("eraserBtn").onclick = ()=> erasing=true;
+document.getElementById("eraserBtn").onclick=()=>erasing=true;
 
-document.getElementById("clearBtn").onclick = ()=>{
+document.getElementById("clearBtn").onclick=()=>{
 
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
 };
 
-/* ================= ADD FRAME ================= */
+/* FRAME CREATION */
 
-document.getElementById("addFrameBtn").onclick = ()=>{
+document.getElementById("addFrameBtn").onclick=()=>{
 
     const type = document.getElementById("frameType").value;
 
     const frame = document.createElement("div");
 
-    frame.className = "frame";
+    frame.className="frame";
 
-    frame.style.left = "120px";
+    frame.style.left="120px";
 
-    frame.style.top = "120px";
+    frame.style.top="120px";
 
     const grid = document.createElement("div");
 
-    grid.className = "grid " + type;
+    grid.className="grid " + type;
 
-    const count = type === "five" ? 5 : 10;
+    const count = type==="five" ? 5 : 10;
 
     for(let i=0;i<count;i++){
 
-        const cell = document.createElement("div");
+        const cell=document.createElement("div");
 
-        cell.className = "cell";
+        cell.className="cell";
 
         grid.appendChild(cell);
 
@@ -334,13 +318,13 @@ document.getElementById("addFrameBtn").onclick = ()=>{
 
     workspace.appendChild(frame);
 
-    frame.nextCellIndex = 0;
+    frame.nextIndex = 0;
 
     selectedFrame = frame;
 
-    frame.addEventListener("pointerdown", ()=>{
+    frame.addEventListener("pointerdown",()=>{
 
-        selectedFrame = frame;
+        selectedFrame=frame;
 
     });
 
@@ -348,63 +332,73 @@ document.getElementById("addFrameBtn").onclick = ()=>{
 
 };
 
-/* ================= ADD COUNTER (FIXED SEQUENCE) ================= */
+/* ADD COUNTER (NOW STORED INSIDE CELLS) */
 
-document.getElementById("addCounterBtn").onclick = ()=>{
+document.getElementById("addCounterBtn").onclick=()=>{
 
     if(!selectedFrame) return;
 
     const cells = selectedFrame.querySelectorAll(".cell");
 
-    if(selectedFrame.nextCellIndex === undefined){
+    if(selectedFrame.nextIndex === undefined){
 
-        selectedFrame.nextCellIndex = 0;
+        selectedFrame.nextIndex = 0;
 
     }
 
-    if(selectedFrame.nextCellIndex >= cells.length){
+    if(selectedFrame.nextIndex >= cells.length){
 
         return;
 
     }
 
-    const targetCell = cells[selectedFrame.nextCellIndex];
+    const cell = cells[selectedFrame.nextIndex];
 
-    selectedFrame.nextCellIndex++;
+    selectedFrame.nextIndex++;
 
     const counter = document.createElement("div");
 
-    counter.className = "counter";
+    counter.className="counter";
 
-    counter.textContent = counterNumber++;
+    // start animation position
 
-    counter.style.left = "20px";
+    counter.style.position="fixed";
 
-    counter.style.top = "20px";
+    counter.style.left="20px";
 
-    workspace.appendChild(counter);
+    counter.style.top="20px";
 
-    makeCounterDraggable(counter);
+    document.body.appendChild(counter);
 
-    const wr = workspace.getBoundingClientRect();
-
-    const cr = targetCell.getBoundingClientRect();
-
-    const x = cr.left - wr.left + (cr.width - 40)/2;
-
-    const y = cr.top - wr.top + (cr.height - 40)/2;
+    const targetRect = cell.getBoundingClientRect();
 
     requestAnimationFrame(()=>{
 
-        counter.style.left = x + "px";
+        counter.style.left = targetRect.left + targetRect.width/2 - 17 + "px";
 
-        counter.style.top = y + "px";
+        counter.style.top = targetRect.top + targetRect.height/2 - 17 + "px";
+
+        setTimeout(()=>{
+
+            // FINAL: move inside cell (so it follows frame)
+
+            counter.style.position="absolute";
+
+            counter.style.left="50%";
+
+            counter.style.top="50%";
+
+            counter.style.transform="translate(-50%,-50%)";
+
+            cell.appendChild(counter);
+
+        },300);
 
     });
 
 };
 
-/* ================= FRAME DRAG ================= */
+/* FRAME DRAG */
 
 function makeFrameDraggable(el){
 
@@ -416,43 +410,9 @@ function makeFrameDraggable(el){
 
         drag=true;
 
-        dx = e.clientX - el.offsetLeft;
+        dx=e.clientX-el.offsetLeft;
 
-        dy = e.clientY - el.offsetTop;
-
-    });
-
-    window.addEventListener("pointermove",(e)=>{
-
-        if(!drag) return;
-
-        el.style.left = (e.clientX - dx) + "px";
-
-        el.style.top = (e.clientY - dy) + "px";
-
-    });
-
-    window.addEventListener("pointerup",()=> drag=false);
-
-}
-
-/* ================= COUNTER DRAG ================= */
-
-function makeCounterDraggable(el){
-
-    let dx,dy,drag=false;
-
-    el.addEventListener("pointerdown",(e)=>{
-
-        drag=true;
-
-        el.style.transition="none";
-
-        dx = e.clientX - el.offsetLeft;
-
-        dy = e.clientY - el.offsetTop;
-
-        e.stopPropagation();
+        dy=e.clientY-el.offsetTop;
 
     });
 
@@ -460,19 +420,13 @@ function makeCounterDraggable(el){
 
         if(!drag) return;
 
-        el.style.left = (e.clientX - dx) + "px";
+        el.style.left=(e.clientX-dx)+"px";
 
-        el.style.top = (e.clientY - dy) + "px";
-
-    });
-
-    window.addEventListener("pointerup",()=>{
-
-        drag=false;
-
-        el.style.transition="left .5s ease, top .5s ease";
+        el.style.top=(e.clientY-dy)+"px";
 
     });
+
+    window.addEventListener("pointerup",()=>drag=false);
 
 }
 
