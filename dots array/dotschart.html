@@ -2,16 +2,11 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-
     <title>Drawing + Eraser + Clear</title>
-
     <style>
         /* ================= RESET ================= */
-
         * {
             margin: 0;
             padding: 0;
@@ -26,36 +21,7 @@
             font-family: Arial;
         }
 
-        /* ================= HOME BUTTON ================= */
-
-        .home-btn {
-            position: fixed;
-            top: 12px;
-            right: 12px;
-            z-index: 200;
-
-            text-decoration: none;
-            background: white;
-            color: #111827;
-
-            padding: 10px 18px;
-            border-radius: 12px;
-
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-
-            font-weight: bold;
-
-            transition: 0.2s;
-        }
-
-        .home-btn:hover {
-            transform: scale(1.05);
-            background: #2563eb;
-            color: white;
-        }
-
-        /* ================= TOOLBAR — NOW AT BOTTOM ================= */
-
+        /* ================= TOOLBAR — BOTTOM ================= */
         .toolbar {
             position: fixed;
             bottom: 24px;
@@ -64,32 +30,38 @@
             z-index: 100;
 
             display: flex;
-            gap: 12px;
+            gap: 8px;
+            align-items: center;
 
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
 
-            padding: 10px 18px;
+            padding: 8px 16px;
             border-radius: 60px;
 
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.20);
 
-            /* prevent overlap with bottom panel */
             pointer-events: auto;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
         .tool-btn {
             border: none;
-            padding: 10px 22px;
+            padding: 8px 16px;
             border-radius: 40px;
             background: transparent;
             cursor: pointer;
             font-weight: bold;
-            font-size: 15px;
+            font-size: 14px;
             transition: 0.2s;
             color: #1e293b;
             white-space: nowrap;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .tool-btn:hover {
@@ -102,8 +74,16 @@
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
         }
 
-        /* ================= CENTER ================= */
+        .tool-btn.home-link {
+            background: #f1f5f9;
+            padding: 8px 14px;
+        }
 
+        .tool-btn.home-link:hover {
+            background: #e2e8f0;
+        }
+
+        /* ================= CENTER ================= */
         .wrapper {
             width: 100%;
             height: 100%;
@@ -113,7 +93,6 @@
         }
 
         /* ================= BOARD ================= */
-
         .board {
             position: relative;
             width: min(92vw, 520px);
@@ -125,7 +104,6 @@
         }
 
         /* ================= MAIN CANVAS ================= */
-
         #mainCanvas {
             position: absolute;
             inset: 0;
@@ -134,20 +112,14 @@
         }
 
         /* ================= GRID ================= */
-
         .grid {
             position: absolute;
             inset: 0;
             display: grid;
-
             grid-template-columns: repeat(9, 1fr) 22px;
-
             grid-template-rows: repeat(9, 1fr) 22px;
-
             z-index: 2;
         }
-
-        /* ================= DOTS ================= */
 
         .dot {
             display: flex;
@@ -169,8 +141,6 @@
             border-color: #2563eb;
         }
 
-        /* ================= HANDLE GAP ================= */
-
         .dot.handle-gap {
             pointer-events: none;
         }
@@ -180,7 +150,6 @@
         }
 
         /* ================= RIGHT PANEL ================= */
-
         .right-panel {
             position: absolute;
             top: 0;
@@ -191,8 +160,6 @@
             border-left: 2px solid #d1d5db;
             z-index: 10;
         }
-
-        /* BIGGER HANDLE */
 
         .mask-right {
             position: absolute;
@@ -210,8 +177,6 @@
             align-items: center;
         }
 
-        /* HANDLE VISUAL */
-
         .mask-right::after {
             content: "";
             width: 6px;
@@ -219,8 +184,6 @@
             border-radius: 999px;
             background: #94a3b8;
         }
-
-        /* RIGHT CANVAS */
 
         #rightCanvas {
             position: absolute;
@@ -231,7 +194,6 @@
         }
 
         /* ================= BOTTOM PANEL ================= */
-
         .bottom-panel {
             position: absolute;
             left: 0;
@@ -242,8 +204,6 @@
             border-top: 2px solid #d1d5db;
             z-index: 10;
         }
-
-        /* BIGGER HANDLE */
 
         .mask-bottom {
             position: absolute;
@@ -261,8 +221,6 @@
             align-items: center;
         }
 
-        /* HANDLE VISUAL */
-
         .mask-bottom::after {
             content: "";
             width: 60px;
@@ -270,8 +228,6 @@
             border-radius: 999px;
             background: #94a3b8;
         }
-
-        /* BOTTOM CANVAS */
 
         #bottomCanvas {
             position: absolute;
@@ -281,98 +237,76 @@
             touch-action: none;
         }
 
-        /* ================= RESPONSIVE TWEAKS ================= */
-
+        /* ================= RESPONSIVE ================= */
         @media (max-width: 480px) {
             .toolbar {
-                gap: 6px;
-                padding: 8px 12px;
+                gap: 4px;
+                padding: 6px 10px;
                 bottom: 16px;
+                border-radius: 40px;
             }
 
             .tool-btn {
-                padding: 8px 14px;
-                font-size: 13px;
+                padding: 6px 10px;
+                font-size: 12px;
             }
 
-            .home-btn {
-                padding: 6px 12px;
-                font-size: 14px !important;
-                top: 8px;
-                right: 8px;
+            .tool-btn.home-link {
+                padding: 6px 10px;
             }
         }
 
         @media (max-width: 380px) {
             .tool-btn {
-                padding: 6px 10px;
-                font-size: 11px;
+                font-size: 10px;
+                padding: 4px 8px;
             }
 
             .toolbar {
-                gap: 4px;
-                padding: 6px 10px;
-                bottom: 12px;
+                gap: 2px;
+                padding: 4px 8px;
             }
         }
     </style>
-
 </head>
 
 <body>
 
-    <!-- HOME BUTTON ON THE RIGHT -->
-    <a href="../index.html" class="home-btn" style="font-family:'Battambang', cursive; font-size:20px;">
-        🏡Home
-    </a>
-
-    <!-- TOOLBAR — NOW AT THE BOTTOM -->
-
+    <!-- ===== TOOLBAR AT BOTTOM ===== -->
     <div class="toolbar">
 
-        <button class="tool-btn active" id="drawBtn">
-            ✏️ សរសេរ
-        </button>
+        <button class="tool-btn active" id="drawBtn">✏️ សរសេរ</button>
+        <button class="tool-btn" id="eraseBtn">🧹 ជ័រលុប</button>
+        <button class="tool-btn" id="clearBtn">🗑️ សម្អាត</button>
 
-        <button class="tool-btn" id="eraseBtn">
-            🧹 ជ័រលុប
-        </button>
-
-        <button class="tool-btn" id="clearBtn">
-            🗑️ សម្អាត
-        </button>
+        <!-- Home button right next to the others -->
+        <a href="../index.html" class="tool-btn home-link">🏡 Home</a>
 
     </div>
 
+    <!-- ===== BOARD ===== -->
     <div class="wrapper">
-
         <div class="board" id="board">
 
-            <!-- MAIN -->
             <canvas id="mainCanvas"></canvas>
 
-            <!-- GRID -->
             <div class="grid" id="grid"></div>
 
-            <!-- RIGHT -->
             <div class="right-panel" id="rightPanel">
                 <div class="mask-right" id="maskRight"></div>
                 <canvas id="rightCanvas"></canvas>
             </div>
 
-            <!-- BOTTOM -->
             <div class="bottom-panel" id="bottomPanel">
                 <div class="mask-bottom" id="maskBottom"></div>
                 <canvas id="bottomCanvas"></canvas>
             </div>
 
         </div>
-
     </div>
 
     <script>
         /* ================= TOOL MODE ================= */
-
         let tool = "draw";
 
         const drawBtn = document.getElementById("drawBtn");
@@ -392,39 +326,25 @@
         };
 
         /* ================= DOT GRID ================= */
-
         const grid = document.getElementById("grid");
 
         for (let row = 0; row < 10; row++) {
-
             for (let col = 0; col < 10; col++) {
-
                 const dot = document.createElement("div");
-
                 dot.className = "dot";
-
                 if (col === 9 || row === 9) {
                     dot.classList.add("handle-gap");
                 }
-
                 dot.addEventListener("pointerdown", (e) => {
-
                     if (dot.classList.contains("handle-gap")) return;
-
                     e.stopPropagation();
-
                     dot.classList.toggle("active");
-
                 });
-
                 grid.appendChild(dot);
-
             }
-
         }
 
         /* ================= CANVASES ================= */
-
         const mainCanvas = document.getElementById("mainCanvas");
         const rightCanvas = document.getElementById("rightCanvas");
         const bottomCanvas = document.getElementById("bottomCanvas");
@@ -438,7 +358,6 @@
         const bottomPanel = document.getElementById("bottomPanel");
 
         /* ================= DRAW STORAGE ================= */
-
         let drawings = {
             main: [],
             right: [],
@@ -446,9 +365,7 @@
         };
 
         /* ================= RESIZE ================= */
-
         function resizeCanvases() {
-
             mainCanvas.width = board.offsetWidth;
             mainCanvas.height = board.offsetHeight;
 
@@ -461,25 +378,18 @@
             redrawCanvas(mainCtx, drawings.main);
             redrawCanvas(rightCtx, drawings.right);
             redrawCanvas(bottomCtx, drawings.bottom);
-
         }
 
         window.addEventListener("resize", resizeCanvases);
 
         /* ================= REDRAW ================= */
-
         function redrawCanvas(ctx, paths) {
-
             ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
             paths.forEach(path => {
-
                 if (path.points.length < 2) return;
-
                 ctx.beginPath();
-
                 ctx.lineWidth = path.erase ? 20 : 3;
-
                 ctx.lineCap = "round";
 
                 if (path.erase) {
@@ -490,191 +400,126 @@
                 }
 
                 ctx.moveTo(path.points[0].x, path.points[0].y);
-
                 for (let i = 1; i < path.points.length; i++) {
                     ctx.lineTo(path.points[i].x, path.points[i].y);
                 }
-
                 ctx.stroke();
-
             });
 
             ctx.globalCompositeOperation = "source-over";
-
         }
 
-        /* ================= DRAWING ================= */
-
+        /* ================= ENABLE DRAWING ================= */
         function enableDrawing(canvas, ctx, storage) {
-
             let drawing = false;
-
             let currentPath = null;
 
             canvas.addEventListener("pointerdown", (e) => {
-
                 drawing = true;
-
                 currentPath = {
                     erase: tool === "erase",
                     points: []
                 };
-
                 currentPath.points.push({
                     x: e.offsetX,
                     y: e.offsetY
                 });
-
                 storage.push(currentPath);
-
             });
 
             canvas.addEventListener("pointermove", (e) => {
-
                 if (!drawing) return;
-
                 currentPath.points.push({
                     x: e.offsetX,
                     y: e.offsetY
                 });
-
                 redrawCanvas(ctx, storage);
-
             });
 
             window.addEventListener("pointerup", () => {
                 drawing = false;
             });
-
         }
-
-        /* ================= ENABLE ================= */
 
         enableDrawing(mainCanvas, mainCtx, drawings.main);
         enableDrawing(rightCanvas, rightCtx, drawings.right);
         enableDrawing(bottomCanvas, bottomCtx, drawings.bottom);
 
-        /* ================= CLEAR ================= */
-
+        /* ================= CLEAR — only drawings, keep dots ================= */
         clearBtn.onclick = () => {
-
+            // Reset drawing arrays (so they don't reappear on resize)
             drawings = {
                 main: [],
                 right: [],
                 bottom: []
             };
 
+            // Clear all canvas content
             mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
             rightCtx.clearRect(0, 0, rightCanvas.width, rightCanvas.height);
             bottomCtx.clearRect(0, 0, bottomCanvas.width, bottomCanvas.height);
 
-            document.querySelectorAll(".dot").forEach(dot => {
-                dot.classList.remove("active");
-            });
-
+            // Do NOT touch the dots — they stay as they are
         };
 
         /* ================= FIRST RESIZE ================= */
-
         resizeCanvases();
 
-        /* ================= RIGHT RESIZE ================= */
-
+        /* ================= RESIZE HANDLES ================= */
         const maskRight = document.getElementById("maskRight");
-
         let dragRight = false;
         let startX = 0;
         let startWidth = 0;
 
         maskRight.addEventListener("pointerdown", (e) => {
-
             dragRight = true;
-
             startX = e.clientX;
             startWidth = rightPanel.offsetWidth;
-
             maskRight.setPointerCapture(e.pointerId);
-
             e.preventDefault();
-
         });
 
-        /* ================= BOTTOM RESIZE ================= */
-
         const maskBottom = document.getElementById("maskBottom");
-
         let dragBottom = false;
         let startY = 0;
         let startHeight = 0;
 
         maskBottom.addEventListener("pointerdown", (e) => {
-
             dragBottom = true;
-
             startY = e.clientY;
             startHeight = bottomPanel.offsetHeight;
-
             maskBottom.setPointerCapture(e.pointerId);
-
             e.preventDefault();
-
         });
-
-        /* ================= CLAMP ================= */
 
         function clamp(value, min, max) {
             return Math.min(Math.max(value, min), max);
         }
 
-        /* ================= MOVE ================= */
-
         window.addEventListener("pointermove", (e) => {
-
-            /* ---------- RIGHT ---------- */
-
             if (dragRight) {
-
                 let dx = e.clientX - startX;
-
                 let newWidth = startWidth - dx;
-
                 const maxWidth = board.offsetWidth - 40;
-
                 newWidth = clamp(newWidth, 70, maxWidth);
-
                 rightPanel.style.width = newWidth + "px";
-
                 resizeCanvases();
-
             }
-
-            /* ---------- BOTTOM ---------- */
 
             if (dragBottom) {
-
                 let dy = e.clientY - startY;
-
                 let newHeight = startHeight - dy;
-
                 const maxHeight = board.offsetHeight - 40;
-
                 newHeight = clamp(newHeight, 70, maxHeight);
-
                 bottomPanel.style.height = newHeight + "px";
-
                 resizeCanvases();
-
             }
-
         }, { passive: false });
-
-        /* ================= END DRAG ================= */
 
         function stopDragging() {
             dragRight = false;
             dragBottom = false;
         }
-
         window.addEventListener("pointerup", stopDragging);
         window.addEventListener("pointercancel", stopDragging);
     </script>
