@@ -18,8 +18,6 @@
 
     user-select:none;
 
-    touch-action:none;
-
 }
 
 body{
@@ -40,7 +38,7 @@ body{
 
     position:absolute;
 
-    inset:0 0 80px 0;
+    inset:0 0 90px 0;
 
 }
 
@@ -53,6 +51,8 @@ body{
     inset:0;
 
     z-index:1;
+
+    touch-action:none;
 
 }
 
@@ -72,7 +72,7 @@ body{
 
     z-index:5;
 
-    cursor:move;
+    cursor:grab;
 
 }
 
@@ -86,11 +86,7 @@ body{
 
 }
 
-.five{
-
-    grid-template-columns:repeat(5,1fr);
-
-}
+.five{ grid-template-columns:repeat(5,1fr); }
 
 .ten{
 
@@ -100,7 +96,7 @@ body{
 
 }
 
-/* RESPONSIVE CELLS */
+/* CELL */
 
 .cell{
 
@@ -118,7 +114,7 @@ body{
 
 }
 
-/* COUNTER (no numbers) */
+/* COUNTER */
 
 .counter{
 
@@ -144,7 +140,7 @@ body{
 
     right:0;
 
-    min-height:80px;
+    min-height:90px;
 
     background:#fff;
 
@@ -158,9 +154,9 @@ body{
 
     gap:8px;
 
-    padding:8px;
+    padding:10px;
 
-    box-shadow:0 -2px 10px rgba(0,0,0,.15);
+    box-shadow:0 -2px 12px rgba(0,0,0,.15);
 
     z-index:1000;
 
@@ -168,19 +164,63 @@ body{
 
 button,select{
 
-    padding:8px 10px;
+    padding:10px 12px;
 
     font-size:13px;
 
+    border:none;
+
+    border-radius:10px;
+
 }
 
-@media (max-width:600px){
+/* COLORS */
+
+#addFrameBtn{ background:#4caf50; color:#fff; }
+
+#addCounterBtn{ background:#2196f3; color:#fff; }
+
+#penBtn{ background:#ff9800; color:#fff; }
+
+#eraserBtn{ background:#f44336; color:#fff; }
+
+#clearBtn{ background:#9c27b0; color:#fff; }
+
+.homeBtn{ background:#607d8b; color:#fff; }
+
+select{
+
+    background:#e0e0e0;
+
+}
+
+/* RESPONSIVE */
+
+@media (max-width:768px){
+
+    #workspace{
+
+        inset:0 0 110px 0;
+
+    }
+
+}
+
+@media (max-width:480px){
 
     button,select{
 
+        flex:1 1 40%;
+
         font-size:12px;
 
-        padding:6px 8px;
+        padding:9px 10px;
+
+    }
+
+    #workspace{
+
+        inset:0 0 130px 0;
 
     }
 
@@ -210,54 +250,73 @@ button,select{
 
 </select>
 
-<button id="addFrameBtn">បន្ទះ</button>
+<button id="addFrameBtn">➕ Frame</button>
 
-<button id="addCounterBtn">វត្ថុរាប់</button>
+<button id="addCounterBtn">🔴 Counter</button>
 
-<button id="penBtn">សរសេរ</button>
+<button id="penBtn">✏️ Pen</button>
 
-<button id="eraserBtn">លុប</button>
+<button id="eraserBtn">🧽 Eraser</button>
 
-<button id="clearBtn">សម្អាត</button>
-<button onclick="window.location.href='../index.html'" class="homeBtn">🏡 Home</button>
+<button id="clearBtn">🗑️ Clear</button>
+
+<button class="homeBtn" onclick="window.location.href='../index.html'">🏡 Home</button>
 
 </div>
 
 <script>
 
-const workspace=document.getElementById("workspace");
+const workspace = document.getElementById("workspace");
 
-const canvas=document.getElementById("drawCanvas");
+const canvas = document.getElementById("drawCanvas");
 
-const ctx=canvas.getContext("2d");
+const ctx = canvas.getContext("2d");
 
-let selectedFrame=null;
+let selectedFrame = null;
 
-/* ================= CANVAS ================= */
+let mode = "pen";
+
+/* ================= RESIZE ================= */
 
 function resize(){
 
-    canvas.width=workspace.clientWidth;
+    canvas.width = workspace.clientWidth;
 
-    canvas.height=workspace.clientHeight;
+    canvas.height = workspace.clientHeight;
 
 }
 
 resize();
 
-window.addEventListener("resize",resize);
+window.addEventListener("resize", resize);
 
-let drawing=false;
+/* ================= DRAWING ================= */
 
-let erasing=false;
+let drawing = false;
+
+function getPos(e){
+
+    const rect = canvas.getBoundingClientRect();
+
+    return {
+
+        x: e.clientX - rect.left,
+
+        y: e.clientY - rect.top
+
+    };
+
+}
 
 canvas.addEventListener("pointerdown",(e)=>{
 
-    drawing=true;
+    drawing = true;
+
+    const p = getPos(e);
 
     ctx.beginPath();
 
-    ctx.moveTo(e.offsetX,e.offsetY);
+    ctx.moveTo(p.x, p.y);
 
 });
 
@@ -265,59 +324,63 @@ canvas.addEventListener("pointermove",(e)=>{
 
     if(!drawing) return;
 
-    if(erasing){
+    const p = getPos(e);
 
-        ctx.globalCompositeOperation="destination-out";
+    if(mode === "eraser"){
 
-        ctx.lineWidth=25;
+        ctx.globalCompositeOperation = "destination-out";
+
+        ctx.lineWidth = 25;
 
     }else{
 
-        ctx.globalCompositeOperation="source-over";
+        ctx.globalCompositeOperation = "source-over";
 
-        ctx.strokeStyle="black";
+        ctx.strokeStyle = "#222";
 
-        ctx.lineWidth=3;
+        ctx.lineWidth = 3;
 
     }
 
-    ctx.lineTo(e.offsetX,e.offsetY);
+    ctx.lineTo(p.x, p.y);
 
     ctx.stroke();
 
 });
 
-window.addEventListener("pointerup",()=>drawing=false);
+window.addEventListener("pointerup",()=> drawing = false);
 
 /* ================= TOOLS ================= */
 
-document.getElementById("penBtn").onclick=()=>erasing=false;
+document.getElementById("penBtn").onclick = () => mode = "pen";
 
-document.getElementById("eraserBtn").onclick=()=>erasing=true;
+document.getElementById("eraserBtn").onclick = () => mode = "eraser";
 
-document.getElementById("clearBtn").onclick=()=>{
+document.getElementById("clearBtn").onclick = () => {
 
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
 };
 
-/* ================= DOUBLE TAP DELETE ================= */
+/* ================= DOUBLE TAP DELETE (FIXED) ================= */
 
 function doubleTapDelete(el){
 
-    let lastTap=0;
+    let lastTap = 0;
 
     el.addEventListener("pointerdown",(e)=>{
 
-        const now=Date.now();
+        const now = Date.now();
 
-        if(now-lastTap < 300){
+        if(now - lastTap < 300){
 
-            const parent = el.parentElement;
+            const parentCell = el.parentElement;
 
-            if(parent && parent.classList.contains("cell")){
+            // FREE CELL WHEN COUNTER IS DELETED
 
-                parent.dataset.occupied="0";
+            if(parentCell && parentCell.classList.contains("cell")){
+
+                parentCell.dataset.occupied = "0";
 
             }
 
@@ -327,7 +390,7 @@ function doubleTapDelete(el){
 
         }
 
-        lastTap=now;
+        lastTap = now;
 
         e.stopPropagation();
 
@@ -335,33 +398,67 @@ function doubleTapDelete(el){
 
 }
 
+/* ================= DRAG FRAME ================= */
+
+function makeDraggable(el){
+
+    let dx=0, dy=0, drag=false;
+
+    el.addEventListener("pointerdown",(e)=>{
+
+        if(e.target.classList.contains("counter")) return;
+
+        drag = true;
+
+        el.setPointerCapture(e.pointerId);
+
+        dx = e.clientX - el.offsetLeft;
+
+        dy = e.clientY - el.offsetTop;
+
+    });
+
+    el.addEventListener("pointermove",(e)=>{
+
+        if(!drag) return;
+
+        el.style.left = (e.clientX - dx) + "px";
+
+        el.style.top = (e.clientY - dy) + "px";
+
+    });
+
+    el.addEventListener("pointerup",()=> drag = false);
+
+}
+
 /* ================= ADD FRAME ================= */
 
-document.getElementById("addFrameBtn").onclick=()=>{
+document.getElementById("addFrameBtn").onclick = () => {
 
-    const type=document.getElementById("frameType").value;
+    const type = document.getElementById("frameType").value;
 
-    const frame=document.createElement("div");
+    const frame = document.createElement("div");
 
-    frame.className="frame";
+    frame.className = "frame";
 
-    frame.style.left="10vw";
+    frame.style.left = "10vw";
 
-    frame.style.top="10vh";
+    frame.style.top = "10vh";
 
-    const grid=document.createElement("div");
+    const grid = document.createElement("div");
 
-    grid.className="grid "+type;
+    grid.className = "grid " + type;
 
-    const count=type==="five"?5:10;
+    const count = type === "five" ? 5 : 10;
 
     for(let i=0;i<count;i++){
 
-        const cell=document.createElement("div");
+        const cell = document.createElement("div");
 
-        cell.className="cell";
+        cell.className = "cell";
 
-        cell.dataset.occupied="0";
+        cell.dataset.occupied = "0";
 
         grid.appendChild(cell);
 
@@ -371,15 +468,11 @@ document.getElementById("addFrameBtn").onclick=()=>{
 
     workspace.appendChild(frame);
 
-    frame.cells=Array.from(frame.querySelectorAll(".cell"));
+    frame.cells = Array.from(frame.querySelectorAll(".cell"));
 
-    selectedFrame=frame;
+    selectedFrame = frame;
 
-    frame.addEventListener("pointerdown",()=>{
-
-        selectedFrame=frame;
-
-    });
+    frame.addEventListener("pointerdown",()=> selectedFrame = frame);
 
     makeDraggable(frame);
 
@@ -387,59 +480,29 @@ document.getElementById("addFrameBtn").onclick=()=>{
 
 };
 
-/* ================= ADD COUNTER (FIXED SLOT LOGIC) ================= */
+/* ================= ADD COUNTER ================= */
 
-document.getElementById("addCounterBtn").onclick=()=>{
+document.getElementById("addCounterBtn").onclick = () => {
 
     if(!selectedFrame) return;
 
-    const cell = selectedFrame.cells.find(c => c.dataset.occupied==="0");
+    const cells = selectedFrame.querySelectorAll(".cell");
+
+    const cell = Array.from(cells).find(c => c.dataset.occupied === "0");
 
     if(!cell) return;
 
-    cell.dataset.occupied="1";
+    cell.dataset.occupied = "1";
 
-    const counter=document.createElement("div");
+    const counter = document.createElement("div");
 
-    counter.className="counter";
+    counter.className = "counter";
 
     cell.appendChild(counter);
 
     doubleTapDelete(counter);
 
 };
-
-/* ================= DRAG FRAME ================= */
-
-function makeDraggable(el){
-
-    let dx,dy,drag=false;
-
-    el.addEventListener("pointerdown",(e)=>{
-
-        if(e.target.classList.contains("counter")) return;
-
-        drag=true;
-
-        dx=e.clientX-el.offsetLeft;
-
-        dy=e.clientY-el.offsetTop;
-
-    });
-
-    window.addEventListener("pointermove",(e)=>{
-
-        if(!drag) return;
-
-        el.style.left=(e.clientX-dx)+"px";
-
-        el.style.top=(e.clientY-dy)+"px";
-
-    });
-
-    window.addEventListener("pointerup",()=>drag=false);
-
-}
 
 </script>
 
