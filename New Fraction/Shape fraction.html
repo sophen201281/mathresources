@@ -1,1 +1,663 @@
+<!DOCTYPE html>
 
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Fraction Builder - Stable State Fix</title>
+
+<style>
+
+body{
+
+    margin:0;
+
+    font-family:Arial, sans-serif;
+
+    background:#f4f6f9;
+
+    overflow:hidden;
+
+}
+
+/* UI */
+
+#ui{
+
+    position:fixed;
+
+    top:10px;
+
+    left:10px;
+
+    z-index:30;
+
+    background:white;
+
+    padding:10px;
+
+    border-radius:10px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:8px;
+
+    box-shadow:0 4px 12px rgba(0,0,0,0.1);
+
+}
+
+.row{
+
+    display:flex;
+
+    gap:8px;
+
+    flex-wrap:wrap;
+
+}
+
+/* buttons */
+
+button{
+
+    padding:8px 12px;
+
+    border:none;
+
+    border-radius:6px;
+
+    background:#2d89ef;
+
+    color:white;
+
+    cursor:pointer;
+
+}
+
+button.active{
+
+    background:#e53935;
+
+}
+
+/* canvases */
+
+#drawCanvas{
+
+    position:absolute;
+
+    top:80px;
+
+    left:0;
+
+    z-index:1;
+
+    touch-action:none;
+
+}
+
+#canvas{
+
+    position:absolute;
+
+    top:80px;
+
+    left:0;
+
+    z-index:2;
+
+    touch-action:none;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div id="ui">
+
+<div class="row">
+
+Shape:
+
+<select id="shape">
+
+<option value="circle">Circle</option>
+
+<option value="square">Square</option>
+
+<option value="rectangle">Rectangle</option>
+
+<option value="triangle">Triangle</option>
+
+</select>
+
+Parts:
+
+<input id="parts" type="range" min="2" max="12" value="6">
+
+</div>
+
+<div class="row">
+
+<button id="drawBtn" class="active">✏️សរសេរ</button>
+
+<button id="eraseBtn">🧽លុប</button>
+
+<button id="clearBtn">សម្អាត</button>
+<a href="../index.html">🏡 Home</a>
+</div>
+
+</div>
+
+<canvas id="drawCanvas"></canvas>
+
+<canvas id="canvas"></canvas>
+
+<script>
+
+/* ================= CANVAS ================= */
+
+const drawCanvas = document.getElementById("drawCanvas");
+
+const dCtx = drawCanvas.getContext("2d");
+
+const canvas = document.getElementById("canvas");
+
+const ctx = canvas.getContext("2d");
+
+/* UI */
+
+const shape = document.getElementById("shape");
+
+const parts = document.getElementById("parts");
+
+const drawBtn = document.getElementById("drawBtn");
+
+const eraseBtn = document.getElementById("eraseBtn");
+
+const clearBtn = document.getElementById("clearBtn");
+
+/* ================= STATE MACHINE ================= */
+
+const STATE = {
+
+IDLE: "idle",
+
+DRAG: "drag",
+
+DRAW: "draw",
+
+ERASE: "erase"
+
+};
+
+let state = STATE.DRAW;
+
+/* ================= DATA ================= */
+
+let pieces = [];
+
+let groups = [];
+
+let active = null;
+
+/* drag */
+
+let offsetX = 0;
+
+let offsetY = 0;
+
+/* pointer tracking */
+
+let pointerId = null;
+
+let lastX = 0;
+
+let lastY = 0;
+
+/* ================= RESIZE ================= */
+
+function resize(){
+
+drawCanvas.width = innerWidth;
+
+drawCanvas.height = innerHeight - 80;
+
+canvas.width = innerWidth;
+
+canvas.height = innerHeight - 80;
+
+draw();
+
+}
+
+window.addEventListener("resize", resize);
+
+resize();
+
+/* ================= INIT ================= */
+
+function init(){
+
+pieces = [];
+
+groups = [];
+
+const N = +parts.value;
+
+const cx = canvas.width/2;
+
+const cy = canvas.height/2;
+
+for(let i=0;i<N;i++){
+
+let path;
+
+if(shape.value==="circle"){
+
+const r=120;
+
+const a=(i/N)*Math.PI*2;
+
+path=(ox,oy)=>{
+
+ctx.beginPath();
+
+ctx.moveTo(cx+ox,cy+oy);
+
+ctx.arc(cx+ox,cy+oy,r,a,((i+1)/N)*Math.PI*2);
+
+ctx.closePath();
+
+};
+
+}
+
+else if(shape.value==="square"){
+
+const size=220;
+
+const w=size/N;
+
+const x=cx-size/2+i*w;
+
+const y=cy-size/2;
+
+path=(ox,oy)=>{
+
+ctx.beginPath();
+
+ctx.rect(x+ox,y+oy,w,size);
+
+};
+
+}
+
+else{
+
+const base=260;
+
+const h=200;
+
+const x1=cx-base/2+(i/N)*base;
+
+const x2=cx-base/2+((i+1)/N)*base;
+
+const topX=cx;
+
+const topY=cy-h/2;
+
+const bottomY=cy+h/2;
+
+path=(ox,oy)=>{
+
+ctx.beginPath();
+
+ctx.moveTo(topX+ox,topY+oy);
+
+ctx.lineTo(x1+ox,bottomY+oy);
+
+ctx.lineTo(x2+ox,bottomY+oy);
+
+ctx.closePath();
+
+};
+
+}
+
+pieces.push({
+
+x:0,
+
+y:0,
+
+color:`hsl(${(i*360)/N},70%,60%)`,
+
+path
+
+});
+
+}
+
+draw();
+
+}
+
+/* ================= DRAW ================= */
+
+function draw(){
+
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+for(let p of pieces){
+
+p.path(p.x,p.y);
+
+ctx.fillStyle=p.color;
+
+ctx.fill();
+
+ctx.strokeStyle="#fff";
+
+ctx.lineWidth=3;
+
+ctx.stroke();
+
+}
+
+}
+
+/* ================= HELPERS ================= */
+
+function pos(e,el){
+
+const r=el.getBoundingClientRect();
+
+return {x:e.clientX-r.left,y:e.clientY-r.top};
+
+}
+
+/* ================= GROUP ================= */
+
+function getGroup(p){
+
+return groups.find(g=>g.includes(p));
+
+}
+
+function merge(a,b){
+
+let ga=getGroup(a);
+
+let gb=b?getGroup(b):null;
+
+if(!ga && !gb){
+
+groups.push([a]);
+
+return;
+
+}
+
+if(ga && !gb){
+
+ga.push(a);
+
+return;
+
+}
+
+if(!ga && gb){
+
+gb.push(a);
+
+return;
+
+}
+
+if(ga && gb && ga!==gb){
+
+groups = groups.filter(g=>g!==ga && g!==gb);
+
+groups.push([...ga,...gb]);
+
+}
+
+}
+
+/* ================= SNAP ================= */
+
+function snap(p){
+
+const SNAP=20;
+
+/* center snap */
+
+if(Math.hypot(p.x,p.y)<SNAP){
+
+p.x=0;
+
+p.y=0;
+
+merge(p,null);
+
+return;
+
+}
+
+/* piece snap */
+
+for(let q of pieces){
+
+if(q===p) continue;
+
+if(Math.hypot(p.x-q.x,p.y-q.y)<SNAP){
+
+p.x=q.x;
+
+p.y=q.y;
+
+merge(p,q);
+
+return;
+
+}
+
+}
+
+}
+
+/* ================= POINTER DOWN ================= */
+
+canvas.addEventListener("pointerdown",(e)=>{
+
+const {x,y}=pos(e,canvas);
+
+/* try pick piece */
+
+for(let i=pieces.length-1;i>=0;i--){
+
+const p=pieces[i];
+
+p.path(p.x,p.y);
+
+if(ctx.isPointInPath(x,y)){
+
+state=STATE.DRAG;
+
+active=p;
+
+offsetX=x-p.x;
+
+offsetY=y-p.y;
+
+canvas.setPointerCapture(e.pointerId);
+
+return;
+
+}
+
+}
+
+/* otherwise drawing */
+
+state = (state===STATE.ERASE) ? STATE.ERASE : STATE.DRAW;
+
+pointerId=e.pointerId;
+
+lastX=x;
+
+lastY=y;
+
+drawCanvas.setPointerCapture(e.pointerId);
+
+dCtx.beginPath();
+
+});
+
+/* ================= MOVE ================= */
+
+canvas.addEventListener("pointermove",(e)=>{
+
+const {x,y}=pos(e,canvas);
+
+if(state===STATE.DRAG && active){
+
+const nx=x-offsetX;
+
+const ny=y-offsetY;
+
+let group=getGroup(active);
+
+if(group){
+
+const dx=nx-active.x;
+
+const dy=ny-active.y;
+
+for(let p of group){
+
+p.x+=dx;
+
+p.y+=dy;
+
+}
+
+}
+
+active.x=nx;
+
+active.y=ny;
+
+draw();
+
+}
+
+});
+
+/* ================= DRAW / ERASE ================= */
+
+drawCanvas.addEventListener("pointermove",(e)=>{
+
+if(!pointerId || e.pointerId!==pointerId) return;
+
+const {x,y}=pos(e,drawCanvas);
+
+if(state!==STATE.DRAW && state!==STATE.ERASE) return;
+
+dCtx.lineCap="round";
+
+if(state===STATE.ERASE){
+
+dCtx.globalCompositeOperation="destination-out";
+
+dCtx.lineWidth=25;
+
+}else{
+
+dCtx.globalCompositeOperation="source-over";
+
+dCtx.lineWidth=3;
+
+dCtx.strokeStyle="black";
+
+}
+
+dCtx.beginPath();
+
+dCtx.moveTo(lastX,lastY);
+
+dCtx.lineTo(x,y);
+
+dCtx.stroke();
+
+lastX=x;
+
+lastY=y;
+
+});
+
+/* ================= STOP ================= */
+
+function stop(e){
+
+if(state===STATE.DRAG && active){
+
+snap(active);
+
+active=null;
+
+}
+
+state=STATE.IDLE;
+
+pointerId=null;
+
+dCtx.globalCompositeOperation="source-over";
+
+try{
+
+canvas.releasePointerCapture(e.pointerId);
+
+drawCanvas.releasePointerCapture(e.pointerId);
+
+}catch{}
+
+}
+
+canvas.addEventListener("pointerup",stop);
+
+drawCanvas.addEventListener("pointerup",stop);
+
+canvas.addEventListener("pointercancel",stop);
+
+drawCanvas.addEventListener("pointercancel",stop);
+
+/* ================= UI ================= */
+
+shape.onchange=init;
+
+parts.oninput=init;
+
+drawBtn.onclick=()=>state=STATE.DRAW;
+
+eraseBtn.onclick=()=>state=STATE.ERASE;
+
+clearBtn.onclick=()=>dCtx.clearRect(0,0,drawCanvas.width,drawCanvas.height);
+
+init();
+
+</script>
+
+</body>
+
+</html>
