@@ -384,6 +384,14 @@ function clearCanvas() {
 
 }
 
+/* ================= DIGIT FORMAT ================= */
+
+function formatNumberWithSpaces(value) {
+
+    return value.toString().split("").join(" ");
+
+}
+
 /* ================= CARDS ================= */
 
 const playArea = document.getElementById("playArea");
@@ -406,7 +414,7 @@ function createCard(type, btn) {
 
     card.className = "card " + type;
 
-    card.innerText = getValue(type);
+    card.innerText = formatNumberWithSpaces(getValue(type));
 
     playArea.appendChild(card);
 
@@ -422,7 +430,7 @@ function createCard(type, btn) {
 
 }
 
-/* ================= PERFECT ARROW STACK (5768) ================= */
+/* ================= STACK 5768 ================= */
 
 function createStack5768() {
 
@@ -438,11 +446,9 @@ function createStack5768() {
 
     ];
 
-    const baseRight = window.innerWidth * 0.75; // FIXED RIGHT EDGE ALIGNMENT
+    const baseRight = window.innerWidth * 0.75;
 
     const baseY = window.innerHeight * 0.35;
-
-    const offsetY = 14; // vertical stack only
 
     const widthMap = {
 
@@ -462,15 +468,19 @@ function createStack5768() {
 
         card.className = "card " + item.type;
 
-        card.innerText = item.value;
+        // 🔥 DIGIT SPACING APPLIED
+
+        card.innerText = formatNumberWithSpaces(item.value);
 
         const w = widthMap[item.type];
 
-        // 🔥 KEY FIX: RIGHT EDGE (arrow tip) perfectly aligned
+        // aligned arrow edge
 
         card.style.left = (baseRight - w) + "px";
 
-        card.style.top = (baseY + i * offsetY) + "px";
+        // tight stacking
+
+        card.style.top = (baseY + i * 2) + "px";
 
         card.style.zIndex = 10 + i;
 
