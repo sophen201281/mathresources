@@ -170,7 +170,7 @@ button, .homeBtn {
 
 }
 
-/* ================= CARD BASE ================= */
+/* ================= CARD ================= */
 
 .card {
 
@@ -200,7 +200,7 @@ button, .homeBtn {
 
 }
 
-/* ================= ARROW SHAPE ================= */
+/* ARROW SHAPE */
 
 .card::after {
 
@@ -222,75 +222,23 @@ button, .homeBtn {
 
 }
 
-/* ONES */
+/* TYPES */
 
-.ones {
+.ones { width:60px; background:#ffd966; }
 
-    width: 60px;
+.ones::after { border-left:24px solid #ffd966; }
 
-    background: #ffd966;
+.tens { width:92px; background:#93c47d; color:white; }
 
-}
+.tens::after { border-left:24px solid #93c47d; }
 
-.ones::after {
+.hundreds { width:125px; background:#6fa8dc; color:white; }
 
-    border-left: 24px solid #ffd966;
+.hundreds::after { border-left:24px solid #6fa8dc; }
 
-}
+.thousands { width:158px; background:#8e7cc3; color:white; }
 
-/* TENS */
-
-.tens {
-
-    width: 92px;
-
-    background: #93c47d;
-
-    color: white;
-
-}
-
-.tens::after {
-
-    border-left: 24px solid #93c47d;
-
-}
-
-/* HUNDREDS */
-
-.hundreds {
-
-    width: 125px;
-
-    background: #6fa8dc;
-
-    color: white;
-
-}
-
-.hundreds::after {
-
-    border-left: 24px solid #6fa8dc;
-
-}
-
-/* THOUSANDS */
-
-.thousands {
-
-    width: 158px;
-
-    background: #8e7cc3;
-
-    color: white;
-
-}
-
-.thousands::after {
-
-    border-left: 24px solid #8e7cc3;
-
-}
+.thousands::after { border-left:24px solid #8e7cc3; }
 
 </style>
 
@@ -308,19 +256,19 @@ button, .homeBtn {
 
 <div class="toolbar-row">
 
-<input id="thousandsInput" type="number" value="1">
+<input id="thousandsInput" type="number" value="5">
 
 <button class="thousandsBtn" onclick="createCard('thousands', this)">ពាន់</button>
 
-<input id="hundredsInput" type="number" value="2">
+<input id="hundredsInput" type="number" value="7">
 
 <button class="hundredsBtn" onclick="createCard('hundreds', this)">រយ</button>
 
-<input id="tensInput" type="number" value="3">
+<input id="tensInput" type="number" value="6">
 
 <button class="tensBtn" onclick="createCard('tens', this)">ដប់</button>
 
-<input id="onesInput" type="number" value="4">
+<input id="onesInput" type="number" value="8">
 
 <button class="onesBtn" onclick="createCard('ones', this)">រាយ</button>
 
@@ -366,7 +314,7 @@ function resizeCanvas() {
 
     ctx.setTransform(1,0,0,1,0,0);
 
-    ctx.scale(dpr,dpr);
+    ctx.scale(dpr, dpr);
 
 }
 
@@ -430,15 +378,15 @@ function setTool(t) {
 
 }
 
-/* ================= CLEAR ================= */
-
 function clearCanvas() {
 
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
 }
 
-/* ================= VALUE ================= */
+/* ================= CARDS ================= */
+
+const playArea = document.getElementById("playArea");
 
 function getValue(type) {
 
@@ -451,10 +399,6 @@ function getValue(type) {
     if (type === "thousands") return thousandsInput.value + "000";
 
 }
-
-/* ================= CARDS ================= */
-
-const playArea = document.getElementById("playArea");
 
 function createCard(type, btn) {
 
@@ -477,6 +421,74 @@ function createCard(type, btn) {
     makeDraggable(card);
 
 }
+
+/* ================= PERFECT ARROW STACK (5768) ================= */
+
+function createStack5768() {
+
+    const data = [
+
+        { type: "thousands", value: "5000" },
+
+        { type: "hundreds", value: "700" },
+
+        { type: "tens", value: "60" },
+
+        { type: "ones", value: "8" }
+
+    ];
+
+    const baseRight = window.innerWidth * 0.75; // FIXED RIGHT EDGE ALIGNMENT
+
+    const baseY = window.innerHeight * 0.35;
+
+    const offsetY = 14; // vertical stack only
+
+    const widthMap = {
+
+        ones: 60,
+
+        tens: 92,
+
+        hundreds: 125,
+
+        thousands: 158
+
+    };
+
+    data.forEach((item, i) => {
+
+        const card = document.createElement("div");
+
+        card.className = "card " + item.type;
+
+        card.innerText = item.value;
+
+        const w = widthMap[item.type];
+
+        // 🔥 KEY FIX: RIGHT EDGE (arrow tip) perfectly aligned
+
+        card.style.left = (baseRight - w) + "px";
+
+        card.style.top = (baseY + i * offsetY) + "px";
+
+        card.style.zIndex = 10 + i;
+
+        playArea.appendChild(card);
+
+        makeDraggable(card);
+
+    });
+
+}
+
+/* AUTO RUN */
+
+requestAnimationFrame(() => {
+
+    setTimeout(createStack5768, 300);
+
+});
 
 /* ================= DRAG ================= */
 
