@@ -44,6 +44,8 @@ h2 {
 
     pointer-events: none;
 
+    font-size: 22px;
+
 }
 
 /* ================= TOOLBAR ================= */
@@ -168,15 +170,13 @@ button, .homeBtn {
 
 }
 
-/* ================= CARDS ================= */
+/* ================= CARD BASE ================= */
 
 .card {
 
     position: absolute;
 
     height: 60px;
-
-    border-radius: 8px;
 
     display: flex;
 
@@ -196,15 +196,101 @@ button, .homeBtn {
 
     pointer-events: auto;
 
+    border-radius: 8px;
+
 }
 
-.ones { width:60px; background:#ffd966; }
+/* ================= ARROW SHAPE ================= */
 
-.tens { width:92px; background:#93c47d; color:white; }
+.card::after {
 
-.hundreds { width:125px; background:#6fa8dc; color:white; }
+    content: "";
 
-.thousands { width:158px; background:#8e7cc3; color:white; }
+    position: absolute;
+
+    right: -24px;
+
+    top: 0;
+
+    width: 0;
+
+    height: 0;
+
+    border-top: 30px solid transparent;
+
+    border-bottom: 30px solid transparent;
+
+}
+
+/* ONES */
+
+.ones {
+
+    width: 60px;
+
+    background: #ffd966;
+
+}
+
+.ones::after {
+
+    border-left: 24px solid #ffd966;
+
+}
+
+/* TENS */
+
+.tens {
+
+    width: 92px;
+
+    background: #93c47d;
+
+    color: white;
+
+}
+
+.tens::after {
+
+    border-left: 24px solid #93c47d;
+
+}
+
+/* HUNDREDS */
+
+.hundreds {
+
+    width: 125px;
+
+    background: #6fa8dc;
+
+    color: white;
+
+}
+
+.hundreds::after {
+
+    border-left: 24px solid #6fa8dc;
+
+}
+
+/* THOUSANDS */
+
+.thousands {
+
+    width: 158px;
+
+    background: #8e7cc3;
+
+    color: white;
+
+}
+
+.thousands::after {
+
+    border-left: 24px solid #8e7cc3;
+
+}
 
 </style>
 
@@ -392,7 +478,7 @@ function createCard(type, btn) {
 
 }
 
-/* ================= DRAG FIX ================= */
+/* ================= DRAG ================= */
 
 function makeDraggable(card) {
 
