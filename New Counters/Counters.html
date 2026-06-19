@@ -414,17 +414,21 @@ window.addEventListener("pointermove", e => {
 
 window.addEventListener("pointerup", () => rotating = false);
 
-/* COUNTERS (FIXED SPACING + NO OVERLAP) */
+/* =========================
+
+   FIXED COUNTERS (UPDATED)
+
+========================= */
 
 let counterId = 0;
 
+/* 🔥 NEW: counters appear BELOW board */
+
 function getSafeCounterY() {
 
-    const toolbar = document.getElementById("toolbar");
+    const boardRect = document.getElementById("board").getBoundingClientRect();
 
-    const rect = toolbar.getBoundingClientRect();
-
-    return rect.top - 60;
+    return boardRect.bottom + 40;
 
 }
 
@@ -432,7 +436,7 @@ document.getElementById("addCounter").onclick = () => {
 
     const startX = 60;
 
-    const spacing = 60; // 🔥 distance between counters
+    const spacing = 60;
 
     const perRow = Math.max(1, Math.floor((window.innerWidth - 120) / spacing));
 
@@ -462,7 +466,7 @@ function createCounter(x, y) {
 
 }
 
-/* SMOOTH DRAG */
+/* SMOOTH DRAG (FIXED STABILITY) */
 
 function makeDraggable(el) {
 
