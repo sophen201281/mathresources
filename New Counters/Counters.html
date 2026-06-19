@@ -1,359 +1,575 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>បូកចំនួនដដែល វិធីគុណមានលក្ខណៈត្រឡប់</title>
+
 <style>
-*{
-    box-sizing:border-box;
-    touch-action:none;
+
+* {
+
+    box-sizing: border-box;
+
+    touch-action: none;
+
 }
-body{
-    margin:0;
-    overflow:hidden;
-    background:#ececec;
-    font-family:Arial,sans-serif;
+
+body {
+
+    margin: 0;
+
+    overflow: hidden;
+
+    background: #ececec;
+
+    font-family: Arial, sans-serif;
+
 }
-/* =========================
-   TOOLBAR
-========================= */
-#toolbar{
-    position:fixed;
-    top:10px;
-    left:10px;
-    z-index:5000;
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
+
+/* TOOLBAR */
+
+#toolbar {
+
+    position: fixed;
+
+    bottom: 10px;
+
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    z-index: 5000;
+
+    display: flex;
+
+    gap: 10px;
+
+    flex-wrap: nowrap;
+
+    white-space: nowrap;
+
 }
-button{
-    padding:10px 14px;
-    border:none;
-    border-radius:10px;
-    background:green;
-    color:white;
-    font-size:15px;
+
+button, .home-btn {
+
+    padding: 10px 14px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: green;
+
+    color: white;
+
+    font-size: 15px;
+
+    text-decoration: none;
+
+}
+
+/* CANVAS */
+
+#drawCanvas {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 1;
+
 }
 
 /* =========================
-   DRAW CANVAS
+
+   BOARD (SLIGHTLY SMALLER)
+
 ========================= */
-#drawCanvas{
-    position:fixed;
-    inset:0;
-    z-index:1;
-}
-/* =========================
-   BOARD
-========================= */
-#board{
-    position:absolute;
-    width:280px;
-    height:200px;
-    left:50%;
-    top:50%;
-    transform:
-        translate(-50%,-50%)
-        rotate(0deg);
-    transform-origin:center center;
-    border:4px solid #333;
-    border-radius:14px;
+
+#board {
+
+    position: absolute;
+
+    width: 360px;   /* 🔥 reduced */
+
+    height: 260px;  /* 🔥 reduced */
+
+    left: 50%;
+
+    top: 50%;
+
+    transform: translate(-50%, -50%) rotate(0deg);
+
+    transform-origin: center center;
+
+    border: 4px solid #333;
+
+    border-radius: 14px;
+
     background:
-        linear-gradient(to right,#d0d0d0 1px,transparent 1px),
-        linear-gradient(to bottom,#d0d0d0 1px,transparent 1px);
-    background-size:40px 40px;
-    background-color:white;
-    box-shadow:0 8px 20px rgba(0,0,0,0.2);
-    z-index:20;
-}
-/* =========================
-   BOARD HEADER
-========================= */
-#boardHeader{
-    position:absolute;
-    top:0;
-    left:0;
-    width:100%;
-    height:36px;
-    background:rgba(0,0,0,0.08);
-    border-radius:10px 10px 0 0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:14px;
-    font-weight:bold;
-}
-/* =========================
-   ROTATE HANDLE
-========================= */
-#rotateHandle{
-    position:absolute;
-    width:46px;
-    height:46px;
-    border-radius:50%;
-    background:#ff9800;
-    right:-23px;
-    top:-23px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:white;
-    font-size:22px;
-    font-weight:bold;
-}
-/* =========================
-   COUNTERS
-========================= */
-.counter{
-    position:absolute;
-    width:36px;
-    height:36px;
-    background:#4caf50;
-    border:2px solid #222;
-    border-radius:8px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:white;
-    font-weight:bold;
-    user-select:none;
-}
-#board .counter{
-    z-index:50;
-}
-body > .counter{
-    z-index:100;
-}
-</style>
-</head>
-<body>
-<div id="toolbar">
-    <button id="addCounter">វត្ថុសម្រាប់រាប់</button>
-    <button id="drawBtn">សរសេរ</button>
-    <button id="eraseBtn">លុប</button>
-    <button id="clearBtn">សម្អាត</button>
-    <a href="../index.html" class="home-btn">🏡Home </a>
-</div>
-<canvas id="drawCanvas"></canvas>
-<div id="board">
-    <div id="boardHeader">
-       
-    </div>
-    <div id="rotateHandle">⟳</div>
-</div>
-<script>
-/* =========================
-   DRAWING
-========================= */
-const canvas=document.getElementById("drawCanvas");
-const ctx=canvas.getContext("2d");
-function resizeCanvas(){
-    canvas.width=innerWidth;
-    canvas.height=innerHeight;
-}
-resizeCanvas();
-window.addEventListener("resize",resizeCanvas);
-let drawing=false;
-let drawMode=true;
-document.getElementById("drawBtn").onclick=()=>{
-    drawMode=true;
-};
-document.getElementById("eraseBtn").onclick=()=>{
-    drawMode=false;
-};
-document.getElementById("clearBtn").onclick=()=>{
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-};
-canvas.addEventListener("pointerdown",e=>{
-    if(e.target!==canvas) return;
-    drawing=true;
-    ctx.beginPath();
-    ctx.moveTo(e.clientX,e.clientY);
-});
-canvas.addEventListener("pointermove",e=>{
-    if(!drawing) return;
-    ctx.lineCap="round";
-    if(drawMode){
-        ctx.globalCompositeOperation="source-over";
-        ctx.strokeStyle="black";
-        ctx.lineWidth=3;
-    }else{
-        ctx.globalCompositeOperation="destination-out";
-        ctx.lineWidth=24;
-    }
-    ctx.lineTo(e.clientX,e.clientY);
-    ctx.stroke();
-});
-window.addEventListener("pointerup",()=>{
-    drawing=false;
-});
-/* =========================
-   BOARD
-========================= */
-const board=document.getElementById("board");
-const boardHeader=document.getElementById("boardHeader");
-const rotateHandle=document.getElementById("rotateHandle");
-let boardX=window.innerWidth/2;
-let boardY=window.innerHeight/2;
-let rotation=0;
-updateBoardTransform();
-function updateBoardTransform(){
-    board.style.left=boardX+"px";
-    board.style.top=boardY+"px";
-    board.style.transform=
-        `translate(-50%,-50%) rotate(${rotation}deg)`;
-}
-/* =========================
-   MOVE RECTANGLE
-========================= */
-let movingBoard=false;
-let moveOffsetX=0;
-let moveOffsetY=0;
-boardHeader.addEventListener("pointerdown",e=>{
-    movingBoard=true;
-    moveOffsetX=e.clientX-boardX;
-    moveOffsetY=e.clientY-boardY;
-    boardHeader.setPointerCapture(e.pointerId);
-});
-window.addEventListener("pointermove",e=>{
-    if(!movingBoard) return;
-    boardX=e.clientX-moveOffsetX;
-    boardY=e.clientY-moveOffsetY;
-    updateBoardTransform();
-});
-window.addEventListener("pointerup",()=>{
-    movingBoard=false;
-});
-/* =========================
-   ROTATE BOARD
-========================= */
-let rotating=false;
-rotateHandle.addEventListener("pointerdown",e=>{
-    rotating=true;
-    rotateHandle.setPointerCapture(e.pointerId);
-});
-window.addEventListener("pointermove",e=>{
-    if(!rotating) return;
-    const rect=board.getBoundingClientRect();
-    const cx=rect.left+rect.width/2;
-    const cy=rect.top+rect.height/2;
-    rotation=Math.atan2(
-        e.clientY-cy,
-        e.clientX-cx
-    )*180/Math.PI;
-    updateBoardTransform();
-});
-window.addEventListener("pointerup",()=>{
-    rotating=false;
-});
-/* =========================
-   COUNTERS
-========================= */
-let counterId=0;
-document.getElementById("addCounter").onclick=()=>{
-    createCounter(
-        40+counterId*10,
-        120+counterId*10
-    );
-};
-function createCounter(x,y){
-    const counter=document.createElement("div");
-    counter.className="counter";
-    counter.innerText=counterId+1;
-    counter.style.left=x+"px";
-    counter.style.top=y+"px";
-    document.body.appendChild(counter);
-    makeDraggable(counter);
-    counterId++;
-}
-/* =========================
-   DRAG COUNTERS
-========================= */
-function makeDraggable(el){
-    let dragging=false;
-    let offsetX=0;
-    let offsetY=0;
-    el.addEventListener("pointerdown",e=>{
-        dragging=true;
-        const rect=el.getBoundingClientRect();
-        offsetX=e.clientX-rect.left;
-        offsetY=e.clientY-rect.top;
-        if(el.parentElement===board){
-            const worldX=rect.left;
-            const worldY=rect.top;
-            document.body.appendChild(el);
-            el.style.left=worldX+"px";
-            el.style.top=worldY+"px";
-        }
-        el.setPointerCapture(e.pointerId);
-    });
-    el.addEventListener("pointermove",e=>{
-        if(!dragging) return;
-        let x=e.clientX-offsetX;
-        let y=e.clientY-offsetY;
-        const boardRect=board.getBoundingClientRect();
-        const centerX=x+18;
-        const centerY=y+18;
-        const inside=
-            centerX>boardRect.left &&
-            centerX<boardRect.right &&
-            centerY>boardRect.top &&
-            centerY<boardRect.bottom;
-        if(inside){
-            const localX=centerX-boardRect.left;
-            const localY=centerY-boardRect.top;
-            const grid=40;
-            x=
-                boardRect.left+
-                Math.round(localX/grid)*grid-
-                18;
-            y=
-                boardRect.top+
-                Math.round(localY/grid)*grid-
-                18;
-        }
-        el.style.left=x+"px";
-        el.style.top=y+"px";
-    });
-    el.addEventListener("pointerup",()=>{
-        dragging=false;
-        attachToBoard(el);
-    });
-}
-/* =========================
-   ATTACH TO BOARD
-========================= */
-function attachToBoard(el){
-    const boardRect=board.getBoundingClientRect();
-    const rect=el.getBoundingClientRect();
-    const centerX=rect.left+rect.width/2;
-    const centerY=rect.top+rect.height/2;
-    const inside=
-        centerX>boardRect.left &&
-        centerX<boardRect.right &&
-        centerY>boardRect.top &&
-        centerY<boardRect.bottom;
-    if(inside){
-        const localX=centerX-boardRect.left;
-        const localY=centerY-boardRect.top;
-        const grid=40;
-        const snappedX=
-            Math.round(localX/grid)*grid-18;
-        const snappedY=
-            Math.round(localY/grid)*grid-18;
-        board.appendChild(el);
-        el.style.left=snappedX+"px";
-        el.style.top=snappedY+"px";
-    }
-}
-/* =========================
-   START COUNTERS
-========================= */
-createCounter(40,120);
-createCounter(40,180);
-</script>
-</body>
-</html>
 
+        linear-gradient(to right, #d0d0d0 1px, transparent 1px),
+
+        linear-gradient(to bottom, #d0d0d0 1px, transparent 1px);
+
+    background-size: 40px 40px;
+
+    background-color: white;
+
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+
+    z-index: 20;
+
+}
+
+/* HEADER */
+
+#boardHeader {
+
+    position: absolute;
+
+    top: 0;
+
+    left: 0;
+
+    width: 100%;
+
+    height: 36px;
+
+    background: rgba(0,0,0,0.08);
+
+    border-radius: 10px 10px 0 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 14px;
+
+    font-weight: bold;
+
+}
+
+/* ROTATE */
+
+#rotateHandle {
+
+    position: absolute;
+
+    width: 46px;
+
+    height: 46px;
+
+    border-radius: 50%;
+
+    background: #ff9800;
+
+    right: -23px;
+
+    top: -23px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    color: white;
+
+    font-size: 22px;
+
+    font-weight: bold;
+
+}
+
+/* COUNTERS */
+
+.counter {
+
+    position: absolute;
+
+    width: 36px;
+
+    height: 36px;
+
+    background: #4caf50;
+
+    border: 2px solid #222;
+
+    border-radius: 8px;
+
+}
+
+#board .counter { z-index: 50; }
+
+body > .counter { z-index: 100; }
+
+</style>
+
+</head>
+
+<body>
+
+<!-- TOOLBAR -->
+
+<div id="toolbar">
+
+    <button id="addCounter">វត្ថុសម្រាប់រាប់</button>
+
+    <button id="drawBtn">សរសេរ</button>
+
+    <button id="eraseBtn">លុប</button>
+
+    <button id="clearBtn">សម្អាត</button>
+
+    <a href="../index.html" class="home-btn">🏡Home</a>
+
+</div>
+
+<canvas id="drawCanvas"></canvas>
+
+<div id="board">
+
+    <div id="boardHeader"></div>
+
+    <div id="rotateHandle">⟳</div>
+
+</div>
+
+<script>
+
+const canvas = document.getElementById("drawCanvas");
+
+const ctx = canvas.getContext("2d");
+
+function resizeCanvas() {
+
+    canvas.width = innerWidth;
+
+    canvas.height = innerHeight;
+
+}
+
+resizeCanvas();
+
+window.addEventListener("resize", resizeCanvas);
+
+let drawing = false;
+
+let drawMode = true;
+
+document.getElementById("drawBtn").onclick = () => drawMode = true;
+
+document.getElementById("eraseBtn").onclick = () => drawMode = false;
+
+document.getElementById("clearBtn").onclick =
+
+    () => ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+canvas.addEventListener("pointerdown", e => {
+
+    drawing = true;
+
+    ctx.beginPath();
+
+    ctx.moveTo(e.clientX, e.clientY);
+
+});
+
+canvas.addEventListener("pointermove", e => {
+
+    if (!drawing) return;
+
+    ctx.lineCap = "round";
+
+    if (drawMode) {
+
+        ctx.globalCompositeOperation = "source-over";
+
+        ctx.strokeStyle = "black";
+
+        ctx.lineWidth = 3;
+
+    } else {
+
+        ctx.globalCompositeOperation = "destination-out";
+
+        ctx.lineWidth = 18;
+
+    }
+
+    ctx.lineTo(e.clientX, e.clientY);
+
+    ctx.stroke();
+
+});
+
+window.addEventListener("pointerup", () => drawing = false);
+
+/* BOARD */
+
+const board = document.getElementById("board");
+
+const header = document.getElementById("boardHeader");
+
+const rotateHandle = document.getElementById("rotateHandle");
+
+let boardX = innerWidth / 2;
+
+let boardY = innerHeight / 2;
+
+let rotation = 0;
+
+function updateBoard() {
+
+    board.style.left = boardX + "px";
+
+    board.style.top = boardY + "px";
+
+    board.style.transform =
+
+        `translate(-50%,-50%) rotate(${rotation}deg)`;
+
+}
+
+updateBoard();
+
+/* MOVE BOARD */
+
+let moving = false;
+
+let offsetX = 0;
+
+let offsetY = 0;
+
+header.addEventListener("pointerdown", e => {
+
+    moving = true;
+
+    offsetX = e.clientX - boardX;
+
+    offsetY = e.clientY - boardY;
+
+});
+
+window.addEventListener("pointermove", e => {
+
+    if (!moving) return;
+
+    boardX = e.clientX - offsetX;
+
+    boardY = e.clientY - offsetY;
+
+    updateBoard();
+
+});
+
+window.addEventListener("pointerup", () => moving = false);
+
+/* ROTATE BOARD */
+
+let rotating = false;
+
+let startAngle = 0;
+
+let startRotation = 0;
+
+rotateHandle.addEventListener("pointerdown", e => {
+
+    rotating = true;
+
+    const rect = board.getBoundingClientRect();
+
+    const cx = rect.left + rect.width / 2;
+
+    const cy = rect.top + rect.height / 2;
+
+    startAngle = Math.atan2(e.clientY - cy, e.clientX - cx);
+
+    startRotation = rotation;
+
+});
+
+window.addEventListener("pointermove", e => {
+
+    if (!rotating) return;
+
+    const rect = board.getBoundingClientRect();
+
+    const cx = rect.left + rect.width / 2;
+
+    const cy = rect.top + rect.height / 2;
+
+    const angle = Math.atan2(e.clientY - cy, e.clientX - cx);
+
+    rotation = startRotation + (angle - startAngle) * 180 / Math.PI;
+
+    updateBoard();
+
+});
+
+window.addEventListener("pointerup", () => rotating = false);
+
+/* COUNTERS */
+
+let counterId = 0;
+
+function getSafeCounterY() {
+
+    const toolbar = document.getElementById("toolbar");
+
+    const rect = toolbar.getBoundingClientRect();
+
+    return rect.top - 60;
+
+}
+
+document.getElementById("addCounter").onclick = () => {
+
+    createCounter(60 + counterId * 40, getSafeCounterY());
+
+};
+
+function createCounter(x, y) {
+
+    const c = document.createElement("div");
+
+    c.className = "counter";
+
+    c.style.left = x + "px";
+
+    c.style.top = y + "px";
+
+    document.body.appendChild(c);
+
+    makeDraggable(c);
+
+    counterId++;
+
+}
+
+/* SMOOTH DRAG */
+
+function makeDraggable(el) {
+
+    let dragging = false;
+
+    let ox = 0;
+
+    let oy = 0;
+
+    let sx = 0;
+
+    let sy = 0;
+
+    el.addEventListener("pointerdown", e => {
+
+        dragging = true;
+
+        const r = el.getBoundingClientRect();
+
+        ox = e.clientX - r.left;
+
+        oy = e.clientY - r.top;
+
+        sx = r.left;
+
+        sy = r.top;
+
+        el.setPointerCapture(e.pointerId);
+
+    });
+
+    el.addEventListener("pointermove", e => {
+
+        if (!dragging) return;
+
+        const x = e.clientX - ox;
+
+        const y = e.clientY - oy;
+
+        sx += (x - sx) * 0.35;
+
+        sy += (y - sy) * 0.35;
+
+        el.style.left = sx + "px";
+
+        el.style.top = sy + "px";
+
+    });
+
+    el.addEventListener("pointerup", () => {
+
+        dragging = false;
+
+        attach(el);
+
+    });
+
+}
+
+/* ATTACH */
+
+function attach(el) {
+
+    const boardRect = board.getBoundingClientRect();
+
+    const r = el.getBoundingClientRect();
+
+    const cx = r.left + r.width / 2;
+
+    const cy = r.top + r.height / 2;
+
+    const inside =
+
+        cx > boardRect.left &&
+
+        cx < boardRect.right &&
+
+        cy > boardRect.top &&
+
+        cy < boardRect.bottom;
+
+    if (inside) {
+
+        const grid = 40;
+
+        const size = 36;
+
+        const lx = cx - boardRect.left;
+
+        const ly = cy - boardRect.top;
+
+        const sx = Math.round(lx / grid) * grid - size / 2;
+
+        const sy = Math.round(ly / grid) * grid - size / 2;
+
+        board.appendChild(el);
+
+        el.style.left = sx + "px";
+
+        el.style.top = sy + "px";
+
+    }
+
+}
+
+/* START */
+
+createCounter(60, getSafeCounterY());
+
+createCounter(120, getSafeCounterY());
+
+</script>
+
+</body>
+
+</html>
