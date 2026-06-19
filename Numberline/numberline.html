@@ -1,386 +1,627 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Canvas + Number Line (GIF version)</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+<title>Canvas + Number Line (Responsive Fixed)</title>
 
 <style>
+
 *{
+
     box-sizing:border-box;
+
     user-select:none;
+
+    -webkit-user-select:none;
+
 }
+
+html,body{
+
+    margin:0;
+
+    padding:0;
+
+    height:100%;
+
+    background:#e9ecef;
+
+    font-family:Arial,sans-serif;
+
+    overflow-y:auto;
+
+    overflow-x:hidden;
+
+}
+
+/* SAFE AREA SUPPORT */
 
 body{
-    margin:0;
-    padding:12px;
-    font-family:Arial,sans-serif;
-    background:#e9ecef;
+
+    padding: env(safe-area-inset-top)
+
+             env(safe-area-inset-right)
+
+             env(safe-area-inset-bottom)
+
+             env(safe-area-inset-left);
+
     display:flex;
+
     flex-direction:column;
+
     align-items:center;
+
     gap:10px;
+
 }
 
-/* ✅ RESPONSIVE CANVAS WRAPPER */
+/* CANVAS AREA */
+
 .canvas-wrapper{
+
     position:relative;
-    width:95%;
+
+    width:100%;
+
     max-width:1100px;
 
-    /* responsive height */
-    height:60vh;
-    min-height:320px;
-    max-height:600px;
+    flex:1;
+
+    min-height:300px;
+
+    aspect-ratio:16/9;
 
     background:white;
+
     border:2px solid #222;
+
     overflow:hidden;
+
 }
 
-/* canvas fills container */
+/* CANVAS */
+
 #drawCanvas{
+
     position:absolute;
+
     inset:0;
+
     width:100%;
+
     height:100%;
+
     touch-action:none;
-    z-index:1;
+
 }
+
+/* OVERLAY */
 
 .overlay{
+
     position:absolute;
+
     inset:0;
+
     pointer-events:none;
-    z-index:10;
+
 }
 
 /* NUMBER LINE */
+
 #line{
+
     position:absolute;
+
     top:50%;
+
     left:8%;
+
     width:84%;
+
     height:4px;
+
     background:#222;
+
     transform:translateY(-50%);
+
 }
 
+/* MARKERS */
+
 .marker{
+
     position:absolute;
+
     top:50%;
+
     transform:translate(-50%,-50%);
+
     display:flex;
+
     flex-direction:column;
+
     align-items:center;
-    pointer-events:none;
+
 }
 
 .tick{
+
     width:3px;
+
     height:24px;
+
     background:#111;
+
     position:absolute;
+
     top:50%;
+
     left:50%;
+
     transform:translate(-50%,-50%);
+
 }
 
 .marker input{
-    width:55px;
+
+    width:clamp(35px,6vw,55px);
+
     margin-top:38px;
+
     text-align:center;
+
     pointer-events:auto;
+
 }
 
 /* ITEMS */
+
 .item{
+
     position:absolute;
+
     pointer-events:auto;
+
     touch-action:none;
+
     transform:translateX(-50%);
+
     cursor:grab;
+
 }
 
 .item img{
-    width:60px;
+
+    width:clamp(45px,8vw,60px);
+
     height:auto;
+
     display:block;
+
 }
 
 #walker{
+
     top:calc(50% - 80px);
+
     left:8%;
+
     z-index:20;
+
 }
 
 .cloud{
+
     top:120px;
+
     left:120px;
+
     z-index:15;
+
 }
 
 .selected{
+
     outline:3px solid orange;
+
     border-radius:10px;
+
 }
 
-/* ✅ RESPONSIVE TOOLBAR */
+/* TOOLBAR (FIXED VISIBILITY) */
+
 .toolbar{
-    width:95%;
+
+    width:100%;
+
     max-width:1100px;
 
     display:flex;
-    gap:10px;
+
+    gap:8px;
+
     flex-wrap:wrap;
+
     justify-content:center;
 
     padding:10px;
-    background:#ffffff;
-    border:2px solid #222;
-    border-radius:12px;
+
+    background:#fff;
+
+    border-top:2px solid #222;
+
+    position:sticky;
+
+    bottom:0;
+
+    z-index:999;
+
 }
 
-/* responsive buttons */
-button, a{
-    padding:10px 14px;
-    font-size:16px;
+/* BUTTONS */
+
+button,a{
+
+    padding:10px 12px;
+
+    font-size:14px;
+
     border:none;
+
     border-radius:10px;
+
     cursor:pointer;
+
     background:#f1f1f1;
+
     text-decoration:none;
+
     color:black;
+
 }
 
-/* 📱 SMALL SCREEN OPTIMIZATION */
+/* SMALL SCREEN */
+
 @media (max-width:600px){
 
-    .canvas-wrapper{
-        height:55vh;
-    }
+    .item img{ width:50px; }
 
-    button, a{
-        font-size:14px;
-        padding:8px 10px;
-    }
+    button,a{ font-size:12px; padding:8px 10px; }
 
-    .item img{
-        width:50px;
-    }
-
-    .marker input{
-        width:45px;
-        font-size:12px;
-    }
 }
 
 </style>
+
 </head>
 
 <body>
 
-<!-- CANVAS -->
 <div class="canvas-wrapper" id="wrapper">
 
-<canvas id="drawCanvas"></canvas>
+    <canvas id="drawCanvas"></canvas>
 
-<div class="overlay" id="overlay">
+    <div class="overlay" id="overlay">
 
-    <div id="walker" class="item">
-        <img src="image/walker.gif" alt="walker">
+        <div id="walker" class="item">
+
+            <img src="image/walker.gif">
+
+        </div>
+
+        <div class="item cloud">
+
+            <img src="image/cloud.gif">
+
+        </div>
+
+        <div id="line"></div>
+
     </div>
 
-    <div class="item cloud">
-        <img src="image/cloud.gif" alt="cloud">
-    </div>
-
-    <div id="line"></div>
-
-</div>
 </div>
 
-<!-- TOOLBAR -->
 <div class="toolbar">
+
     <button id="drawBtn">សរសេរ</button>
+
     <button id="eraserBtn">លុប</button>
+
     <button onclick="clearCanvas()">សម្អាត</button>
+
     <button id="addCloudBtn">ពពក</button>
+
     <button id="deleteBtn">លុបពពក</button>
+
     <a href="../index.html">🏡Home</a>
+
 </div>
 
 <script>
 
-/* Canvas */
+/* CANVAS */
+
 const canvas = document.getElementById("drawCanvas");
+
 const ctx = canvas.getContext("2d");
 
+const wrapper = document.getElementById("wrapper");
+
+const overlay = document.getElementById("overlay");
+
 function resize(){
+
     const r = canvas.getBoundingClientRect();
-    canvas.width = r.width;
-    canvas.height = r.height;
+
+    const dpr = window.devicePixelRatio || 1;
+
+    canvas.width = r.width * dpr;
+
+    canvas.height = r.height * dpr;
+
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+
 }
+
 resize();
+
 window.addEventListener("resize", resize);
 
+window.addEventListener("orientationchange", ()=>{
+
+    setTimeout(resize, 250);
+
+});
+
+/* DRAWING */
+
 let drawing=false;
+
 let eraseMode=false;
 
-document.getElementById("drawBtn").onclick=()=> eraseMode=false;
-document.getElementById("eraserBtn").onclick=()=> eraseMode=true;
+document.getElementById("drawBtn").onclick=()=>eraseMode=false;
+
+document.getElementById("eraserBtn").onclick=()=>eraseMode=true;
 
 function getPos(e){
+
     const r = canvas.getBoundingClientRect();
+
+    const p = e.touches ? e.touches[0] : e;
+
     return {
-        x:(e.touches?e.touches[0].clientX:e.clientX)-r.left,
-        y:(e.touches?e.touches[0].clientY:e.clientY)-r.top
+
+        x:p.clientX - r.left,
+
+        y:p.clientY - r.top
+
     };
+
 }
 
 function start(e){
+
     drawing=true;
+
     const p=getPos(e);
+
     ctx.beginPath();
+
     ctx.moveTo(p.x,p.y);
+
 }
 
 function draw(e){
+
     if(!drawing) return;
+
     const p=getPos(e);
 
     ctx.lineCap="round";
+
     ctx.lineWidth=eraseMode ? 25 : 3;
+
     ctx.globalCompositeOperation=eraseMode ? "destination-out" : "source-over";
 
     ctx.lineTo(p.x,p.y);
+
     ctx.stroke();
+
     ctx.beginPath();
+
     ctx.moveTo(p.x,p.y);
 
     e.preventDefault();
+
 }
 
-function stop(){
-    drawing=false;
-    ctx.beginPath();
-}
+function stop(){ drawing=false; }
 
 canvas.addEventListener("mousedown",start);
+
 canvas.addEventListener("mousemove",draw);
+
 canvas.addEventListener("mouseup",stop);
+
 canvas.addEventListener("touchstart",start,{passive:false});
+
 canvas.addEventListener("touchmove",draw,{passive:false});
+
 canvas.addEventListener("touchend",stop);
 
 function clearCanvas(){
+
     ctx.clearRect(0,0,canvas.width,canvas.height);
+
 }
 
-/* Number line */
-const overlay=document.getElementById("overlay");
+/* NUMBER LINE */
+
 const startP=8;
+
 const widthP=84;
 
-for(let i=0;i<11;i++){
+for(let i=0;i<=10;i++){
+
     const marker=document.createElement("div");
+
     marker.className="marker";
+
     marker.style.left=(startP+(widthP/10)*i)+"%";
+
     marker.innerHTML=`
+
         <div class="tick"></div>
+
         <input value="${i}">
+
     `;
+
     overlay.appendChild(marker);
+
 }
 
-/* Selection */
+/* DRAG SYSTEM */
+
 let selected=null;
 
 function select(el){
+
     document.querySelectorAll(".selected").forEach(x=>x.classList.remove("selected"));
+
     selected=el;
-    if(el) el.classList.add("selected");
+
+    el.classList.add("selected");
+
 }
 
 document.getElementById("deleteBtn").onclick=()=>{
+
     if(selected && selected.id!=="walker"){
+
         selected.remove();
+
         selected=null;
+
     }
+
 };
 
-/* Drag */
 function makeDraggable(el){
+
     let drag=false;
+
     let lastX=0;
+
     let lastTap=0;
 
     el.addEventListener("pointerdown",e=>{
+
         drag=true;
+
         select(el);
+
         e.stopPropagation();
+
     });
 
     document.addEventListener("pointerup",()=>drag=false);
 
     document.addEventListener("pointermove",e=>{
+
         if(!drag) return;
 
         const rect=wrapper.getBoundingClientRect();
+
         let x=e.clientX-rect.left;
+
         let y=e.clientY-rect.top;
 
         if(el.id==="walker"){
-            const leftEdge=rect.width*0.08;
-            const rightEdge=rect.width*0.92;
-            x=Math.max(leftEdge,Math.min(rightEdge,x));
+
+            const min=rect.width*0.08;
+
+            const max=rect.width*0.92;
+
+            x=Math.max(min,Math.min(max,x));
+
         }
 
         el.style.left=x+"px";
 
         if(el.classList.contains("cloud")){
+
             el.style.top=y+"px";
+
         }
 
         if(el.id==="walker"){
+
             el.style.transform =
-                x>lastX
-                ? "translateX(-50%) scaleX(-1)"
-                : "translateX(-50%) scaleX(1)";
+
+                `translateX(-50%) ${x>lastX?"scaleX(-1)":"scaleX(1)"}`;
+
             lastX=x;
+
         }
+
     });
 
     el.addEventListener("pointerup",()=>{
+
         const now=Date.now();
 
         if(el.classList.contains("cloud") && now-lastTap<300){
+
             const copy=el.cloneNode(true);
+
             copy.style.left=(parseFloat(el.style.left)+60)+"px";
+
             copy.style.top=(parseFloat(el.style.top)+30)+"px";
+
             overlay.appendChild(copy);
+
             makeDraggable(copy);
+
         }
 
         lastTap=now;
+
     });
+
 }
 
 document.querySelectorAll(".item").forEach(makeDraggable);
 
-/* Add cloud */
+/* ADD CLOUD */
+
 document.getElementById("addCloudBtn").onclick=()=>{
+
     const cloud=document.createElement("div");
+
     cloud.className="item cloud";
-    cloud.innerHTML=`<img src="image/cloud.gif" alt="cloud">`;
+
+    cloud.innerHTML=`<img src="image/cloud.gif">`;
+
     cloud.style.left="150px";
+
     cloud.style.top="120px";
+
     overlay.appendChild(cloud);
+
     makeDraggable(cloud);
+
 };
 
 </script>
 
 </body>
+
 </html>
