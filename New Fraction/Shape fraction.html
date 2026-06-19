@@ -24,15 +24,17 @@ body{
 
 }
 
-/* UI */
+/* ================= UI (MOVED TO BOTTOM) ================= */
 
 #ui{
 
     position:fixed;
 
-    top:10px;
+    bottom:10px;
 
     left:10px;
+
+    right:10px;
 
     z-index:30;
 
@@ -52,6 +54,8 @@ body{
 
 }
 
+/* rows */
+
 .row{
 
     display:flex;
@@ -59,6 +63,8 @@ body{
     gap:8px;
 
     flex-wrap:wrap;
+
+    align-items:center;
 
 }
 
@@ -86,13 +92,31 @@ button.active{
 
 }
 
-/* canvases */
+/* Home link styled like button */
+
+a{
+
+    padding:8px 12px;
+
+    border-radius:6px;
+
+    background:#2d89ef;
+
+    color:white;
+
+    text-decoration:none;
+
+    display:inline-block;
+
+}
+
+/* ================= CANVASES (ADJUSTED) ================= */
 
 #drawCanvas{
 
     position:absolute;
 
-    top:80px;
+    top:0;
 
     left:0;
 
@@ -106,7 +130,7 @@ button.active{
 
     position:absolute;
 
-    top:80px;
+    top:0;
 
     left:0;
 
@@ -153,7 +177,9 @@ Parts:
 <button id="eraseBtn">🧽លុប</button>
 
 <button id="clearBtn">សម្អាត</button>
+
 <a href="../index.html">🏡 Home</a>
+
 </div>
 
 </div>
@@ -230,11 +256,11 @@ function resize(){
 
 drawCanvas.width = innerWidth;
 
-drawCanvas.height = innerHeight - 80;
+drawCanvas.height = innerHeight;
 
 canvas.width = innerWidth;
 
-canvas.height = innerHeight - 80;
+canvas.height = innerHeight;
 
 draw();
 
@@ -440,8 +466,6 @@ function snap(p){
 
 const SNAP=20;
 
-/* center snap */
-
 if(Math.hypot(p.x,p.y)<SNAP){
 
 p.x=0;
@@ -453,8 +477,6 @@ merge(p,null);
 return;
 
 }
-
-/* piece snap */
 
 for(let q of pieces){
 
@@ -482,8 +504,6 @@ canvas.addEventListener("pointerdown",(e)=>{
 
 const {x,y}=pos(e,canvas);
 
-/* try pick piece */
-
 for(let i=pieces.length-1;i>=0;i--){
 
 const p=pieces[i];
@@ -507,8 +527,6 @@ return;
 }
 
 }
-
-/* otherwise drawing */
 
 state = (state===STATE.ERASE) ? STATE.ERASE : STATE.DRAW;
 
