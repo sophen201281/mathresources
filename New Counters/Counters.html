@@ -414,15 +414,9 @@ window.addEventListener("pointermove", e => {
 
 window.addEventListener("pointerup", () => rotating = false);
 
-/* =========================
-
-   FIXED COUNTERS (UPDATED)
-
-========================= */
+/* COUNTERS */
 
 let counterId = 0;
-
-/* 🔥 NEW: counters appear BELOW board */
 
 function getSafeCounterY() {
 
@@ -466,33 +460,25 @@ function createCounter(x, y) {
 
 }
 
-/* SMOOTH DRAG (FIXED STABILITY) */
+/* 🔧 STABLE DRAG FIX (NO DRIFT / NO RUNAWAY) */
 
 function makeDraggable(el) {
 
     let dragging = false;
 
-    let ox = 0;
+    let offsetX = 0;
 
-    let oy = 0;
-
-    let sx = 0;
-
-    let sy = 0;
+    let offsetY = 0;
 
     el.addEventListener("pointerdown", e => {
 
         dragging = true;
 
-        const r = el.getBoundingClientRect();
+        const rect = el.getBoundingClientRect();
 
-        ox = e.clientX - r.left;
+        offsetX = e.clientX - rect.left;
 
-        oy = e.clientY - r.top;
-
-        sx = r.left;
-
-        sy = r.top;
+        offsetY = e.clientY - rect.top;
 
         el.setPointerCapture(e.pointerId);
 
@@ -502,17 +488,13 @@ function makeDraggable(el) {
 
         if (!dragging) return;
 
-        const x = e.clientX - ox;
+        const x = e.clientX - offsetX;
 
-        const y = e.clientY - oy;
+        const y = e.clientY - offsetY;
 
-        sx += (x - sx) * 0.35;
+        el.style.left = x + "px";
 
-        sy += (y - sy) * 0.35;
-
-        el.style.left = sx + "px";
-
-        el.style.top = sy + "px";
+        el.style.top = y + "px";
 
     });
 
