@@ -460,7 +460,7 @@ function createCounter(x, y) {
 
 }
 
-/* 🔧 STABLE DRAG FIX (NO DRIFT / NO RUNAWAY) */
+/* DRAG + DOUBLE TAP DELETE */
 
 function makeDraggable(el) {
 
@@ -469,6 +469,8 @@ function makeDraggable(el) {
     let offsetX = 0;
 
     let offsetY = 0;
+
+    let lastTap = 0;
 
     el.addEventListener("pointerdown", e => {
 
@@ -498,9 +500,23 @@ function makeDraggable(el) {
 
     });
 
-    el.addEventListener("pointerup", () => {
+    el.addEventListener("pointerup", (e) => {
 
         dragging = false;
+
+        // 🔥 DOUBLE TAP DELETE
+
+        const now = Date.now();
+
+        if (now - lastTap < 300) {
+
+            el.remove();
+
+            return;
+
+        }
+
+        lastTap = now;
 
         attach(el);
 
