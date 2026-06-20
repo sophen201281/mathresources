@@ -25,15 +25,18 @@ font-weight:bold;
 z-index:500;
 box-shadow:0 2px 8px rgba(0,0,0,.2);
 }
+
+/* ✅ MOVED TOOLBAR TO BOTTOM */
 #toolbar{
 position:fixed;
-top:60px;
+bottom:10px;
 left:50%;
 transform:translateX(-50%);
 display:flex;
 gap:8px;
 z-index:500;
 }
+
 button{
 border:none;
 padding:8px 14px;
@@ -42,6 +45,7 @@ background:#2d7cff;
 color:white;
 font-size:16px;
 }
+
 /* OBJECTS */
 .object{
 position:absolute;
@@ -71,6 +75,7 @@ bottom:-60px;
 }
 .table::before{ left:20px; }
 .table::after{ right:20px; }
+
 .pencil{
 width:180px;
 height:18px;
@@ -93,6 +98,7 @@ width:14px;
 height:18px;
 background:#ff6b8a;
 }
+
 /* TAPE */
 #scene{
 width:100vw;
@@ -160,21 +166,20 @@ touch-action:none;
 </head>
 <body>
 <div id="display">40.0 cm</div>
+
 <div id="toolbar">
-<button onclick="createObject('table')">
-តុ
-</button>
-<button onclick="createObject('pencil')">
-ខ្មៅដៃ
-</button>
+<button onclick="createObject('table')">តុ</button>
+<button onclick="createObject('pencil')">ខ្មៅដៃ</button>
 <a href="../index.html" class="home-btn">🏡Home</a>
 </div>
+
 <div id="scene">
 <div id="tape"></div>
 <div id="hook"></div>
 <div id="case"></div>
 <div id="rotate">↻</div>
 </div>
+
 <script>
 const hook=document.getElementById("hook");
 const tape=document.getElementById("tape");
@@ -182,12 +187,14 @@ const box=document.getElementById("case");
 const rot=document.getElementById("rotate");
 const display=document.getElementById("display");
 const scene=document.getElementById("scene");
+
 let anchorX=120;
 let anchorY=320;
 let length=220;
 let angle=0;
 let dragging=null;
 let currentAction=null;
+
 /* SCALE */
 for(let i=0;i<5000;i++){
 const tick=document.createElement("div");
@@ -199,8 +206,7 @@ const label=
 document.createElement("div");
 label.className="label";
 label.innerText=i/10;
-label.style.left=
-(i*5+2)+"px";
+label.style.left=(i*5+2)+"px";
 tape.appendChild(label);
 }
 else if(i%5===0){
@@ -211,6 +217,7 @@ tick.style.height="10px";
 }
 tape.appendChild(tick);
 }
+
 /* OBJECTS */
 function attachDrag(obj){
 obj.onpointerdown=(e)=>{
@@ -219,148 +226,118 @@ dragging=obj;
 e.stopPropagation();
 };
 }
+
 function createObject(type){
-const obj=
-document.createElement("div");
-obj.classList.add(
-"object"
-);
+const obj=document.createElement("div");
+obj.classList.add("object");
 obj.style.left="220px";
 obj.style.top="250px";
+
 if(type==="table"){
-obj.classList.add(
-"table"
-);
+obj.classList.add("table");
 obj.innerHTML="TABLE";
 }
 if(type==="pencil"){
-obj.classList.add(
-"pencil"
-);
+obj.classList.add("pencil");
 }
+
 scene.appendChild(obj);
 attachDrag(obj);
 }
+
 /* STATES */
 function clearStates(){
 currentAction=null;
 dragging=null;
 }
+
 /* ACTION START */
 hook.onpointerdown=(e)=>{
 clearStates();
 currentAction="hook";
 e.stopPropagation();
 };
+
 tape.onpointerdown=(e)=>{
 clearStates();
 currentAction="pull";
 e.stopPropagation();
 };
+
 box.onpointerdown=(e)=>{
 clearStates();
 currentAction="pull";
 e.stopPropagation();
 };
+
 rot.onpointerdown=(e)=>{
 clearStates();
 currentAction="rotate";
 e.stopPropagation();
 };
+
 /* UPDATE */
 function update(){
-const rad=
-angle*Math.PI/180;
-hook.style.left=
-(anchorX-7)+"px";
-hook.style.top=
-(anchorY-17)+"px";
-hook.style.transform=
-`rotate(${angle}deg)`;
-tape.style.left=
-anchorX+"px";
-tape.style.top=
-(anchorY-14)+"px";
-tape.style.width=
-length+"px";
-tape.style.transform=
-`rotate(${angle}deg)`;
-const endX=
-anchorX+
-Math.cos(rad)*length;
-const endY=
-anchorY+
-Math.sin(rad)*length;
-box.style.left=
-(endX-30)+"px";
-box.style.top=
-(endY-25)+"px";
-box.style.transform=
-`rotate(${angle}deg)`;
-rot.style.left=
-(endX+40)+"px";
-rot.style.top=
-(endY-5)+"px";
-display.innerText=
-(length/5).toFixed(1)
-+" cm";
+const rad=angle*Math.PI/180;
+
+hook.style.left=(anchorX-7)+"px";
+hook.style.top=(anchorY-17)+"px";
+hook.style.transform=`rotate(${angle}deg)`;
+
+tape.style.left=anchorX+"px";
+tape.style.top=(anchorY-14)+"px";
+tape.style.width=length+"px";
+tape.style.transform=`rotate(${angle}deg)`;
+
+const endX=anchorX+Math.cos(rad)*length;
+const endY=anchorY+Math.sin(rad)*length;
+
+box.style.left=(endX-30)+"px";
+box.style.top=(endY-25)+"px";
+box.style.transform=`rotate(${angle}deg)`;
+
+rot.style.left=(endX+40)+"px";
+rot.style.top=(endY-5)+"px";
+
+display.innerText=(length/5).toFixed(1)+" cm";
 }
+
 /* MOVE */
-window.addEventListener(
-"pointermove",
-e=>{
+window.addEventListener("pointermove",e=>{
 const x=e.clientX;
 const y=e.clientY;
+
 if(dragging){
-dragging.style.left=
-(x-dragging.offsetWidth/2)
-+"px";
-dragging.style.top=
-(y-dragging.offsetHeight/2)
-+"px";
+dragging.style.left=(x-dragging.offsetWidth/2)+"px";
+dragging.style.top=(y-dragging.offsetHeight/2)+"px";
 return;
 }
+
 if(!currentAction) return;
+
 if(currentAction==="hook"){
 anchorX=x;
 anchorY=y;
 }
+
 if(currentAction==="pull"){
 const dx=x-anchorX;
 const dy=y-anchorY;
-length=
-Math.max(
-40,
-Math.sqrt(
-dx*dx+
-dy*dy
-)
-);
+length=Math.max(40,Math.sqrt(dx*dx+dy*dy));
 }
+
 if(currentAction==="rotate"){
-angle=
-Math.atan2(
-y-anchorY,
-x-anchorX
-)
-*180/Math.PI;
+angle=Math.atan2(y-anchorY,x-anchorX)*180/Math.PI;
 }
+
 update();
 });
-window.addEventListener(
-"pointerup",
-clearStates
-);
-window.addEventListener(
-"pointercancel",
-clearStates
-);
-window.addEventListener(
-"pointerleave",
-clearStates
-);
+
+window.addEventListener("pointerup",clearStates);
+window.addEventListener("pointercancel",clearStates);
+window.addEventListener("pointerleave",clearStates);
+
 update();
 </script>
 </body>
 </html>
-
