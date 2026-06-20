@@ -142,6 +142,8 @@ outline:5px solid orange;
 
 <button id="addCounter">Generate Counters</button>
 
+<button id="deleteCounter">លុបវត្ថសម្រាប់រាប់</button>
+
 <button id="clearDraw">សម្អាត</button>
 
 <button id="eraserBtn">លុប</button>
@@ -260,8 +262,6 @@ setupCounter(c);
 
 }
 
-/* generate counters */
-
 document.getElementById("addCounter").onclick = () => {
 
 const count = parseInt(document.getElementById("counterCount").value || "1");
@@ -280,9 +280,17 @@ innerHeight/2 + (i * 10)
 
 };
 
-/* ❌ DELETE BUTTON REMOVED */
+document.getElementById("deleteCounter").onclick = () => {
 
-/* CLEAR DRAW */
+if(!selected) return;
+
+removeConnections(selected.dataset.id);
+
+selected.remove();
+
+selected = null;
+
+};
 
 document.getElementById("clearDraw").onclick = () => {
 
@@ -370,7 +378,7 @@ connections.forEach(set => set.delete(id));
 
 }
 
-/* DRAG */
+/* DRAG + DOUBLE TAP FEATURE */
 
 function setupCounter(counter){
 
@@ -383,8 +391,6 @@ let starts = [];
 let sx = 0;
 
 let sy = 0;
-
-/* 🔥 double tap detection */
 
 let lastTap = 0;
 
@@ -416,19 +422,29 @@ y: c.offsetTop
 
 });
 
-/* 👆 double tap = delete */
-
 const now = Date.now();
+
+/* ⭐ UPDATED DOUBLE TAP BEHAVIOR */
 
 if(now - lastTap < 300){
 
+if(selected === counter){
+
+/* break connections for selected counter */
+
 removeConnections(counter.dataset.id);
 
-counter.remove();
+}
 
-selected = null;
+else{
 
-return;
+/* original behavior preserved */
+
+detach(counter);
+
+members = [counter.dataset.id];
+
+}
 
 }
 
