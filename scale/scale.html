@@ -46,13 +46,17 @@ background:white;
 
 }
 
+/* 🔽 BOTTOM TOOLBAR */
+
 .toolbar{
 
 position:fixed;
 
-top:10px;
+bottom:10px;
 
 left:10px;
+
+right:10px;
 
 display:flex;
 
@@ -61,6 +65,28 @@ gap:8px;
 flex-wrap:wrap;
 
 z-index:1000;
+
+align-items:center;
+
+justify-content:center;
+
+background:rgba(255,255,255,0.7);
+
+padding:10px;
+
+border-radius:12px;
+
+backdrop-filter: blur(6px);
+
+}
+
+.toolbar input{
+
+width:90px;
+
+padding:10px;
+
+font-size:16px;
 
 }
 
@@ -112,354 +138,177 @@ outline:5px solid orange;
 
 <div class="toolbar">
 
-<button id="addCounter">
-វត្ថុសម្រាប់រាប់
+<input id="counterCount" type="number" min="1" value="1">
 
-</button>
+<button id="addCounter">Generate Counters</button>
 
-<button id="deleteCounter">
+<button id="clearDraw">សម្អាត</button>
 
-លុបវត្ថសម្រាប់រាប់
+<button id="eraserBtn">លុប</button>
 
-</button>
-
-<button id="clearDraw">
-
-សម្អាត
-
-</button>
-
-<button id="eraserBtn">
-
-លុប
-
-</button>
 <a href="../index.html">🏡 Home</a>
+
 </div>
 
 <canvas id="draw"></canvas>
 
 <script>
 
-const canvas=
+const canvas = document.getElementById("draw");
 
-document.getElementById("draw");
-
-const ctx=
-
-canvas.getContext("2d");
+const ctx = canvas.getContext("2d");
 
 function resize(){
 
-canvas.width=
+canvas.width = innerWidth;
 
-innerWidth;
-
-canvas.height=
-
-innerHeight;
+canvas.height = innerHeight;
 
 }
 
 resize();
 
-addEventListener(
-
-"resize",
-
-resize
-
-);
+addEventListener("resize", resize);
 
 /* DRAWING */
 
-let drawing=false;
+let drawing = false;
 
-let eraser=false;
+let eraser = false;
 
-const eraserBtn=
+const eraserBtn = document.getElementById("eraserBtn");
 
-document.getElementById(
+eraserBtn.onclick = () => {
 
-"eraserBtn"
+eraser = !eraser;
 
-);
+eraserBtn.textContent = eraser ? "លុប បើក" : "លុប​ បិទ";
 
-eraserBtn.onclick=()=>{
-
-eraser=!eraser;
-
-eraserBtn.textContent=
-
-eraser
-
-?
-
-"លុប បើក"
-
-:
-
-"លុប​ បិទ";
-
-eraserBtn.classList.toggle(
-
-"active",
-
-eraser
-
-);
+eraserBtn.classList.toggle("active", eraser);
 
 };
 
-canvas.addEventListener(
+canvas.addEventListener("pointerdown", e => {
 
-"pointerdown",
+if(e.target !== canvas) return;
 
-e=>{
-
-if(
-
-e.target!==canvas
-
-) return;
-
-drawing=true;
+drawing = true;
 
 ctx.beginPath();
 
-ctx.moveTo(
+ctx.moveTo(e.clientX, e.clientY);
 
-e.clientX,
+});
 
-e.clientY
-
-);
-
-}
-
-);
-
-canvas.addEventListener(
-
-"pointermove",
-
-e=>{
+canvas.addEventListener("pointermove", e => {
 
 if(!drawing) return;
 
 if(eraser){
 
-ctx.globalCompositeOperation=
+ctx.globalCompositeOperation = "destination-out";
 
-"destination-out";
-
-ctx.lineWidth=28;
+ctx.lineWidth = 28;
 
 }else{
 
-ctx.globalCompositeOperation=
+ctx.globalCompositeOperation = "source-over";
 
-"source-over";
-
-ctx.lineWidth=4;
+ctx.lineWidth = 4;
 
 }
 
-ctx.lineCap="round";
+ctx.lineCap = "round";
 
-ctx.lineTo(
-
-e.clientX,
-
-e.clientY
-
-);
+ctx.lineTo(e.clientX, e.clientY);
 
 ctx.stroke();
 
-}
+});
 
-);
+window.addEventListener("pointerup", () => {
 
-window.addEventListener(
+drawing = false;
 
-"pointerup",
+ctx.globalCompositeOperation = "source-over";
 
-()=>{
-
-drawing=false;
-
-ctx.globalCompositeOperation=
-
-"source-over";
-
-}
-
-);
+});
 
 /* COUNTERS */
 
-let selected=null;
+let selected = null;
 
-const connections=
-
-new Map();
+const connections = new Map();
 
 function createCounter(x,y){
 
-const c=
+const c = document.createElement("div");
 
-document.createElement(
+c.className = "counter";
 
-"div"
+c.dataset.id = crypto.randomUUID();
 
-);
+c.style.left = x + "px";
 
-c.className=
+c.style.top = y + "px";
 
-"counter";
+document.body.appendChild(c);
 
-c.dataset.id=
-
-crypto.randomUUID();
-
-c.style.left=
-
-x+"px";
-
-c.style.top=
-
-y+"px";
-
-document.body.appendChild(
-
-c
-
-);
-
-connections.set(
-
-c.dataset.id,
-
-new Set()
-
-);
+connections.set(c.dataset.id, new Set());
 
 setupCounter(c);
 
 }
 
-document
+/* generate counters */
 
-.getElementById(
+document.getElementById("addCounter").onclick = () => {
 
-"addCounter"
+const count = parseInt(document.getElementById("counterCount").value || "1");
 
-)
-
-.onclick=()=>{
+for(let i = 0; i < count; i++){
 
 createCounter(
 
-innerWidth/2,
+innerWidth/2 + (i * 10),
 
-innerHeight/2
+innerHeight/2 + (i * 10)
 
 );
+
+}
 
 };
 
-document
+/* ❌ DELETE BUTTON REMOVED */
 
-.getElementById(
+/* CLEAR DRAW */
 
-"deleteCounter"
+document.getElementById("clearDraw").onclick = () => {
 
-)
-
-.onclick=()=>{
-
-if(!selected) return;
-
-removeConnections(
-
-selected.dataset.id
-
-);
-
-selected.remove();
-
-selected=null;
-
-};
-
-document
-
-.getElementById(
-
-"clearDraw"
-
-)
-
-.onclick=()=>{
-
-ctx.clearRect(
-
-0,
-
-0,
-
-canvas.width,
-
-canvas.height
-
-);
+ctx.clearRect(0,0,canvas.width,canvas.height);
 
 };
 
 function getCounters(){
 
-return [
-
-...document.querySelectorAll(
-
-".counter"
-
-)
-
-];
+return [...document.querySelectorAll(".counter")];
 
 }
 
 function getCounter(id){
 
-return document.querySelector(
-
-`[data-id="${id}"]`
-
-);
+return document.querySelector(`[data-id="${id}"]`);
 
 }
 
 function selectCounter(c){
 
-getCounters().forEach(
+getCounters().forEach(x => x.classList.remove("selected"));
 
-x=>x.classList.remove(
+selected = c;
 
-"selected"
-
-)
-
-);
-
-selected=c;
-
-c.classList.add(
-
-"selected"
-
-);
+c.classList.add("selected");
 
 }
 
@@ -467,45 +316,21 @@ c.classList.add(
 
 function connectedGroup(id){
 
-const visited=
+const visited = new Set();
 
-new Set();
-
-const queue=[id];
+const queue = [id];
 
 while(queue.length){
 
-const current=
+const current = queue.shift();
 
-queue.shift();
+if(visited.has(current)) continue;
 
-if(
+visited.add(current);
 
-visited.has(current)
+connections.get(current)?.forEach(n => {
 
-) continue;
-
-visited.add(
-
-current
-
-);
-
-connections
-
-.get(current)
-
-?.forEach(n=>{
-
-if(
-
-!visited.has(n)
-
-){
-
-queue.push(n);
-
-}
+if(!visited.has(n)) queue.push(n);
 
 });
 
@@ -517,43 +342,23 @@ return [...visited];
 
 function connect(a,b){
 
-connections
+connections.get(a).add(b);
 
-.get(a).add(b);
-
-connections
-
-.get(b).add(a);
+connections.get(b).add(a);
 
 }
 
 function detach(counter){
 
-const id=
+const id = counter.dataset.id;
 
-counter.dataset.id;
+connections.get(id).clear();
 
-connections
+connections.forEach(set => set.delete(id));
 
-.get(id).clear();
+counter.style.left = (counter.offsetLeft + 45) + "px";
 
-connections.forEach(set=>{
-
-set.delete(id);
-
-});
-
-counter.style.left=
-
-(counter.offsetLeft+45)
-
-+"px";
-
-counter.style.top=
-
-(counter.offsetTop+45)
-
-+"px";
+counter.style.top = (counter.offsetTop + 45) + "px";
 
 }
 
@@ -561,11 +366,7 @@ function removeConnections(id){
 
 connections.delete(id);
 
-connections.forEach(set=>{
-
-set.delete(id);
-
-});
+connections.forEach(set => set.delete(id));
 
 }
 
@@ -573,131 +374,91 @@ set.delete(id);
 
 function setupCounter(counter){
 
-let dragging=false;
+let dragging = false;
 
-let members=[];
+let members = [];
 
-let starts=[];
+let starts = [];
 
-let sx=0;
+let sx = 0;
 
-let sy=0;
+let sy = 0;
 
-let lastTap=0;
+/* 🔥 double tap detection */
 
-counter.addEventListener(
+let lastTap = 0;
 
-"pointerdown",
+counter.addEventListener("pointerdown", e => {
 
-e=>{
-
-dragging=true;
+dragging = true;
 
 selectCounter(counter);
 
-sx=e.clientX;
+sx = e.clientX;
 
-sy=e.clientY;
+sy = e.clientY;
 
-members=
+members = connectedGroup(counter.dataset.id);
 
-connectedGroup(
+starts = members.map(id => {
 
-counter.dataset.id
+const c = getCounter(id);
 
-);
+return {
 
-starts=
+el: c,
 
-members.map(id=>{
+x: c.offsetLeft,
 
-const c=
-
-getCounter(id);
-
-return{
-
-el:c,
-
-x:c.offsetLeft,
-
-y:c.offsetTop
+y: c.offsetTop
 
 };
 
 });
 
-const now=
+/* 👆 double tap = delete */
 
-Date.now();
+const now = Date.now();
 
-if(
+if(now - lastTap < 300){
 
-now-lastTap<300
+removeConnections(counter.dataset.id);
 
-){
+counter.remove();
 
-detach(counter);
+selected = null;
 
-members=[
-
-counter.dataset.id
-
-];
+return;
 
 }
 
-lastTap=now;
+lastTap = now;
 
-counter.setPointerCapture(
-
-e.pointerId
-
-);
+counter.setPointerCapture(e.pointerId);
 
 });
 
-counter.addEventListener(
-
-"pointermove",
-
-e=>{
+counter.addEventListener("pointermove", e => {
 
 if(!dragging) return;
 
-const dx=
+const dx = e.clientX - sx;
 
-e.clientX-sx;
+const dy = e.clientY - sy;
 
-const dy=
+starts.forEach(obj => {
 
-e.clientY-sy;
+obj.el.style.left = (obj.x + dx) + "px";
 
-starts.forEach(obj=>{
-
-obj.el.style.left=
-
-(obj.x+dx)
-
-+"px";
-
-obj.el.style.top=
-
-(obj.y+dy)
-
-+"px";
+obj.el.style.top = (obj.y + dy) + "px";
 
 });
 
 });
 
-counter.addEventListener(
+counter.addEventListener("pointerup", () => {
 
-"pointerup",
-
-()=>{
-
-dragging=false;
+dragging = false;
 
 snap(counter);
 
@@ -709,127 +470,51 @@ snap(counter);
 
 function snap(active){
 
-const SNAP=80;
+const SNAP = 80;
 
-const DIST=62;
+const DIST = 62;
 
-const myGroup=
+const myGroup = connectedGroup(active.dataset.id);
 
-connectedGroup(
-
-active.dataset.id
-
-);
-
-const all=
-
-getCounters();
+const all = getCounters();
 
 for(let id of myGroup){
 
-const me=
-
-getCounter(id);
+const me = getCounter(id);
 
 for(let other of all){
 
-if(
+if(myGroup.includes(other.dataset.id)) continue;
 
-myGroup.includes(
+const dx = me.offsetLeft - other.offsetLeft;
 
-other.dataset.id
+const dy = me.offsetTop - other.offsetTop;
 
-)
+const d = Math.hypot(dx,dy);
 
-) continue;
+if(d < SNAP){
 
-const dx=
+const angle = Math.atan2(dy, dx);
 
-me.offsetLeft-
+const targetX = other.offsetLeft + Math.cos(angle) * DIST;
 
-other.offsetLeft;
+const targetY = other.offsetTop + Math.sin(angle) * DIST;
 
-const dy=
+const moveX = targetX - me.offsetLeft;
 
-me.offsetTop-
+const moveY = targetY - me.offsetTop;
 
-other.offsetTop;
+myGroup.forEach(g => {
 
-const d=
+const c = getCounter(g);
 
-Math.hypot(dx,dy);
+c.style.left = (c.offsetLeft + moveX) + "px";
 
-if(d<SNAP){
-
-const angle=
-
-Math.atan2(
-
-dy,
-
-dx
-
-);
-
-const targetX=
-
-other.offsetLeft+
-
-Math.cos(angle)
-
-*DIST;
-
-const targetY=
-
-other.offsetTop+
-
-Math.sin(angle)
-
-*DIST;
-
-const moveX=
-
-targetX-
-
-me.offsetLeft;
-
-const moveY=
-
-targetY-
-
-me.offsetTop;
-
-myGroup.forEach(g=>{
-
-const c=
-
-getCounter(g);
-
-c.style.left=
-
-(c.offsetLeft+
-
-moveX)
-
-+"px";
-
-c.style.top=
-
-(c.offsetTop+
-
-moveY)
-
-+"px";
+c.style.top = (c.offsetTop + moveY) + "px";
 
 });
 
-connect(
-
-me.dataset.id,
-
-other.dataset.id
-
-);
+connect(me.dataset.id, other.dataset.id);
 
 return;
 
@@ -841,21 +526,11 @@ return;
 
 }
 
-createCounter(
+/* INITIAL COUNTERS */
 
-250,
+createCounter(250,250);
 
-250
-
-);
-
-createCounter(
-
-400,
-
-250
-
-);
+createCounter(400,250);
 
 </script>
 
