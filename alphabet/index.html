@@ -1,195 +1,134 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Consonant + Vowel Grid</title>
+<title>Vowel Grid Mobile Fix</title>
 
 <style>
-
     body {
-
         margin: 0;
-
         font-family: Arial, sans-serif;
-
         background: #f2f6ff;
-
         display: flex;
-
         flex-direction: column;
-
         align-items: center;
-
-        padding: 20px;
-
+        padding: 12px;
+        overflow-x: hidden;
     }
 
     h2 {
-
-        margin-bottom: 10px;
-
+        font-size: 18px;
+        margin: 10px 0;
+        text-align: center;
     }
 
-    /* Input box */
-
+    /* Input */
     .input-box {
-
-        margin-bottom: 20px;
-
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        margin-bottom: 12px;
     }
 
     input {
-
-        padding: 10px;
-
+        width: 90%;
+        max-width: 300px;
+        padding: 14px;
         font-size: 18px;
-
-        width: 200px;
-
         text-align: center;
-
         border: 2px solid #4a90e2;
-
-        border-radius: 8px;
-
+        border-radius: 10px;
         outline: none;
-
     }
 
-    /* Grid */
-
+    /* Grid responsive */
     .grid {
-
         display: grid;
-
-        grid-template-columns: repeat(6, 60px);
-
-        grid-template-rows: repeat(5, 60px);
-
-        gap: 8px;
-
+        grid-template-columns: repeat(6, 1fr);
+        gap: 6px;
+        width: 100%;
+        max-width: 420px;
     }
 
     .cell {
-
+        aspect-ratio: 1 / 1;
         background: white;
-
         border-radius: 10px;
-
         border: 2px solid #ddd;
-
         display: flex;
-
         justify-content: center;
-
         align-items: center;
-
-        font-size: 18px;
-
+        font-size: 16px;
         font-weight: bold;
-
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-
+        box-shadow: 0 2px 5px rgba(0,0,0,0.08);
         transition: 0.2s;
-
+        user-select: none;
     }
 
     .cell.filled {
-
         background: #dff3ff;
-
         border-color: #4a90e2;
-
+        transform: scale(1.03);
     }
-
 </style>
-
 </head>
 
 <body>
 
-<h2>Consonant + Vowel Grid</h2>
+<h2>Consonant + Vowel Grid 📱</h2>
 
 <div class="input-box">
-
-    <input id="letterInput" maxlength="1" placeholder="Type consonant..." />
-
+    <input id="letterInput" maxlength="1" placeholder="Type a consonant..." />
 </div>
 
 <div class="grid" id="grid"></div>
 
 <script>
-
 const vowels = ["A","E","I","O","U"];
-
 const grid = document.getElementById("grid");
-
 const input = document.getElementById("letterInput");
-
-// Create 30 boxes with vowels already inside
 
 let cells = [];
 
+// Create 30 cells
 for (let i = 0; i < 30; i++) {
-
     const div = document.createElement("div");
-
     div.className = "cell";
 
-    
-
     let vowel = vowels[i % vowels.length];
-
     div.dataset.vowel = vowel;
-
-    div.textContent = vowel; // show vowel first
+    div.textContent = vowel;
 
     grid.appendChild(div);
-
     cells.push(div);
-
 }
 
-// Handle input
+// Auto-fill (mobile friendly)
+input.addEventListener("input", () => {
+    let consonant = input.value.toLowerCase().trim();
 
-input.addEventListener("keydown", function(e) {
+    if (!consonant.match(/[a-z]/)) return;
 
-    if (e.key === "Enter") {
-
-        let consonant = input.value.toLowerCase().trim();
-
-        if (!consonant.match(/[a-z]/)) return;
-
-        for (let cell of cells) {
-
-            if (!cell.classList.contains("filled")) {
-
-                let vowel = cell.dataset.vowel;
-
-                cell.textContent = consonant + vowel;
-
-                cell.classList.add("filled");
-
-                break;
-
-            }
-
+    for (let cell of cells) {
+        if (!cell.classList.contains("filled")) {
+            let vowel = cell.dataset.vowel;
+            cell.textContent = consonant + vowel;
+            cell.classList.add("filled");
+            break;
         }
-
-        input.value = "";
-
     }
 
+    input.value = "";
 });
 
+// Optional: still support Enter key
+input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+        input.dispatchEvent(new Event("input"));
+    }
+});
 </script>
 
 </body>
-
 </html>
