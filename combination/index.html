@@ -1,1 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+<title>Canvas + Counters + Hand Toss</title>
+<style>
+*{
+  box-sizing:border-box;
+  touch-action:none;
+  font-family:Arial, sans-serif;
+}
+body{
+  margin:0;
+  overflow:hidden;
+  background:#eef2f7;
+}
+/* ================= CANVAS ================= */
+#drawCanvas{
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:white;
+  z-index:1;
+}
+/* ================= COUNTERS ================= */
+#counterLayer{
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  z-index:3;
+  pointer-events:none;
+}
+.counter{
+  width:52px;
+  height:52px;
+  position:absolute;
+  border-radius:8px;
+  border:2px solid #222;
+  pointer-events:auto;
+  cursor:grab;
+}
+.counter-inner{
+  width:100%;
+  height:100%;
+  position:relative;
+  transform-style:preserve-3d;
+  transition:transform 0.6s ease;
+}
+.front, .back{
+  position:absolute;
+  width:100%;
+  height:100%;
+  border-radius:6px;
+  backface-visibility:hidden;
+}
+.front{
+  background:red;
+}
+.back{
+  background:green;
+  transform:rotateY(180deg);
+}
+/* ================= CONTROLS ================= */
+#controls{
+  position:absolute;
+  bottom:0;
+  left:0;
+  width:100%;
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  padding:10px;
+  background:#ffffffdd;
+  backdrop-filter: blur(6px);
+  z-index:10;
+  justify-content:center;
+}
+button, input{
+  padding:10px;
+  font-size:14px;
+  border-radius:8px;
+  border:1px solid #ccc;
+}
+button{
+  background:#4a6cf7;
+  color:white;
+}
+/* ================= HAND ================= */
+#handBtn{
+  position:absolute;
+  bottom:90px;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:40px;
+  background:#ffcc00;
+  border-radius:50%;
+  width:70px;
+  height:70px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:20;
+  box-shadow:0 6px 15px rgba(0,0,0,0.2);
+  cursor:pointer;
+}
+</style>
+</head>
+<body>
+<canvas id="drawCanvas"></canvas>
+<div id="counterLayer"></div>
+<div id="handBtn">✋</div>
+<div id="controls">
+  <input id="countInput" type="number" min="1" value="5" />
+  <button onclick="generateCounters()">Generate Counters</button>
+  <button onclick="setPen()">Pen ✏️</button>
+  <button onclick="setEraser()">Eraser 🧽</button>
+  <button onclick="clearCanvas()">Clear 🗑️</button>
+</div>
+<script>
+/* ================= DRAWING ================= */
+const canvas=document.getElementById("drawCanvas");
+const ctx=canvas.getContext("2d");
+function resize(){
+  canvas.width=window.innerWidth;
+  canvas.height=window.innerHeight;
+}
+window.addEventListener("resize",resize);
+resize();
+let drawing=false;
+let mode="pen";
+canvas.addEventListener("pointerdown",e=>{
+  drawing=true;
+  ctx.beginPath();
+  ctx.moveTo(e.clientX,e.clientY);
+});
+canvas.addEventListener("pointermove",e=>{
+  if(!drawing) return;
+  ctx.lineWidth=(mode==="eraser")?20:4;
+  ctx.lineCap="round";
+  if(mode==="eraser"){
+    ctx.globalCompositeOperation="destination-out";
+  }else{
+    ctx.globalCompositeOperation="source-over";
+    ctx.strokeStyle="#111";
+  }
+  ctx.lineTo(e.clientX,e.clientY);
+  ctx.stroke();
+});
+canvas.addEventListener("pointerup",()=>drawing=false);
+function setPen(){ mode="pen"; }
+function setEraser(){ mode="eraser"; }
+function clearCanvas(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+}
+/* ================= COUNTERS ================= */
+const layer=document.getElementById("counterLayer");
+let counters=[];
+function generateCounters(){
+  layer.innerHTML="";
+  counters=[];
+  const n=parseInt(document.getElementById("countInput").value)||1;
+  for(let i=0;i<n;i++){
+    const el=document.createElement("div");
+    el.className="counter";
+    el.innerHTML=`
+      <div class="counter-inner">
+        <div class="front"></div>
+        <div class="back"></div>
+      </div>
+    `;
+    el.style.left=Math.random()*(window.innerWidth-80)+"px";
+    el.style.top=Math.random()*(window.innerHeight-200)+"px";
+    layer.appendChild(el);
+    counters.push({el});
+    makeDraggable(el);
+  }
+}
+/* drag */
+function makeDraggable(el){
+  let dragging=false;
+  let offsetX=0, offsetY=0;
+  el.addEventListener("pointerdown",e=>{
+    dragging=true;
+    offsetX=e.clientX-el.offsetLeft;
+    offsetY=e.clientY-el.offsetTop;
+  });
+  window.addEventListener("pointermove",e=>{
+    if(!dragging) return;
+    el.style.left=(e.clientX-offsetX)+"px";
+    el.style.top=(e.clientY-offsetY)+"px";
+  });
+  window.addEventListener("pointerup",()=>dragging=false);
+}
+/* ================= HAND ================= */
+document.getElementById("handBtn").addEventListener("click",flyCounters);
+function flyCounters(){
+  const mid=window.innerWidth/2;
+  const spacing=65;
+  counters.forEach((c,i)=>{
+    const col=i%2;
+    const x=mid+(col===0?-90:90);
+    const y=120+Math.floor(i/2)*spacing;
+    const inner=c.el.querySelector(".counter-inner");
+    inner.style.transform=Math.random()>0.5
+      ?"rotateY(180deg)"
+      :"rotateY(0deg)";
+    c.el.style.transition="all 0.8s cubic-bezier(.2,.9,.3,1.2)";
+    c.el.style.left=x+"px";
+    c.el.style.top=y+"px";
+    setTimeout(()=>{
+      c.el.style.transition="none";
+    },900);
+  });
+}
+</script>
+</body>
+</html>
+
 
