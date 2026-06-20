@@ -1,350 +1,260 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>360° Analog Weight Scale</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Image Weight Scale</title>
+
 <style>
-    body{
-        margin:0;
-        background:#eef2f7;
-        font-family:Arial,sans-serif;
-        overflow:hidden;
-        touch-action:none;
-    }
-    h2{
-        text-align:center;
-        margin:10px;
-    }
-    #workspace{
-        width:100vw;
-        height:100vh;
-        position:relative;
-    }
-    /* ================= TOOLBOX ================= */
-    .toolbox{
-        position:absolute;
-        top:10px;
-        left:10px;
-        display:flex;
-        gap:12px;
-        z-index:100;
-    }
-    .template{
-        width:60px;
-        height:60px;
-        background:white;
-        border:2px solid #bbb;
-        border-radius:14px;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        user-select:none;
-        cursor:pointer;
-        overflow: hidden;
-    }
-    .template img {
-        width: 80%;
-        height: 80%;
-        object-fit: contain;
-        pointer-events: none; 
-    }
-    /* ================= HOME BUTTON ================= */
-    .home-btn {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        padding: 10px 20px;
-        background: white;
-        border: 2px solid #bbb;
-        border-radius: 14px;
-        font-size: 16px;
-        font-weight: bold;
-        color: #333;
-        text-decoration: none;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        z-index: 100;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        transition: background 0.2s, transform 0.1s;
-    }
-    .home-btn:hover {
-        background: #f5f7fa;
-    }
-    .home-btn:active {
-        transform: scale(0.95);
-    }
-    /* ================= DRAGGABLE ITEM ================= */
-    .item{
-        position:absolute;
-        width:150px;
-        height:150px;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        user-select:none;
-        touch-action:none;
-        z-index:10;
-    }
-    .item img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        pointer-events: none;
-    }
-    /* ================= SCALE ================= */
-    .scale{
-        position:absolute;
-        left:50%;
-        bottom:70px;
-        transform:translateX(-50%);
-        width:420px;
-        height:470px;
-    }
-    .tray{
-        position:absolute;
-        top:0;
-        left:50%;
-        transform:translateX(-50%);
-        width:300px;
-        height:50px;
-        background:white;
-        border:10px solid #444;
-        border-radius:12px;
-    }
-    .stand{
-        position:absolute;
-        top:60px;
-        left:50%;
-        transform:translateX(-50%);
-        width:18px;
-        height:90px;
-        background:#777;
-    }
-    .dial{
-        position:absolute;
-        bottom:0;
-        left:50%;
-        transform:translateX(-50%);
-        width:320px;
-        height:320px;
-        border-radius:50%;
-        background:white;
-        border:10px solid #444;
-        box-shadow:0 5px 12px rgba(0,0,0,0.2);
-    }
-    .number{
-        position:absolute;
-        left:50%;
-        top:50%;
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size:32px;
-        font-weight:bold;
-        color:#333;
-    }
-    .tick{
-        position:absolute;
-        left:50%;
-        top:50%;
-        width:4px;
-        height:16px;
-        background:#555;
-    }
-    .needle{
-        position:absolute;
-        left:50%;
-        top:50%;
-        width:6px;
-        height:100px;
-        background:red;
-        transform-origin:bottom center;
-        transform:translate(-50%, -100%) rotate(0deg);
-        border-radius:10px;
-        z-index:5;
-    }
-    .center{
-        position:absolute;
-        width:18px;
-        height:18px;
-        background:#222;
-        border-radius:50%;
-        left:50%;
-        top:50%;
-        transform:translate(-50%,-50%);
-        z-index:10;
-    }
-    .display{
-        position:absolute;
-        width:100%;
-        text-align:center;
-        bottom:80px;
-        font-size:26px;
-        font-weight:bold;
-    }
+body{
+    margin:0;
+    font-family:Arial;
+    background:#eef3f8;
+    overflow:hidden;
+}
+
+/* ================= TRAY ================= */
+
+.tray{
+    width:min(92vw,550px);
+    height:110px;
+    margin:10px auto;
+    background:linear-gradient(#d9d9d9,#a8a8a8);
+    border-radius:14px;
+    border:4px solid #666;
+    position:relative;
+    box-shadow:inset 0 4px 10px rgba(255,255,255,.7);
+}
+
+.tray::after{
+    content:"Drag items here";
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    color:#555;
+    font-weight:bold;
+}
+
+/* ================= SCALE ================= */
+
+.scale-container{
+    width:min(92vw,450px);
+    margin:auto;
+    position:relative;
+}
+
+.scale-container img{
+    width:100%;
+    display:block;
+}
+
+/* NEEDLE */
+
+#needle{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:6px;
+    height:32%;
+    background:red;
+    transform-origin:bottom center;
+    transform:translateX(-50%) rotate(0deg);
+    border-radius:10px;
+    box-shadow:0 0 8px rgba(255,0,0,.5);
+}
+
+/* WEIGHT DISPLAY */
+
+#display{
+    position:absolute;
+    left:50%;
+    bottom:18%;
+    transform:translateX(-50%);
+    background:white;
+    padding:6px 12px;
+    border-radius:8px;
+    font-weight:bold;
+    font-size:22px;
+}
+
+/* ================= ITEMS ================= */
+
+#items{
+    width:100%;
+    height:calc(100vh - 250px);
+    position:relative;
+}
+
+.item{
+    width:90px;
+    height:90px;
+    position:absolute;
+    background:white;
+    border:2px solid #888;
+    border-radius:12px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    cursor:grab;
+    user-select:none;
+    box-shadow:0 4px 10px rgba(0,0,0,.15);
+}
+
+.item img{
+    width:55px;
+    height:55px;
+    object-fit:contain;
+}
+
+.item span{
+    font-size:14px;
+    font-weight:bold;
+}
 </style>
 </head>
 <body>
-<h2> </h2>
-<div id="workspace">
-    <!-- TOOLBOX ON THE LEFT -->
-    <div class="toolbox">
-        <div class="template" data-weight="1" data-img="./image/Apple.svg"><img src="./image/Apple.svg" alt="Apple"></div>
-        <div class="template" data-weight="2" data-img="./image/chicken.svg"><img src="./image/chicken.svg" alt="chicken"></div>
-        <div class="template" data-weight="1" data-img="./image/fish.svg"><img src="./image/fish.svg" alt="fish"></div>
-        <div class="template" data-weight="4" data-img="./image/pumpkin.svg"><img src="./image/pumpkin.svg" alt="pumpkin"></div>
-    </div> 
-    
-    <!-- HOME BUTTON ON THE RIGHT -->
-    <a href="../index.html" class="home-btn" style="font-family:'Battambang', cursive; font-size: 20px;">
-        🏡 Home
-    </a>
-    
-    <!-- MAIN SCALE -->
-    <div class="scale">
-        <div class="tray" id="tray"></div>
-        <div class="stand"></div>
-        <div class="dial" id="dial">
-            <div class="needle" id="needle"></div>
-            <div class="center"></div>
-            <div class="display" id="display">0 kg</div>
-        </div>
+
+<!-- TRAY -->
+<div class="tray" id="tray"></div>
+
+<!-- SCALE -->
+<div class="scale-container">
+
+    <img src="images/scale.png" alt="scale">
+
+    <div id="needle"></div>
+
+    <div id="display">
+        <span id="weight">0</span> kg
     </div>
+
 </div>
 
+<!-- ITEMS -->
+<div id="items"></div>
+
 <script>
-const dial = document.getElementById("dial");
-const needle = document.getElementById("needle");
-const display = document.getElementById("display");
-const tray = document.getElementById("tray");
-const workspace = document.getElementById("workspace");
-let totalWeight = 0;
 
-/* ================= CREATE SCALE NUMBERS & TICKS ================= */
-for(let i=0; i<=10; i++){
-    const angle = (360/10) * i;
-    
-    // Ticks
-    const tick = document.createElement("div");
-    const tickRadius = 142; 
-    tick.className = "tick";
-    tick.style.transform = `translate(-50%, -50%) rotate(${angle}deg) translateY(-${tickRadius}px)`;
-    dial.appendChild(tick);
+const tray=document.getElementById("tray");
+const needle=document.getElementById("needle");
+const weightText=document.getElementById("weight");
+const itemsContainer=document.getElementById("items");
 
-    // Numbers
-    const num = document.createElement("div");
-    num.className = "number";
-    num.innerText = i;
-    
-    let currentRadius = 110; 
+let total=0;
 
-    // Adjust 10 to shift directly down below the 0 marker
-    if (i === 10) {
-        currentRadius = currentRadius - 28; 
-        num.style.fontSize = "22px";
-        num.style.color = "#777";
-    }
+/* ================= ITEMS ================= */
 
-    const x = Math.cos((angle - 90) * Math.PI / 180) * currentRadius;
-    const y = Math.sin((angle - 90) * Math.PI / 180) * currentRadius;
-    
-    num.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
-    dial.appendChild(num);
-}
+const data=[
+    {img:"images/pumpkin.png",weight:4},
+    {img:"images/fish.png",weight:2},
+    {img:"images/chicken.png",weight:2},
+    {img:"images/duck.png",weight:2}
+];
 
-/* ================= UPDATE SCALE ================= */
-function updateScale(){
-    let displayWeight = totalWeight > 10 ? 10 : (totalWeight < 0 ? 0 : totalWeight);
-    display.innerText = displayWeight + " kg";
-    let angle = (displayWeight / 10) * 360;
-    needle.style.transform = `translate(-50%, -100%) rotate(${angle}deg)`;
-}
+data.forEach((obj,i)=>{
 
-/* ================= CREATE ITEMS ================= */
-document.querySelectorAll(".template").forEach(template=>{
-    template.addEventListener("pointerdown", e=>{
-        const item = document.createElement("div");
-        item.className = "item";
-        item.innerHTML = `<img src="${template.dataset.img}" alt="scaled item">`;
-        item.dataset.weight = template.dataset.weight;
-        item.dataset.img = template.dataset.img;
-        
-        item.style.left = e.pageX - 75 + "px"; 
-        item.style.top = e.pageY - 75 + "px";
-        workspace.appendChild(item);
-        
-        dragItem(item, e, 75, 75);
-    });
+    const el=document.createElement("div");
+    el.className="item";
+
+    el.innerHTML=`
+        <img src="${obj.img}">
+        <span>${obj.weight}kg</span>
+    `;
+
+    el.weight=obj.weight;
+    el.onTray=false;
+
+    el.style.left=(20+i*110)+"px";
+    el.style.top=(window.innerHeight-130)+"px";
+
+    itemsContainer.appendChild(el);
+
+    drag(el);
 });
 
-/* ================= DRAGGING ================= */
-function dragItem(el, startEvent, initialOffsetX, initialOffsetY){
-    let offsetX = initialOffsetX;
-    let offsetY = initialOffsetY;
-    
-    if (offsetX === undefined || offsetY === undefined) {
-        const rect = el.getBoundingClientRect();
-        offsetX = startEvent.clientX - rect.left;
-        offsetY = startEvent.clientY - rect.top;
+/* ================= SCALE UPDATE ================= */
+
+function update(){
+
+    total=Math.max(0,Math.min(15,total));
+
+    weightText.textContent=total;
+
+    const angle=(total/15)*360;
+
+    needle.style.transform=
+    `translateX(-50%) rotate(${angle}deg)`;
+}
+
+/* ================= DRAG ================= */
+
+function drag(el){
+
+    let dx,dy;
+
+    function down(e){
+        const p=e.touches?e.touches[0]:e;
+
+        dx=p.clientX-el.offsetLeft;
+        dy=p.clientY-el.offsetTop;
+
+        document.addEventListener("mousemove",move);
+        document.addEventListener("mouseup",up);
+
+        document.addEventListener("touchmove",move,{passive:false});
+        document.addEventListener("touchend",up);
     }
 
     function move(e){
-        el.style.left = (e.pageX - offsetX) + "px";
-        el.style.top = (e.pageY - offsetY) + "px";
+        e.preventDefault();
+
+        const p=e.touches?e.touches[0]:e;
+
+        el.style.left=(p.clientX-dx)+"px";
+        el.style.top=(p.clientY-dy)+"px";
     }
-    
+
     function up(){
-        document.removeEventListener("pointermove", move);
-        document.removeEventListener("pointerup", up);
-        
-        const trayRect = tray.getBoundingClientRect();
-        const rect = el.getBoundingClientRect();
-        const centerX = rect.left + rect.width/2;
-        const centerY = rect.top + rect.height/2;
-        
-        const insideTray =
-            centerX > trayRect.left &&
-            centerX < trayRect.right &&
-            centerY > trayRect.top &&
-            centerY < trayRect.bottom + 80;
-            
-        if(insideTray){
-            if(el.dataset.onTray !== "true"){
-                totalWeight += Number(el.dataset.weight);
-                el.dataset.onTray = "true";
-                updateScale();
-            }
-        }else{
-            if(el.dataset.onTray === "true"){
-                totalWeight -= Number(el.dataset.weight);
-                updateScale();
-            }
-            el.remove();
-            return; 
+
+        const r1=tray.getBoundingClientRect();
+        const r2=el.getBoundingClientRect();
+
+        const cx=r2.left+r2.width/2;
+        const cy=r2.top+r2.height/2;
+
+        const inside=
+            cx>r1.left &&
+            cx<r1.right &&
+            cy>r1.top &&
+            cy<r1.bottom;
+
+        if(inside && !el.onTray){
+            total+=el.weight;
+            el.onTray=true;
+            update();
         }
-        
-        el.addEventListener("pointerdown", startAgain);
-    }
-    
-    function startAgain(ev){
-        ev.stopPropagation(); 
-        if(el.dataset.onTray === "true"){
-            totalWeight -= Number(el.dataset.weight);
-            updateScale();
-            el.dataset.onTray = "false";
+
+        if(!inside && el.onTray){
+            total-=el.weight;
+            el.onTray=false;
+            update();
         }
-        dragItem(el, ev);
+
+        document.removeEventListener("mousemove",move);
+        document.removeEventListener("mouseup",up);
+        document.removeEventListener("touchmove",move);
+        document.removeEventListener("touchend",up);
     }
-    
-    document.addEventListener("pointermove", move);
-    document.addEventListener("pointerup", up);
+
+    el.addEventListener("mousedown",down);
+    el.addEventListener("touchstart",down,{passive:false});
 }
 
-updateScale();
+update();
+
 </script>
+
 </body>
 </html>
