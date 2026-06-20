@@ -1,112 +1,197 @@
 <!DOCTYPE html>
-<html lang="en">
+
+<html lang="km">
+
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Full Grid Vowel Combiner</title>
+
+<title>Khmer Consonant + Vowel Grid</title>
 
 <style>
-    body {
-        margin: 0;
-        font-family: Arial;
-        background: #f2f6ff;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 12px;
-    }
 
-    h2 {
-        font-size: 18px;
-        margin: 10px 0;
-    }
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@400;700&display=swap');
 
-    input {
-        width: 90%;
-        max-width: 300px;
-        padding: 14px;
-        font-size: 18px;
-        text-align: center;
-        border: 2px solid #4a90e2;
-        border-radius: 10px;
-        outline: none;
-        margin-bottom: 12px;
-    }
+body {
 
-    .grid {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 8px;
-        width: 100%;
-        max-width: 420px;
-    }
+    margin: 0;
 
-    .cell {
-        aspect-ratio: 1;
-        background: white;
-        border-radius: 10px;
-        border: 2px solid #ddd;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-weight: bold;
-        font-size: 18px;
-        transition: 0.2s;
-    }
+    font-family: "Noto Sans Khmer", Arial, sans-serif;
 
-    .cell.active {
-        background: #dff3ff;
-        border-color: #4a90e2;
-        transform: scale(1.03);
-    }
+    background: #f2f6ff;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    padding: 12px;
+
+}
+
+h2 {
+
+    font-size: 18px;
+
+    margin: 10px 0;
+
+    text-align: center;
+
+}
+
+input {
+
+    width: 90%;
+
+    max-width: 320px;
+
+    padding: 14px;
+
+    font-size: 20px;
+
+    text-align: center;
+
+    border: 2px solid #4a90e2;
+
+    border-radius: 10px;
+
+    outline: none;
+
+    font-family: "Noto Sans Khmer", sans-serif;
+
+}
+
+.grid {
+
+    display: grid;
+
+    grid-template-columns: repeat(5, 1fr);
+
+    gap: 8px;
+
+    width: 100%;
+
+    max-width: 420px;
+
+    margin-top: 12px;
+
+}
+
+.cell {
+
+    aspect-ratio: 1;
+
+    background: white;
+
+    border-radius: 10px;
+
+    border: 2px solid #ddd;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    font-size: 18px;
+
+    font-weight: bold;
+
+    transition: 0.2s;
+
+    text-align: center;
+
+}
+
+.cell.active {
+
+    background: #dff3ff;
+
+    border-color: #4a90e2;
+
+    transform: scale(1.03);
+
+}
+
 </style>
+
 </head>
 
 <body>
 
-<h2>Consonant + Vowel Grid 📱</h2>
+<h2>Khmer Consonant + Vowel Grid 🇰🇭</h2>
 
-<input id="letterInput" maxlength="1" placeholder="Type consonant..." />
+<input id="khmerInput" maxlength="1" placeholder="បញ្ចូលព្យញ្ជនៈ..." />
 
 <div class="grid" id="grid"></div>
 
 <script>
-const vowels = ["ា","ិ","ី","ឹ","ឺ","ុ"];
-const grid = document.getElementById("grid");
-const input = document.getElementById("letterInput");
 
-// create 30 cells (6x5)
+// Khmer vowels (independent vowel symbols)
+
+const vowels = ["ា", "េ", "ី", "ូ", "ួ"];
+
+const grid = document.getElementById("grid");
+
+const input = document.getElementById("khmerInput");
+
+// create 30 boxes
+
 for (let i = 0; i < 30; i++) {
+
     const div = document.createElement("div");
+
     div.className = "cell";
 
-    let vowel = vowels[i % 5];
+    let vowel = vowels[i % vowels.length];
+
     div.dataset.vowel = vowel;
+
     div.textContent = vowel; // show vowel first
 
     grid.appendChild(div);
+
 }
 
 const cells = document.querySelectorAll(".cell");
 
-// update ALL cells with same consonant
+// update all cells with Khmer consonant + vowel
+
 function updateGrid(consonant) {
-    cells.forEach((cell, index) => {
+
+    cells.forEach((cell) => {
+
         let vowel = cell.dataset.vowel;
 
         cell.textContent = consonant + vowel;
+
         cell.classList.add("active");
+
     });
+
 }
 
+// input handler
+
 input.addEventListener("input", () => {
-    let letter = input.value.toLowerCase().trim();
 
-    if (!letter.match(/[a-z]/)) return;
+    let char = input.value.trim();
 
-    updateGrid(letter);
+    // allow Khmer or any single character
+
+    if (!char) return;
+
+    updateGrid(char);
+
+    input.value = "";
+
 });
+
 </script>
 
 </body>
+
 </html>
