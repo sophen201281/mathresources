@@ -1,180 +1,294 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Image Weight Scale</title>
+
+<title>Weight Scale App</title>
 
 <style>
+
 body{
+
     margin:0;
+
     font-family:Arial;
+
     background:#eef3f8;
+
     overflow:hidden;
+
+    touch-action:none;
+
 }
 
 /* ================= TRAY ================= */
 
 .tray{
+
     width:min(92vw,550px);
+
     height:110px;
+
     margin:10px auto;
+
     background:linear-gradient(#d9d9d9,#a8a8a8);
+
     border-radius:14px;
+
     border:4px solid #666;
+
     position:relative;
-    box-shadow:inset 0 4px 10px rgba(255,255,255,.7);
+
+    z-index:10;
+
 }
 
 .tray::after{
+
     content:"Drag items here";
+
     position:absolute;
+
     left:50%;
+
     top:50%;
+
     transform:translate(-50%,-50%);
-    color:#555;
+
     font-weight:bold;
+
+    color:#555;
+
 }
 
 /* ================= SCALE ================= */
 
 .scale-container{
+
     width:min(92vw,450px);
+
     margin:auto;
+
     position:relative;
+
+    z-index:10;
+
 }
 
 .scale-container img{
-    width:100%;
-    display:block;
-}
 
-/* NEEDLE */
+    width:100%;
+
+    display:block;
+
+}
 
 #needle{
-    position:absolute;
-    left:50%;
-    top:50%;
-    width:6px;
-    height:32%;
-    background:red;
-    transform-origin:bottom center;
-    transform:translateX(-50%) rotate(0deg);
-    border-radius:10px;
-    box-shadow:0 0 8px rgba(255,0,0,.5);
-}
 
-/* WEIGHT DISPLAY */
+    position:absolute;
+
+    left:50%;
+
+    top:50%;
+
+    width:6px;
+
+    height:32%;
+
+    background:red;
+
+    border-radius:10px;
+
+    transform-origin:bottom center;
+
+    transform:translateX(-50%) rotate(0deg);
+
+    box-shadow:0 0 8px rgba(255,0,0,.5);
+
+}
 
 #display{
+
     position:absolute;
+
     left:50%;
+
     bottom:18%;
+
     transform:translateX(-50%);
+
     background:white;
+
     padding:6px 12px;
+
     border-radius:8px;
+
     font-weight:bold;
+
     font-size:22px;
+
 }
 
-/* ================= ITEMS ================= */
+/* ================= ITEMS LAYER ================= */
 
 #items{
-    width:100%;
-    height:calc(100vh - 250px);
-    position:relative;
+
+    position:fixed;
+
+    inset:0;
+
+    z-index:999;
+
+    pointer-events:none;
+
 }
 
+/* IMPORTANT: enable dragging */
+
 .item{
+
+    pointer-events:auto;
+
     width:90px;
+
     height:90px;
+
     position:absolute;
+
     background:white;
+
     border:2px solid #888;
+
     border-radius:12px;
+
     display:flex;
+
     flex-direction:column;
+
     align-items:center;
+
     justify-content:center;
+
     cursor:grab;
+
     user-select:none;
+
     box-shadow:0 4px 10px rgba(0,0,0,.15);
+
 }
 
 .item img{
+
     width:55px;
+
     height:55px;
+
     object-fit:contain;
+
 }
 
 .item span{
+
     font-size:14px;
+
     font-weight:bold;
+
 }
+
 </style>
+
 </head>
+
 <body>
 
 <!-- TRAY -->
+
 <div class="tray" id="tray"></div>
 
 <!-- SCALE -->
+
 <div class="scale-container">
 
-    <img src="images/scale.png" alt="scale">
+    <img src="images/scale.png">
 
     <div id="needle"></div>
 
     <div id="display">
+
         <span id="weight">0</span> kg
+
     </div>
 
 </div>
 
 <!-- ITEMS -->
+
 <div id="items"></div>
 
 <script>
 
 const tray=document.getElementById("tray");
+
 const needle=document.getElementById("needle");
+
 const weightText=document.getElementById("weight");
-const itemsContainer=document.getElementById("items");
+
+const items=document.getElementById("items");
 
 let total=0;
 
-/* ================= ITEMS ================= */
+/* ================= DATA ================= */
 
 const data=[
+
     {img:"image/pumpkin.png",weight:4},
+
     {img:"image/fish.png",weight:2},
+
     {img:"image/chicken.png",weight:2},
+
     {img:"image/duck.png",weight:2}
+
 ];
+
+/* ================= CREATE ITEMS ================= */
 
 data.forEach((obj,i)=>{
 
     const el=document.createElement("div");
+
     el.className="item";
 
     el.innerHTML=`
+
         <img src="${obj.img}">
+
         <span>${obj.weight}kg</span>
+
     `;
 
     el.weight=obj.weight;
+
     el.onTray=false;
 
-    el.style.left=(20+i*110)+"px";
-    el.style.top=(window.innerHeight-130)+"px";
+    /* 🔥 SAFE POSITION (FIXED) */
 
-    itemsContainer.appendChild(el);
+    el.style.left=(20 + i*110)+"px";
+
+    el.style.top=(window.innerHeight - 160)+"px";
+
+    items.appendChild(el);
 
     drag(el);
+
 });
 
-/* ================= SCALE UPDATE ================= */
+/* ================= UPDATE SCALE ================= */
 
 function update(){
 
@@ -185,7 +299,9 @@ function update(){
     const angle=(total/15)*360;
 
     needle.style.transform=
+
     `translateX(-50%) rotate(${angle}deg)`;
+
 }
 
 /* ================= DRAG ================= */
@@ -194,62 +310,90 @@ function drag(el){
 
     let dx,dy;
 
-    function down(e){
+    function start(e){
+
         const p=e.touches?e.touches[0]:e;
 
         dx=p.clientX-el.offsetLeft;
+
         dy=p.clientY-el.offsetTop;
 
         document.addEventListener("mousemove",move);
-        document.addEventListener("mouseup",up);
+
+        document.addEventListener("mouseup",end);
 
         document.addEventListener("touchmove",move,{passive:false});
-        document.addEventListener("touchend",up);
+
+        document.addEventListener("touchend",end);
+
     }
 
     function move(e){
+
         e.preventDefault();
 
         const p=e.touches?e.touches[0]:e;
 
         el.style.left=(p.clientX-dx)+"px";
+
         el.style.top=(p.clientY-dy)+"px";
+
     }
 
-    function up(){
+    function end(){
 
         const r1=tray.getBoundingClientRect();
+
         const r2=el.getBoundingClientRect();
 
         const cx=r2.left+r2.width/2;
+
         const cy=r2.top+r2.height/2;
 
         const inside=
+
             cx>r1.left &&
+
             cx<r1.right &&
+
             cy>r1.top &&
+
             cy<r1.bottom;
 
         if(inside && !el.onTray){
+
             total+=el.weight;
+
             el.onTray=true;
+
             update();
+
         }
 
         if(!inside && el.onTray){
+
             total-=el.weight;
+
             el.onTray=false;
+
             update();
+
         }
 
         document.removeEventListener("mousemove",move);
-        document.removeEventListener("mouseup",up);
+
+        document.removeEventListener("mouseup",end);
+
         document.removeEventListener("touchmove",move);
-        document.removeEventListener("touchend",up);
+
+        document.removeEventListener("touchend",end);
+
     }
 
-    el.addEventListener("mousedown",down);
-    el.addEventListener("touchstart",down,{passive:false});
+    el.addEventListener("mousedown",start);
+
+    el.addEventListener("touchstart",start,{passive:false});
+
 }
 
 update();
@@ -257,4 +401,5 @@ update();
 </script>
 
 </body>
+
 </html>
