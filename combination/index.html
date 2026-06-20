@@ -90,30 +90,38 @@ button{
   background:#4a6cf7;
   color:white;
 }
-/* ================= HAND (FIXED POSITION) ================= */
+/* ================= HAND (GIF VERSION) ================= */
 #handBtn{
   position:absolute;
-  bottom:160px;   /* ⬅️ moved higher to separate from buttons */
+  bottom:160px;
   left:50%;
   transform:translateX(-50%);
-  font-size:40px;
-  background:#ffcc00;
-  border-radius:50%;
   width:70px;
   height:70px;
+  border-radius:50%;
+  background:#ffcc00;
+  box-shadow:0 6px 15px rgba(0,0,0,0.2);
+  z-index:20;
+  cursor:pointer;
   display:flex;
   align-items:center;
   justify-content:center;
-  z-index:20;
-  box-shadow:0 6px 15px rgba(0,0,0,0.2);
-  cursor:pointer;
+  overflow:hidden;
+}
+#handBtn img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
 }
 </style>
 </head>
 <body>
 <canvas id="drawCanvas"></canvas>
 <div id="counterLayer"></div>
-<div id="handBtn">✋</div>
+<!-- ✋ HAND NOW USING GIF -->
+<div id="handBtn">
+  <img src="image/hand.gif" alt="hand" />
+</div>
 <div id="controls">
   <input id="countInput" type="number" min="1" value="5" />
   <button onclick="generateCounters()">Generate Counters</button>
