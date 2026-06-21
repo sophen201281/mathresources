@@ -6,217 +6,241 @@
 
 <meta charset="UTF-8" />
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="viewport"
+
+content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 
 <title>Kitchen Weight Scale</title>
 
 <style>
 
-* {
+*{
 
-    box-sizing: border-box;
+    box-sizing:border-box;
 
-    user-select: none;
+    user-select:none;
 
-    -webkit-tap-highlight-color: transparent;
-
-}
-
-body {
-
-    margin: 0;
-
-    min-height: 100vh;
-
-    display: flex;
-
-    justify-content: center;
-
-    align-items: center;
-
-    font-family: system-ui, -apple-system, Segoe UI, Roboto;
-
-    padding: 12px;
-
-    background: #FFFFFF00⁠;
-
-    overflow: hidden;
+    -webkit-tap-highlight-color:transparent;
 
 }
 
-body::before {
+body{
 
-    content: "";
+    margin:0;
 
-    position: fixed;
+    min-height:100vh;
 
-    inset: 0;
+    display:flex;
 
-    background: url("image/background.png") center/cover no-repeat;
+    justify-content:center;
 
-    opacity: 1;
+    align-items:center;
 
-    z-index: -1;
+    font-family:system-ui,-apple-system,Segoe UI,Roboto;
 
-}
+    padding:12px;
 
-.app {
+    overflow:hidden;
 
-    width: min(820px, 95vw);
-
-    background: #FFFFFF00⁠;
-
-    border-radius: 40px;
-
-    box-shadow: 0 20px 50px rgba(0,0,0,0.15);
-
-    padding: 16px;
+    background:transparent;
 
 }
 
-.app-title {
+/* BACKGROUND IMAGE */
 
-    text-align: center;
+body::before{
 
-    font-size: 20px;
+    content:"";
 
-    margin-bottom: 10px;
+    position:fixed;
 
-    color: #5a4e44;
+    top:0;
 
-}
+    left:0;
 
-/* 🧺 TRAY */
+    width:100vw;
 
-.tray {
+    height:100vh;
 
-    margin-bottom: 12px;
+    background-image:url("./image/background.png");
 
-    padding: 12px;
+    background-position:center;
 
-    border-radius: 30px;
+    background-repeat:no-repeat;
 
-    background:#FFFFFF00⁠;
+    background-size:cover;
 
-    border: 2px dashed #c7b9ab;
-
-    height: 120px;
-
-    overflow-y: auto;
-
-    display: flex;
-
-    flex-wrap: wrap;
-
-    justify-content: center;
-
-    align-content: flex-start;
-
-    gap: 10px;
+    z-index:-1;
 
 }
 
-.tray-item {
+.app{
 
-    width: 70px;
+    width:min(820px,95vw);
 
-    text-align: center;
+    background:transparent;
 
-    background: #FFFFFF00⁠;
+    border-radius:40px;
 
-    border-radius: 14px;
+    box-shadow:0 20px 50px rgba(0,0,0,0.15);
 
-    padding: 6px;
-
-    font-size: 12px;
-
-    touch-action: none;
+    padding:16px;
 
 }
 
-.tray-item img {
+.app-title{
 
-    width: 40px;
+    text-align:center;
 
-    height: 40px;
+    font-size:20px;
 
-    object-fit: contain;
+    margin-bottom:10px;
+
+    color:#5a4e44;
+
+}
+
+/* TRAY */
+
+.tray{
+
+    margin-bottom:12px;
+
+    padding:12px;
+
+    border-radius:30px;
+
+    background:transparent;
+
+    border:2px dashed #c7b9ab;
+
+    height:120px;
+
+    overflow-y:auto;
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    justify-content:center;
+
+    align-content:flex-start;
+
+    gap:10px;
+
+}
+
+.tray-item{
+
+    width:70px;
+
+    text-align:center;
+
+    background:transparent;
+
+    border-radius:14px;
+
+    padding:6px;
+
+    font-size:12px;
+
+    touch-action:none;
+
+}
+
+.tray-item img{
+
+    width:40px;
+
+    height:40px;
+
+    object-fit:contain;
 
 }
 
 /* SCALE */
 
-.scale-wrapper {
+.scale-wrapper{
 
-    display: flex;
+    display:flex;
 
-    justify-content: center;
-
-}
-
-canvas {
-
-    width: min(420px, 80vw);
-
-    aspect-ratio: 1/1;
-
-    border-radius: 50%;
-
-    background: #FFFFFF00⁠;
+    justify-content:center;
 
 }
 
-.weight-display {
+canvas{
 
-    text-align: center;
+    width:min(420px,80vw);
 
-    margin: 10px 0;
+    aspect-ratio:1/1;
 
-    font-size: 18px;
+    border-radius:50%;
 
-}
-
-.weight-display span {
-
-    font-size: 28px;
-
-    font-weight: bold;
-
-    padding: 6px 16px;
-
-    border-radius: 30px;
-
-    background: #FFFFFF00⁠;
+    background:transparent;
 
 }
 
-/* ITEMS GRID */
+.weight-display{
 
-.items-grid {
+    text-align:center;
 
-    display: grid;
+    margin:10px 0;
 
-    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
-
-    gap: 10px;
-
-    margin-top: 12px;
+    font-size:18px;
 
 }
 
-.item-card {
+.weight-display span{
 
-    background: #fff;
+    font-size:28px;
 
-    border-radius: 18px;
+    font-weight:bold;
 
-    padding: 10px;
+    padding:6px 16px;
 
-    text-align: center;
+    border-radius:30px;
 
-    border: 1px solid #eee;
+    background:transparent;
 
-    cursor: grab;
+}
+
+/* ITEMS */
+
+.items-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(90px,1fr));
+
+    gap:10px;
+
+    margin-top:12px;
+
+}
+
+.item-card{
+
+    background:#fff;
+
+    border-radius:18px;
+
+    padding:10px;
+
+    text-align:center;
+
+    border:1px solid #eee;
+
+    cursor:grab;
+
+}
+
+.item-card img{
+
+    width:60px;
+
+    height:60px;
+
+    object-fit:contain;
 
 }
 
@@ -300,8 +324,6 @@ const tray = document.getElementById("tray");
 
 const grid = document.getElementById("itemsGrid");
 
-/* ---------------- SCALE ---------------- */
-
 function drawScale(w){
 
     const size = canvas.clientWidth;
@@ -330,49 +352,47 @@ function drawScale(w){
 
     const steps = 40;
 
-    // 📍 fixed reference for 0 position
-
     const zeroAngle = -Math.PI/2;
 
     for(let i=0;i<=steps;i++){
 
-        const value = (i/steps)*10;
+        const value=(i/steps)*10;
 
-        const angle = -Math.PI/2 + (i/steps)*Math.PI*2;
+        const angle=-Math.PI/2+(i/steps)*Math.PI*2;
 
-        const major = i % 4 === 0;
+        const major=i%4===0;
 
-        const r1 = major ? outerR : outerR - 4;
+        const r1=major ? outerR : outerR-4;
 
-        const r2 = innerR;
+        const r2=innerR;
 
         ctx.beginPath();
 
         ctx.moveTo(
 
-            cx + Math.cos(angle)*r1,
+            cx+Math.cos(angle)*r1,
 
-            cy + Math.sin(angle)*r1
+            cy+Math.sin(angle)*r1
 
         );
 
         ctx.lineTo(
 
-            cx + Math.cos(angle)*r2,
+            cx+Math.cos(angle)*r2,
 
-            cy + Math.sin(angle)*r2
+            cy+Math.sin(angle)*r2
 
         );
 
-        ctx.strokeStyle = major ? "#5a4e44" : "#9a8b7c";
+        ctx.strokeStyle=major ? "#5a4e44" : "#9a8b7c";
 
-        ctx.lineWidth = major ? 2 : 1;
+        ctx.lineWidth=major ? 2 : 1;
 
         ctx.stroke();
 
         if(major){
 
-            const num = Math.round(value);
+            const num=Math.round(value);
 
             ctx.fillStyle="#2f241d";
 
@@ -382,49 +402,41 @@ function drawScale(w){
 
             ctx.textBaseline="middle";
 
-            let x, y;
+            let x,y;
 
-            // 📍 0 stays original position
+            if(num===0){
 
-            if(num === 0){
+                x=cx+Math.cos(zeroAngle)*labelR;
 
-                x = cx + Math.cos(zeroAngle)*labelR;
-
-                y = cy + Math.sin(zeroAngle)*labelR;
+                y=cy+Math.sin(zeroAngle)*labelR;
 
             }
 
-            // 🔥 10 EXACTLY below 0 (same X, lower Y)
+            else if(num===10){
 
-            else if(num === 10){
+                x=cx+Math.cos(zeroAngle)*labelR;
 
-                x = cx + Math.cos(zeroAngle)*labelR;
-
-                y = cy + Math.sin(zeroAngle)*labelR + 18;
+                y=cy+Math.sin(zeroAngle)*labelR+18;
 
             }
-
-            // others normal
 
             else{
 
-                x = cx + Math.cos(angle)*labelR;
+                x=cx+Math.cos(angle)*labelR;
 
-                y = cy + Math.sin(angle)*labelR;
+                y=cy+Math.sin(angle)*labelR;
 
             }
 
-            ctx.fillText(num, x, y);
+            ctx.fillText(num,x,y);
 
         }
 
     }
 
-    // 🧭 needle
+    const angle=-Math.PI/2+(w/10)*Math.PI*2;
 
-    const angle = -Math.PI/2 + (w/10)*Math.PI*2;
-
-    const needleLength = outerR * 0.78;
+    const needleLength=outerR*0.78;
 
     ctx.beginPath();
 
@@ -432,29 +444,31 @@ function drawScale(w){
 
     ctx.lineTo(
 
-        cx + Math.cos(angle)*needleLength,
+        cx+Math.cos(angle)*needleLength,
 
-        cy + Math.sin(angle)*needleLength
+        cy+Math.sin(angle)*needleLength
 
     );
 
-    ctx.strokeStyle = "red";
+    ctx.strokeStyle="red";
 
-    ctx.lineWidth = 3;
+    ctx.lineWidth=3;
 
     ctx.stroke();
 
 }
 
-/* ---------------- ANIMATION ---------------- */
-
 function animate(){
 
-    displayWeight += (totalWeight - displayWeight) * 0.08;
+    displayWeight += (totalWeight-displayWeight)*0.08;
 
-    if(displayWeight > MAX_WEIGHT) displayWeight = MAX_WEIGHT;
+    if(displayWeight>MAX_WEIGHT){
 
-    weightValue.textContent = displayWeight.toFixed(1);
+        displayWeight=MAX_WEIGHT;
+
+    }
+
+    weightValue.textContent=displayWeight.toFixed(1);
 
     drawScale(displayWeight);
 
@@ -464,29 +478,29 @@ function animate(){
 
 animate();
 
-/* ---------------- UPDATE ---------------- */
-
 function updateWeight(){
 
-    totalWeight = trayItems.reduce((a,b)=>a+b.weight,0);
+    totalWeight=trayItems.reduce((a,b)=>a+b.weight,0);
 
-    if(totalWeight > MAX_WEIGHT) totalWeight = MAX_WEIGHT;
+    if(totalWeight>MAX_WEIGHT){
+
+        totalWeight=MAX_WEIGHT;
+
+    }
 
 }
 
-/* ---------------- TRAY ---------------- */
-
 function renderTray(){
 
-    tray.innerHTML = "";
+    tray.innerHTML="";
 
-    trayItems.forEach((item, index)=>{
+    trayItems.forEach((item,index)=>{
 
-        const el = document.createElement("div");
+        const el=document.createElement("div");
 
-        el.className = "tray-item";
+        el.className="tray-item";
 
-        el.innerHTML = `
+        el.innerHTML=`
 
             <img src="${item.image}">
 
@@ -494,7 +508,7 @@ function renderTray(){
 
         `;
 
-        enableDrag(el, item, index, "tray");
+        enableDrag(el,item,index,"tray");
 
         tray.appendChild(el);
 
@@ -502,19 +516,25 @@ function renderTray(){
 
 }
 
-/* ---------------- DRAG SYSTEM ---------------- */
+function enableDrag(el,item,index,source){
 
-function enableDrag(el, item, index, source){
+    let ghost=null;
 
-    let ghost=null, x=0,y=0,offsetX=0,offsetY=0;
+    let x=0,y=0;
 
-    let dragging=false, frame;
+    let offsetX=0,offsetY=0;
+
+    let dragging=false;
+
+    let frame;
 
     const update=()=>{
 
         if(!ghost) return;
 
-        ghost.style.transform=`translate3d(${x}px,${y}px,0) scale(1.05)`;
+        ghost.style.transform=
+
+        `translate3d(${x}px,${y}px,0) scale(1.05)`;
 
         frame=requestAnimationFrame(update);
 
@@ -523,8 +543,6 @@ function enableDrag(el, item, index, source){
     el.addEventListener("pointerdown",(e)=>{
 
         dragging=true;
-
-        el.setPointerCapture(e.pointerId);
 
         const rect=el.getBoundingClientRect();
 
@@ -544,15 +562,15 @@ function enableDrag(el, item, index, source){
 
         ghost.style.pointerEvents="none";
 
-        ghost.style.zIndex=9999;
+        ghost.style.zIndex="9999";
 
         document.body.appendChild(ghost);
-
-        el.style.opacity="0.3";
 
         x=rect.left;
 
         y=rect.top;
+
+        el.style.opacity="0.3";
 
         update();
 
@@ -576,15 +594,13 @@ function enableDrag(el, item, index, source){
 
         if(ghost) ghost.remove();
 
-        ghost=null;
-
         el.style.opacity="1";
 
         const trayRect=tray.getBoundingClientRect();
 
         const scaleRect=canvas.getBoundingClientRect();
 
-        const inTray =
+        const inTray=
 
             e.clientX>=trayRect.left &&
 
@@ -594,7 +610,7 @@ function enableDrag(el, item, index, source){
 
             e.clientY<=trayRect.bottom;
 
-        const onScale =
+        const onScale=
 
             e.clientX>=scaleRect.left &&
 
@@ -635,8 +651,6 @@ function enableDrag(el, item, index, source){
     el.addEventListener("pointercancel",end);
 
 }
-
-/* ---------------- INIT ---------------- */
 
 function buildItems(){
 
