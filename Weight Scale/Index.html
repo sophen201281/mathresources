@@ -1,134 +1,227 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
+
 <meta charset="UTF-8" />
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+
 <title>Kitchen Weight Scale</title>
 
 <style>
+
 * {
+
     box-sizing: border-box;
+
     user-select: none;
+
     -webkit-tap-highlight-color: transparent;
+
 }
 
 body {
+
     margin: 0;
+
     min-height: 100vh;
+
     display: flex;
+
     justify-content: center;
+
     align-items: center;
+
     font-family: system-ui, -apple-system, Segoe UI, Roboto;
+
     padding: 12px;
+
     background: linear-gradient(145deg, #f7f3ee, #e8e0d8);
+
     overflow: hidden;
+
 }
 
 body::before {
+
     content: "";
+
     position: fixed;
+
     inset: 0;
+
     background: url("image/background.jpg") center/cover no-repeat;
+
     opacity: 0.15;
+
     z-index: -1;
+
 }
 
 .app {
+
     width: min(820px, 95vw);
+
     background: #fffcf8;
+
     border-radius: 40px;
+
     box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+
     padding: 16px;
+
 }
 
 .app-title {
+
     text-align: center;
+
     font-size: 20px;
+
     margin-bottom: 10px;
+
     color: #5a4e44;
+
 }
 
-/* 🧺 TRAY WITH IMAGES */
+/* 🧺 FIXED SIZE TRAY */
+
 .tray {
+
     margin-bottom: 12px;
+
     padding: 12px;
+
     border-radius: 30px;
+
     background: #eae2d8;
+
     border: 2px dashed #c7b9ab;
 
-    min-height: 100px;
+    height: 120px;              /* 🔥 FIXED SIZE */
+
+    overflow-y: auto;           /* allow scroll instead of growing */
 
     display: flex;
+
     flex-wrap: wrap;
+
     justify-content: center;
+
+    align-content: flex-start;
+
     gap: 10px;
+
 }
 
 .tray-item {
+
     width: 70px;
+
     text-align: center;
+
     background: #fff;
+
     border-radius: 14px;
+
     padding: 6px;
+
     font-size: 12px;
+
+    touch-action: none;
+
 }
 
 .tray-item img {
+
     width: 40px;
+
     height: 40px;
+
     object-fit: contain;
+
 }
 
 /* SCALE */
+
 .scale-wrapper {
+
     display: flex;
+
     justify-content: center;
+
 }
 
 canvas {
+
     width: min(420px, 80vw);
+
     aspect-ratio: 1/1;
+
     border-radius: 50%;
+
     background: #fcf9f5;
+
 }
 
 .weight-display {
+
     text-align: center;
+
     margin: 10px 0;
+
     font-size: 18px;
+
 }
 
 .weight-display span {
+
     font-size: 28px;
+
     font-weight: bold;
+
     padding: 6px 16px;
+
     border-radius: 30px;
+
     background: #f0e9e1;
+
 }
 
 /* ITEMS GRID */
+
 .items-grid {
+
     display: grid;
+
     grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+
     gap: 10px;
+
     margin-top: 12px;
+
 }
 
 .item-card {
+
     background: #fff;
+
     border-radius: 18px;
+
     padding: 10px;
+
     text-align: center;
+
     border: 1px solid #eee;
+
     cursor: grab;
+
 }
 
-.item-card img {
-    width: 50px;
-    height: 50px;
-}
 </style>
+
 </head>
 
 <body>
@@ -140,11 +233,15 @@ canvas {
     <div class="tray" id="tray"></div>
 
     <div class="scale-wrapper">
+
         <canvas id="scaleCanvas"></canvas>
+
     </div>
 
     <div class="weight-display">
+
         <span id="weightValue">0.0</span> kg
+
     </div>
 
     <div class="items-grid" id="itemsGrid"></div>
@@ -154,249 +251,407 @@ canvas {
 <script>
 
 /* ---------------- DATA ---------------- */
+
 const ITEMS = [
-    { id:"pumpkin", name:"Pumpkin", weight:5, emoji:"🎃", image:"image/pumpkin.png" },
-    { id:"chicken", name:"Chicken", weight:3, emoji:"🍗", image:"image/chicken.png" },
-    { id:"fish", name:"Fish", weight:1, emoji:"🐟", image:"image/fish.png" },
-    { id:"apple", name:"Apple", weight:0.5, emoji:"🍎", image:"image/apple.png" },
-    { id:"watermelon", name:"Watermelon", weight:2, emoji:"🍉", image:"image/watermelon.png" }
+
+    { id:"pumpkin", name:"Pumpkin", weight:5, image:"image/pumpkin.png" },
+
+    { id:"chicken", name:"Chicken", weight:3, image:"image/chicken.png" },
+
+    { id:"fish", name:"Fish", weight:1, image:"image/fish.png" },
+
+    { id:"apple", name:"Apple", weight:0.5, image:"image/apple.png" },
+
+    { id:"watermelon", name:"Watermelon", weight:2, image:"image/watermelon.png" }
+
 ];
 
 const MAX_WEIGHT = 10;
 
 /* ---------------- STATE ---------------- */
+
 let trayItems = [];
+
 let totalWeight = 0;
+
 let displayWeight = 0;
 
 /* ---------------- CANVAS ---------------- */
+
 const canvas = document.getElementById("scaleCanvas");
+
 const ctx = canvas.getContext("2d");
 
 function resizeCanvas(){
+
     const size = Math.min(window.innerWidth * 0.8, 420);
+
     const dpr = window.devicePixelRatio || 1;
 
     canvas.width = size * dpr;
+
     canvas.height = size * dpr;
 
     ctx.setTransform(dpr,0,0,dpr,0,0);
+
 }
+
 resizeCanvas();
+
 window.addEventListener("resize", resizeCanvas);
 
 /* ---------------- UI ---------------- */
+
 const weightValue = document.getElementById("weightValue");
+
 const tray = document.getElementById("tray");
+
 const grid = document.getElementById("itemsGrid");
 
 /* ---------------- SCALE ---------------- */
+
 function drawScale(w){
+
     const size = canvas.clientWidth;
+
     const cx = size/2;
+
     const cy = size/2;
 
     const outerR = size*0.4;
+
     const innerR = size*0.34;
+
     const labelR = size*0.3;
+
     const faceR = size*0.38;
 
     ctx.clearRect(0,0,size,size);
 
     ctx.beginPath();
+
     ctx.arc(cx,cy,faceR,0,Math.PI*2);
+
     ctx.fillStyle="#f3ede6";
+
     ctx.fill();
 
     const steps=40;
 
     for(let i=0;i<=steps;i++){
+
         const value=(i/steps)*10;
+
         const angle=-Math.PI/2+(i/steps)*Math.PI*2;
 
         const major=i%4===0;
+
         const r1=major?outerR:outerR-6;
 
-        const x1=cx+Math.cos(angle)*r1;
-        const y1=cy+Math.sin(angle)*r1;
-        const x2=cx+Math.cos(angle)*innerR;
-        const y2=cy+Math.sin(angle)*innerR;
-
         ctx.beginPath();
-        ctx.moveTo(x1,y1);
-        ctx.lineTo(x2,y2);
+
+        ctx.moveTo(
+
+            cx+Math.cos(angle)*r1,
+
+            cy+Math.sin(angle)*r1
+
+        );
+
+        ctx.lineTo(
+
+            cx+Math.cos(angle)*innerR,
+
+            cy+Math.sin(angle)*innerR
+
+        );
+
         ctx.strokeStyle=major?"#5a4e44":"#9a8b7c";
+
         ctx.stroke();
 
         if(major){
+
             ctx.fillStyle="#3d322a";
+
             ctx.font="bold 12px sans-serif";
+
             ctx.textAlign="center";
+
             ctx.textBaseline="middle";
-            ctx.fillText(Math.round(value),cx+Math.cos(angle)*labelR,cy+Math.sin(angle)*labelR);
+
+            ctx.fillText(
+
+                Math.round(value),
+
+                cx+Math.cos(angle)*labelR,
+
+                cy+Math.sin(angle)*labelR
+
+            );
+
         }
+
     }
 
     const angle=-Math.PI/2+(w/10)*Math.PI*2;
 
     ctx.beginPath();
+
     ctx.moveTo(cx,cy);
-    ctx.lineTo(cx+Math.cos(angle)*outerR,cy+Math.sin(angle)*outerR);
+
+    ctx.lineTo(
+
+        cx+Math.cos(angle)*outerR,
+
+        cy+Math.sin(angle)*outerR
+
+    );
+
     ctx.strokeStyle="red";
+
     ctx.lineWidth=3;
+
     ctx.stroke();
+
 }
 
 /* ---------------- ANIMATION ---------------- */
+
 function animate(){
+
     displayWeight+=(totalWeight-displayWeight)*0.08;
+
     if(displayWeight>MAX_WEIGHT)displayWeight=MAX_WEIGHT;
 
     weightValue.textContent=displayWeight.toFixed(1);
+
     drawScale(displayWeight);
 
     requestAnimationFrame(animate);
+
 }
+
 animate();
 
 /* ---------------- UPDATE ---------------- */
+
 function updateWeight(){
-    totalWeight=trayItems.reduce((a,b)=>a+b.weight,0);
-    if(totalWeight>MAX_WEIGHT)totalWeight=MAX_WEIGHT;
+
+    totalWeight = trayItems.reduce((a,b)=>a+b.weight,0);
+
+    if(totalWeight>MAX_WEIGHT) totalWeight=MAX_WEIGHT;
+
 }
 
-/* ---------------- 🧺 TRAY RENDER (IMAGE COPY) ---------------- */
+/* ---------------- TRAY ---------------- */
+
 function renderTray(){
+
     tray.innerHTML="";
 
-    trayItems.forEach(item=>{
+    trayItems.forEach((item, index)=>{
+
         const el=document.createElement("div");
+
         el.className="tray-item";
 
         el.innerHTML=`
+
             <img src="${item.image}">
+
             <div>${item.name}</div>
+
         `;
 
+        enableDrag(el, item, index, "tray");
+
         tray.appendChild(el);
+
     });
+
 }
 
-/* ---------------- 🖐️ DRAG (FREE + COPY ON DROP) ---------------- */
-function enableDrag(el,item){
+/* ---------------- DRAG SYSTEM ---------------- */
+
+function enableDrag(el, item, index, source){
 
     let ghost=null;
-    let x=0,y=0;
-    let offsetX=0,offsetY=0;
+
+    let x=0,y=0,offsetX=0,offsetY=0;
+
     let dragging=false;
+
     let frame;
 
     const update=()=>{
+
         if(!ghost)return;
+
         ghost.style.transform=`translate3d(${x}px,${y}px,0) scale(1.05)`;
+
         frame=requestAnimationFrame(update);
+
     };
 
     el.addEventListener("pointerdown",(e)=>{
 
         dragging=true;
+
         el.setPointerCapture(e.pointerId);
 
         const rect=el.getBoundingClientRect();
 
         offsetX=e.clientX-rect.left;
+
         offsetY=e.clientY-rect.top;
 
-        x=rect.left;
-        y=rect.top;
-
         ghost=el.cloneNode(true);
+
         ghost.style.position="fixed";
+
         ghost.style.left="0";
+
         ghost.style.top="0";
+
         ghost.style.width=rect.width+"px";
+
         ghost.style.pointerEvents="none";
-        ghost.style.zIndex=9999;
+
+        ghost.style.zIndex="9999";
 
         document.body.appendChild(ghost);
 
         el.style.opacity="0.3";
 
+        x=rect.left;
+
+        y=rect.top;
+
         update();
+
     });
 
     el.addEventListener("pointermove",(e)=>{
+
         if(!dragging||!ghost)return;
 
         x=e.clientX-offsetX;
+
         y=e.clientY-offsetY;
+
     });
 
     function end(e){
 
         dragging=false;
 
-        if(frame)cancelAnimationFrame(frame);
-        if(ghost)ghost.remove();
+        if(frame) cancelAnimationFrame(frame);
+
+        if(ghost) ghost.remove();
 
         ghost=null;
+
         el.style.opacity="1";
 
         const trayRect=tray.getBoundingClientRect();
+
         const scaleRect=canvas.getBoundingClientRect();
 
         const inTray =
+
             e.clientX>=trayRect.left &&
+
             e.clientX<=trayRect.right &&
+
             e.clientY>=trayRect.top &&
+
             e.clientY<=trayRect.bottom;
 
         const onScale =
+
             e.clientX>=scaleRect.left &&
+
             e.clientX<=scaleRect.right &&
+
             e.clientY>=scaleRect.top &&
+
             e.clientY<=scaleRect.bottom;
 
-        /* 📦 ADD COPY WITH IMAGE */
-        if(inTray || onScale){
-            trayItems.push({
-                ...item
-            });
+        /* 🧺 FROM PALETTE → COPY */
 
-            updateWeight();
-            renderTray();
+        if(source==="palette"){
+
+            if(inTray || onScale){
+
+                trayItems.push({...item});
+
+            }
+
         }
+
+        /* 🧺 FROM TRAY → MOVE OUT */
+
+        if(source==="tray"){
+
+            if(!inTray){
+
+                trayItems.splice(index,1);
+
+            }
+
+        }
+
+        updateWeight();
+
+        renderTray();
+
     }
 
     el.addEventListener("pointerup",end);
+
     el.addEventListener("pointercancel",end);
+
 }
 
-/* ---------------- ITEMS ---------------- */
+/* ---------------- BUILD ITEMS ---------------- */
+
 function buildItems(){
+
     grid.innerHTML="";
 
     ITEMS.forEach(item=>{
+
         const div=document.createElement("div");
+
         div.className="item-card";
 
         div.innerHTML=`
+
             <img src="${item.image}">
+
             <div>${item.name}</div>
+
             <small>${item.weight} kg</small>
+
         `;
 
-        enableDrag(div,item);
+        enableDrag(div, item, null, "palette");
 
         grid.appendChild(div);
+
     });
+
 }
 
 /* ---------------- INIT ---------------- */
+
 buildItems();
+
 renderTray();
 
 </script>
 
 </body>
+
 </html>
