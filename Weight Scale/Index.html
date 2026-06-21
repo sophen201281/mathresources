@@ -28,7 +28,7 @@ body{
     background:#f5f0ea;
 }
 
-/* APP (NOW HOLDS EVERYTHING AS ONE UNIT) */
+/* APP */
 .app{
     width:min(820px,95vw);
     border-radius:40px;
@@ -43,25 +43,27 @@ body{
     padding:12px;
     color:#5a4e44;
     background:rgba(255,255,255,0.6);
-    backdrop-filter:blur(6px);
 }
 
-/* SCALE AREA = ONE LOCKED VISUAL STACK */
+/* 🔥 MASTER CONTAINER (FIXED ALIGNMENT SYSTEM) */
 .scale-area{
 
     position:relative;
-
     display:flex;
     flex-direction:column;
-
-    gap:0; /* 🔥 everything sticks together */
+    gap:0;
 
     padding:12px;
 
     background-image:url("image/background.png");
-    background-position:center top;
+    background-position:center;
     background-repeat:no-repeat;
-    background-size:cover;
+
+    /* IMPORTANT FIX */
+    background-size:100% 100%;
+
+    width:100%;
+    aspect-ratio: 1 / 1.4;
 
 }
 
@@ -69,11 +71,9 @@ body{
 .tray{
 
     margin:0;
-
     padding:10px;
 
     border-radius:24px;
-
     border:2px dashed #c7b9ab;
 
     height:120px;
@@ -82,22 +82,31 @@ body{
     flex-wrap:wrap;
     justify-content:center;
     align-content:flex-start;
+
     gap:10px;
 
     background:rgba(255,255,255,0.35);
-    backdrop-filter:blur(4px);
+
+    width:100%;
 }
 
-/* SCALE WRAPPER */
+.tray-item{
+    width:70px;
+    text-align:center;
+    border-radius:14px;
+    padding:6px;
+    font-size:12px;
+    touch-action:none;
+}
+
+/* SCALE */
 .scale-wrapper{
     display:flex;
     justify-content:center;
-    margin:0;
 }
 
-/* CANVAS */
 canvas{
-    width:min(420px,80vw);
+    width:min(420px,80%);
     aspect-ratio:1/1;
 }
 
@@ -106,7 +115,6 @@ canvas{
     text-align:center;
     margin:6px 0 0 0;
     font-size:18px;
-    color:#2f241d;
 }
 
 .weight-display span{
@@ -114,7 +122,7 @@ canvas{
     font-weight:bold;
 }
 
-/* ITEMS GRID */
+/* ITEMS */
 .items-grid{
     display:grid;
     grid-template-columns:repeat(auto-fit,minmax(90px,1fr));
@@ -136,15 +144,6 @@ canvas{
     width:60px;
     height:60px;
     object-fit:contain;
-}
-
-.tray-item{
-    width:70px;
-    text-align:center;
-    border-radius:14px;
-    padding:6px;
-    font-size:12px;
-    touch-action:none;
 }
 
 </style>
@@ -196,21 +195,37 @@ const canvas = document.getElementById("scaleCanvas");
 const ctx = canvas.getContext("2d");
 
 function resizeCanvas(){
-    const size = Math.min(window.innerWidth * 0.8, 420);
+
+    const container = document.querySelector(".scale-area");
+
+    const size = container.clientWidth * 0.75;
     const dpr = window.devicePixelRatio || 1;
+
     canvas.width = size * dpr;
     canvas.height = size * dpr;
+
+    canvas.style.width = size + "px";
+    canvas.style.height = size + "px";
+
     ctx.setTransform(dpr,0,0,dpr,0,0);
 }
+
 resizeCanvas();
-window.addEventListener("resize", resizeCanvas);
+
+window.addEventListener("resize", () => {
+    setTimeout(resizeCanvas, 50);
+});
+
+window.addEventListener("orientationchange", () => {
+    setTimeout(resizeCanvas, 150);
+});
 
 /* UI */
 const weightValue = document.getElementById("weightValue");
 const tray = document.getElementById("tray");
 const grid = document.getElementById("itemsGrid");
 
-/* DRAW SCALE */
+/* SCALE DRAW */
 function drawScale(w){
 
     const size = canvas.clientWidth;
@@ -319,7 +334,7 @@ function renderTray(){
     });
 }
 
-/* DRAG */
+/* DRAG SYSTEM */
 function enableDrag(el,item,index,source){
 
     let ghost=null;
