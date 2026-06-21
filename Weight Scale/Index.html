@@ -86,7 +86,7 @@ body::before {
 
 }
 
-/* 🧺 FIXED SIZE TRAY */
+/* 🧺 TRAY */
 
 .tray {
 
@@ -100,9 +100,9 @@ body::before {
 
     border: 2px dashed #c7b9ab;
 
-    height: 120px;              /* 🔥 FIXED SIZE */
+    height: 120px;
 
-    overflow-y: auto;           /* allow scroll instead of growing */
+    overflow-y: auto;
 
     display: flex;
 
@@ -250,8 +250,6 @@ canvas {
 
 <script>
 
-/* ---------------- DATA ---------------- */
-
 const ITEMS = [
 
     { id:"pumpkin", name:"Pumpkin", weight:5, image:"image/pumpkin.png" },
@@ -268,15 +266,11 @@ const ITEMS = [
 
 const MAX_WEIGHT = 10;
 
-/* ---------------- STATE ---------------- */
-
 let trayItems = [];
 
 let totalWeight = 0;
 
 let displayWeight = 0;
-
-/* ---------------- CANVAS ---------------- */
 
 const canvas = document.getElementById("scaleCanvas");
 
@@ -300,8 +294,6 @@ resizeCanvas();
 
 window.addEventListener("resize", resizeCanvas);
 
-/* ---------------- UI ---------------- */
-
 const weightValue = document.getElementById("weightValue");
 
 const tray = document.getElementById("tray");
@@ -320,9 +312,9 @@ function drawScale(w){
 
     const outerR = size*0.4;
 
-    const innerR = size*0.34;
+    const innerR = size*0.36;
 
-    const labelR = size*0.3;
+    const labelR = size*0.29;
 
     const faceR = size*0.38;
 
@@ -336,65 +328,103 @@ function drawScale(w){
 
     ctx.fill();
 
-    const steps=40;
+    const steps = 40;
+
+    // 📍 fixed reference for 0 position
+
+    const zeroAngle = -Math.PI/2;
 
     for(let i=0;i<=steps;i++){
 
-        const value=(i/steps)*10;
+        const value = (i/steps)*10;
 
-        const angle=-Math.PI/2+(i/steps)*Math.PI*2;
+        const angle = -Math.PI/2 + (i/steps)*Math.PI*2;
 
-        const major=i%4===0;
+        const major = i % 4 === 0;
 
-        const r1=major?outerR:outerR-6;
+        const r1 = major ? outerR : outerR - 4;
+
+        const r2 = innerR;
 
         ctx.beginPath();
 
         ctx.moveTo(
 
-            cx+Math.cos(angle)*r1,
+            cx + Math.cos(angle)*r1,
 
-            cy+Math.sin(angle)*r1
+            cy + Math.sin(angle)*r1
 
         );
 
         ctx.lineTo(
 
-            cx+Math.cos(angle)*innerR,
+            cx + Math.cos(angle)*r2,
 
-            cy+Math.sin(angle)*innerR
+            cy + Math.sin(angle)*r2
 
         );
 
-        ctx.strokeStyle=major?"#5a4e44":"#9a8b7c";
+        ctx.strokeStyle = major ? "#5a4e44" : "#9a8b7c";
+
+        ctx.lineWidth = major ? 2 : 1;
 
         ctx.stroke();
 
         if(major){
 
-            ctx.fillStyle="#3d322a";
+            const num = Math.round(value);
 
-            ctx.font="bold 12px sans-serif";
+            ctx.fillStyle="#2f241d";
+
+            ctx.font="bold 18px sans-serif";
 
             ctx.textAlign="center";
 
             ctx.textBaseline="middle";
 
-            ctx.fillText(
+            let x, y;
 
-                Math.round(value),
+            // 📍 0 stays original position
 
-                cx+Math.cos(angle)*labelR,
+            if(num === 0){
 
-                cy+Math.sin(angle)*labelR
+                x = cx + Math.cos(zeroAngle)*labelR;
 
-            );
+                y = cy + Math.sin(zeroAngle)*labelR;
+
+            }
+
+            // 🔥 10 EXACTLY below 0 (same X, lower Y)
+
+            else if(num === 10){
+
+                x = cx + Math.cos(zeroAngle)*labelR;
+
+                y = cy + Math.sin(zeroAngle)*labelR + 18;
+
+            }
+
+            // others normal
+
+            else{
+
+                x = cx + Math.cos(angle)*labelR;
+
+                y = cy + Math.sin(angle)*labelR;
+
+            }
+
+            ctx.fillText(num, x, y);
 
         }
 
     }
 
-    const angle=-Math.PI/2+(w/10)*Math.PI*2;
+    // 🧭 needle
+
+    const angle = -Math.PI/2 + (w/10)*Math.PI*2;
+
+    const needleLength = outerR * 0.78;
 
     ctx.beginPath();
 
@@ -402,15 +432,15 @@ function drawScale(w){
 
     ctx.lineTo(
 
-        cx+Math.cos(angle)*outerR,
+        cx + Math.cos(angle)*needleLength,
 
-        cy+Math.sin(angle)*outerR
+        cy + Math.sin(angle)*needleLength
 
     );
 
-    ctx.strokeStyle="red";
+    ctx.strokeStyle = "red";
 
-    ctx.lineWidth=3;
+    ctx.lineWidth = 3;
 
     ctx.stroke();
 
@@ -420,11 +450,11 @@ function drawScale(w){
 
 function animate(){
 
-    displayWeight+=(totalWeight-displayWeight)*0.08;
+    displayWeight += (totalWeight - displayWeight) * 0.08;
 
-    if(displayWeight>MAX_WEIGHT)displayWeight=MAX_WEIGHT;
+    if(displayWeight > MAX_WEIGHT) displayWeight = MAX_WEIGHT;
 
-    weightValue.textContent=displayWeight.toFixed(1);
+    weightValue.textContent = displayWeight.toFixed(1);
 
     drawScale(displayWeight);
 
@@ -440,7 +470,7 @@ function updateWeight(){
 
     totalWeight = trayItems.reduce((a,b)=>a+b.weight,0);
 
-    if(totalWeight>MAX_WEIGHT) totalWeight=MAX_WEIGHT;
+    if(totalWeight > MAX_WEIGHT) totalWeight = MAX_WEIGHT;
 
 }
 
@@ -448,15 +478,15 @@ function updateWeight(){
 
 function renderTray(){
 
-    tray.innerHTML="";
+    tray.innerHTML = "";
 
     trayItems.forEach((item, index)=>{
 
-        const el=document.createElement("div");
+        const el = document.createElement("div");
 
-        el.className="tray-item";
+        el.className = "tray-item";
 
-        el.innerHTML=`
+        el.innerHTML = `
 
             <img src="${item.image}">
 
@@ -476,17 +506,13 @@ function renderTray(){
 
 function enableDrag(el, item, index, source){
 
-    let ghost=null;
+    let ghost=null, x=0,y=0,offsetX=0,offsetY=0;
 
-    let x=0,y=0,offsetX=0,offsetY=0;
-
-    let dragging=false;
-
-    let frame;
+    let dragging=false, frame;
 
     const update=()=>{
 
-        if(!ghost)return;
+        if(!ghost) return;
 
         ghost.style.transform=`translate3d(${x}px,${y}px,0) scale(1.05)`;
 
@@ -518,7 +544,7 @@ function enableDrag(el, item, index, source){
 
         ghost.style.pointerEvents="none";
 
-        ghost.style.zIndex="9999";
+        ghost.style.zIndex=9999;
 
         document.body.appendChild(ghost);
 
@@ -534,7 +560,7 @@ function enableDrag(el, item, index, source){
 
     el.addEventListener("pointermove",(e)=>{
 
-        if(!dragging||!ghost)return;
+        if(!dragging||!ghost) return;
 
         x=e.clientX-offsetX;
 
@@ -578,8 +604,6 @@ function enableDrag(el, item, index, source){
 
             e.clientY<=scaleRect.bottom;
 
-        /* 🧺 FROM PALETTE → COPY */
-
         if(source==="palette"){
 
             if(inTray || onScale){
@@ -589,8 +613,6 @@ function enableDrag(el, item, index, source){
             }
 
         }
-
-        /* 🧺 FROM TRAY → MOVE OUT */
 
         if(source==="tray"){
 
@@ -614,7 +636,7 @@ function enableDrag(el, item, index, source){
 
 }
 
-/* ---------------- BUILD ITEMS ---------------- */
+/* ---------------- INIT ---------------- */
 
 function buildItems(){
 
@@ -636,15 +658,13 @@ function buildItems(){
 
         `;
 
-        enableDrag(div, item, null, "palette");
+        enableDrag(div,item,null,"palette");
 
         grid.appendChild(div);
 
     });
 
 }
-
-/* ---------------- INIT ---------------- */
 
 buildItems();
 
