@@ -1,13 +1,9 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
-
 <meta charset="UTF-8" />
-
 <meta name="viewport"
-
 content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 
 <title>Kitchen Weight Scale</title>
@@ -15,209 +11,143 @@ content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable
 <style>
 
 *{
-
     box-sizing:border-box;
-
     user-select:none;
-
     -webkit-tap-highlight-color:transparent;
-
 }
 
 body{
-
     margin:0;
-
     min-height:100vh;
-
     display:flex;
-
     justify-content:center;
-
     align-items:center;
-
     font-family:system-ui,-apple-system,Segoe UI,Roboto;
-
     padding:12px;
-
     overflow:hidden;
-
     background:#f5f0ea;
-
 }
 
-/* APP */
-
+/* APP (NOW HOLDS EVERYTHING AS ONE UNIT) */
 .app{
-
     width:min(820px,95vw);
-
     border-radius:40px;
-
     box-shadow:0 20px 50px rgba(0,0,0,0.15);
-
-    padding:16px;
-
+    overflow:hidden;
 }
 
 /* TITLE */
-
 .app-title{
-
     text-align:center;
-
     font-size:20px;
-
-    margin-bottom:10px;
-
+    padding:12px;
     color:#5a4e44;
-
+    background:rgba(255,255,255,0.6);
+    backdrop-filter:blur(6px);
 }
 
-/* SCALE AREA */
-
+/* SCALE AREA = ONE LOCKED VISUAL STACK */
 .scale-area{
 
     position:relative;
 
+    display:flex;
+    flex-direction:column;
+
+    gap:0; /* 🔥 everything sticks together */
+
     padding:12px;
 
-    border-radius:30px;
-
     background-image:url("image/background.png");
-
     background-position:center top;
-
     background-repeat:no-repeat;
-
     background-size:cover;
-
-    overflow:hidden;
 
 }
 
 /* TRAY */
-
 .tray{
 
-    margin-bottom:12px;
+    margin:0;
 
-    padding:12px;
+    padding:10px;
 
-    border-radius:30px;
+    border-radius:24px;
 
     border:2px dashed #c7b9ab;
 
     height:120px;
 
     display:flex;
-
     flex-wrap:wrap;
-
     justify-content:center;
-
     align-content:flex-start;
-
     gap:10px;
 
+    background:rgba(255,255,255,0.35);
+    backdrop-filter:blur(4px);
 }
 
-.tray-item{
-
-    width:70px;
-
-    text-align:center;
-
-    border-radius:14px;
-
-    padding:6px;
-
-    font-size:12px;
-
-    touch-action:none;
-
-}
-
-/* SCALE */
-
+/* SCALE WRAPPER */
 .scale-wrapper{
-
     display:flex;
-
     justify-content:center;
-
+    margin:0;
 }
 
+/* CANVAS */
 canvas{
-
     width:min(420px,80vw);
-
     aspect-ratio:1/1;
-
 }
 
 /* WEIGHT */
-
 .weight-display{
-
     text-align:center;
-
-    margin:10px 0;
-
+    margin:6px 0 0 0;
     font-size:18px;
-
+    color:#2f241d;
 }
 
 .weight-display span{
-
     font-size:28px;
-
     font-weight:bold;
-
 }
 
 /* ITEMS GRID */
-
 .items-grid{
-
     display:grid;
-
     grid-template-columns:repeat(auto-fit,minmax(90px,1fr));
-
     gap:10px;
-
-    margin-top:12px;
-
+    padding:12px;
+    background:rgba(255,255,255,0.6);
 }
 
 .item-card{
-
     background:#fff;
-
     border-radius:18px;
-
     padding:10px;
-
     text-align:center;
-
     border:1px solid #eee;
-
 }
 
 .item-card img,
-
 .tray-item img{
-
     width:60px;
-
     height:60px;
-
     object-fit:contain;
+}
 
+.tray-item{
+    width:70px;
+    text-align:center;
+    border-radius:14px;
+    padding:6px;
+    font-size:12px;
+    touch-action:none;
 }
 
 </style>
-
 </head>
 
 <body>
@@ -231,15 +161,11 @@ canvas{
         <div class="tray" id="tray"></div>
 
         <div class="scale-wrapper">
-
             <canvas id="scaleCanvas"></canvas>
-
         </div>
 
         <div class="weight-display">
-
             <span id="weightValue">0.0</span> kg
-
         </div>
 
     </div>
@@ -251,111 +177,79 @@ canvas{
 <script>
 
 /* DATA */
-
 const ITEMS = [
-
     { id:"pumpkin", name:"Pumpkin", weight:5, image:"image/pumpkin.png" },
-
     { id:"chicken", name:"Chicken", weight:3, image:"image/chicken.png" },
-
     { id:"fish", name:"Fish", weight:1, image:"image/fish.png" },
-
     { id:"apple", name:"Apple", weight:0.5, image:"image/apple.png" },
-
     { id:"watermelon", name:"Watermelon", weight:2, image:"image/watermelon.png" }
-
 ];
 
 const MAX_WEIGHT = 10;
 
 let trayItems = [];
-
 let totalWeight = 0;
-
 let displayWeight = 0;
 
 /* CANVAS */
-
 const canvas = document.getElementById("scaleCanvas");
-
 const ctx = canvas.getContext("2d");
 
 function resizeCanvas(){
-
     const size = Math.min(window.innerWidth * 0.8, 420);
-
     const dpr = window.devicePixelRatio || 1;
-
     canvas.width = size * dpr;
-
     canvas.height = size * dpr;
-
     ctx.setTransform(dpr,0,0,dpr,0,0);
-
 }
-
 resizeCanvas();
-
 window.addEventListener("resize", resizeCanvas);
 
 /* UI */
-
 const weightValue = document.getElementById("weightValue");
-
 const tray = document.getElementById("tray");
-
 const grid = document.getElementById("itemsGrid");
 
-/* SCALE DRAW */
-
+/* DRAW SCALE */
 function drawScale(w){
 
     const size = canvas.clientWidth;
-
     const cx = size/2;
-
     const cy = size/2;
 
     const outerR = size*0.4;
-
     const innerR = size*0.36;
-
     const labelR = size*0.29;
-
     const faceR = size*0.38;
 
     ctx.clearRect(0,0,size,size);
 
     ctx.beginPath();
-
     ctx.arc(cx,cy,faceR,0,Math.PI*2);
-
     ctx.fillStyle="#f3ede6";
-
     ctx.fill();
 
     const steps = 40;
 
-    const zeroAngle = -Math.PI/2;
-
     for(let i=0;i<=steps;i++){
 
         const value=(i/steps)*10;
-
         const angle=-Math.PI/2+(i/steps)*Math.PI*2;
-
         const major=i%4===0;
 
         ctx.beginPath();
+        ctx.moveTo(
+            cx+Math.cos(angle)*(major?outerR:outerR-4),
+            cy+Math.sin(angle)*(major?outerR:outerR-4)
+        );
 
-        ctx.moveTo(cx+Math.cos(angle)*(major?outerR:outerR-4), cy+Math.sin(angle)*(major?outerR:outerR-4));
-
-        ctx.lineTo(cx+Math.cos(angle)*innerR, cy+Math.sin(angle)*innerR);
+        ctx.lineTo(
+            cx+Math.cos(angle)*innerR,
+            cy+Math.sin(angle)*innerR
+        );
 
         ctx.strokeStyle=major ? "#5a4e44" : "#9a8b7c";
-
         ctx.lineWidth=major ? 2 : 1;
-
         ctx.stroke();
 
         if(major){
@@ -363,55 +257,37 @@ function drawScale(w){
             const num=Math.round(value);
 
             ctx.fillStyle="#2f241d";
-
             ctx.font="bold 18px sans-serif";
-
             ctx.textAlign="center";
-
             ctx.textBaseline="middle";
 
             let x = cx + Math.cos(angle)*labelR;
-
             let y = cy + Math.sin(angle)*labelR;
 
             if(num===0) y -= 5;
-
             if(num===10) y += 10;
 
             ctx.fillText(num,x,y);
-
         }
-
     }
 
     const angle=-Math.PI/2+(w/10)*Math.PI*2;
 
     ctx.beginPath();
-
     ctx.moveTo(cx,cy);
-
     ctx.lineTo(
-
         cx+Math.cos(angle)*outerR*0.78,
-
         cy+Math.sin(angle)*outerR*0.78
-
     );
 
     ctx.strokeStyle="red";
-
     ctx.lineWidth=3;
-
     ctx.stroke();
-
 }
 
 /* ANIMATION */
-
 function animate(){
-
     displayWeight += (totalWeight-displayWeight)*0.08;
-
     if(displayWeight>MAX_WEIGHT) displayWeight=MAX_WEIGHT;
 
     weightValue.textContent=displayWeight.toFixed(1);
@@ -419,231 +295,146 @@ function animate(){
     drawScale(displayWeight);
 
     requestAnimationFrame(animate);
-
 }
-
 animate();
 
 /* WEIGHT */
-
 function updateWeight(){
-
     totalWeight = trayItems.reduce((a,b)=>a+b.weight,0);
-
     if(totalWeight>MAX_WEIGHT) totalWeight=MAX_WEIGHT;
-
 }
 
 /* TRAY */
-
 function renderTray(){
-
     tray.innerHTML="";
-
     trayItems.forEach((item,index)=>{
-
         const el=document.createElement("div");
-
         el.className="tray-item";
-
         el.innerHTML=`
-
             <img src="${item.image}">
-
             <div>${item.name}</div>
-
         `;
-
         enableDrag(el,item,index,"tray");
-
         tray.appendChild(el);
-
     });
-
 }
 
-/* ✅ FIXED DRAG SYSTEM (iOS + Android SAFE) */
-
+/* DRAG */
 function enableDrag(el,item,index,source){
 
     let ghost=null;
-
     let dragging=false;
-
     let offsetX=0, offsetY=0;
-
     let x=0,y=0;
-
     let frame;
 
     const update=()=>{
-
         if(!ghost) return;
-
         ghost.style.transform=`translate3d(${x}px,${y}px,0) scale(1.05)`;
-
         frame=requestAnimationFrame(update);
-
     };
 
     el.style.touchAction="none";
 
     el.addEventListener("pointerdown",(e)=>{
-
         e.preventDefault();
-
         dragging=true;
-
-        el.setPointerCapture?.(e.pointerId);
 
         const rect=el.getBoundingClientRect();
 
         offsetX=e.clientX-rect.left;
-
         offsetY=e.clientY-rect.top;
 
         ghost=el.cloneNode(true);
-
         ghost.style.position="fixed";
-
         ghost.style.left="0";
-
         ghost.style.top="0";
-
         ghost.style.width=rect.width+"px";
-
         ghost.style.pointerEvents="none";
-
         ghost.style.zIndex="9999";
 
         document.body.appendChild(ghost);
 
         x=rect.left;
-
         y=rect.top;
 
         el.style.opacity="0.3";
 
         update();
-
     });
 
     document.addEventListener("pointermove",(e)=>{
-
         if(!dragging||!ghost) return;
-
         e.preventDefault();
 
         x=e.clientX-offsetX;
-
         y=e.clientY-offsetY;
 
     },{passive:false});
 
     function end(e){
-
         dragging=false;
 
-        el.releasePointerCapture?.(e.pointerId);
-
         if(frame) cancelAnimationFrame(frame);
-
         if(ghost) ghost.remove();
 
         el.style.opacity="1";
 
         const trayRect=tray.getBoundingClientRect();
-
         const scaleRect=canvas.getBoundingClientRect();
 
         const inTray =
-
             e.clientX>=trayRect.left &&
-
             e.clientX<=trayRect.right &&
-
             e.clientY>=trayRect.top &&
-
             e.clientY<=trayRect.bottom;
 
         const onScale =
-
             e.clientX>=scaleRect.left &&
-
             e.clientX<=scaleRect.right &&
-
             e.clientY>=scaleRect.top &&
-
             e.clientY<=scaleRect.bottom;
 
         if(source==="palette"){
-
             if(inTray||onScale){
-
                 trayItems.push({...item});
-
             }
-
         }
 
         if(source==="tray"){
-
             if(!inTray){
-
                 trayItems.splice(index,1);
-
             }
-
         }
 
         updateWeight();
-
         renderTray();
-
     }
 
     el.addEventListener("pointerup",end);
-
     el.addEventListener("pointercancel",end);
-
 }
 
 /* ITEMS */
-
 function buildItems(){
-
     grid.innerHTML="";
-
     ITEMS.forEach(item=>{
-
         const div=document.createElement("div");
-
         div.className="item-card";
-
         div.innerHTML=`
-
             <img src="${item.image}">
-
             <div>${item.name}</div>
-
             <small>${item.weight} kg</small>
-
         `;
-
         enableDrag(div,item,null,"palette");
-
         grid.appendChild(div);
-
     });
-
 }
 
 buildItems();
-
 renderTray();
 
 </script>
 
 </body>
-
 </html>
