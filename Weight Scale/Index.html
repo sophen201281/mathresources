@@ -278,57 +278,63 @@
                 }
 
                 // ----- pointer (needle) -----
-                // totalWeight 0 → angle -90° → points straight up
-                const pointerAngle = (-90 + totalWeight * 36) * Math.PI / 180;
+                // 0° = straight UP (12 o'clock), positive = clockwise
+                const pointerAngle = totalWeight * 36 * Math.PI / 180;
 
                 ctx.save();
                 ctx.translate(cx, cy);
                 ctx.rotate(pointerAngle);
 
-                // needle shaft
+                // ----- needle shaft (thin line from center to just before tip) -----
                 ctx.beginPath();
                 ctx.moveTo(0, 0);
-                ctx.lineTo(0, -(radius - 12));
+                ctx.lineTo(0, -(radius - 20));
                 ctx.strokeStyle = '#b71c1c';
-                ctx.lineWidth = 3;
+                ctx.lineWidth = 3.5;
                 ctx.stroke();
 
-                // needle tip (triangle)
+                // ----- needle tip (pointy triangle) -----
                 const tipY = -(radius - 12);
                 ctx.beginPath();
-                ctx.moveTo(-10, tipY + 12);
-                ctx.lineTo(0, tipY - 4);
-                ctx.lineTo(10, tipY + 12);
+                ctx.moveTo(-12, tipY + 16);
+                ctx.lineTo(0, tipY - 6);
+                ctx.lineTo(12, tipY + 16);
                 ctx.closePath();
                 ctx.fillStyle = '#d32f2f';
+                ctx.fill();
+                ctx.strokeStyle = '#b71c1c';
+                ctx.lineWidth = 1.8;
+                ctx.stroke();
+
+                // ----- bright dot at the very tip for precision -----
+                ctx.beginPath();
+                ctx.arc(0, tipY, 4, 0, Math.PI * 2);
+                ctx.fillStyle = '#ff6b6b';
                 ctx.fill();
                 ctx.strokeStyle = '#b71c1c';
                 ctx.lineWidth = 1.5;
                 ctx.stroke();
 
-                // white dot at the tip
-                ctx.beginPath();
-                ctx.arc(0, tipY, 3, 0, Math.PI * 2);
-                ctx.fillStyle = '#fff';
-                ctx.fill();
-                ctx.strokeStyle = '#b71c1c';
-                ctx.lineWidth = 1;
-                ctx.stroke();
-
                 ctx.restore();
 
-                // ----- center cap -----
+                // ----- center cap (over the pivot) -----
                 ctx.shadowColor = 'rgba(0,0,0,0.10)';
-                ctx.shadowBlur = 8;
+                ctx.shadowBlur = 10;
                 ctx.beginPath();
-                ctx.arc(cx, cy, 14, 0, Math.PI * 2);
+                ctx.arc(cx, cy, 16, 0, Math.PI * 2);
                 ctx.fillStyle = '#444';
                 ctx.fill();
                 ctx.shadowBlur = 0;
 
                 ctx.beginPath();
-                ctx.arc(cx, cy, 6, 0, Math.PI * 2);
-                ctx.fillStyle = '#999';
+                ctx.arc(cx, cy, 7, 0, Math.PI * 2);
+                ctx.fillStyle = '#aaa';
+                ctx.fill();
+
+                // small highlight
+                ctx.beginPath();
+                ctx.arc(cx - 3, cy - 4, 2.5, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255,255,255,0.4)';
                 ctx.fill();
 
                 // update weight display
