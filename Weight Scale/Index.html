@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Kitchen Weight Scale - Responsive</title>
+<meta charset="UTF-8" />
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+
+<title>Kitchen Weight Scale</title>
+
 <style>
 *{
     box-sizing:border-box;
@@ -17,96 +20,102 @@ body{
     display:flex;
     justify-content:center;
     align-items:center;
-    font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    font-family:system-ui,-apple-system,Segoe UI,Roboto;
     padding:12px;
-    background:#f5f0ea;
     overflow:auto;
+    background:#f5f0ea;
 }
 
+/* APP */
 .app{
-    width:min(820px,100%);
-    max-width:820px;
-    border-radius:clamp(20px,4vw,40px);
-    box-shadow:0 20px 50px rgba(0,0,0,.15);
+    width:min(820px,95vw);
+    border-radius:40px;
+    box-shadow:0 20px 50px rgba(0,0,0,0.15);
     overflow:hidden;
-    background:#fff;
 }
 
+/* TITLE */
 .app-title{
     text-align:center;
     font-size:20px;
     padding:12px;
     color:#5a4e44;
-    background:rgba(255,255,255,.8);
+    background:rgba(255,255,255,0.6);
 }
 
+/* SCALE AREA (FIXED BACKGROUND LOCK) */
 .scale-area{
     position:relative;
     display:flex;
     flex-direction:column;
-    padding:clamp(8px,2vw,16px);
-    background-image:url("image/background.png");
-    background-position:center;
-    background-repeat:no-repeat;
-    background-size:cover;
+    align-items:center;
+    padding:12px;
     width:100%;
+
+    background-image:url("image/background.png");
+    background-repeat:no-repeat;
+    background-position:center top;
+    background-size:100% 100%;
+
+    aspect-ratio:1/1.15;
 }
 
+/* TRAY */
 .tray{
     margin:0;
     padding:10px;
     border-radius:24px;
     border:2px dashed #c7b9ab;
     min-height:100px;
-    max-height:180px;
+    max-height:160px;
     display:flex;
     flex-wrap:wrap;
     justify-content:center;
     align-content:flex-start;
     gap:10px;
-    background:rgba(255,255,255,.35);
+    background:rgba(255,255,255,0.35);
     width:100%;
 }
 
 .tray-item{
-    width:clamp(50px,12vw,70px);
+    width:60px;
     text-align:center;
     border-radius:14px;
-    padding:4px;
-    font-size:clamp(10px,2vw,12px);
+    padding:6px;
+    font-size:12px;
     touch-action:none;
 }
 
+/* SCALE */
 .scale-wrapper{
     display:flex;
     justify-content:center;
-    align-items:center;
 }
 
 canvas{
-    width:min(420px,75vw);
-    height:auto;
+    width:min(420px,80%);
     aspect-ratio:1/1;
-    display:block;
 }
 
+/* WEIGHT */
 .weight-display{
     text-align:center;
-    margin-top:8px;
-    font-size:clamp(14px,3vw,18px);
+    margin-top:6px;
+    font-size:18px;
 }
 
 .weight-display span{
-    font-size:clamp(22px,6vw,32px);
+    font-size:28px;
     font-weight:bold;
 }
 
+/* ITEMS */
 .items-grid{
     display:grid;
     grid-template-columns:repeat(auto-fit,minmax(90px,1fr));
     gap:10px;
     padding:12px;
-    background:rgba(255,255,255,.6);
+    background:rgba(255,255,255,0.6);
 }
 
 .item-card{
@@ -117,195 +126,288 @@ canvas{
     border:1px solid #eee;
 }
 
-.item-card img,.tray-item img{
-    width:clamp(40px,10vw,60px);
-    height:clamp(40px,10vw,60px);
+.item-card img,
+.tray-item img{
+    width:50px;
+    height:50px;
     object-fit:contain;
 }
 
+/* MOBILE */
 @media (max-width:600px){
     .app-title{font-size:18px;padding:10px;}
     .items-grid{grid-template-columns:repeat(2,1fr);}
 }
-
-@media (orientation:landscape) and (max-height:700px){
-    .tray{min-height:80px;}
-    canvas{width:min(300px,40vh);}
-}
 </style>
 </head>
+
 <body>
+
 <div class="app">
-<div class="app-title">⚖️ Kitchen Scale</div>
-<div class="scale-area" id="scaleArea">
-<div class="tray" id="tray"></div>
-<div class="scale-wrapper"><canvas id="scaleCanvas"></canvas></div>
-<div class="weight-display"><span id="weightValue">0.0</span> kg</div>
-</div>
-<div class="items-grid" id="itemsGrid"></div>
+    <div class="app-title">⚖️ Kitchen Scale</div>
+
+    <div class="scale-area" id="scaleArea">
+        <div class="tray" id="tray"></div>
+
+        <div class="scale-wrapper">
+            <canvas id="scaleCanvas"></canvas>
+        </div>
+
+        <div class="weight-display">
+            <span id="weightValue">0.0</span> kg
+        </div>
+    </div>
+
+    <div class="items-grid" id="itemsGrid"></div>
 </div>
 
 <script>
-const ITEMS=[
-{id:"pumpkin",name:"Pumpkin",weight:3,image:"image/pumpkin.png"},
-{id:"chicken",name:"Chicken",weight:2,image:"image/chicken.png"},
-{id:"fish",name:"Fish",weight:1,image:"image/fish.png"},
-{id:"apple",name:"Apple",weight:0.5,image:"image/apple.png"},
-{id:"watermelon",name:"Watermelon",weight:2,image:"image/watermelon.png"}
+
+/* DATA */
+const ITEMS = [
+    { id:"pumpkin", name:"Pumpkin", weight:3, image:"image/pumpkin.png" },
+    { id:"chicken", name:"Chicken", weight:2, image:"image/chicken.png" },
+    { id:"fish", name:"Fish", weight:1, image:"image/fish.png" },
+    { id:"apple", name:"Apple", weight:0.5, image:"image/apple.png" },
+    { id:"watermelon", name:"Watermelon", weight:2, image:"image/watermelon.png" }
 ];
 
-const MAX_WEIGHT=10;
-let trayItems=[],totalWeight=0,displayWeight=0;
+const MAX_WEIGHT = 10;
 
-const canvas=document.getElementById("scaleCanvas");
-const ctx=canvas.getContext("2d");
-const scaleArea=document.getElementById("scaleArea");
-const tray=document.getElementById("tray");
-const grid=document.getElementById("itemsGrid");
-const weightValue=document.getElementById("weightValue");
+let trayItems = [];
+let totalWeight = 0;
+let displayWeight = 0;
 
+/* ELEMENTS */
+const canvas = document.getElementById("scaleCanvas");
+const ctx = canvas.getContext("2d");
+const scaleArea = document.getElementById("scaleArea");
+const tray = document.getElementById("tray");
+const grid = document.getElementById("itemsGrid");
+const weightValue = document.getElementById("weightValue");
+
+/* CANVAS */
 function resizeCanvas(){
- const size=Math.min(scaleArea.clientWidth*0.75,window.innerHeight*0.45,420);
- const dpr=window.devicePixelRatio||1;
- canvas.width=size*dpr;
- canvas.height=size*dpr;
- canvas.style.width=size+"px";
- canvas.style.height=size+"px";
- ctx.setTransform(dpr,0,0,dpr,0,0);
+    const size = Math.min(
+        scaleArea.clientWidth * 0.75,
+        window.innerHeight * 0.45,
+        420
+    );
+
+    const dpr = window.devicePixelRatio || 1;
+
+    canvas.width = size * dpr;
+    canvas.height = size * dpr;
+
+    canvas.style.width = size + "px";
+    canvas.style.height = size + "px";
+
+    ctx.setTransform(dpr,0,0,dpr,0,0);
 }
 
-window.addEventListener("resize",resizeCanvas);
-window.addEventListener("orientationchange",()=>setTimeout(resizeCanvas,200));
+window.addEventListener("resize", resizeCanvas);
+window.addEventListener("orientationchange", () => setTimeout(resizeCanvas,200));
 new ResizeObserver(resizeCanvas).observe(scaleArea);
 resizeCanvas();
 
+/* DRAW SCALE */
 function drawScale(w){
- const size=canvas.clientWidth,cx=size/2,cy=size/2;
- const outerR=size*.4,innerR=size*.36,labelR=size*.29,faceR=size*.38;
+    const size = canvas.clientWidth;
+    const cx = size/2;
+    const cy = size/2;
 
- ctx.clearRect(0,0,size,size);
- ctx.beginPath();ctx.arc(cx,cy,faceR,0,Math.PI*2);
- ctx.fillStyle="#f3ede6";ctx.fill();
+    const outerR = size*0.4;
+    const innerR = size*0.36;
+    const labelR = size*0.29;
+    const faceR = size*0.38;
 
- for(let i=0;i<=40;i++){
-  const angle=-Math.PI/2+(i/40)*Math.PI*2;
-  const major=i%4===0;
+    ctx.clearRect(0,0,size,size);
 
-  ctx.beginPath();
-  ctx.moveTo(cx+Math.cos(angle)*(major?outerR:outerR-4),cy+Math.sin(angle)*(major?outerR:outerR-4));
-  ctx.lineTo(cx+Math.cos(angle)*innerR,cy+Math.sin(angle)*innerR);
-  ctx.strokeStyle=major?"#5a4e44":"#9a8b7c";
-  ctx.lineWidth=major?2:1;
-  ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(cx,cy,faceR,0,Math.PI*2);
+    ctx.fillStyle="#f3ede6";
+    ctx.fill();
 
-  if(major){
-   ctx.fillStyle="#2f241d";
-   ctx.font="bold 18px sans-serif";
-   ctx.textAlign="center";
-   ctx.textBaseline="middle";
-   ctx.fillText(Math.round((i/40)*10),cx+Math.cos(angle)*labelR,cy+Math.sin(angle)*labelR);
-  }
- }
+    for(let i=0;i<=40;i++){
+        const angle=-Math.PI/2+(i/40)*Math.PI*2;
+        const major=i%4===0;
 
- const angle=-Math.PI/2+(w/10)*Math.PI*2;
- ctx.beginPath();
- ctx.moveTo(cx,cy);
- ctx.lineTo(cx+Math.cos(angle)*outerR*.78,cy+Math.sin(angle)*outerR*.78);
- ctx.strokeStyle="red";
- ctx.lineWidth=3;
- ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(
+            cx+Math.cos(angle)*(major?outerR:outerR-4),
+            cy+Math.sin(angle)*(major?outerR:outerR-4)
+        );
+        ctx.lineTo(
+            cx+Math.cos(angle)*innerR,
+            cy+Math.sin(angle)*innerR
+        );
+
+        ctx.strokeStyle=major?"#5a4e44":"#9a8b7c";
+        ctx.lineWidth=major?2:1;
+        ctx.stroke();
+
+        if(major){
+            ctx.fillStyle="#2f241d";
+            ctx.font="bold 18px sans-serif";
+            ctx.textAlign="center";
+            ctx.textBaseline="middle";
+
+            ctx.fillText(
+                Math.round((i/40)*10),
+                cx+Math.cos(angle)*labelR,
+                cy+Math.sin(angle)*labelR
+            );
+        }
+    }
+
+    const angle=-Math.PI/2+(w/10)*Math.PI*2;
+
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.lineTo(
+        cx+Math.cos(angle)*outerR*0.78,
+        cy+Math.sin(angle)*outerR*0.78
+    );
+    ctx.strokeStyle="red";
+    ctx.lineWidth=3;
+    ctx.stroke();
 }
 
+/* ANIMATION */
 function animate(){
- displayWeight+=(totalWeight-displayWeight)*0.08;
- if(displayWeight>MAX_WEIGHT)displayWeight=MAX_WEIGHT;
- weightValue.textContent=displayWeight.toFixed(1);
- drawScale(displayWeight);
- requestAnimationFrame(animate);
+    displayWeight += (totalWeight-displayWeight)*0.08;
+    if(displayWeight>MAX_WEIGHT) displayWeight=MAX_WEIGHT;
+
+    weightValue.textContent = displayWeight.toFixed(1);
+    drawScale(displayWeight);
+
+    requestAnimationFrame(animate);
 }
 animate();
 
+/* WEIGHT */
 function updateWeight(){
- totalWeight=Math.min(MAX_WEIGHT,trayItems.reduce((a,b)=>a+b.weight,0));
+    totalWeight = Math.min(
+        MAX_WEIGHT,
+        trayItems.reduce((a,b)=>a+b.weight,0)
+    );
 }
 
+/* TRAY */
 function renderTray(){
- tray.innerHTML="";
- trayItems.forEach((item,index)=>{
-  const el=document.createElement("div");
-  el.className="tray-item";
-  el.innerHTML=`<img src="${item.image}"><div>${item.name}</div>`;
-  enableDrag(el,item,index,"tray");
-  tray.appendChild(el);
- });
+    tray.innerHTML="";
+    trayItems.forEach((item,index)=>{
+        const el=document.createElement("div");
+        el.className="tray-item";
+        el.innerHTML=`<img src="${item.image}"><div>${item.name}</div>`;
+        enableDrag(el,item,index,"tray");
+        tray.appendChild(el);
+    });
 }
 
+/* FIXED DRAG SYSTEM */
 function enableDrag(el,item,index,source){
- let ghost=null,dragging=false,offsetX=0,offsetY=0,x=0,y=0,frame;
 
- const update=()=>{
-  if(!ghost)return;
-  ghost.style.transform=`translate3d(${x}px,${y}px,0) scale(1.05)`;
-  frame=requestAnimationFrame(update);
- };
+    let ghost=null;
+    let dragging=false;
+    let offsetX=0, offsetY=0;
 
- el.addEventListener("pointerdown",e=>{
-  dragging=true;
-  const rect=el.getBoundingClientRect();
-  offsetX=e.clientX-rect.left;
-  offsetY=e.clientY-rect.top;
+    function move(e){
+        if(!dragging||!ghost) return;
 
-  ghost=el.cloneNode(true);
-  Object.assign(ghost.style,{position:"fixed",left:"0",top:"0",width:rect.width+"px",pointerEvents:"none",zIndex:"9999"});
-  document.body.appendChild(ghost);
+        ghost.style.left = (e.clientX - offsetX) + "px";
+        ghost.style.top  = (e.clientY - offsetY) + "px";
+    }
 
-  x=rect.left;y=rect.top;
-  el.style.opacity="0.3";
-  update();
- });
+    function end(e){
+        if(!dragging) return;
+        dragging=false;
 
- document.addEventListener("pointermove",e=>{
-  if(!dragging||!ghost)return;
-  x=e.clientX-offsetX;
-  y=e.clientY-offsetY;
- },{passive:false});
+        document.removeEventListener("pointermove",move);
+        document.removeEventListener("pointerup",end);
+        document.removeEventListener("pointercancel",end);
 
- function end(e){
-  dragging=false;
-  if(frame)cancelAnimationFrame(frame);
-  if(ghost)ghost.remove();
-  el.style.opacity="1";
+        const trayRect=tray.getBoundingClientRect();
+        const scaleRect=canvas.getBoundingClientRect();
 
-  const trayRect=tray.getBoundingClientRect();
-  const scaleRect=canvas.getBoundingClientRect();
+        const inTray =
+            e.clientX>=trayRect.left &&
+            e.clientX<=trayRect.right &&
+            e.clientY>=trayRect.top &&
+            e.clientY<=trayRect.bottom;
 
-  const inTray=e.clientX>=trayRect.left&&e.clientX<=trayRect.right&&e.clientY>=trayRect.top&&e.clientY<=trayRect.bottom;
-  const onScale=e.clientX>=scaleRect.left&&e.clientX<=scaleRect.right&&e.clientY>=scaleRect.top&&e.clientY<=scaleRect.bottom;
+        const onScale =
+            e.clientX>=scaleRect.left &&
+            e.clientX<=scaleRect.right &&
+            e.clientY>=scaleRect.top &&
+            e.clientY<=scaleRect.bottom;
 
-  if(source==="palette"&&(inTray||onScale)) trayItems.push({...item});
-  if(source==="tray"&&!inTray) trayItems.splice(index,1);
+        if(source==="palette"){
+            if(inTray||onScale){
+                trayItems.push({...item});
+            }
+        }
 
-  updateWeight();
-  renderTray();
- }
+        if(source==="tray"){
+            if(!inTray){
+                trayItems.splice(index,1);
+            }
+        }
 
- el.addEventListener("pointerup",end);
- el.addEventListener("pointercancel",end);
+        if(ghost) ghost.remove();
+        el.style.opacity="1";
+
+        updateWeight();
+        renderTray();
+    }
+
+    el.addEventListener("pointerdown",(e)=>{
+        dragging=true;
+
+        const rect=el.getBoundingClientRect();
+
+        offsetX=e.clientX-rect.left;
+        offsetY=e.clientY-rect.top;
+
+        ghost=el.cloneNode(true);
+        ghost.style.position="fixed";
+        ghost.style.left=rect.left+"px";
+        ghost.style.top=rect.top+"px";
+        ghost.style.width=rect.width+"px";
+        ghost.style.pointerEvents="none";
+        ghost.style.zIndex="9999";
+        ghost.style.opacity="0.9";
+
+        document.body.appendChild(ghost);
+
+        el.style.opacity="0.3";
+
+        document.addEventListener("pointermove",move,{passive:false});
+        document.addEventListener("pointerup",end);
+        document.addEventListener("pointercancel",end);
+    });
 }
 
+/* ITEMS */
 function buildItems(){
- grid.innerHTML="";
- ITEMS.forEach(item=>{
-  const div=document.createElement("div");
-  div.className="item-card";
-  div.innerHTML=`<img src="${item.image}"><div>${item.name}</div><small>${item.weight} kg</small>`;
-  enableDrag(div,item,null,"palette");
-  grid.appendChild(div);
- });
+    grid.innerHTML="";
+    ITEMS.forEach(item=>{
+        const div=document.createElement("div");
+        div.className="item-card";
+        div.innerHTML=
+        `<img src="${item.image}">
+         <div>${item.name}</div>
+         <small>${item.weight} kg</small>`;
+        enableDrag(div,item,null,"palette");
+        grid.appendChild(div);
+    });
 }
 
+/* INIT */
 buildItems();
 renderTray();
+
 </script>
+
 </body>
 </html>
