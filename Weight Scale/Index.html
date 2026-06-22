@@ -109,7 +109,6 @@
             width: 70px;
             height: 70px;
             cursor: grab;
-            font-size: 48px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -119,6 +118,14 @@
             transition: transform 0.2s, opacity 0.2s, filter 0.2s, box-shadow 0.2s;
             will-change: transform;
             flex-shrink: 0;
+        }
+
+        .item img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            pointer-events: none;
+            padding: 6px;
         }
 
         .item:hover {
@@ -142,18 +149,6 @@
             cursor: grab;
             width: 60px;
             height: 60px;
-            font-size: 38px;
-            flex-shrink: 0;
-        }
-
-        .item .emoji {
-            font-size: 48px;
-            line-height: 1;
-            pointer-events: none;
-        }
-
-        .item.in-tray .emoji {
-            font-size: 38px;
         }
 
         .reset-btn {
@@ -204,12 +199,12 @@
     </div>
 
     <div class="items" id="itemsContainer">
-        <div class="item" data-weight="1"><span class="emoji">🍎</span></div>
-        <div class="item" data-weight="2"><span class="emoji">🍊</span></div>
-        <div class="item" data-weight="3"><span class="emoji">🎃</span></div>
-        <div class="item" data-weight="4"><span class="emoji">🥥</span></div>
-        <div class="item" data-weight="5"><span class="emoji">🍉</span></div>
-        <div class="item" data-weight="6"><span class="emoji">🍇</span></div>
+        <div class="item" data-weight="1"><img src="image/apple.png" alt="apple" /></div>
+        <div class="item" data-weight="2"><img src="image/orange.png" alt="orange" /></div>
+        <div class="item" data-weight="3"><img src="image/pumpkin.png" alt="pumpkin" /></div>
+        <div class="item" data-weight="4"><img src="image/coconut.png" alt="coconut" /></div>
+        <div class="item" data-weight="5"><img src="image/watermelon.png" alt="watermelon" /></div>
+        <div class="item" data-weight="6"><img src="image/grapes.png" alt="grapes" /></div>
     </div>
 
     <button class="reset-btn" id="resetBtn">⟳ Reset Scale</button>
@@ -250,12 +245,9 @@
                 ctx.fill();
 
                 // ----- ticks and numbers from 0 to 10 -----
-                // 0 is at the top (12 o'clock), numbers increase clockwise.
                 for (let i = 0; i <= 10; i++) {
-                    // angle: -90° (top) + i * 36° (full circle / 10)
                     const angle = (-90 + i * 36) * Math.PI / 180;
 
-                    // tick lines
                     const x1 = cx + Math.cos(angle) * (radius - 15);
                     const y1 = cy + Math.sin(angle) * (radius - 15);
                     const x2 = cx + Math.cos(angle) * (radius - 32);
@@ -267,7 +259,6 @@
                     ctx.lineWidth = i % 5 === 0 ? 4 : 2;
                     ctx.stroke();
 
-                    // number labels
                     const tx = cx + Math.cos(angle) * (radius - 50);
                     const ty = cy + Math.sin(angle) * (radius - 50);
                     ctx.font = 'bold 18px Arial';
@@ -278,14 +269,13 @@
                 }
 
                 // ----- pointer (needle) -----
-                // 0° = straight UP (12 o'clock), positive = clockwise
                 const pointerAngle = totalWeight * 36 * Math.PI / 180;
 
                 ctx.save();
                 ctx.translate(cx, cy);
                 ctx.rotate(pointerAngle);
 
-                // ----- needle shaft (thin line from center to just before tip) -----
+                // needle shaft
                 ctx.beginPath();
                 ctx.moveTo(0, 0);
                 ctx.lineTo(0, -(radius - 20));
@@ -293,7 +283,7 @@
                 ctx.lineWidth = 3.5;
                 ctx.stroke();
 
-                // ----- needle tip (pointy triangle) -----
+                // needle tip
                 const tipY = -(radius - 12);
                 ctx.beginPath();
                 ctx.moveTo(-12, tipY + 16);
@@ -306,7 +296,7 @@
                 ctx.lineWidth = 1.8;
                 ctx.stroke();
 
-                // ----- bright dot at the very tip for precision -----
+                // bright dot at tip
                 ctx.beginPath();
                 ctx.arc(0, tipY, 4, 0, Math.PI * 2);
                 ctx.fillStyle = '#ff6b6b';
@@ -317,7 +307,7 @@
 
                 ctx.restore();
 
-                // ----- center cap (over the pivot) -----
+                // center cap
                 ctx.shadowColor = 'rgba(0,0,0,0.10)';
                 ctx.shadowBlur = 10;
                 ctx.beginPath();
@@ -331,13 +321,11 @@
                 ctx.fillStyle = '#aaa';
                 ctx.fill();
 
-                // small highlight
                 ctx.beginPath();
                 ctx.arc(cx - 3, cy - 4, 2.5, 0, Math.PI * 2);
                 ctx.fillStyle = 'rgba(255,255,255,0.4)';
                 ctx.fill();
 
-                // update weight display
                 weightDisplay.textContent = totalWeight;
             }
 
