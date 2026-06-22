@@ -44,8 +44,8 @@
 
         .tray {
             width: 70%;
-            height: 90px;
-            margin-top: 20px;
+            height: 85px;
+            margin-top: 18px;
             padding: 6px 10px;
             border: 3px dashed #aaa;
             border-radius: 50px;
@@ -66,9 +66,10 @@
             border-color: #4caf50;
         }
 
+        /* ---- stem is now much shorter to move scale face up ---- */
         .stem {
             width: 20px;
-            height: 60px;
+            height: 20px;
             background: transparent;
             flex-shrink: 0;
         }
@@ -79,7 +80,7 @@
             aspect-ratio: 1;
             border-radius: 50%;
             background: white;
-            border: 10px solid transparent;
+            border: 4px solid transparent;
             overflow: hidden;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
             flex-shrink: 0;
@@ -272,7 +273,6 @@
                 }
 
                 // ----- pointer (needle) -----
-                // needle tip sits at radius - 12, right between the inner (18) and outer (6) ticks
                 const pointerAngle = totalWeight * 36 * Math.PI / 180;
 
                 ctx.save();
