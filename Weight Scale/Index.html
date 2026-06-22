@@ -1,460 +1,499 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kitchen Weight Scale</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      touch-action: none;
-      user-select: none;
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kitchen Weight Scale</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            touch-action: none;
+            user-select: none;
+        }
 
-    body {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background: #f5f3f0;
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    }
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #f5f3f0;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
 
-    h1 {
-      margin-bottom: 20px;
-      font-weight: 300;
-      letter-spacing: 2px;
-    }
+        h1 {
+            margin-bottom: 20px;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
 
-    /* =========================
-       SCALE GROUP
-    ========================= */
+        /* =========================
+           SCALE GROUP
+        ========================= */
 
-    .scale-group {
-      position: relative;
-      width: min(90vw, 500px);
-      aspect-ratio: 1 / 1.25;
+        .scale-group {
+            position: relative;
+            width: min(90vw, 500px);
+            aspect-ratio: 1 / 1.25;
+            background-image: url("image/background.png");
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-      background-image: url("image/background.png");
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-position: center;
+        /* =========================
+           TRAY – FIXED SIZE, NEVER RESIZES
+        ========================= */
 
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+        .tray {
+            width: 70%;
+            height: 90px;
+            /* fixed height – never changes */
+            margin-top: 20px;
+            padding: 6px 10px;
+            border: 3px dashed #aaa;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(4px);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            overflow: visible;
+            /* items stay visible even if they overflow */
+            transition: background 0.2s, border-color 0.2s;
+            flex-shrink: 0;
+            /* prevent shrinking */
+        }
 
-    /* =========================
-       TRAY (drop zone)
-    ========================= */
+        .tray.drag-over {
+            background: rgba(200, 230, 200, 0.5);
+            border-color: #4caf50;
+        }
 
-    .tray {
-      width: 70%;
-      min-height: 90px;
-      margin-top: 20px;
-      padding: 8px 12px;
+        /* stem connecting tray to face */
+        .stem {
+            width: 20px;
+            height: 60px;
+            background: transparent;
+            flex-shrink: 0;
+        }
 
-      border: 3px dashed #aaa;
-      border-radius: 50px;
-      background: rgba(255, 255, 255, 0.3);
-      backdrop-filter: blur(4px);
+        /* =========================
+           SCALE FACE
+        ========================= */
 
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
-      gap: 6px;
+        .scale-face {
+            position: relative;
+            width: 80%;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            background: white;
+            border: 10px solid transparent;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            flex-shrink: 0;
+        }
 
-      transition: background 0.2s, border-color 0.2s;
-    }
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
 
-    .tray.drag-over {
-      background: rgba(200, 230, 200, 0.5);
-      border-color: #4caf50;
-    }
+        /* =========================
+           ITEMS (draggable)
+        ========================= */
 
-    /* stem connecting tray to face */
-    .stem {
-      width: 20px;
-      height: 60px;
-      background: transparent;
-    }
+        .items {
+            display: flex;
+            gap: 18px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+            min-height: 80px;
+            padding: 10px 16px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 30px;
+            border: 2px dashed #ccc;
+        }
 
-    /* =========================
-       SCALE FACE
-    ========================= */
+        .item {
+            width: 70px;
+            height: 70px;
+            cursor: grab;
+            font-size: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+            transition: transform 0.2s, opacity 0.2s, filter 0.2s, box-shadow 0.2s;
+            will-change: transform;
+            flex-shrink: 0;
+        }
 
-    .scale-face {
-      position: relative;
-      width: 80%;
-      aspect-ratio: 1;
-      border-radius: 50%;
-      background: white;
-      border: 10px solid transparent;
-      overflow: hidden;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-    }
+        .item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+        }
 
-    canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
+        .item.dragging {
+            opacity: 0.6;
+            cursor: grabbing;
+            transform: scale(1.1);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+            z-index: 9999;
+        }
 
-    /* =========================
-       ITEMS (draggable)
-    ========================= */
+        /* ----- item INSIDE the tray – smaller, dimmer ----- */
+        .item.in-tray {
+            transform: scale(0.65);
+            opacity: 0.75;
+            filter: grayscale(0.2);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            cursor: grab;
+            width: 60px;
+            height: 60px;
+            font-size: 38px;
+            flex-shrink: 0;
+        }
 
-    .items {
-      display: flex;
-      gap: 18px;
-      margin-top: 30px;
-      flex-wrap: wrap;
-      justify-content: center;
-      min-height: 80px;
-      padding: 10px;
-      background: rgba(255, 255, 255, 0.5);
-      border-radius: 30px;
-      border: 2px dashed #ccc;
-    }
+        .item img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            pointer-events: none;
+        }
 
-    .item {
-      width: 70px;
-      height: 70px;
-      cursor: grab;
-      font-size: 48px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
-      transition: transform 0.2s, opacity 0.2s, filter 0.2s, box-shadow 0.2s;
-      will-change: transform;
-    }
+        .item .emoji {
+            font-size: 48px;
+            line-height: 1;
+            pointer-events: none;
+        }
 
-    .item:hover {
-      transform: scale(1.05);
-      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
-    }
+        .item.in-tray .emoji {
+            font-size: 38px;
+        }
 
-    .item.dragging {
-      opacity: 0.6;
-      cursor: grabbing;
-      transform: scale(1.1);
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
-      z-index: 9999;
-    }
+        /* =========================
+           RESET BUTTON
+        ========================= */
 
-    /* style when item is inside the tray */
-    .item.in-tray {
-      transform: scale(0.75);
-      opacity: 0.7;
-      filter: grayscale(0.3);
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-      cursor: grab;
-    }
+        .reset-btn {
+            margin-top: 18px;
+            padding: 10px 28px;
+            border: none;
+            border-radius: 40px;
+            background: #e0d6c8;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
 
-    .item img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      pointer-events: none;
-    }
+        .reset-btn:hover {
+            background: #d0c4b4;
+        }
 
-    /* fallback emoji size */
-    .item .emoji {
-      font-size: 48px;
-      line-height: 1;
-      pointer-events: none;
-    }
+        /* =========================
+           WEIGHT DISPLAY
+        ========================= */
 
-    /* reset button */
-    .reset-btn {
-      margin-top: 18px;
-      padding: 10px 28px;
-      border: none;
-      border-radius: 40px;
-      background: #e0d6c8;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .reset-btn:hover {
-      background: #d0c4b4;
-    }
-  </style>
+        .weight-display {
+            margin-top: 12px;
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 6px 24px;
+            border-radius: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+        .weight-display span {
+            color: #d32f2f;
+            font-size: 26px;
+        }
+    </style>
 </head>
 <body>
 
-  <h1>⚖️ Kitchen Scale</h1>
+    <h1>⚖️ Kitchen Scale</h1>
 
-  <div class="scale-group">
-    <div class="tray" id="tray"></div>
-    <div class="stem"></div>
-    <div class="scale-face">
-      <canvas id="scaleCanvas"></canvas>
+    <div class="scale-group">
+        <div class="tray" id="tray"></div>
+        <div class="stem"></div>
+        <div class="scale-face">
+            <canvas id="scaleCanvas"></canvas>
+        </div>
     </div>
-  </div>
 
-  <div class="items" id="itemsContainer">
-    <div class="item" data-weight="1"><span class="emoji">🍎</span></div>
-    <div class="item" data-weight="2"><span class="emoji">🍊</span></div>
-    <div class="item" data-weight="3"><span class="emoji">🎃</span></div>
-    <div class="item" data-weight="4"><span class="emoji">🥥</span></div>
-  </div>
+    <div class="weight-display">
+        Total: <span id="weightValue">0</span> g
+    </div>
 
-  <button class="reset-btn" id="resetBtn">⟳ Reset Scale</button>
+    <div class="items" id="itemsContainer">
+        <div class="item" data-weight="1"><span class="emoji">🍎</span></div>
+        <div class="item" data-weight="2"><span class="emoji">🍊</span></div>
+        <div class="item" data-weight="3"><span class="emoji">🎃</span></div>
+        <div class="item" data-weight="4"><span class="emoji">🥥</span></div>
+        <div class="item" data-weight="5"><span class="emoji">🍉</span></div>
+        <div class="item" data-weight="6"><span class="emoji">🍇</span></div>
+    </div>
 
-  <script>
-    (function() {
-      // ----- DOM refs -----
-      const tray = document.getElementById('tray');
-      const itemsContainer = document.getElementById('itemsContainer');
-      const canvas = document.getElementById('scaleCanvas');
-      const ctx = canvas.getContext('2d');
-      const resetBtn = document.getElementById('resetBtn');
+    <button class="reset-btn" id="resetBtn">⟳ Reset Scale</button>
 
-      let totalWeight = 0;
+    <script>
+        (function() {
+            // ----- DOM refs -----
+            const tray = document.getElementById('tray');
+            const itemsContainer = document.getElementById('itemsContainer');
+            const canvas = document.getElementById('scaleCanvas');
+            const ctx = canvas.getContext('2d');
+            const resetBtn = document.getElementById('resetBtn');
+            const weightDisplay = document.getElementById('weightValue');
 
-      // ----- Canvas sizing & drawing -----
-      function resizeCanvas() {
-        const rect = canvas.getBoundingClientRect();
-        const dpr = window.devicePixelRatio || 1;
-        canvas.width = rect.width * dpr;
-        canvas.height = rect.height * dpr;
-        ctx.scale(dpr, dpr);
-        drawScale();
-      }
+            let totalWeight = 0;
 
-      function drawScale() {
-        const w = canvas.width / (window.devicePixelRatio || 1);
-        const h = canvas.height / (window.devicePixelRatio || 1);
-        const cx = w / 2;
-        const cy = h / 2;
-        const radius = w * 0.42;
+            // ----- Canvas sizing & drawing -----
+            function resizeCanvas() {
+                const rect = canvas.getBoundingClientRect();
+                const dpr = window.devicePixelRatio || 1;
+                canvas.width = rect.width * dpr;
+                canvas.height = rect.height * dpr;
+                ctx.scale(dpr, dpr);
+                drawScale();
+            }
 
-        ctx.clearRect(0, 0, w, h);
+            function drawScale() {
+                const w = canvas.width / (window.devicePixelRatio || 1);
+                const h = canvas.height / (window.devicePixelRatio || 1);
+                const cx = w / 2;
+                const cy = h / 2;
+                const radius = w * 0.42;
 
-        // ----- face (transparent – let background show) -----
-        ctx.beginPath();
-        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-        ctx.fillStyle = 'transparent';
-        ctx.fill();
+                ctx.clearRect(0, 0, w, h);
 
-        // ----- ticks & numbers (0–10) -----
-        for (let i = 0; i <= 10; i++) {
-          const angle = (-90 + i * 36) * Math.PI / 180;
-          const x1 = cx + Math.cos(angle) * (radius - 15);
-          const y1 = cy + Math.sin(angle) * (radius - 15);
-          const x2 = cx + Math.cos(angle) * (radius - 30);
-          const y2 = cy + Math.sin(angle) * (radius - 30);
+                // ----- face (transparent – background image shows through) -----
+                ctx.beginPath();
+                ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+                ctx.fillStyle = 'transparent';
+                ctx.fill();
 
-          ctx.beginPath();
-          ctx.moveTo(x1, y1);
-          ctx.lineTo(x2, y2);
-          ctx.strokeStyle = '#222';
-          ctx.lineWidth = i % 5 === 0 ? 4 : 2;
-          ctx.stroke();
+                // ----- ticks & numbers (0–10) -----
+                for (let i = 0; i <= 10; i++) {
+                    const angle = (-90 + i * 36) * Math.PI / 180;
+                    const x1 = cx + Math.cos(angle) * (radius - 15);
+                    const y1 = cy + Math.sin(angle) * (radius - 15);
+                    const x2 = cx + Math.cos(angle) * (radius - 32);
+                    const y2 = cy + Math.sin(angle) * (radius - 32);
 
-          const tx = cx + Math.cos(angle) * (radius - 48);
-          const ty = cy + Math.sin(angle) * (radius - 48);
-          ctx.font = 'bold 18px Arial';
-          ctx.fillStyle = '#222';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(i, tx, ty);
-        }
+                    ctx.beginPath();
+                    ctx.moveTo(x1, y1);
+                    ctx.lineTo(x2, y2);
+                    ctx.strokeStyle = '#222';
+                    ctx.lineWidth = i % 5 === 0 ? 4 : 2;
+                    ctx.stroke();
 
-        // ----- pointer (needle) -----
-        const pointerAngle = (-90 + totalWeight * 36) * Math.PI / 180;
+                    // numbers at radius-50 (outer edge of the face)
+                    const tx = cx + Math.cos(angle) * (radius - 50);
+                    const ty = cy + Math.sin(angle) * (radius - 50);
+                    ctx.font = 'bold 18px Arial';
+                    ctx.fillStyle = '#222';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(i, tx, ty);
+                }
 
-        ctx.save();
-        ctx.translate(cx, cy);
-        ctx.rotate(pointerAngle);
+                // ----- pointer (needle) – TIP EXTENDS TO radius-12 (outer edge) -----
+                // This ensures the pointer reaches the numbers and ticks.
+                const pointerAngle = (-90 + totalWeight * 36) * Math.PI / 180;
 
-        // red triangle
-        ctx.beginPath();
-        ctx.moveTo(-8, 0);
-        ctx.lineTo(0, -radius + 60);
-        ctx.lineTo(8, 0);
-        ctx.closePath();
-        ctx.fillStyle = '#d32f2f';
-        ctx.fill();
-        ctx.shadowColor = 'rgba(0,0,0,0.2)';
-        ctx.shadowBlur = 6;
-        ctx.fill();
-        ctx.shadowBlur = 0;
-        ctx.strokeStyle = '#b71c1c';
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
+                ctx.save();
+                ctx.translate(cx, cy);
+                ctx.rotate(pointerAngle);
 
-        ctx.restore();
+                // pointer shaft (thin line from center to tip)
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(0, -(radius - 12));
+                ctx.strokeStyle = '#b71c1c';
+                ctx.lineWidth = 3;
+                ctx.stroke();
 
-        // ----- center cap -----
-        ctx.beginPath();
-        ctx.arc(cx, cy, 12, 0, Math.PI * 2);
-        ctx.fillStyle = '#333';
-        ctx.fill();
-        ctx.shadowColor = 'rgba(0,0,0,0.15)';
-        ctx.shadowBlur = 8;
-        ctx.fill();
-        ctx.shadowBlur = 0;
+                // pointer tip – triangular head for visibility
+                const tipY = -(radius - 12);
+                ctx.beginPath();
+                ctx.moveTo(-10, tipY + 12);
+                ctx.lineTo(0, tipY - 4);
+                ctx.lineTo(10, tipY + 12);
+                ctx.closePath();
+                ctx.fillStyle = '#d32f2f';
+                ctx.fill();
+                ctx.strokeStyle = '#b71c1c';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
 
-        // inner dot
-        ctx.beginPath();
-        ctx.arc(cx, cy, 5, 0, Math.PI * 2);
-        ctx.fillStyle = '#bbb';
-        ctx.fill();
-      }
+                // small dot at the tip for precision
+                ctx.beginPath();
+                ctx.arc(0, tipY, 3, 0, Math.PI * 2);
+                ctx.fillStyle = '#fff';
+                ctx.fill();
+                ctx.strokeStyle = '#b71c1c';
+                ctx.lineWidth = 1;
+                ctx.stroke();
 
-      // ----- Drag state -----
-      let current = null;
-      let offsetX = 0;
-      let offsetY = 0;
+                ctx.restore();
 
-      function cleanupDrag() {
-        if (!current) return;
-        current.classList.remove('dragging');
-        // reset inline styles
-        current.style.position = '';
-        current.style.left = '';
-        current.style.top = '';
-        current.style.width = '';
-        current.style.height = '';
-        current.style.zIndex = '';
-        current.style.pointerEvents = '';
-        current = null;
-      }
+                // ----- center cap (over the pivot) -----
+                ctx.shadowColor = 'rgba(0,0,0,0.10)';
+                ctx.shadowBlur = 8;
+                ctx.beginPath();
+                ctx.arc(cx, cy, 14, 0, Math.PI * 2);
+                ctx.fillStyle = '#444';
+                ctx.fill();
+                ctx.shadowBlur = 0;
 
-      // ----- Pointer events -----
-      document.addEventListener('pointerdown', (e) => {
-        const item = e.target.closest('.item');
-        if (!item) return;
-        // Prevent dragging if it's already being dragged
-        if (current) return;
+                // inner highlight
+                ctx.beginPath();
+                ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+                ctx.fillStyle = '#999';
+                ctx.fill();
 
-        current = item;
-        const rect = item.getBoundingClientRect();
+                // ----- update weight display -----
+                weightDisplay.textContent = totalWeight;
+            }
 
-        // Store offset relative to item's top-left
-        offsetX = e.clientX - rect.left;
-        offsetY = e.clientY - rect.top;
+            // ----- Drag state -----
+            let current = null;
+            let offsetX = 0;
+            let offsetY = 0;
 
-        // Move item to body for free movement
-        item.classList.add('dragging');
-        item.style.position = 'fixed';
-        item.style.width = rect.width + 'px';
-        item.style.height = rect.height + 'px';
-        item.style.zIndex = 9999;
-        item.style.pointerEvents = 'none'; // avoid blocking pointermove
-        item.style.left = (e.clientX - offsetX) + 'px';
-        item.style.top = (e.clientY - offsetY) + 'px';
+            function cleanupDrag() {
+                if (!current) return;
+                current.classList.remove('dragging');
+                current.style.position = '';
+                current.style.left = '';
+                current.style.top = '';
+                current.style.width = '';
+                current.style.height = '';
+                current.style.zIndex = '';
+                current.style.pointerEvents = '';
+                current = null;
+            }
 
-        document.body.appendChild(item); // detach from parent
+            // ----- Pointer events -----
+            document.addEventListener('pointerdown', (e) => {
+                const item = e.target.closest('.item');
+                if (!item) return;
+                if (current) return;
 
-        // highlight tray
-        tray.classList.add('drag-over');
-      });
+                current = item;
+                const rect = item.getBoundingClientRect();
 
-      document.addEventListener('pointermove', (e) => {
-        if (!current) return;
-        current.style.left = (e.clientX - offsetX) + 'px';
-        current.style.top = (e.clientY - offsetY) + 'px';
+                offsetX = e.clientX - rect.left;
+                offsetY = e.clientY - rect.top;
 
-        // toggle tray highlight based on hover
-        const trayRect = tray.getBoundingClientRect();
-        const inside = e.clientX >= trayRect.left && e.clientX <= trayRect.right &&
-                      e.clientY >= trayRect.top && e.clientY <= trayRect.bottom;
-        tray.classList.toggle('drag-over', inside);
-      });
+                item.classList.add('dragging');
+                item.style.position = 'fixed';
+                item.style.width = rect.width + 'px';
+                item.style.height = rect.height + 'px';
+                item.style.zIndex = 9999;
+                item.style.pointerEvents = 'none';
+                item.style.left = (e.clientX - offsetX) + 'px';
+                item.style.top = (e.clientY - offsetY) + 'px';
 
-      document.addEventListener('pointerup', (e) => {
-        if (!current) return;
+                document.body.appendChild(item);
+                tray.classList.add('drag-over');
+            });
 
-        const weight = Number(current.dataset.weight);
-        const trayRect = tray.getBoundingClientRect();
-        const inside = e.clientX >= trayRect.left && e.clientX <= trayRect.right &&
-                      e.clientY >= trayRect.top && e.clientY <= trayRect.bottom;
+            document.addEventListener('pointermove', (e) => {
+                if (!current) return;
+                current.style.left = (e.clientX - offsetX) + 'px';
+                current.style.top = (e.clientY - offsetY) + 'px';
 
-        // Determine if item was already in tray
-        const wasInTray = current.classList.contains('in-tray');
+                const trayRect = tray.getBoundingClientRect();
+                const inside = e.clientX >= trayRect.left && e.clientX <= trayRect.right &&
+                    e.clientY >= trayRect.top && e.clientY <= trayRect.bottom;
+                tray.classList.toggle('drag-over', inside);
+            });
 
-        if (inside) {
-          // ----- DROP INTO TRAY -----
-          if (!wasInTray) {
-            // move to tray
-            tray.appendChild(current);
-            current.classList.add('in-tray');
-            totalWeight += weight;
+            document.addEventListener('pointerup', (e) => {
+                if (!current) return;
+
+                const weight = Number(current.dataset.weight);
+                const trayRect = tray.getBoundingClientRect();
+                const inside = e.clientX >= trayRect.left && e.clientX <= trayRect.right &&
+                    e.clientY >= trayRect.top && e.clientY <= trayRect.bottom;
+
+                const wasInTray = current.classList.contains('in-tray');
+
+                if (inside) {
+                    // ----- DROP INTO TRAY -----
+                    if (!wasInTray) {
+                        tray.appendChild(current);
+                        current.classList.add('in-tray');
+                        totalWeight += weight;
+                        drawScale();
+                    }
+                    // if already in tray, do nothing (prevent double count)
+                } else {
+                    // ----- DROP OUTSIDE -----
+                    if (wasInTray) {
+                        current.classList.remove('in-tray');
+                        totalWeight -= weight;
+                        drawScale();
+                    }
+                    itemsContainer.appendChild(current);
+                }
+
+                tray.classList.remove('drag-over');
+                cleanupDrag();
+            });
+
+            // ----- Cancel (system gesture, escape, etc.) -----
+            document.addEventListener('pointercancel', () => {
+                if (current) {
+                    // move back to items container (safe fallback)
+                    if (current.classList.contains('in-tray')) {
+                        current.classList.remove('in-tray');
+                        totalWeight -= Number(current.dataset.weight) || 0;
+                        drawScale();
+                    }
+                    itemsContainer.appendChild(current);
+                    tray.classList.remove('drag-over');
+                    cleanupDrag();
+                }
+            });
+
+            // ----- Reset -----
+            function resetScale() {
+                const trayItems = tray.querySelectorAll('.item');
+                trayItems.forEach(item => {
+                    item.classList.remove('in-tray');
+                    itemsContainer.appendChild(item);
+                });
+                totalWeight = 0;
+                drawScale();
+            }
+
+            resetBtn.addEventListener('click', resetScale);
+
+            // ----- Initialise -----
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            // ensure pointer starts at 0
+            totalWeight = 0;
             drawScale();
-          }
-          // else: already in tray, do nothing (prevent double count)
-        } else {
-          // ----- DROP OUTSIDE -----
-          if (wasInTray) {
-            // remove from tray
-            current.classList.remove('in-tray');
-            totalWeight -= weight;
-            drawScale();
-          }
-          // move back to items container (whether it was in tray or not)
-          itemsContainer.appendChild(current);
-        }
-
-        // clean up drag state
-        tray.classList.remove('drag-over');
-        cleanupDrag();
-      });
-
-      // ----- Cancel (e.g. system gesture, escape) -----
-      document.addEventListener('pointercancel', () => {
-        if (current) {
-          // revert item to items container
-          if (current.classList.contains('in-tray')) {
-            // if it was in tray, keep it there? Actually pointercancel means drag aborted,
-            // we should put it back where it came from? To be safe, move to items.
-            // But if it was in tray, we should keep it there? Usually cancel means drop
-            // didn't happen, so we revert to previous state.
-            // We'll keep the "in-tray" state if it was already there, else move to items.
-            // However, we don't know previous parent easily. Simpler: move to items.
-            current.classList.remove('in-tray');
-            totalWeight -= Number(current.dataset.weight) || 0;
-            drawScale();
-          }
-          itemsContainer.appendChild(current);
-          tray.classList.remove('drag-over');
-          cleanupDrag();
-        }
-      });
-
-      // ----- Reset -----
-      function resetScale() {
-        // Move all in-tray items back to items container
-        const trayItems = tray.querySelectorAll('.item');
-        trayItems.forEach(item => {
-          item.classList.remove('in-tray');
-          itemsContainer.appendChild(item);
-        });
-        totalWeight = 0;
-        drawScale();
-      }
-
-      resetBtn.addEventListener('click', resetScale);
-
-      // ----- Initialise -----
-      window.addEventListener('resize', resizeCanvas);
-      resizeCanvas();
-
-      // Ensure pointer points to 0 at start (totalWeight is already 0)
-      drawScale();
-    })();
-  </script>
+        })();
+    </script>
 
 </body>
 </html>
