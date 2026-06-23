@@ -243,15 +243,16 @@
                 ctx.fillStyle = 'transparent';
                 ctx.fill();
 
-                // ----- Ticks and numbers – 0 at top (12 o'clock), 10 at bottom (6 o'clock) -----
-                // Loop 10 times for main ticks (0 to 10)
-                for (let i = 0; i <= 10; i++) {
-                    // 0° at top (12 o'clock), moving clockwise
-                    const angle = (-90 + i * 36) * Math.PI / 180;
+                // ----- Ticks and numbers (semi-circle: 0 to 10) -----
+                for (let i = 0; i <= 100; i++) {
+                    const value = i / 10;
+                    // Map 0->10 to -90deg -> 90deg (top to bottom)
+                    const angle = (-90 + value * 18) * Math.PI / 180;
+                    const isMainTick = i % 10 === 0;
 
-                    // Draw main tick (longer)
                     const outerRadius = radius - 2;
-                    const innerRadius = radius - 18;
+                    let innerRadius = isMainTick ? radius - 18 : radius - 12;
+
                     const x1 = cx + Math.cos(angle) * outerRadius;
                     const y1 = cy + Math.sin(angle) * outerRadius;
                     const x2 = cx + Math.cos(angle) * innerRadius;
@@ -261,42 +262,23 @@
                     ctx.moveTo(x1, y1);
                     ctx.lineTo(x2, y2);
                     ctx.strokeStyle = '#222';
-                    ctx.lineWidth = 4;
+                    ctx.lineWidth = isMainTick ? 5 : 2.5;
                     ctx.stroke();
 
-                    // Draw sub-ticks (between main ticks)
-                    if (i < 10) {
-                        for (let j = 1; j < 10; j++) {
-                            const subAngle = (-90 + (i + j / 10) * 36) * Math.PI / 180;
-                            const subOuter = radius - 2;
-                            const subInner = radius - 12;
-                            const sx1 = cx + Math.cos(subAngle) * subOuter;
-                            const sy1 = cy + Math.sin(subAngle) * subOuter;
-                            const sx2 = cx + Math.cos(subAngle) * subInner;
-                            const sy2 = cy + Math.sin(subAngle) * subInner;
-
-                            ctx.beginPath();
-                            ctx.moveTo(sx1, sy1);
-                            ctx.lineTo(sx2, sy2);
-                            ctx.strokeStyle = '#444';
-                            ctx.lineWidth = 2;
-                            ctx.stroke();
-                        }
+                    if (isMainTick) {
+                        const tx = cx + Math.cos(angle) * (radius - 30);
+                        const ty = cy + Math.sin(angle) * (radius - 30);
+                        ctx.font = 'bold 32px Arial';
+                        ctx.fillStyle = '#222';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(value, tx, ty);
                     }
-
-                    // Draw the number (larger, bold, and clearly placed)
-                    const numRadius = radius - 28;
-                    const tx = cx + Math.cos(angle) * numRadius;
-                    const ty = cy + Math.sin(angle) * numRadius;
-                    ctx.font = 'bold 28px Arial';
-                    ctx.fillStyle = '#111';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText(i, tx, ty);
                 }
 
-                // ----- pointer (needle) -----
-                const pointerAngle = totalWeight * 36 * Math.PI / 180;
+                // ----- pointer (needle) capped at max 10 -----
+                let displayWeight = Math.min(totalWeight, 10);
+                const pointerAngle = displayWeight * 18 * Math.PI / 180;
 
                 ctx.save();
                 ctx.translate(cx, cy);
@@ -305,17 +287,17 @@
                 // Needle shaft
                 ctx.beginPath();
                 ctx.moveTo(0, 0);
-                ctx.lineTo(0, -(radius - 18));
+                ctx.lineTo(0, -(radius - 20));
                 ctx.strokeStyle = '#b71c1c';
                 ctx.lineWidth = 5;
                 ctx.stroke();
 
                 // Needle tip (triangle)
-                const tipY = -(radius - 8);
+                const tipY = -(radius - 10);
                 ctx.beginPath();
-                ctx.moveTo(-16, tipY + 20);
+                ctx.moveTo(-16, tipY + 22);
                 ctx.lineTo(0, tipY - 10);
-                ctx.lineTo(16, tipY + 20);
+                ctx.lineTo(16, tipY + 22);
                 ctx.closePath();
                 ctx.fillStyle = '#d32f2f';
                 ctx.fill();
@@ -323,7 +305,7 @@
                 ctx.lineWidth = 2.5;
                 ctx.stroke();
 
-                // Bright dot at the tip for precision
+                // Bright dot at tip
                 ctx.beginPath();
                 ctx.arc(0, tipY, 6, 0, Math.PI * 2);
                 ctx.fillStyle = '#ff6b6b';
@@ -334,23 +316,23 @@
 
                 ctx.restore();
 
-                // Center cap (over the pivot)
-                ctx.shadowColor = 'rgba(0,0,0,0.15)';
-                ctx.shadowBlur = 12;
+                // Center cap
+                ctx.shadowColor = 'rgba(0,0,0,0.10)';
+                ctx.shadowBlur = 10;
                 ctx.beginPath();
-                ctx.arc(cx, cy, 20, 0, Math.PI * 2);
-                ctx.fillStyle = '#333';
+                ctx.arc(cx, cy, 18, 0, Math.PI * 2);
+                ctx.fillStyle = '#444';
                 ctx.fill();
                 ctx.shadowBlur = 0;
 
                 ctx.beginPath();
-                ctx.arc(cx, cy, 9, 0, Math.PI * 2);
-                ctx.fillStyle = '#bbb';
+                ctx.arc(cx, cy, 8, 0, Math.PI * 2);
+                ctx.fillStyle = '#aaa';
                 ctx.fill();
 
                 ctx.beginPath();
-                ctx.arc(cx - 4, cy - 5, 3.5, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(255,255,255,0.5)';
+                ctx.arc(cx - 4, cy - 5, 3, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255,255,255,0.4)';
                 ctx.fill();
 
                 weightDisplay.textContent = totalWeight;
