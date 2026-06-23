@@ -66,10 +66,9 @@
             border-color: #4caf50;
         }
 
-        /* ---- STEM HEIGHT INCREASED to move the scale face down ---- */
         .stem {
             width: 20px;
-            height: 50px; /* was 20px – this shifts the entire scale face downward */
+            height: 50px;
             background: transparent;
             flex-shrink: 0;
         }
@@ -245,31 +244,43 @@
                 ctx.fill();
 
                 // ----- ticks and numbers – now much closer to the outer ring -----
-                for (let i = 0; i <= 10; i++) {
-                    const angle = (-90 + i * 36) * Math.PI / 180;
+                // Loop 100 times for 0 to 10 (0.1 increments)
+                for (let i = 0; i <= 100; i++) {
+                    const value = i / 10;
+                    const angle = (-90 + value * 36) * Math.PI / 180;
+                    const isMainTick = i % 10 === 0;
 
-                    // outer tick: very close to the edge (radius - 6)
-                    const x1 = cx + Math.cos(angle) * (radius - 6);
-                    const y1 = cy + Math.sin(angle) * (radius - 6);
-                    // inner tick: radius - 18
-                    const x2 = cx + Math.cos(angle) * (radius - 18);
-                    const y2 = cy + Math.sin(angle) * (radius - 18);
+                    // Outer tick is very close to the edge (radius - 4)
+                    const outerRadius = radius - 4;
+                    let innerRadius;
+                    if (isMainTick) {
+                        innerRadius = radius - 14; // Longer tick for main marks
+                    } else {
+                        innerRadius = radius - 9; // Shorter tick for intermediate marks
+                    }
+
+                    const x1 = cx + Math.cos(angle) * outerRadius;
+                    const y1 = cy + Math.sin(angle) * outerRadius;
+                    const x2 = cx + Math.cos(angle) * innerRadius;
+                    const y2 = cy + Math.sin(angle) * innerRadius;
 
                     ctx.beginPath();
                     ctx.moveTo(x1, y1);
                     ctx.lineTo(x2, y2);
                     ctx.strokeStyle = '#222';
-                    ctx.lineWidth = i % 5 === 0 ? 4 : 2;
+                    ctx.lineWidth = isMainTick ? 3 : 1.5;
                     ctx.stroke();
 
-                    // numbers: radius - 32
-                    const tx = cx + Math.cos(angle) * (radius - 32);
-                    const ty = cy + Math.sin(angle) * (radius - 32);
-                    ctx.font = 'bold 18px Arial';
-                    ctx.fillStyle = '#222';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText(i, tx, ty);
+                    // Draw the number for main ticks (0, 1, 2, ... 10)
+                    if (isMainTick) {
+                        const tx = cx + Math.cos(angle) * (radius - 22);
+                        const ty = cy + Math.sin(angle) * (radius - 22);
+                        ctx.font = 'bold 16px Arial';
+                        ctx.fillStyle = '#222';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(value, tx, ty);
+                    }
                 }
 
                 // ----- pointer (needle) -----
@@ -279,16 +290,16 @@
                 ctx.translate(cx, cy);
                 ctx.rotate(pointerAngle);
 
-                // needle shaft
+                // Needle shaft
                 ctx.beginPath();
                 ctx.moveTo(0, 0);
-                ctx.lineTo(0, -(radius - 20));
+                ctx.lineTo(0, -(radius - 16));
                 ctx.strokeStyle = '#b71c1c';
                 ctx.lineWidth = 3.5;
                 ctx.stroke();
 
-                // needle tip (triangle)
-                const tipY = -(radius - 12);
+                // Needle tip (triangle)
+                const tipY = -(radius - 10);
                 ctx.beginPath();
                 ctx.moveTo(-12, tipY + 16);
                 ctx.lineTo(0, tipY - 6);
@@ -300,7 +311,7 @@
                 ctx.lineWidth = 1.8;
                 ctx.stroke();
 
-                // bright dot at tip
+                // Bright dot at tip
                 ctx.beginPath();
                 ctx.arc(0, tipY, 4, 0, Math.PI * 2);
                 ctx.fillStyle = '#ff6b6b';
@@ -311,7 +322,7 @@
 
                 ctx.restore();
 
-                // center cap
+                // Center cap
                 ctx.shadowColor = 'rgba(0,0,0,0.10)';
                 ctx.shadowBlur = 10;
                 ctx.beginPath();
