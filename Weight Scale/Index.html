@@ -68,9 +68,10 @@
             border-color: #4caf50;
         }
 
+        /* ── stem is taller to push scale face down ── */
         .stem {
             width: 16px;
-            height: 30px;
+            height: 50px;
             background: transparent;
             flex-shrink: 0;
         }
@@ -93,7 +94,7 @@
             display: block;
         }
 
-        /* ── items moved upward ── */
+        /* ── items moved upward (already tight margin) ── */
         .items {
             display: flex;
             gap: 14px;
@@ -183,7 +184,6 @@
             font-size: 24px;
         }
 
-        /* ── small-screen tweaks ── */
         @media (max-width: 480px) {
             .item {
                 width: 52px;
@@ -222,6 +222,9 @@
                 margin-top: 8px;
                 padding: 6px 18px;
                 font-size: 13px;
+            }
+            .stem {
+                height: 40px;
             }
         }
     </style>
@@ -319,14 +322,14 @@
                     }
                 }
 
-                // ── pointer (needle) – now SHORTER ──
+                // ── pointer (needle) – short, clear ──
                 const pointerAngle = totalWeight * 36 * Math.PI / 180;
 
                 ctx.save();
                 ctx.translate(cx, cy);
                 ctx.rotate(pointerAngle);
 
-                // Shaft: ends at radius - 36 (shorter, well inside numbers)
+                // Shaft: ends at radius - 36
                 ctx.beginPath();
                 ctx.moveTo(0, 0);
                 ctx.lineTo(0, -(radius - 36));
@@ -334,7 +337,7 @@
                 ctx.lineWidth = 4;
                 ctx.stroke();
 
-                // Needle tip (triangle) – point at radius - 38
+                // Tip triangle
                 const tipY = -(radius - 38);
                 ctx.beginPath();
                 ctx.moveTo(-12, tipY + 14);
@@ -347,7 +350,7 @@
                 ctx.lineWidth = 2;
                 ctx.stroke();
 
-                // Bright dot at tip
+                // Bright dot
                 ctx.beginPath();
                 ctx.arc(0, tipY, 4, 0, Math.PI * 2);
                 ctx.fillStyle = '#ff6b6b';
