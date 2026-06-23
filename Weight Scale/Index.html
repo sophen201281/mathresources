@@ -66,7 +66,6 @@
             border-color: #4caf50;
         }
 
-        /* ---- stem is now much shorter to move scale face up ---- */
         .stem {
             width: 20px;
             height: 20px;
@@ -74,9 +73,10 @@
             flex-shrink: 0;
         }
 
+        /* ----- SCALE FACE: now smaller (65% instead of 80%) ----- */
         .scale-face {
             position: relative;
-            width: 80%;
+            width: 65%;
             aspect-ratio: 1;
             border-radius: 50%;
             background: white;
@@ -262,7 +262,7 @@
                     ctx.lineWidth = i % 5 === 0 ? 4 : 2;
                     ctx.stroke();
 
-                    // numbers: radius - 32 (moved in just enough to not overlap the ticks)
+                    // numbers: radius - 32
                     const tx = cx + Math.cos(angle) * (radius - 32);
                     const ty = cy + Math.sin(angle) * (radius - 32);
                     ctx.font = 'bold 18px Arial';
@@ -287,7 +287,7 @@
                 ctx.lineWidth = 3.5;
                 ctx.stroke();
 
-                // needle tip (triangle) – points exactly to the middle of the tick zone
+                // needle tip (triangle)
                 const tipY = -(radius - 12);
                 ctx.beginPath();
                 ctx.moveTo(-12, tipY + 16);
