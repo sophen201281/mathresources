@@ -68,14 +68,15 @@
             border-color: #4caf50;
         }
 
-        /* ── stem is taller to push scale face down ── */
+        /* stem back to original height */
         .stem {
             width: 16px;
-            height: 50px;
+            height: 30px;
             background: transparent;
             flex-shrink: 0;
         }
 
+        /* ── scale face moved down with margin-top ── */
         .scale-face {
             position: relative;
             width: 65%;
@@ -86,6 +87,7 @@
             overflow: hidden;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
             flex-shrink: 0;
+            margin-top: 40px; /* moves the dial downward */
         }
 
         canvas {
@@ -94,7 +96,6 @@
             display: block;
         }
 
-        /* ── items moved upward (already tight margin) ── */
         .items {
             display: flex;
             gap: 14px;
@@ -223,8 +224,9 @@
                 padding: 6px 18px;
                 font-size: 13px;
             }
-            .stem {
-                height: 40px;
+            /* keep margin-top smaller on mobile if needed */
+            .scale-face {
+                margin-top: 30px;
             }
         }
     </style>
