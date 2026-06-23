@@ -20,19 +20,20 @@
             align-items: center;
             background: #f5f3f0;
             font-family: Arial, sans-serif;
-            padding: 20px;
+            padding: 12px 20px 20px;
         }
 
         h1 {
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             font-weight: 300;
             letter-spacing: 2px;
+            font-size: 24px;
         }
 
         .scale-group {
             position: relative;
             width: min(90vw, 500px);
-            aspect-ratio: 1 / 1.25;
+            aspect-ratio: 1 / 1.2;
             background-image: url("image/background.png");
             background-size: contain;
             background-repeat: no-repeat;
@@ -44,21 +45,22 @@
 
         .tray {
             width: 70%;
-            height: 85px;
-            margin-top: 18px;
-            padding: 6px 10px;
+            height: 70px;
+            margin-top: 12px;
+            padding: 4px 8px;
             border: 3px dashed #aaa;
-            border-radius: 50px;
+            border-radius: 40px;
             background: rgba(255, 255, 255, 0.25);
             backdrop-filter: blur(4px);
             display: flex;
             flex-wrap: wrap;
             align-items: center;
             justify-content: center;
-            gap: 4px;
+            gap: 3px;
             overflow: visible;
             transition: background 0.2s, border-color 0.2s;
             flex-shrink: 0;
+            min-height: 60px;
         }
 
         .tray.drag-over {
@@ -67,8 +69,8 @@
         }
 
         .stem {
-            width: 20px;
-            height: 50px;
+            width: 16px;
+            height: 30px;
             background: transparent;
             flex-shrink: 0;
         }
@@ -91,28 +93,29 @@
             display: block;
         }
 
+        /* ── items moved upward ── */
         .items {
             display: flex;
-            gap: 18px;
-            margin-top: 30px;
+            gap: 14px;
+            margin-top: 8px;
             flex-wrap: wrap;
             justify-content: center;
-            min-height: 80px;
-            padding: 10px 16px;
+            min-height: 68px;
+            padding: 8px 16px;
             background: rgba(255, 255, 255, 0.5);
             border-radius: 30px;
             border: 2px dashed #ccc;
         }
 
         .item {
-            width: 70px;
-            height: 70px;
+            width: 62px;
+            height: 62px;
             cursor: grab;
             display: flex;
             align-items: center;
             justify-content: center;
             background: white;
-            border-radius: 16px;
+            border-radius: 14px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
             transition: transform 0.2s, opacity 0.2s, filter 0.2s, box-shadow 0.2s;
             will-change: transform;
@@ -124,7 +127,7 @@
             height: 100%;
             object-fit: contain;
             pointer-events: none;
-            padding: 6px;
+            padding: 5px;
         }
 
         .item:hover {
@@ -141,22 +144,22 @@
         }
 
         .item.in-tray {
-            transform: scale(0.65);
+            transform: scale(0.6);
             opacity: 0.75;
             filter: grayscale(0.2);
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
             cursor: grab;
-            width: 60px;
-            height: 60px;
+            width: 52px;
+            height: 52px;
         }
 
         .reset-btn {
-            margin-top: 18px;
-            padding: 10px 28px;
+            margin-top: 12px;
+            padding: 8px 24px;
             border: none;
             border-radius: 40px;
             background: #e0d6c8;
-            font-size: 16px;
+            font-size: 15px;
             cursor: pointer;
             transition: background 0.2s;
         }
@@ -166,18 +169,60 @@
         }
 
         .weight-display {
-            margin-top: 12px;
-            font-size: 20px;
+            margin-top: 6px;
+            font-size: 18px;
             font-weight: 600;
             color: #333;
             background: rgba(255, 255, 255, 0.7);
-            padding: 6px 24px;
+            padding: 4px 22px;
             border-radius: 30px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
         }
         .weight-display span {
             color: #d32f2f;
-            font-size: 26px;
+            font-size: 24px;
+        }
+
+        /* ── small-screen tweaks ── */
+        @media (max-width: 480px) {
+            .item {
+                width: 52px;
+                height: 52px;
+            }
+            .item.in-tray {
+                width: 44px;
+                height: 44px;
+            }
+            .items {
+                gap: 10px;
+                padding: 6px 12px;
+                margin-top: 4px;
+                min-height: 56px;
+            }
+            .tray {
+                height: 56px;
+                margin-top: 8px;
+            }
+            .scale-group {
+                aspect-ratio: 1 / 1.15;
+            }
+            h1 {
+                font-size: 20px;
+                margin-bottom: 6px;
+            }
+            .weight-display {
+                font-size: 15px;
+                padding: 3px 16px;
+                margin-top: 4px;
+            }
+            .weight-display span {
+                font-size: 20px;
+            }
+            .reset-btn {
+                margin-top: 8px;
+                padding: 6px 18px;
+                font-size: 13px;
+            }
         }
     </style>
 </head>
@@ -237,26 +282,18 @@
 
                 ctx.clearRect(0, 0, w, h);
 
-                // ----- transparent face (background image shows through) -----
-                ctx.beginPath();
-                ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-                ctx.fillStyle = 'transparent';
-                ctx.fill();
-
-                // ----- Ticks and numbers – now bigger and longer -----
+                // ── ticks & numbers ──
                 for (let i = 0; i <= 100; i++) {
                     const value = i / 10;
                     const angle = (-90 + value * 36) * Math.PI / 180;
                     const isMainTick = i % 10 === 0;
 
-                    // Outer tick stays at radius - 2 (touching the ring)
                     const outerRadius = radius - 2;
-                    // Inner tick now extends much further inward
                     let innerRadius;
                     if (isMainTick) {
-                        innerRadius = radius - 16; // Longer main ticks
+                        innerRadius = radius - 16;
                     } else {
-                        innerRadius = radius - 11; // Longer sub‑ticks
+                        innerRadius = radius - 11;
                     }
 
                     const x1 = cx + Math.cos(angle) * outerRadius;
@@ -268,14 +305,13 @@
                     ctx.moveTo(x1, y1);
                     ctx.lineTo(x2, y2);
                     ctx.strokeStyle = '#222';
-                    ctx.lineWidth = isMainTick ? 4 : 2; // Thicker ticks
+                    ctx.lineWidth = isMainTick ? 4 : 2;
                     ctx.stroke();
 
-                    // Numbers – now even larger (28px) and moved inward to avoid overlap
                     if (isMainTick) {
                         const tx = cx + Math.cos(angle) * (radius - 26);
                         const ty = cy + Math.sin(angle) * (radius - 26);
-                        ctx.font = 'bold 28px Arial';
+                        ctx.font = 'bold 26px Arial';
                         ctx.fillStyle = '#222';
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'middle';
@@ -283,27 +319,27 @@
                     }
                 }
 
-                // ----- pointer (needle) -----
+                // ── pointer (needle) – now SHORTER ──
                 const pointerAngle = totalWeight * 36 * Math.PI / 180;
 
                 ctx.save();
                 ctx.translate(cx, cy);
                 ctx.rotate(pointerAngle);
 
-                // Needle shaft
+                // Shaft: ends at radius - 36 (shorter, well inside numbers)
                 ctx.beginPath();
                 ctx.moveTo(0, 0);
-                ctx.lineTo(0, -(radius - 18));
+                ctx.lineTo(0, -(radius - 36));
                 ctx.strokeStyle = '#b71c1c';
                 ctx.lineWidth = 4;
                 ctx.stroke();
 
-                // Needle tip (triangle) – now reaches to radius - 8
-                const tipY = -(radius - 8);
+                // Needle tip (triangle) – point at radius - 38
+                const tipY = -(radius - 38);
                 ctx.beginPath();
-                ctx.moveTo(-14, tipY + 18);
-                ctx.lineTo(0, tipY - 8);
-                ctx.lineTo(14, tipY + 18);
+                ctx.moveTo(-12, tipY + 14);
+                ctx.lineTo(0, tipY - 6);
+                ctx.lineTo(12, tipY + 14);
                 ctx.closePath();
                 ctx.fillStyle = '#d32f2f';
                 ctx.fill();
@@ -313,7 +349,7 @@
 
                 // Bright dot at tip
                 ctx.beginPath();
-                ctx.arc(0, tipY, 5, 0, Math.PI * 2);
+                ctx.arc(0, tipY, 4, 0, Math.PI * 2);
                 ctx.fillStyle = '#ff6b6b';
                 ctx.fill();
                 ctx.strokeStyle = '#b71c1c';
@@ -322,29 +358,29 @@
 
                 ctx.restore();
 
-                // Center cap
+                // ── center cap ──
                 ctx.shadowColor = 'rgba(0,0,0,0.10)';
                 ctx.shadowBlur = 10;
                 ctx.beginPath();
-                ctx.arc(cx, cy, 18, 0, Math.PI * 2);
+                ctx.arc(cx, cy, 16, 0, Math.PI * 2);
                 ctx.fillStyle = '#444';
                 ctx.fill();
                 ctx.shadowBlur = 0;
 
                 ctx.beginPath();
-                ctx.arc(cx, cy, 8, 0, Math.PI * 2);
+                ctx.arc(cx, cy, 7, 0, Math.PI * 2);
                 ctx.fillStyle = '#aaa';
                 ctx.fill();
 
                 ctx.beginPath();
-                ctx.arc(cx - 4, cy - 5, 3, 0, Math.PI * 2);
+                ctx.arc(cx - 3, cy - 4, 2.5, 0, Math.PI * 2);
                 ctx.fillStyle = 'rgba(255,255,255,0.4)';
                 ctx.fill();
 
                 weightDisplay.textContent = totalWeight;
             }
 
-            // ----- Drag state -----
+            // ── drag state ──
             let current = null;
             let offsetX = 0;
             let offsetY = 0;
