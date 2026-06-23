@@ -42,10 +42,11 @@
             align-items: center;
         }
 
+        /* ----- TRAY: moved upward ----- */
         .tray {
             width: 70%;
-            height: 85px;
-            margin-top: 18px;
+            height: 80px; /* slightly smaller */
+            margin-top: 8px; /* reduced from 18px */
             padding: 6px 10px;
             border: 3px dashed #aaa;
             border-radius: 50px;
@@ -66,10 +67,10 @@
             border-color: #4caf50;
         }
 
-        /* ---- stem is now much shorter to move scale face up ---- */
+        /* ----- STEM: much shorter to pull tray up ----- */
         .stem {
             width: 20px;
-            height: 20px;
+            height: 8px; /* reduced from 20px */
             background: transparent;
             flex-shrink: 0;
         }
@@ -238,20 +239,18 @@
 
                 ctx.clearRect(0, 0, w, h);
 
-                // ----- transparent face (background image shows through) -----
+                // ----- transparent face -----
                 ctx.beginPath();
                 ctx.arc(cx, cy, radius, 0, Math.PI * 2);
                 ctx.fillStyle = 'transparent';
                 ctx.fill();
 
-                // ----- ticks and numbers – now much closer to the outer ring -----
+                // ----- ticks and numbers -----
                 for (let i = 0; i <= 10; i++) {
                     const angle = (-90 + i * 36) * Math.PI / 180;
 
-                    // outer tick: very close to the edge (radius - 6)
                     const x1 = cx + Math.cos(angle) * (radius - 6);
                     const y1 = cy + Math.sin(angle) * (radius - 6);
-                    // inner tick: radius - 18
                     const x2 = cx + Math.cos(angle) * (radius - 18);
                     const y2 = cy + Math.sin(angle) * (radius - 18);
 
@@ -262,7 +261,6 @@
                     ctx.lineWidth = i % 5 === 0 ? 4 : 2;
                     ctx.stroke();
 
-                    // numbers: radius - 32 (moved in just enough to not overlap the ticks)
                     const tx = cx + Math.cos(angle) * (radius - 32);
                     const ty = cy + Math.sin(angle) * (radius - 32);
                     ctx.font = 'bold 18px Arial';
@@ -279,7 +277,6 @@
                 ctx.translate(cx, cy);
                 ctx.rotate(pointerAngle);
 
-                // needle shaft
                 ctx.beginPath();
                 ctx.moveTo(0, 0);
                 ctx.lineTo(0, -(radius - 20));
@@ -287,7 +284,6 @@
                 ctx.lineWidth = 3.5;
                 ctx.stroke();
 
-                // needle tip (triangle) – points exactly to the middle of the tick zone
                 const tipY = -(radius - 12);
                 ctx.beginPath();
                 ctx.moveTo(-12, tipY + 16);
@@ -300,7 +296,6 @@
                 ctx.lineWidth = 1.8;
                 ctx.stroke();
 
-                // bright dot at tip
                 ctx.beginPath();
                 ctx.arc(0, tipY, 4, 0, Math.PI * 2);
                 ctx.fillStyle = '#ff6b6b';
