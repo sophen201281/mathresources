@@ -520,13 +520,11 @@ function addFruit(img){
 
 }
 
-/* 🍎 FRUIT DRAG */
+/* 🍎 FRUIT DRAG (FIXED - NO JUMP) */
 
 function setupFruitDrag(fruit){
 
     let sx=0,sy=0;
-
-    let ox=0,oy=0;
 
     let dx=0,dy=0;
 
@@ -548,15 +546,21 @@ function setupFruitDrag(fruit){
 
         selectedFruit = fruit;
 
-        sx=e.clientX;
+        // 🔥 FIX: prevents jump by using actual position
 
-        sy=e.clientY;
+        const rect = fruit.getBoundingClientRect();
 
-        ox=fruit.offsetLeft;
+        const parentRect = fruit.parentElement.getBoundingClientRect();
 
-        oy=fruit.offsetTop;
+        sx = e.clientX;
 
-        dragging=true;
+        sy = e.clientY;
+
+        dx = 0;
+
+        dy = 0;
+
+        dragging = true;
 
         fruit.setPointerCapture(e.pointerId);
 
@@ -566,25 +570,29 @@ function setupFruitDrag(fruit){
 
         if(!dragging) return;
 
-        dx=e.clientX-sx;
+        dx = e.clientX - sx;
 
-        dy=e.clientY-sy;
+        dy = e.clientY - sy;
 
-        if(!raf) raf=requestAnimationFrame(apply);
+        if(!raf) raf = requestAnimationFrame(apply);
 
     });
 
     fruit.addEventListener("pointerup",(e)=>{
 
-        dragging=false;
+        dragging = false;
 
         fruit.releasePointerCapture(e.pointerId);
 
-        fruit.style.left=(ox+dx)+"px";
+        const rect = fruit.getBoundingClientRect();
 
-        fruit.style.top=(oy+dy)+"px";
+        const parentRect = fruit.parentElement.getBoundingClientRect();
 
-        fruit.style.transform="none";
+        fruit.style.left = (rect.left - parentRect.left) + "px";
+
+        fruit.style.top  = (rect.top - parentRect.top) + "px";
+
+        fruit.style.transform = "none";
 
     });
 
