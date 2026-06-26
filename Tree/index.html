@@ -32,7 +32,7 @@ body{
 
 }
 
-/* LEFT SIDEBAR */
+/* LEFT BAR */
 
 #fruitbar{
 
@@ -54,15 +54,15 @@ body{
 
 }
 
-#fruitbar button {
+#fruitbar button{
 
     background:rgba(255,255,255,0.75);
-
-    backdrop-filter:blur(8px);
 
     border-radius:50%;
 
     padding:10px;
+
+    border:none;
 
 }
 
@@ -82,33 +82,35 @@ body{
 
     gap:8px;
 
-    align-items:center;
-
     z-index:9999;
 
     background:rgba(255,255,255,0.75);
-
-    backdrop-filter:blur(8px);
 
     padding:8px 14px;
 
     border-radius:40px;
 
-    box-shadow:0 4px 16px rgba(0,0,0,.15);
+    backdrop-filter:blur(8px);
 
 }
 
-button{
+/* BUTTONS */
 
-    padding:8px;
+button, a{
 
     border:none;
 
-    border-radius:10px;
-
     background:white;
 
+    padding:8px 12px;
+
+    border-radius:10px;
+
     cursor:pointer;
+
+    text-decoration:none;
+
+    color:#333;
 
     box-shadow:0 2px 6px rgba(0,0,0,.15);
 
@@ -144,15 +146,15 @@ canvas{
 
 /* WORKSPACE */
 
-#workspace {
+#workspace{
 
-    position: relative;
+    position:relative;
 
-    width: 100%;
+    width:100%;
 
-    height: 100vh;
+    height:100vh;
 
-    overflow: hidden;
+    overflow:hidden;
 
 }
 
@@ -168,9 +170,7 @@ canvas{
 
     z-index:10;
 
-    border-radius:20px;
-
-    will-change: transform;
+    will-change:transform;
 
 }
 
@@ -187,8 +187,6 @@ canvas{
     width:400px;
 
     height:400px;
-
-    object-fit:contain;
 
     user-select:none;
 
@@ -208,7 +206,7 @@ canvas{
 
     cursor:grab;
 
-    will-change: transform;
+    will-change:transform;
 
 }
 
@@ -217,8 +215,6 @@ canvas{
     width:100%;
 
     height:100%;
-
-    object-fit:contain;
 
     pointer-events:none;
 
@@ -244,37 +240,25 @@ canvas{
 
 <div id="fruitbar">
 
-    <button onclick="addFruit('apple.png')">
+    <button onclick="addFruit('apple.png')"><img src="assets/apple.png"></button>
 
-        <img src="assets/apple.png">
+    <button onclick="addFruit('orange.png')"><img src="assets/orange.png"></button>
 
-    </button>
-
-    <button onclick="addFruit('orange.png')">
-
-        <img src="assets/orange.png">
-
-    </button>
-
-    <button onclick="addFruit('mango.png')">
-
-        <img src="assets/mango.png">
-
-    </button>
+    <button onclick="addFruit('mango.png')"><img src="assets/mango.png"></button>
 
 </div>
 
-<!-- TOOLBAR -->
+<!-- BOTTOM BAR -->
 
 <div id="bottombar">
 
-    <button onclick="addNewTree()">ដើមឈើ</button>
+    <button onclick="addNewTree()">🌳 ដើមឈើ</button>
 
-    <button onclick="toggleDraw()">សរសេរ</button>
+    <button onclick="toggleDraw()">✏️ សរសេរ</button>
 
-    <button onclick="toggleEraser()">លុប</button>
+    <button onclick="toggleEraser()">🧽 លុប</button>
 
-    <button onclick="clearCanvas()">សម្អាត</button>
+    <button onclick="clearCanvas()">🧹 សម្អាត</button>
 
     <a href="../index.html">Home</a>
 
@@ -302,13 +286,17 @@ let selectedTree = null;
 
 let selectedFruit = null;
 
-const DEFAULT_TREE_X = 200;
+const DEFAULT_X = 200;
 
-const DEFAULT_TREE_Y = 140;
+const DEFAULT_Y = 140;
+
+let lastTap = 0;
+
+const DOUBLE_TAP = 300;
 
 /* CANVAS */
 
-function resizeCanvas(){
+function resize(){
 
     canvas.width = window.innerWidth;
 
@@ -316,9 +304,9 @@ function resizeCanvas(){
 
 }
 
-resizeCanvas();
+resize();
 
-window.addEventListener("resize", resizeCanvas);
+window.addEventListener("resize", resize);
 
 /* DRAW */
 
@@ -364,29 +352,23 @@ canvas.addEventListener("pointerup",()=>{
 
 /* TOOLS */
 
-function toggleDraw(){
+function toggleDraw(){ drawMode=!drawMode; eraseMode=false; }
 
-    drawMode = !drawMode;
+function toggleEraser(){ eraseMode=!eraseMode; drawMode=false; }
 
-    eraseMode = false;
+function clearCanvas(){ ctx.clearRect(0,0,canvas.width,canvas.height); }
 
-}
+/* 🌳 ADD TREE */
 
-function toggleEraser(){
+function addNewTree(){
 
-    eraseMode = !eraseMode;
+    const tree = createTree(DEFAULT_X+Math.random()*100, DEFAULT_Y+Math.random()*100);
 
-    drawMode = false;
-
-}
-
-function clearCanvas(){
-
-    ctx.clearRect(0,0,canvas.width,canvas.height);
+    selectTree(tree);
 
 }
 
-/* TREE */
+/* CREATE TREE */
 
 function createTree(x,y){
 
@@ -404,19 +386,57 @@ function createTree(x,y){
 
     setupTreeDrag(tree);
 
+    setupTreeTap(tree);
+
     return tree;
 
 }
 
-/* TREE DRAG (smooth) */
+/* SELECT TREE */
+
+function selectTree(tree){
+
+    selectedTree = tree;
+
+    selectedFruit = null;
+
+}
+
+/* 🌳 DOUBLE TAP DELETE TREE */
+
+function setupTreeTap(tree){
+
+    tree.addEventListener("pointerdown",(e)=>{
+
+        if(e.target.classList.contains("fruit")) return;
+
+        selectTree(tree);
+
+        const now = Date.now();
+
+        if(now - lastTap < DOUBLE_TAP){
+
+            tree.remove();
+
+            if(selectedTree === tree) selectedTree = null;
+
+        }
+
+        lastTap = now;
+
+    });
+
+}
+
+/* 🌳 TREE DRAG */
 
 function setupTreeDrag(tree){
 
-    let startX=0,startY=0;
+    let sx=0,sy=0;
 
-    let originX=0,originY=0;
+    let ox=0,oy=0;
 
-    let currentX=0,currentY=0;
+    let dx=0,dy=0;
 
     let raf=null;
 
@@ -424,7 +444,7 @@ function setupTreeDrag(tree){
 
     function apply(){
 
-        tree.style.transform=`translate(${currentX}px,${currentY}px)`;
+        tree.style.transform=`translate(${dx}px,${dy}px)`;
 
         raf=null;
 
@@ -434,15 +454,13 @@ function setupTreeDrag(tree){
 
         if(e.target.classList.contains("fruit")) return;
 
-        selectedTree=tree;
+        sx=e.clientX;
 
-        startX=e.clientX;
+        sy=e.clientY;
 
-        startY=e.clientY;
+        ox=tree.offsetLeft;
 
-        originX=tree.offsetLeft;
-
-        originY=tree.offsetTop;
+        oy=tree.offsetTop;
 
         dragging=true;
 
@@ -454,13 +472,9 @@ function setupTreeDrag(tree){
 
         if(!dragging) return;
 
-        const dx=e.clientX-startX;
+        dx=e.clientX-sx;
 
-        const dy=e.clientY-startY;
-
-        currentX=dx;
-
-        currentY=dy;
+        dy=e.clientY-sy;
 
         if(!raf) raf=requestAnimationFrame(apply);
 
@@ -472,9 +486,9 @@ function setupTreeDrag(tree){
 
         tree.releasePointerCapture(e.pointerId);
 
-        tree.style.left=(originX+currentX)+"px";
+        tree.style.left=(ox+dx)+"px";
 
-        tree.style.top=(originY+currentY)+"px";
+        tree.style.top=(oy+dy)+"px";
 
         tree.style.transform="none";
 
@@ -482,11 +496,11 @@ function setupTreeDrag(tree){
 
 }
 
-/* FRUIT */
+/* 🍎 ADD FRUIT */
 
 function addFruit(img){
 
-    if(!selectedTree) selectedTree=createTree(DEFAULT_TREE_X,DEFAULT_TREE_Y);
+    if(!selectedTree) selectedTree=createTree(DEFAULT_X,DEFAULT_Y);
 
     const fruit=document.createElement("div");
 
@@ -502,17 +516,19 @@ function addFruit(img){
 
     setupFruitDrag(fruit);
 
+    setupFruitTapDelete(fruit);
+
 }
 
-/* 🌿 SMOOTH "STICK TO BRANCH" DRAG (NO SNAP) */
+/* 🍎 FRUIT DRAG */
 
 function setupFruitDrag(fruit){
 
-    let startX=0,startY=0;
+    let sx=0,sy=0;
 
-    let originX=0,originY=0;
+    let ox=0,oy=0;
 
-    let offsetX=0,offsetY=0;
+    let dx=0,dy=0;
 
     let raf=null;
 
@@ -520,7 +536,7 @@ function setupFruitDrag(fruit){
 
     function apply(){
 
-        fruit.style.transform=`translate(${offsetX}px,${offsetY}px)`;
+        fruit.style.transform=`translate(${dx}px,${dy}px)`;
 
         raf=null;
 
@@ -530,23 +546,15 @@ function setupFruitDrag(fruit){
 
         e.stopPropagation();
 
-        selectedFruit=fruit;
+        selectedFruit = fruit;
 
-        const rect=fruit.getBoundingClientRect();
+        sx=e.clientX;
 
-        const parentRect=fruit.parentElement.getBoundingClientRect();
+        sy=e.clientY;
 
-        originX=rect.left-parentRect.left;
+        ox=fruit.offsetLeft;
 
-        originY=rect.top-parentRect.top;
-
-        startX=e.clientX;
-
-        startY=e.clientY;
-
-        offsetX=0;
-
-        offsetY=0;
+        oy=fruit.offsetTop;
 
         dragging=true;
 
@@ -558,9 +566,9 @@ function setupFruitDrag(fruit){
 
         if(!dragging) return;
 
-        offsetX=e.clientX-startX;
+        dx=e.clientX-sx;
 
-        offsetY=e.clientY-startY;
+        dy=e.clientY-sy;
 
         if(!raf) raf=requestAnimationFrame(apply);
 
@@ -572,13 +580,9 @@ function setupFruitDrag(fruit){
 
         fruit.releasePointerCapture(e.pointerId);
 
-        const rect=fruit.getBoundingClientRect();
+        fruit.style.left=(ox+dx)+"px";
 
-        const parentRect=fruit.parentElement.getBoundingClientRect();
-
-        fruit.style.left=(rect.left-parentRect.left)+"px";
-
-        fruit.style.top=(rect.top-parentRect.top)+"px";
+        fruit.style.top=(oy+dy)+"px";
 
         fruit.style.transform="none";
 
@@ -586,9 +590,31 @@ function setupFruitDrag(fruit){
 
 }
 
+/* 🍎 DOUBLE TAP DELETE FRUIT */
+
+function setupFruitTapDelete(fruit){
+
+    fruit.addEventListener("pointerdown",(e)=>{
+
+        const now = Date.now();
+
+        if(now - lastTap < DOUBLE_TAP){
+
+            fruit.remove();
+
+            if(selectedFruit === fruit) selectedFruit = null;
+
+        }
+
+        lastTap = now;
+
+    });
+
+}
+
 /* INIT */
 
-createTree(DEFAULT_TREE_X,DEFAULT_TREE_Y);
+createTree(DEFAULT_X,DEFAULT_Y);
 
 </script>
 
