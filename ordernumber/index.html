@@ -4,7 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
-<title>Interactive Numbers + Fruits + Drawing</title>
+<title>Interactive Words + Fruits + Drawing</title>
+
+<!-- Khmer Battambang Font -->
+<link href="https://fonts.googleapis.com/css2?family=Battambang&display=swap" rel="stylesheet">
 
 <style>
 
@@ -20,68 +23,55 @@ body{
     background:#eef3ff;
 }
 
-/* TOP AREA */
-
-#toolbar{
-
+/* BOTTOM BAR (TOOLBAR + CONTROLS + HOME) */
+#bottomBar{
     position:absolute;
-
-    top:10px;
+    bottom:10px;
     left:10px;
+    right:10px;
 
     display:flex;
-
-    gap:8px;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
 
     z-index:300;
 }
 
-.fruitTemplate{
+/* FRUIT TOOLBAR */
+#toolbar{
+    display:flex;
+    gap:8px;
+}
 
+.fruitTemplate{
     width:48px;
     height:48px;
 
     border-radius:10px;
-
     border:2px solid #666;
 
     background:white;
 
     display:flex;
-
     justify-content:center;
     align-items:center;
 
     font-size:32px;
 }
 
+/* CONTROLS */
 #controls{
-
-    position:absolute;
-
-    top:10px;
-
-    right:10px;
-
     display:flex;
-
     gap:8px;
-
-    z-index:300;
 }
 
 button{
-
     border:none;
-
     padding:10px 15px;
-
     border-radius:10px;
-
     font-size:16px;
-
     color:white;
-
     font-weight:bold;
 }
 
@@ -93,91 +83,78 @@ button{
     background:#4285ff;
 }
 
+/* HOME */
+.home-btn{
+    text-decoration:none;
+    background:#4CAF50;
+    padding:10px 15px;
+    border-radius:10px;
+    color:white;
+    font-weight:bold;
+}
+
 /* HOLDER */
-
 #holder{
-
     position:absolute;
-
-    top:80px;
-
+    top:10px;
     left:10px;
     right:10px;
 
     height:140px;
 
     border:4px solid #444;
-
     border-radius:18px;
 
     display:grid;
-
     grid-template-columns:repeat(11,1fr);
-
     gap:5px;
 
     padding:8px;
-
     background:white;
 }
 
 .cell{
-
     border:2px dashed #ccc;
-
     border-radius:10px;
 }
 
 /* OBJECTS */
-
 .card,
 .fruit{
-
     position:absolute;
-
     width:62px;
     height:62px;
 
     display:flex;
-
     justify-content:center;
     align-items:center;
 
     user-select:none;
-
     z-index:100;
 }
 
 .card{
-
     background:#FFD966;
-
     border:3px solid #333;
-
     border-radius:12px;
 
-    font-size:30px;
-
+    font-size:18px;
     font-weight:bold;
+
+    font-family:'Battambang', sans-serif;
 }
 
 .fruit{
-
     font-size:42px;
 }
 
 /* CANVAS */
-
 #canvas{
-
     position:absolute;
-
-    top:280px;
-
+    top:180px;
     left:0;
 
     width:100%;
-
     height:calc(100vh - 280px);
 
     background:white;
@@ -188,487 +165,215 @@ button{
 
 <body>
 
-<!-- Fruits -->
-
-<div id="toolbar">
-
-<div class="fruitTemplate">🍎</div>
-<div class="fruitTemplate">🍌</div>
-<div class="fruitTemplate">🍇</div>
-<div class="fruitTemplate">🍊</div>
-<div class="fruitTemplate">🍓</div>
-<a href="../index.html" class="home-btn">🏡Home</a>
-</div>
-
-<!-- Controls -->
-
-<div id="controls">
-
-<button id="clearBtn">
-Clear
-</button>
-
-<button id="eraserBtn">
-Eraser
-</button>
-
-</div>
-
-<!-- Holder -->
-
+<!-- HOLDER -->
 <div id="holder"></div>
+
+<!-- FRUITS + CONTROLS + HOME (BOTTOM BAR) -->
+<div id="bottomBar">
+
+    <div id="toolbar">
+        <div class="fruitTemplate">🍎</div>
+        <div class="fruitTemplate">🍌</div>
+        <div class="fruitTemplate">🍇</div>
+        <div class="fruitTemplate">🍊</div>
+        <div class="fruitTemplate">🍓</div>
+    </div>
+
+    <div id="controls">
+        <button id="clearBtn">Clear</button>
+        <button id="eraserBtn">Eraser</button>
+    </div>
+
+    <a href="../index.html" class="home-btn">🏡 Home</a>
+
+</div>
 
 <canvas id="canvas"></canvas>
 
 <script>
 
 /* HOLDER GRID */
-
-const holder =
-document.getElementById(
-"holder"
-);
-
-const cells=[];
+const holder = document.getElementById("holder");
+const cells = [];
 
 for(let i=0;i<11;i++){
-
-let c=
-document.createElement(
-"div"
-);
-
-c.className=
-"cell";
-
-holder.appendChild(c);
-
-cells.push(c);
-
+    let c = document.createElement("div");
+    c.className = "cell";
+    holder.appendChild(c);
+    cells.push(c);
 }
 
-/* NUMBER CARDS */
+/* WORD CARDS */
+let words = [
+    "zero","one","two","three","four",
+    "five","six","seven","eight","nine","ten"
+];
 
-let nums=
-[0,1,2,3,4,5,6,7,8,9,10];
+words.sort(()=>Math.random()-0.5);
 
-nums.sort(
-()=>Math.random()-0.5
-);
+words.forEach(w=>{
 
-nums.forEach(n=>{
+    let card = document.createElement("div");
+    card.className = "card";
+    card.textContent = w;
 
-let card=
-document.createElement(
-"div"
-);
+    card.style.left = Math.random()*(window.innerWidth-80)+"px";
+    card.style.top = (200 + Math.random()*250)+"px";
 
-card.className=
-"card";
+    document.body.appendChild(card);
 
-card.textContent=
-n;
-
-card.style.left=
-Math.random()*
-(window.innerWidth-80)
-+"px";
-
-card.style.top=
-(330+
-Math.random()*250)
-+"px";
-
-document.body.appendChild(
-card
-);
-
-makeDrag(
-card,
-true
-);
-
+    makeDrag(card,true);
 });
 
-/* MAGNETIC SNAP */
-
+/* SNAP */
 function snap(el){
+    let best = 999999;
+    let target = null;
 
-let best=999999;
+    const r = el.getBoundingClientRect();
+    const cx = r.left + r.width/2;
+    const cy = r.top + r.height/2;
 
-let target=null;
+    cells.forEach(cell=>{
+        const cr = cell.getBoundingClientRect();
+        const d = Math.hypot(
+            cx-(cr.left+cr.width/2),
+            cy-(cr.top+cr.height/2)
+        );
 
-const r=
-el.getBoundingClientRect();
+        if(d<best){
+            best = d;
+            target = cell;
+        }
+    });
 
-const cx=
-r.left+r.width/2;
-
-const cy=
-r.top+r.height/2;
-
-cells.forEach(cell=>{
-
-const cr=
-cell.getBoundingClientRect();
-
-const d=
-Math.hypot(
-
-cx-(cr.left+cr.width/2),
-
-cy-(cr.top+cr.height/2)
-
-);
-
-if(d<best){
-
-best=d;
-
-target=cell;
-
-}
-
-});
-
-if(best<90){
-
-const rect=
-target.getBoundingClientRect();
-
-el.style.left=
-(rect.left+
-(rect.width-el.offsetWidth)/2)
-+"px";
-
-el.style.top=
-(rect.top+
-(rect.height-el.offsetHeight)/2)
-+"px";
-
-}
-
+    if(best<90){
+        const rect = target.getBoundingClientRect();
+        el.style.left = (rect.left+(rect.width-el.offsetWidth)/2)+"px";
+        el.style.top = (rect.top+(rect.height-el.offsetHeight)/2)+"px";
+    }
 }
 
 /* DRAG */
+function makeDrag(el, magnetic=false){
+    let sx,sy,ox,oy;
 
-function makeDrag(
-el,
-magnetic=false
-){
+    function start(e){
+        const p = e.touches?e.touches[0]:e;
 
-let sx,sy,ox,oy;
+        sx = p.clientX;
+        sy = p.clientY;
 
-function start(e){
+        ox = el.offsetLeft;
+        oy = el.offsetTop;
 
-const p=
-e.touches?
-e.touches[0]:e;
+        document.addEventListener("mousemove",move);
+        document.addEventListener("touchmove",move,{passive:false});
+        document.addEventListener("mouseup",end);
+        document.addEventListener("touchend",end);
+    }
 
-sx=p.clientX;
-sy=p.clientY;
+    function move(e){
+        e.preventDefault();
+        const p = e.touches?e.touches[0]:e;
 
-ox=el.offsetLeft;
-oy=el.offsetTop;
+        el.style.left = ox + (p.clientX-sx)+"px";
+        el.style.top  = oy + (p.clientY-sy)+"px";
+    }
 
-document.addEventListener(
-"mousemove",
-move
-);
+    function end(){
+        if(magnetic) snap(el);
 
-document.addEventListener(
-"touchmove",
-move,
-{passive:false}
-);
+        document.removeEventListener("mousemove",move);
+        document.removeEventListener("touchmove",move);
+        document.removeEventListener("mouseup",end);
+        document.removeEventListener("touchend",end);
+    }
 
-document.addEventListener(
-"mouseup",
-end
-);
-
-document.addEventListener(
-"touchend",
-end
-);
-
-}
-
-function move(e){
-
-e.preventDefault();
-
-const p=
-e.touches?
-e.touches[0]:e;
-
-el.style.left=
-ox+
-(p.clientX-sx)
-+"px";
-
-el.style.top=
-oy+
-(p.clientY-sy)
-+"px";
-
-}
-
-function end(){
-
-if(magnetic){
-
-snap(el);
-
-}
-
-document.removeEventListener(
-"mousemove",
-move
-);
-
-document.removeEventListener(
-"touchmove",
-move
-);
-
-document.removeEventListener(
-"mouseup",
-end
-);
-
-document.removeEventListener(
-"touchend",
-end
-);
-
-}
-
-el.addEventListener(
-"mousedown",
-start
-);
-
-el.addEventListener(
-"touchstart",
-start
-);
-
+    el.addEventListener("mousedown",start);
+    el.addEventListener("touchstart",start);
 }
 
 /* FRUIT COPY */
+document.querySelectorAll(".fruitTemplate").forEach(item=>{
+    item.onclick=()=>{
+        let fruit = document.createElement("div");
+        fruit.className = "fruit";
+        fruit.textContent = item.textContent;
 
-document
-.querySelectorAll(
-".fruitTemplate"
-)
+        fruit.style.left = "120px";
+        fruit.style.top = "200px";
 
-.forEach(item=>{
-
-item.onclick=()=>{
-
-let fruit=
-document.createElement(
-"div"
-);
-
-fruit.className=
-"fruit";
-
-fruit.textContent=
-item.textContent;
-
-fruit.style.left=
-"120px";
-
-fruit.style.top=
-"340px";
-
-document.body.appendChild(
-fruit
-);
-
-makeDrag(
-fruit
-);
-
-};
-
+        document.body.appendChild(fruit);
+        makeDrag(fruit);
+    };
 });
 
 /* CANVAS */
-
-const canvas=
-document.getElementById(
-"canvas"
-);
-
-const ctx=
-canvas.getContext(
-"2d"
-);
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
 
 function resize(){
-
-canvas.width=
-window.innerWidth;
-
-canvas.height=
-window.innerHeight-
-280;
-
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight - 180;
 }
-
 resize();
+window.addEventListener("resize",resize);
 
-window.addEventListener(
-"resize",
-resize
-);
+const DRAW_SIZE = 5;
+const ERASER_SIZE = 30;
 
-const DRAW_SIZE=5;
+ctx.lineCap = "round";
 
-const ERASER_SIZE=30;
-
-ctx.lineCap=
-"round";
-
-let drawing=
-false;
-
-let eraseMode=
-false;
+let drawing = false;
+let eraseMode = false;
 
 function pos(e){
+    const rect = canvas.getBoundingClientRect();
+    const p = e.touches?e.touches[0]:e;
 
-const rect=
-canvas.getBoundingClientRect();
-
-const p=
-e.touches?
-e.touches[0]:e;
-
-return{
-
-x:p.clientX-
-rect.left,
-
-y:p.clientY-
-rect.top
-
-};
-
+    return {
+        x:p.clientX-rect.left,
+        y:p.clientY-rect.top
+    };
 }
 
 function startDraw(e){
-
-drawing=true;
-
-const p=pos(e);
-
-ctx.beginPath();
-
-ctx.moveTo(
-p.x,
-p.y
-);
-
+    drawing = true;
+    const p = pos(e);
+    ctx.beginPath();
+    ctx.moveTo(p.x,p.y);
 }
 
 function draw(e){
+    if(!drawing) return;
+    e.preventDefault();
 
-if(!drawing)
-return;
+    ctx.globalCompositeOperation = eraseMode?"destination-out":"source-over";
+    ctx.lineWidth = eraseMode?ERASER_SIZE:DRAW_SIZE;
 
-e.preventDefault();
-
-ctx.globalCompositeOperation=
-eraseMode
-? "destination-out"
-: "source-over";
-
-ctx.lineWidth=
-eraseMode
-? ERASER_SIZE
-: DRAW_SIZE;
-
-const p=
-pos(e);
-
-ctx.lineTo(
-p.x,
-p.y
-);
-
-ctx.stroke();
-
+    const p = pos(e);
+    ctx.lineTo(p.x,p.y);
+    ctx.stroke();
 }
 
-function stop(){
+function stop(){ drawing=false; }
 
-drawing=false;
+canvas.addEventListener("mousedown",startDraw);
+canvas.addEventListener("mousemove",draw);
+window.addEventListener("mouseup",stop);
 
-}
-
-canvas.addEventListener(
-"mousedown",
-startDraw
-);
-
-canvas.addEventListener(
-"mousemove",
-draw
-);
-
-window.addEventListener(
-"mouseup",
-stop
-);
-
-canvas.addEventListener(
-"touchstart",
-startDraw
-);
-
-canvas.addEventListener(
-"touchmove",
-draw,
-{passive:false}
-);
-
-window.addEventListener(
-"touchend",
-stop
-);
+canvas.addEventListener("touchstart",startDraw);
+canvas.addEventListener("touchmove",draw,{passive:false});
+window.addEventListener("touchend",stop);
 
 /* BUTTONS */
-
-document
-.getElementById(
-"clearBtn"
-)
-
-.onclick=()=>{
-
-ctx.clearRect(
-0,
-0,
-canvas.width,
-canvas.height
-);
-
+document.getElementById("clearBtn").onclick=()=>{
+    ctx.clearRect(0,0,canvas.width,canvas.height);
 };
 
-document
-.getElementById(
-"eraserBtn"
-)
-
-.onclick=()=>{
-
-eraseMode=
-!eraseMode;
-
+document.getElementById("eraserBtn").onclick=()=>{
+    eraseMode = !eraseMode;
 };
 
 </script>
