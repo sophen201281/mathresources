@@ -240,11 +240,23 @@ canvas{
 
 <div id="fruitbar">
 
-    <button onclick="addFruit('apple.png')"><img src="assets/apple.png"></button>
+    <button onclick="addFruit('apple.png')">
 
-    <button onclick="addFruit('orange.png')"><img src="assets/orange.png"></button>
+        <img src="assets/apple.png">
 
-    <button onclick="addFruit('mango.png')"><img src="assets/mango.png"></button>
+    </button>
+
+    <button onclick="addFruit('orange.png')">
+
+        <img src="assets/orange.png">
+
+    </button>
+
+    <button onclick="addFruit('mango.png')">
+
+        <img src="assets/mango.png">
+
+    </button>
 
 </div>
 
@@ -285,10 +297,6 @@ let drawing = false;
 let selectedTree = null;
 
 let selectedFruit = null;
-
-const DEFAULT_X = 200;
-
-const DEFAULT_Y = 140;
 
 let lastTap = 0;
 
@@ -362,7 +370,11 @@ function clearCanvas(){ ctx.clearRect(0,0,canvas.width,canvas.height); }
 
 function addNewTree(){
 
-    const tree = createTree(DEFAULT_X+Math.random()*100, DEFAULT_Y+Math.random()*100);
+    const x = (window.innerWidth / 2) - 210;
+
+    const y = (window.innerHeight / 2) - 210;
+
+    const tree = createTree(x, y);
 
     selectTree(tree);
 
@@ -500,7 +512,15 @@ function setupTreeDrag(tree){
 
 function addFruit(img){
 
-    if(!selectedTree) selectedTree=createTree(DEFAULT_X,DEFAULT_Y);
+    if(!selectedTree) {
+
+        const x = (window.innerWidth / 2) - 210;
+
+        const y = (window.innerHeight / 2) - 210;
+
+        selectedTree = createTree(x,y);
+
+    }
 
     const fruit=document.createElement("div");
 
@@ -520,7 +540,7 @@ function addFruit(img){
 
 }
 
-/* 🍎 FRUIT DRAG (FIXED - NO JUMP) */
+/* 🍎 FRUIT DRAG */
 
 function setupFruitDrag(fruit){
 
@@ -546,21 +566,15 @@ function setupFruitDrag(fruit){
 
         selectedFruit = fruit;
 
-        // 🔥 FIX: prevents jump by using actual position
+        sx=e.clientX;
 
-        const rect = fruit.getBoundingClientRect();
+        sy=e.clientY;
 
-        const parentRect = fruit.parentElement.getBoundingClientRect();
+        dx=0;
 
-        sx = e.clientX;
+        dy=0;
 
-        sy = e.clientY;
-
-        dx = 0;
-
-        dy = 0;
-
-        dragging = true;
+        dragging=true;
 
         fruit.setPointerCapture(e.pointerId);
 
@@ -570,17 +584,17 @@ function setupFruitDrag(fruit){
 
         if(!dragging) return;
 
-        dx = e.clientX - sx;
+        dx=e.clientX-sx;
 
-        dy = e.clientY - sy;
+        dy=e.clientY-sy;
 
-        if(!raf) raf = requestAnimationFrame(apply);
+        if(!raf) raf=requestAnimationFrame(apply);
 
     });
 
     fruit.addEventListener("pointerup",(e)=>{
 
-        dragging = false;
+        dragging=false;
 
         fruit.releasePointerCapture(e.pointerId);
 
@@ -620,9 +634,17 @@ function setupFruitTapDelete(fruit){
 
 }
 
-/* INIT */
+/* INIT (CENTER TREE ON START) */
 
-createTree(DEFAULT_X,DEFAULT_Y);
+(function init(){
+
+    const x = (window.innerWidth / 2) - 210;
+
+    const y = (window.innerHeight / 2) - 210;
+
+    createTree(x,y);
+
+})();
 
 </script>
 
