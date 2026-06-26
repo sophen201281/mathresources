@@ -1,11 +1,7 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
 <title>Multi-Language Learning Board</title>
@@ -15,301 +11,152 @@
 <style>
 
 *{
-
     box-sizing:border-box;
-
     touch-action:none;
-
 }
 
 body{
-
     margin:0;
-
     overflow:hidden;
-
     font-family:Arial,sans-serif;
-
     background:#eef3ff;
-
-}
-
-/* MODE SELECTOR */
-
-#modeBar{
-
-    position:absolute;
-
-    top:10px;
-
-    left:10px;
-
-    z-index:400;
-
-}
-
-select{
-
-    padding:10px;
-
-    border-radius:10px;
-
-    border:2px solid #333;
-
-    font-weight:bold;
-
 }
 
 /* HOLDER */
-
 #holder{
-
     position:absolute;
-
     top:60px;
-
     left:10px;
-
     right:10px;
-
     height:140px;
 
     border:4px solid #444;
-
     border-radius:18px;
 
     display:grid;
-
     grid-template-columns:repeat(11,1fr);
-
     gap:5px;
 
     padding:8px;
-
     background:white;
-
 }
 
 .cell{
-
     border:2px dashed #ccc;
-
     border-radius:10px;
-
 }
 
 /* BOTTOM BAR */
-
 #bottomBar{
-
     position:absolute;
-
     bottom:10px;
-
     left:10px;
-
     right:10px;
 
     display:flex;
-
     justify-content:space-between;
-
     align-items:center;
-
     z-index:300;
-
 }
 
-/* FRUITS */
-
-#toolbar{
-
+/* LEFT CONTROLS (MODE + BUTTONS) */
+#controls{
     display:flex;
-
     gap:8px;
-
+    align-items:center;
 }
 
-.fruitTemplate{
-
-    width:48px;
-
-    height:48px;
-
+/* MODE SELECT */
+select{
+    padding:10px;
     border-radius:10px;
-
-    border:2px solid #666;
-
-    background:white;
-
-    display:flex;
-
-    justify-content:center;
-
-    align-items:center;
-
-    font-size:32px;
-
+    border:2px solid #333;
+    font-weight:bold;
 }
 
 /* BUTTONS */
-
-#controls{
-
-    display:flex;
-
-    gap:8px;
-
-}
-
 button{
-
     border:none;
-
     padding:10px 15px;
-
     border-radius:10px;
-
     font-size:16px;
-
     color:white;
-
     font-weight:bold;
-
 }
 
 #clearBtn{ background:#ff6666; }
-
 #eraserBtn{ background:#4285ff; }
 
 .home-btn{
-
     text-decoration:none;
-
     background:#4CAF50;
-
     padding:10px 15px;
-
     border-radius:10px;
-
     color:white;
-
     font-weight:bold;
-
 }
 
 /* CARDS */
-
 .card,
-
 .fruit{
-
     position:absolute;
-
     width:62px;
-
     height:62px;
-
     display:flex;
-
     justify-content:center;
-
     align-items:center;
-
     user-select:none;
-
     z-index:100;
-
 }
 
 .card{
-
     background:#FFD966;
-
     border:3px solid #333;
-
     border-radius:12px;
 
     font-size:18px;
-
     font-weight:bold;
-
     font-family:'Battambang', sans-serif;
-
 }
 
 .fruit{ font-size:42px; }
 
 /* CANVAS */
-
 #canvas{
-
     position:absolute;
-
     top:180px;
-
     left:0;
-
     width:100%;
-
     height:calc(100vh - 180px);
-
     background:white;
-
 }
 
 </style>
-
 </head>
 
 <body>
 
-<!-- MODE -->
-
-<div id="modeBar">
-
-<select id="modeSelect">
-
-    <option value="words">Words</option>
-
-    <option value="en">English Numbers</option>
-
-    <option value="kh">Khmer Numbers</option>
-
-</select>
-
-</div>
-
 <!-- HOLDER -->
-
 <div id="holder"></div>
 
 <!-- BOTTOM BAR -->
-
 <div id="bottomBar">
 
-    <div id="toolbar">
-
-        <div class="fruitTemplate">🍎</div>
-
-        <div class="fruitTemplate">🍌</div>
-
-        <div class="fruitTemplate">🍇</div>
-
-        <div class="fruitTemplate">🍊</div>
-
-        <div class="fruitTemplate">🍓</div>
-
-    </div>
-
+    <!-- MODE + BUTTONS -->
     <div id="controls">
 
-        <button id="clearBtn">Clear</button>
+        <select id="modeSelect">
+            <option value="words">Words</option>
+            <option value="en">English Numbers</option>
+            <option value="kh">Khmer Numbers</option>
+        </select>
 
+        <button id="clearBtn">Clear</button>
         <button id="eraserBtn">Eraser</button>
 
     </div>
 
+    <!-- HOME -->
     <a href="../index.html" class="home-btn">🏡 Home</a>
 
 </div>
@@ -318,308 +165,214 @@ button{
 
 <script>
 
-/* DATA SETS */
-
+/* DATA */
 const data = {
-
     en:["0","1","2","3","4","5","6","7","8","9","10"],
-
     words:["zero","one","two","three","four","five","six","seven","eight","nine","ten"],
-
     kh:["០","១","២","៣","៤","៥","៦","៧","៨","៩","១០"]
-
 };
 
-/* HOLDER GRID */
-
-const holder = document.getElementById("holder");
-
-const cells = [];
+/* HOLDER */
+const holder=document.getElementById("holder");
+const cells=[];
 
 for(let i=0;i<11;i++){
-
-    const cell = document.createElement("div");
-
-    cell.className = "cell";
-
-    holder.appendChild(cell);
-
-    cells.push(cell);
-
+    const c=document.createElement("div");
+    c.className="cell";
+    holder.appendChild(c);
+    cells.push(c);
 }
 
-/* ADD CARDS (NO DELETE ON SWITCH) */
-
+/* ADD CARDS (STACK MODE) */
 function addCards(mode){
 
-    let arr = [...data[mode]];
-
+    let arr=[...data[mode]];
     arr.sort(()=>Math.random()-0.5);
 
     arr.forEach(v=>{
+        const card=document.createElement("div");
+        card.className="card";
+        card.textContent=v;
 
-        const card = document.createElement("div");
-
-        card.className = "card";
-
-        card.textContent = v;
-
-        card.style.left = Math.random()*(window.innerWidth-80)+"px";
-
-        card.style.top = (200+Math.random()*250)+"px";
+        card.style.left=Math.random()*(window.innerWidth-80)+"px";
+        card.style.top=(200+Math.random()*250)+"px";
 
         document.body.appendChild(card);
-
         makeDrag(card,true);
-
     });
-
 }
 
-/* INITIAL LOAD */
-
+/* INITIAL */
 addCards("words");
 
-/* SWITCH MODE (STACK CARDS) */
-
+/* MODE CHANGE */
 document.getElementById("modeSelect").onchange=(e)=>{
-
     addCards(e.target.value);
-
 };
 
-/* SNAP FUNCTION */
-
+/* SNAP */
 function snap(el){
+    let best=999999;
+    let target=null;
 
-    let best = 999999;
-
-    let target = null;
-
-    const r = el.getBoundingClientRect();
-
-    const cx = r.left + r.width/2;
-
-    const cy = r.top + r.height/2;
+    const r=el.getBoundingClientRect();
+    const cx=r.left+r.width/2;
+    const cy=r.top+r.height/2;
 
     cells.forEach(cell=>{
-
-        const cr = cell.getBoundingClientRect();
-
-        const d = Math.hypot(
-
+        const cr=cell.getBoundingClientRect();
+        const d=Math.hypot(
             cx-(cr.left+cr.width/2),
-
             cy-(cr.top+cr.height/2)
-
         );
-
-        if(d < best){
-
-            best = d;
-
-            target = cell;
-
+        if(d<best){
+            best=d;
+            target=cell;
         }
-
     });
 
-    if(best < 90){
-
-        const rect = target.getBoundingClientRect();
-
-        el.style.left = (rect.left + (rect.width - el.offsetWidth)/2) + "px";
-
-        el.style.top  = (rect.top + (rect.height - el.offsetHeight)/2) + "px";
-
+    if(best<90){
+        const rect=target.getBoundingClientRect();
+        el.style.left=(rect.left+(rect.width-el.offsetWidth)/2)+"px";
+        el.style.top=(rect.top+(rect.height-el.offsetHeight)/2)+"px";
     }
-
 }
 
-/* DRAG SYSTEM */
+/* DRAG */
+function makeDrag(el,magnetic=false){
 
-function makeDrag(el, magnetic=false){
-
-    let sx, sy, ox, oy;
+    let sx,sy,ox,oy;
 
     function start(e){
+        const p=e.touches?e.touches[0]:e;
+        sx=p.clientX;
+        sy=p.clientY;
+        ox=el.offsetLeft;
+        oy=el.offsetTop;
 
-        const p = e.touches ? e.touches[0] : e;
-
-        sx = p.clientX;
-
-        sy = p.clientY;
-
-        ox = el.offsetLeft;
-
-        oy = el.offsetTop;
-
-        document.addEventListener("mousemove", move);
-
-        document.addEventListener("touchmove", move, {passive:false});
-
-        document.addEventListener("mouseup", end);
-
-        document.addEventListener("touchend", end);
-
+        document.addEventListener("mousemove",move);
+        document.addEventListener("touchmove",move,{passive:false});
+        document.addEventListener("mouseup",end);
+        document.addEventListener("touchend",end);
     }
 
     function move(e){
-
         e.preventDefault();
+        const p=e.touches?e.touches[0]:e;
 
-        const p = e.touches ? e.touches[0] : e;
-
-        el.style.left = ox + (p.clientX - sx) + "px";
-
-        el.style.top  = oy + (p.clientY - sy) + "px";
-
+        el.style.left=ox+(p.clientX-sx)+"px";
+        el.style.top=oy+(p.clientY-sy)+"px";
     }
 
     function end(){
-
         if(magnetic) snap(el);
 
-        document.removeEventListener("mousemove", move);
-
-        document.removeEventListener("touchmove", move);
-
-        document.removeEventListener("mouseup", end);
-
-        document.removeEventListener("touchend", end);
-
+        document.removeEventListener("mousemove",move);
+        document.removeEventListener("touchmove",move);
+        document.removeEventListener("mouseup",end);
+        document.removeEventListener("touchend",end);
     }
 
-    el.addEventListener("mousedown", start);
-
-    el.addEventListener("touchstart", start);
-
+    el.addEventListener("mousedown",start);
+    el.addEventListener("touchstart",start);
 }
 
-/* FRUITS */
+/* FRUITS (REMOVED BANANA + GRAPE) */
+const fruits = ["🍎","🍊","🍓"];
 
-document.querySelectorAll(".fruitTemplate").forEach(item=>{
+fruits.forEach(f=>{
+    const div=document.createElement("div");
+    div.className="fruitTemplate";
+    div.textContent=f;
 
-    item.onclick=()=>{
+    div.style.width="48px";
+    div.style.height="48px";
+    div.style.border="2px solid #666";
+    div.style.borderRadius="10px";
+    div.style.display="flex";
+    div.style.justifyContent="center";
+    div.style.alignItems="center";
+    div.style.fontSize="32px";
+    div.style.background="white";
 
-        const fruit = document.createElement("div");
+    document.getElementById("controls").appendChild(div);
 
-        fruit.className = "fruit";
+    div.onclick=()=>{
+        const fruit=document.createElement("div");
+        fruit.className="fruit";
+        fruit.textContent=f;
 
-        fruit.textContent = item.textContent;
-
-        fruit.style.left = "120px";
-
-        fruit.style.top = "200px";
+        fruit.style.left="120px";
+        fruit.style.top="200px";
 
         document.body.appendChild(fruit);
-
         makeDrag(fruit);
-
     };
-
 });
 
 /* CANVAS */
-
-const canvas = document.getElementById("canvas");
-
-const ctx = canvas.getContext("2d");
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
 
 function resize(){
-
-    canvas.width = window.innerWidth;
-
-    canvas.height = window.innerHeight - 180;
-
+    canvas.width=window.innerWidth;
+    canvas.height=window.innerHeight-180;
 }
-
 resize();
+window.addEventListener("resize",resize);
 
-window.addEventListener("resize", resize);
-
-let drawing = false;
-
-let eraseMode = false;
+let drawing=false;
+let eraseMode=false;
 
 function pos(e){
-
-    const rect = canvas.getBoundingClientRect();
-
-    const p = e.touches ? e.touches[0] : e;
+    const rect=canvas.getBoundingClientRect();
+    const p=e.touches?e.touches[0]:e;
 
     return {
-
-        x: p.clientX - rect.left,
-
-        y: p.clientY - rect.top
-
+        x:p.clientX-rect.left,
+        y:p.clientY-rect.top
     };
-
 }
 
 function startDraw(e){
-
-    drawing = true;
-
-    const p = pos(e);
-
+    drawing=true;
+    const p=pos(e);
     ctx.beginPath();
-
-    ctx.moveTo(p.x, p.y);
-
+    ctx.moveTo(p.x,p.y);
 }
 
 function draw(e){
-
     if(!drawing) return;
-
     e.preventDefault();
 
-    ctx.globalCompositeOperation =
+    ctx.globalCompositeOperation=eraseMode?"destination-out":"source-over";
+    ctx.lineWidth=eraseMode?30:5;
 
-        eraseMode ? "destination-out" : "source-over";
-
-    ctx.lineWidth = eraseMode ? 30 : 5;
-
-    const p = pos(e);
-
-    ctx.lineTo(p.x, p.y);
-
+    const p=pos(e);
+    ctx.lineTo(p.x,p.y);
     ctx.stroke();
-
 }
 
-function stop(){ drawing = false; }
+function stop(){ drawing=false; }
 
-canvas.addEventListener("mousedown", startDraw);
+canvas.addEventListener("mousedown",startDraw);
+canvas.addEventListener("mousemove",draw);
+window.addEventListener("mouseup",stop);
 
-canvas.addEventListener("mousemove", draw);
-
-window.addEventListener("mouseup", stop);
-
-canvas.addEventListener("touchstart", startDraw);
-
-canvas.addEventListener("touchmove", draw, {passive:false});
-
-window.addEventListener("touchend", stop);
+canvas.addEventListener("touchstart",startDraw);
+canvas.addEventListener("touchmove",draw,{passive:false});
+window.addEventListener("touchend",stop);
 
 /* BUTTONS */
-
-document.getElementById("clearBtn").onclick = ()=>{
-
+document.getElementById("clearBtn").onclick=()=>{
     ctx.clearRect(0,0,canvas.width,canvas.height);
-
 };
 
-document.getElementById("eraserBtn").onclick = ()=>{
-
-    eraseMode = !eraseMode;
-
+document.getElementById("eraserBtn").onclick=()=>{
+    eraseMode=!eraseMode;
 };
 
 </script>
 
 </body>
-
 </html>
