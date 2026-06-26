@@ -240,11 +240,23 @@ canvas{
 
 <div id="fruitbar">
 
-    <button onclick="addFruit('apple.png')"><img src="assets/apple.png"></button>
+    <button onclick="addFruit('apple.png')">
 
-    <button onclick="addFruit('orange.png')"><img src="assets/orange.png"></button>
+        <img src="assets/apple.png">
 
-    <button onclick="addFruit('mango.png')"><img src="assets/mango.png"></button>
+    </button>
+
+    <button onclick="addFruit('orange.png')">
+
+        <img src="assets/orange.png">
+
+    </button>
+
+    <button onclick="addFruit('mango.png')">
+
+        <img src="assets/mango.png">
+
+    </button>
 
 </div>
 
@@ -428,15 +440,15 @@ function setupTreeTap(tree){
 
 }
 
-/* 🌳 TREE DRAG */
+/* 🌳 TREE DRAG - SMOOTH FIX */
 
 function setupTreeDrag(tree){
 
-    let sx=0,sy=0;
+    let startX=0, startY=0;
 
-    let ox=0,oy=0;
+    let baseX=0, baseY=0;
 
-    let dx=0,dy=0;
+    let dx=0, dy=0;
 
     let raf=null;
 
@@ -444,9 +456,9 @@ function setupTreeDrag(tree){
 
     function apply(){
 
-        tree.style.transform=`translate(${dx}px,${dy}px)`;
+        tree.style.transform = `translate(${dx}px, ${dy}px)`;
 
-        raf=null;
+        raf = null;
 
     }
 
@@ -454,17 +466,23 @@ function setupTreeDrag(tree){
 
         if(e.target.classList.contains("fruit")) return;
 
-        sx=e.clientX;
+        startX = e.clientX;
 
-        sy=e.clientY;
+        startY = e.clientY;
 
-        ox=tree.offsetLeft;
+        baseX = tree.offsetLeft;
 
-        oy=tree.offsetTop;
+        baseY = tree.offsetTop;
 
-        dragging=true;
+        dx = 0;
+
+        dy = 0;
+
+        dragging = true;
 
         tree.setPointerCapture(e.pointerId);
+
+        tree.style.touchAction = "none";
 
     });
 
@@ -472,35 +490,33 @@ function setupTreeDrag(tree){
 
         if(!dragging) return;
 
-        dx=e.clientX-sx;
+        dx = e.clientX - startX;
 
-        dy=e.clientY-sy;
+        dy = e.clientY - startY;
 
-        if(!raf) raf=requestAnimationFrame(apply);
+        if(!raf) raf = requestAnimationFrame(apply);
 
     });
 
     tree.addEventListener("pointerup",(e)=>{
 
-        dragging=false;
+        dragging = false;
 
         tree.releasePointerCapture(e.pointerId);
 
-        tree.style.left=(ox+dx)+"px";
+        tree.style.left = (baseX + dx) + "px";
 
-        tree.style.top=(oy+dy)+"px";
+        tree.style.top  = (baseY + dy) + "px";
 
-        tree.style.transform="none";
+        tree.style.transform = "none";
 
     });
 
 }
 
-/* 🍎 ADD FRUIT (FIXED LOGIC) */
+/* 🍎 ADD FRUIT */
 
 function addFruit(img){
-
-    // ✅ FIX: always use existing tree first
 
     if(!selectedTree){
 
@@ -540,13 +556,13 @@ function addFruit(img){
 
 }
 
-/* 🍎 FRUIT DRAG */
+/* 🍎 FRUIT DRAG - SMOOTH FIX */
 
 function setupFruitDrag(fruit){
 
-    let sx=0,sy=0;
+    let startX=0, startY=0;
 
-    let dx=0,dy=0;
+    let dx=0, dy=0;
 
     let raf=null;
 
@@ -554,9 +570,9 @@ function setupFruitDrag(fruit){
 
     function apply(){
 
-        fruit.style.transform=`translate(${dx}px,${dy}px)`;
+        fruit.style.transform = `translate(${dx}px, ${dy}px)`;
 
-        raf=null;
+        raf = null;
 
     }
 
@@ -566,17 +582,19 @@ function setupFruitDrag(fruit){
 
         selectedFruit = fruit;
 
-        sx=e.clientX;
+        startX = e.clientX;
 
-        sy=e.clientY;
+        startY = e.clientY;
 
-        dx=0;
+        dx = 0;
 
-        dy=0;
+        dy = 0;
 
-        dragging=true;
+        dragging = true;
 
         fruit.setPointerCapture(e.pointerId);
+
+        fruit.style.touchAction = "none";
 
     });
 
@@ -584,27 +602,27 @@ function setupFruitDrag(fruit){
 
         if(!dragging) return;
 
-        dx=e.clientX-sx;
+        dx = e.clientX - startX;
 
-        dy=e.clientY-sy;
+        dy = e.clientY - startY;
 
-        if(!raf) raf=requestAnimationFrame(apply);
+        if(!raf) raf = requestAnimationFrame(apply);
 
     });
 
     fruit.addEventListener("pointerup",(e)=>{
 
-        dragging=false;
+        dragging = false;
 
         fruit.releasePointerCapture(e.pointerId);
 
         const rect = fruit.getBoundingClientRect();
 
-        const parentRect = fruit.parentElement.getBoundingClientRect();
+        const parent = fruit.parentElement.getBoundingClientRect();
 
-        fruit.style.left = (rect.left - parentRect.left) + "px";
+        fruit.style.left = (rect.left - parent.left) + "px";
 
-        fruit.style.top  = (rect.top - parentRect.top) + "px";
+        fruit.style.top  = (rect.top - parent.top) + "px";
 
         fruit.style.transform = "none";
 
