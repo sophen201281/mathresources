@@ -1,356 +1,597 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width,initial-scale=1">
+
 <title>Fruit Tree</title>
 
 <style>
+
 *{
+
     box-sizing:border-box;
+
 }
 
 body{
+
     margin:0;
+
     overflow:hidden;
+
     background:#dff5ff;
+
     font-family:Arial,sans-serif;
+
     touch-action:pan-y;
+
 }
 
-/* LEFT BAR */
+/* LEFT SIDEBAR */
+
 #fruitbar{
+
     position:fixed;
+
     left:10px;
+
     top:50%;
+
     transform:translateY(-50%);
+
     display:flex;
+
     flex-direction:column;
+
     gap:10px;
+
     z-index:9999;
+
 }
 
-#fruitbar button{
+#fruitbar button {
+
     background:rgba(255,255,255,0.75);
+
     backdrop-filter:blur(8px);
+
     border-radius:50%;
+
     padding:10px;
+
 }
 
 /* BOTTOM BAR */
+
 #bottombar{
+
     position:fixed;
+
     bottom:10px;
+
     left:50%;
+
     transform:translateX(-50%);
+
     display:flex;
+
     gap:8px;
+
+    align-items:center;
+
     z-index:9999;
+
     background:rgba(255,255,255,0.75);
+
     backdrop-filter:blur(8px);
+
     padding:8px 14px;
+
     border-radius:40px;
+
     box-shadow:0 4px 16px rgba(0,0,0,.15);
+
 }
 
 button{
+
     padding:8px;
+
     border:none;
+
     border-radius:10px;
+
     background:white;
+
     cursor:pointer;
+
     box-shadow:0 2px 6px rgba(0,0,0,.15);
+
 }
 
-button:active{
-    transform:scale(0.95);
-}
+button:active{ transform:scale(0.95); }
 
 button img{
+
     width:40px;
+
     height:40px;
+
     object-fit:contain;
+
 }
 
 /* CANVAS */
+
 canvas{
+
     position:absolute;
+
     top:0;
+
     left:0;
+
     z-index:1;
+
     touch-action:none;
+
 }
 
 /* WORKSPACE */
-#workspace{
-    position:relative;
-    width:100%;
-    height:100vh;
-    overflow:hidden;
+
+#workspace {
+
+    position: relative;
+
+    width: 100%;
+
+    height: 100vh;
+
+    overflow: hidden;
+
 }
 
 /* TREE */
+
 .treeGroup{
+
     position:absolute;
+
     width:420px;
+
     height:420px;
+
     z-index:10;
+
+    border-radius:20px;
+
+    will-change: transform;
+
 }
 
 .treeImage{
+
     position:absolute;
+
     left:50%;
+
     top:50%;
+
     transform:translate(-50%,-50%);
+
     width:400px;
+
     height:400px;
+
+    object-fit:contain;
+
+    user-select:none;
+
     pointer-events:none;
+
 }
 
 /* FRUIT */
+
 .fruit{
+
     position:absolute;
+
     width:70px;
+
     height:70px;
+
     cursor:grab;
+
+    will-change: transform;
+
 }
 
 .fruit img{
+
     width:100%;
+
     height:100%;
+
+    object-fit:contain;
+
     pointer-events:none;
+
 }
+
+/* SELECT */
+
+.selectedFruit{
+
+    outline:3px solid #2196F3;
+
+    border-radius:50%;
+
+}
+
 </style>
+
 </head>
 
 <body>
 
 <!-- FRUIT BAR -->
+
 <div id="fruitbar">
-    <button onclick="addFruit('apple.png')"><img src="assets/apple.png"></button>
-    <button onclick="addFruit('orange.png')"><img src="assets/orange.png"></button>
-    <button onclick="addFruit('mango.png')"><img src="assets/mango.png"></button>
+
+    <button onclick="addFruit('apple.png')">
+
+        <img src="assets/apple.png">
+
+    </button>
+
+    <button onclick="addFruit('orange.png')">
+
+        <img src="assets/orange.png">
+
+    </button>
+
+    <button onclick="addFruit('mango.png')">
+
+        <img src="assets/mango.png">
+
+    </button>
+
 </div>
 
-<!-- BOTTOM BAR -->
+<!-- TOOLBAR -->
+
 <div id="bottombar">
+
     <button onclick="addNewTree()">ដើមឈើ</button>
+
     <button onclick="toggleDraw()">សរសេរ</button>
+
     <button onclick="toggleEraser()">លុប</button>
+
     <button onclick="clearCanvas()">សម្អាត</button>
+
+    <a href="../index.html">Home</a>
+
 </div>
 
 <canvas id="draw"></canvas>
+
 <div id="workspace"></div>
 
 <script>
 
-/* ================= CANVAS (UNCHANGED FROM LAST FIX) ================= */
-
 const canvas = document.getElementById("draw");
+
 const ctx = canvas.getContext("2d");
-
-let drawMode = false;
-let eraseMode = false;
-let drawing = false;
-
-let lastX = 0;
-let lastY = 0;
-
-function resizeCanvas(){
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-}
-resizeCanvas();
-window.addEventListener("resize", resizeCanvas);
-
-canvas.addEventListener("pointerdown", (e) => {
-    if (!drawMode && !eraseMode) return;
-
-    drawing = true;
-
-    lastX = e.clientX;
-    lastY = e.clientY;
-
-    ctx.beginPath();
-    ctx.moveTo(lastX, lastY);
-
-    ctx.lineWidth = eraseMode ? 25 : 4;
-    ctx.globalCompositeOperation =
-        eraseMode ? "destination-out" : "source-over";
-
-    canvas.setPointerCapture(e.pointerId);
-});
-
-canvas.addEventListener("pointermove", (e) => {
-    if (!drawing) return;
-
-    const x = e.clientX;
-    const y = e.clientY;
-
-    const dx = x - lastX;
-    const dy = y - lastY;
-
-    const distance = Math.sqrt(dx * dx + dy * dy);
-
-    if (distance > 0) {
-        ctx.lineTo(x, y);
-        ctx.stroke();
-    }
-
-    lastX = x;
-    lastY = y;
-});
-
-function stopDraw(e){
-    drawing = false;
-    ctx.closePath();
-    ctx.globalCompositeOperation = "source-over";
-
-    try {
-        canvas.releasePointerCapture(e.pointerId);
-    } catch(err){}
-}
-
-canvas.addEventListener("pointerup", stopDraw);
-canvas.addEventListener("pointercancel", stopDraw);
-canvas.addEventListener("pointerleave", stopDraw);
-
-/* ================= TREE ================= */
 
 const workspace = document.getElementById("workspace");
 
-function addNewTree(){
-    const tree = document.createElement("div");
-    tree.className = "treeGroup";
-    tree.style.left = "200px";
-    tree.style.top = "140px";
-    tree.innerHTML = `<img src="assets/tree.png" class="treeImage">`;
+let drawMode = false;
 
-    workspace.appendChild(tree);
-    setupTreeDrag(tree);
+let eraseMode = false;
+
+let drawing = false;
+
+let selectedTree = null;
+
+let selectedFruit = null;
+
+const DEFAULT_TREE_X = 200;
+
+const DEFAULT_TREE_Y = 140;
+
+/* CANVAS */
+
+function resizeCanvas(){
+
+    canvas.width = window.innerWidth;
+
+    canvas.height = window.innerHeight;
+
 }
 
+resizeCanvas();
+
+window.addEventListener("resize", resizeCanvas);
+
+/* DRAW */
+
+canvas.addEventListener("pointerdown",(e)=>{
+
+    if(!drawMode && !eraseMode) return;
+
+    drawing = true;
+
+    ctx.beginPath();
+
+    ctx.moveTo(e.clientX,e.clientY);
+
+    ctx.lineWidth = eraseMode ? 25 : 4;
+
+    ctx.lineCap = "round";
+
+    ctx.globalCompositeOperation = eraseMode ? "destination-out":"source-over";
+
+});
+
+canvas.addEventListener("pointermove",(e)=>{
+
+    if(!drawing) return;
+
+    ctx.lineTo(e.clientX,e.clientY);
+
+    ctx.stroke();
+
+    ctx.beginPath();
+
+    ctx.moveTo(e.clientX,e.clientY);
+
+});
+
+canvas.addEventListener("pointerup",()=>{
+
+    drawing=false;
+
+    ctx.globalCompositeOperation="source-over";
+
+});
+
+/* TOOLS */
+
+function toggleDraw(){
+
+    drawMode = !drawMode;
+
+    eraseMode = false;
+
+}
+
+function toggleEraser(){
+
+    eraseMode = !eraseMode;
+
+    drawMode = false;
+
+}
+
+function clearCanvas(){
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+}
+
+/* TREE */
+
+function createTree(x,y){
+
+    const tree=document.createElement("div");
+
+    tree.className="treeGroup";
+
+    tree.style.left=x+"px";
+
+    tree.style.top=y+"px";
+
+    tree.innerHTML=`<img src="assets/tree.png" class="treeImage">`;
+
+    workspace.appendChild(tree);
+
+    setupTreeDrag(tree);
+
+    return tree;
+
+}
+
+/* TREE DRAG (smooth) */
+
 function setupTreeDrag(tree){
+
+    let startX=0,startY=0;
+
+    let originX=0,originY=0;
+
+    let currentX=0,currentY=0;
+
+    let raf=null;
+
     let dragging=false;
-    let startX=0,startY=0,baseX=0,baseY=0;
+
+    function apply(){
+
+        tree.style.transform=`translate(${currentX}px,${currentY}px)`;
+
+        raf=null;
+
+    }
 
     tree.addEventListener("pointerdown",(e)=>{
-        dragging=true;
+
+        if(e.target.classList.contains("fruit")) return;
+
+        selectedTree=tree;
 
         startX=e.clientX;
+
         startY=e.clientY;
 
-        baseX=tree.offsetLeft;
-        baseY=tree.offsetTop;
+        originX=tree.offsetLeft;
+
+        originY=tree.offsetTop;
+
+        dragging=true;
 
         tree.setPointerCapture(e.pointerId);
+
     });
 
     tree.addEventListener("pointermove",(e)=>{
+
         if(!dragging) return;
 
         const dx=e.clientX-startX;
+
         const dy=e.clientY-startY;
 
-        tree.style.left=(baseX+dx)+"px";
-        tree.style.top=(baseY+dy)+"px";
+        currentX=dx;
+
+        currentY=dy;
+
+        if(!raf) raf=requestAnimationFrame(apply);
+
     });
 
     tree.addEventListener("pointerup",(e)=>{
+
         dragging=false;
+
         tree.releasePointerCapture(e.pointerId);
+
+        tree.style.left=(originX+currentX)+"px";
+
+        tree.style.top=(originY+currentY)+"px";
+
+        tree.style.transform="none";
+
     });
+
 }
 
-/* ================= FIXED FRUIT DRAG ================= */
+/* FRUIT */
+
+function addFruit(img){
+
+    if(!selectedTree) selectedTree=createTree(DEFAULT_TREE_X,DEFAULT_TREE_Y);
+
+    const fruit=document.createElement("div");
+
+    fruit.className="fruit";
+
+    fruit.innerHTML=`<img src="assets/${img}">`;
+
+    fruit.style.left=(80+Math.random()*250)+"px";
+
+    fruit.style.top=(80+Math.random()*250)+"px";
+
+    selectedTree.appendChild(fruit);
+
+    setupFruitDrag(fruit);
+
+}
+
+/* 🌿 SMOOTH "STICK TO BRANCH" DRAG (NO SNAP) */
 
 function setupFruitDrag(fruit){
-    let dragging=false;
+
     let startX=0,startY=0;
-    let baseX=0,baseY=0;
 
-    let tx=0,ty=0;
-    let raf;
+    let originX=0,originY=0;
 
-    function render(){
-        fruit.style.left = tx + "px";
-        fruit.style.top = ty + "px";
-        raf = requestAnimationFrame(render);
+    let offsetX=0,offsetY=0;
+
+    let raf=null;
+
+    let dragging=false;
+
+    function apply(){
+
+        fruit.style.transform=`translate(${offsetX}px,${offsetY}px)`;
+
+        raf=null;
+
     }
 
     fruit.addEventListener("pointerdown",(e)=>{
+
         e.stopPropagation();
+
+        selectedFruit=fruit;
+
+        const rect=fruit.getBoundingClientRect();
+
+        const parentRect=fruit.parentElement.getBoundingClientRect();
+
+        originX=rect.left-parentRect.left;
+
+        originY=rect.top-parentRect.top;
+
+        startX=e.clientX;
+
+        startY=e.clientY;
+
+        offsetX=0;
+
+        offsetY=0;
 
         dragging=true;
 
-        startX=e.clientX;
-        startY=e.clientY;
-
-        // FIX: no jump using bounding box
-        const rect = fruit.getBoundingClientRect();
-        const parent = fruit.parentElement.getBoundingClientRect();
-
-        baseX = rect.left - parent.left;
-        baseY = rect.top - parent.top;
-
-        tx = baseX;
-        ty = baseY;
-
         fruit.setPointerCapture(e.pointerId);
-        raf=requestAnimationFrame(render);
+
     });
 
     fruit.addEventListener("pointermove",(e)=>{
+
         if(!dragging) return;
 
-        const dx=e.clientX-startX;
-        const dy=e.clientY-startY;
+        offsetX=e.clientX-startX;
 
-        tx=baseX+dx;
-        ty=baseY+dy;
+        offsetY=e.clientY-startY;
 
-        tx=Math.max(0,Math.min(350,tx));
-        ty=Math.max(0,Math.min(350,ty));
+        if(!raf) raf=requestAnimationFrame(apply);
+
     });
 
-    function stop(e){
+    fruit.addEventListener("pointerup",(e)=>{
+
         dragging=false;
-        cancelAnimationFrame(raf);
+
         fruit.releasePointerCapture(e.pointerId);
-    }
 
-    fruit.addEventListener("pointerup",stop);
-    fruit.addEventListener("pointercancel",stop);
-}
+        const rect=fruit.getBoundingClientRect();
 
-/* ================= FRUIT ================= */
+        const parentRect=fruit.parentElement.getBoundingClientRect();
 
-let selectedTree=null;
+        fruit.style.left=(rect.left-parentRect.left)+"px";
 
-function addFruit(img){
-    const trees=document.querySelectorAll(".treeGroup");
-    if(!trees.length) return;
+        fruit.style.top=(rect.top-parentRect.top)+"px";
 
-    selectedTree=trees[0];
+        fruit.style.transform="none";
 
-    const fruit=document.createElement("div");
-    fruit.className="fruit";
-    fruit.innerHTML=`<img src="assets/${img}">`;
+    });
 
-    fruit.style.left="100px";
-    fruit.style.top="100px";
-
-    selectedTree.appendChild(fruit);
-    setupFruitDrag(fruit);
 }
 
 /* INIT */
-addNewTree();
+
+createTree(DEFAULT_TREE_X,DEFAULT_TREE_Y);
 
 </script>
+
 </body>
+
 </html>
