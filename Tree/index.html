@@ -240,23 +240,11 @@ canvas{
 
 <div id="fruitbar">
 
-    <button onclick="addFruit('apple.png')">
+    <button onclick="addFruit('apple.png')"><img src="assets/apple.png"></button>
 
-        <img src="assets/apple.png">
+    <button onclick="addFruit('orange.png')"><img src="assets/orange.png"></button>
 
-    </button>
-
-    <button onclick="addFruit('orange.png')">
-
-        <img src="assets/orange.png">
-
-    </button>
-
-    <button onclick="addFruit('mango.png')">
-
-        <img src="assets/mango.png">
-
-    </button>
+    <button onclick="addFruit('mango.png')"><img src="assets/mango.png"></button>
 
 </div>
 
@@ -508,17 +496,29 @@ function setupTreeDrag(tree){
 
 }
 
-/* 🍎 ADD FRUIT */
+/* 🍎 ADD FRUIT (FIXED LOGIC) */
 
 function addFruit(img){
 
-    if(!selectedTree) {
+    // ✅ FIX: always use existing tree first
 
-        const x = (window.innerWidth / 2) - 210;
+    if(!selectedTree){
 
-        const y = (window.innerHeight / 2) - 210;
+        const trees = document.querySelectorAll(".treeGroup");
 
-        selectedTree = createTree(x,y);
+        if(trees.length > 0){
+
+            selectedTree = trees[0];
+
+        } else {
+
+            const x = (window.innerWidth / 2) - 210;
+
+            const y = (window.innerHeight / 2) - 210;
+
+            selectedTree = createTree(x,y);
+
+        }
 
     }
 
@@ -634,7 +634,7 @@ function setupFruitTapDelete(fruit){
 
 }
 
-/* INIT (CENTER TREE ON START) */
+/* INIT */
 
 (function init(){
 
