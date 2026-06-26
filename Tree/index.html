@@ -1,671 +1,523 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width,initial-scale=1">
+
 <title>Fruit Tree</title>
+
 <style>
-*{
-    box-sizing:border-box;
-}
+
+*{box-sizing:border-box;}
+
 body{
+
     margin:0;
+
     overflow:hidden;
+
     background:#dff5ff;
+
     font-family:Arial,sans-serif;
+
     touch-action:pan-y;
+
 }
 
-/* LEFT SIDEBAR - Fruit buttons stacked vertically */
+/* LEFT SIDEBAR */
+
 #fruitbar{
+
     position:fixed;
+
     left:10px;
+
     top:50%;
+
     transform:translateY(-50%);
+
     display:flex;
+
     flex-direction:column;
+
     gap:10px;
+
     z-index:9999;
+
 }
 
-#fruitbar button {
+#fruitbar button{
+
     background:rgba(255,255,255,0.75);
+
     backdrop-filter:blur(8px);
+
     border-radius:50%;
+
     padding:10px;
+
 }
 
-/* BOTTOM TOOLBAR - Action buttons + Home */
+/* BOTTOM BAR */
+
 #bottombar{
+
     position:fixed;
+
     bottom:10px;
+
     left:50%;
+
     transform:translateX(-50%);
+
     display:flex;
-    flex-direction:row;
+
     gap:8px;
+
     align-items:center;
+
     z-index:9999;
+
     background:rgba(255,255,255,0.75);
+
     backdrop-filter:blur(8px);
+
     padding:8px 14px;
+
     border-radius:40px;
+
     box-shadow:0 4px 16px rgba(0,0,0,.15);
+
 }
 
 button{
+
     padding:8px;
+
     border:none;
+
     border-radius:10px;
+
     background:white;
+
     cursor:pointer;
+
     box-shadow:0 2px 6px rgba(0,0,0,.15);
+
     transition:transform 0.1s ease;
+
 }
 
-button:active{
-    transform:scale(0.95);
-}
+button:active{transform:scale(0.95);}
 
 button img{
-    width:40px;
-    height:40px;
-    object-fit:contain;
-}
 
-#bottombar button{
-    padding:8px 14px;
-    font-size:18px;
-    border-radius:10px;
-}
+    width:40px;height:40px;object-fit:contain;
 
-#bottombar a{
-    padding:8px 14px;
-    font-size:18px;
-    border-radius:10px;
-    background:white;
-    cursor:pointer;
-    box-shadow:0 2px 6px rgba(0,0,0,.15);
-    text-decoration:none;
-    color:#333;
-    transition:transform 0.1s ease;
-}
-
-#bottombar a:active{
-    transform:scale(0.95);
 }
 
 canvas{
+
     position:absolute;
-    top:0;
-    left:0;
+
+    top:0;left:0;
+
     z-index:1;
+
     touch-action:none;
+
 }
 
-#workspace {
-    position: relative;
-    width: 100%;
-    height: 100vh;
-    overflow: hidden;
+#workspace{
+
+    position:relative;
+
+    width:100%;
+
+    height:100vh;
+
+    overflow:hidden;
+
 }
+
+/* TREE */
 
 .treeGroup{
+
     position:absolute;
+
     width:420px;
+
     height:420px;
+
     z-index:10;
+
     border-radius:20px;
+
+    will-change:transform,left,top;
+
 }
 
 .treeSelected{
+
     outline:4px dashed #2196F3;
+
     background:rgba(33,150,243,.1);
-    border-radius:20px;
+
 }
 
 .treeImage{
+
     position:absolute;
+
     left:50%;
+
     top:50%;
+
     transform:translate(-50%,-50%);
+
     width:400px;
+
     height:400px;
+
     object-fit:contain;
-    user-select:none;
+
     pointer-events:none;
+
 }
+
+/* FRUIT */
 
 .fruit{
-    position:absolute;
-    width:70px;
-    height:70px;
-    cursor:grab;
-    transition:transform 0.1s ease;
-}
 
-.fruit:active{
-    cursor:grabbing;
+    position:absolute;
+
+    width:70px;
+
+    height:70px;
+
+    cursor:grab;
+
+    will-change:transform,left,top;
+
 }
 
 .fruit img{
+
     width:100%;
+
     height:100%;
-    object-fit:contain;
+
     pointer-events:none;
-    user-select:none;
+
 }
 
 .selectedFruit{
+
     outline:3px solid #2196F3;
+
     border-radius:50%;
-    box-shadow:0 0 10px rgba(33,150,243,0.5);
+
 }
 
-/* Mobile responsive adjustments */
-@media (max-width: 768px) {
-    .fruit {
-        width: 50px;
-        height: 50px;
-    }
-    
-    .treeGroup {
-        width: 320px;
-        height: 320px;
-    }
-    
-    .treeImage {
-        width: 300px;
-        height: 300px;
-    }
-    
-    button img {
-        width: 30px;
-        height: 30px;
-    }
-    
-    #bottombar button,
-    #bottombar a {
-        padding: 6px 10px;
-        font-size: 14px;
-    }
+/* MOBILE */
+
+@media (max-width:768px){
+
+    .fruit{width:50px;height:50px;}
+
+    .treeGroup{width:320px;height:320px;}
+
+    .treeImage{width:300px;height:300px;}
+
 }
+
 </style>
+
 </head>
+
 <body>
 
-<!-- LEFT SIDEBAR: Fruit buttons only, vertical -->
 <div id="fruitbar">
-    <button onclick="addFruit('apple.png')" title="Add Apple">
-        <img src="assets/apple.png" alt="Apple">
-    </button>
-    <button onclick="addFruit('orange.png')" title="Add Orange">
-        <img src="assets/orange.png" alt="Orange">
-    </button>
-    <button onclick="addFruit('mango.png')" title="Add Mango">
-        <img src="assets/mango.png" alt="Mango">
-    </button>
+
+    <button onclick="addFruit('apple.png')"><img src="assets/apple.png"></button>
+
+    <button onclick="addFruit('orange.png')"><img src="assets/orange.png"></button>
+
+    <button onclick="addFruit('mango.png')"><img src="assets/mango.png"></button>
+
 </div>
 
-<!-- BOTTOM TOOLBAR: Action buttons + Home -->
 <div id="bottombar">
-    <button onclick="addNewTree()" title="Add new tree">ដើមឈើ</button>
-    <button onclick="toggleDraw()" title="Draw mode (brush)">សរសេរ</button>
-    <button onclick="toggleEraser()" title="Erase mode">លុប</button>
-    <button onclick="clearCanvas()" title="Clear drawing">សម្អាត</button>
-    <a href="../index.html" title="Go home">Home</a>
+
+    <button onclick="addNewTree()">ដើមឈើ</button>
+
+    <button onclick="toggleDraw()">សរសេរ</button>
+
+    <button onclick="toggleEraser()">លុប</button>
+
+    <button onclick="clearCanvas()">សម្អាត</button>
+
 </div>
 
 <canvas id="draw"></canvas>
+
 <div id="workspace"></div>
 
 <script>
-// DOM Elements
-const canvas = document.getElementById("draw");
-const ctx = canvas.getContext("2d");
-const workspace = document.getElementById("workspace");
 
-// State variables
-let drawMode = false;
-let eraseMode = false;
-let drawing = false;
-let selectedTree = null;
-let selectedFruit = null;
-let currentStrokePoints = [];
+const canvas=document.getElementById("draw");
 
-// Constants
-const GRID = 50;
-const DEFAULT_TREE_X = 200;
-const DEFAULT_TREE_Y = 140;
+const ctx=canvas.getContext("2d");
 
-// Canvas setup
-function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    // Redraw canvas content if needed (preserve drawings)
-    if (canvas.contentBackup) {
-        const backup = canvas.contentBackup;
-        canvas.contentBackup = null;
-        const img = new Image();
-        img.onload = () => {
-            ctx.drawImage(img, 0, 0);
-        };
-        img.src = backup;
-    }
+const workspace=document.getElementById("workspace");
+
+let drawMode=false,eraseMode=false;
+
+let selectedTree=null,selectedFruit=null;
+
+const GRID=50;
+
+const DEFAULT_X=200,DEFAULT_Y=140;
+
+function resize(){
+
+    canvas.width=innerWidth;
+
+    canvas.height=innerHeight;
+
 }
-resizeCanvas();
-window.addEventListener("resize", resizeCanvas);
 
-// Drawing functions
-function startDrawing(e) {
-    if (!drawMode && !eraseMode) return;
-    drawing = true;
-    currentStrokePoints = [{x: e.clientX, y: e.clientY}];
-    
+resize();
+
+addEventListener("resize",resize);
+
+/* ================= DRAW ================= */
+
+canvas.addEventListener("pointerdown",e=>{
+
+    if(!drawMode&&!eraseMode)return;
+
     ctx.beginPath();
-    ctx.moveTo(e.clientX, e.clientY);
-    ctx.lineWidth = eraseMode ? 25 : 4;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-    ctx.globalCompositeOperation = eraseMode ? "destination-out" : "source-over";
-}
 
-function draw(e) {
-    if (!drawing) return;
-    
-    const x = e.clientX;
-    const y = e.clientY;
-    
-    currentStrokePoints.push({x, y});
-    
-    ctx.lineTo(x, y);
+    ctx.moveTo(e.clientX,e.clientY);
+
+    ctx.lineWidth=eraseMode?25:4;
+
+    ctx.globalCompositeOperation=eraseMode?"destination-out":"source-over";
+
+    canvas.isDrawing=true;
+
+});
+
+canvas.addEventListener("pointermove",e=>{
+
+    if(!canvas.isDrawing)return;
+
+    ctx.lineTo(e.clientX,e.clientY);
+
     ctx.stroke();
+
     ctx.beginPath();
-    ctx.moveTo(x, y);
-}
 
-function stopDrawing() {
-    drawing = false;
-    ctx.globalCompositeOperation = "source-over";
-    currentStrokePoints = [];
-}
+    ctx.moveTo(e.clientX,e.clientY);
 
-// Canvas event listeners
-canvas.addEventListener("pointerdown", startDrawing);
-canvas.addEventListener("pointermove", draw);
-canvas.addEventListener("pointerup", stopDrawing);
-canvas.addEventListener("pointerleave", stopDrawing);
-
-// Tool functions
-function toggleDraw() {
-    drawMode = !drawMode;
-    eraseMode = false;
-    const buttons = document.querySelectorAll("#bottombar button");
-    const drawBtn = buttons[1];
-    const eraseBtn = buttons[2];
-    if (drawBtn) drawBtn.style.background = drawMode ? "#c8e6ff" : "white";
-    if (eraseBtn) eraseBtn.style.background = "white";
-    
-    canvas.style.cursor = drawMode ? "crosshair" : "default";
-}
-
-function toggleEraser() {
-    eraseMode = !eraseMode;
-    drawMode = false;
-    const buttons = document.querySelectorAll("#bottombar button");
-    const drawBtn = buttons[1];
-    const eraseBtn = buttons[2];
-    if (drawBtn) drawBtn.style.background = "white";
-    if (eraseBtn) eraseBtn.style.background = eraseMode ? "#ffd6c8" : "white";
-    
-    canvas.style.cursor = eraseMode ? "cell" : "default";
-}
-
-function clearCanvas() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-}
-
-// Add new tree function
-function addNewTree() {
-    // Calculate position for new tree (slightly offset from existing trees)
-    let newX = DEFAULT_TREE_X;
-    let newY = DEFAULT_TREE_Y;
-    
-    const existingTrees = document.querySelectorAll(".treeGroup");
-    if (existingTrees.length > 0) {
-        // Offset based on number of trees
-        const offset = (existingTrees.length * 50) % 300;
-        newX = DEFAULT_TREE_X + offset;
-        newY = DEFAULT_TREE_Y + offset;
-        
-        // Keep within viewport bounds
-        newX = Math.min(window.innerWidth - 420, Math.max(0, newX));
-        newY = Math.min(window.innerHeight - 420, Math.max(0, newY));
-    }
-    
-    const newTree = createTree(newX, newY);
-    selectedTree = newTree;
-    
-    // Remove selection from other trees
-    document.querySelectorAll(".treeGroup").forEach(t => {
-        t.classList.remove("treeSelected");
-    });
-    newTree.classList.add("treeSelected");
-}
-
-// Tree functions
-function createTree(x, y) {
-    const tree = document.createElement("div");
-    tree.className = "treeGroup";
-    tree.style.left = x + "px";
-    tree.style.top = y + "px";
-    tree.innerHTML = `
-        <img src="assets/tree.png" class="treeImage" draggable="false" alt="Tree">
-    `;
-    workspace.appendChild(tree);
-    setupTreeDrag(tree);
-    setupTreeDoubleTap(tree);
-    return tree;
-}
-
-function setupTreeDoubleTap(tree) {
-    let tapTimeout;
-    let tapCount = 0;
-    
-    tree.addEventListener("click", (e) => {
-        e.stopPropagation();
-        
-        // Select tree on single tap
-        selectedTree = tree;
-        document.querySelectorAll(".treeGroup").forEach(t => {
-            t.classList.remove("treeSelected");
-        });
-        tree.classList.add("treeSelected");
-        
-        // Clear fruit selection
-        if (selectedFruit) {
-            selectedFruit.classList.remove("selectedFruit");
-            selectedFruit = null;
-        }
-        
-        // Handle double tap for deletion
-        tapCount++;
-        
-        if (tapTimeout) clearTimeout(tapTimeout);
-        
-        tapTimeout = setTimeout(() => {
-            tapCount = 0;
-        }, 300);
-        
-        if (tapCount === 2) {
-            // Double tap detected - delete tree
-            e.preventDefault();
-            // Remove all fruits on this tree to clear references
-            const fruits = tree.querySelectorAll(".fruit");
-            fruits.forEach(fruit => {
-                if (selectedFruit === fruit) selectedFruit = null;
-            });
-            
-            tree.remove();
-            
-            // Clear selection if this was the selected tree
-            if (selectedTree === tree) {
-                selectedTree = null;
-            }
-            
-            // Select another tree if available
-            const remainingTrees = document.querySelectorAll(".treeGroup");
-            if (remainingTrees.length > 0) {
-                selectedTree = remainingTrees[0];
-                selectedTree.classList.add("treeSelected");
-            }
-            tapCount = 0;
-        }
-    });
-}
-
-function setupTreeDrag(tree) {
-    let isDragging = false;
-    let startX, startY;
-    let originalLeft, originalTop;
-    let dragStarted = false;
-    
-    tree.addEventListener("pointerdown", (e) => {
-        if (e.target.classList && e.target.classList.contains("fruit")) return;
-        
-        e.stopPropagation();
-        
-        // Select tree on pointer down
-        selectedTree = tree;
-        document.querySelectorAll(".treeGroup").forEach(t => {
-            t.classList.remove("treeSelected");
-        });
-        tree.classList.add("treeSelected");
-        
-        if (selectedFruit) {
-            selectedFruit.classList.remove("selectedFruit");
-            selectedFruit = null;
-        }
-        
-        isDragging = true;
-        dragStarted = false;
-        startX = e.clientX;
-        startY = e.clientY;
-        originalLeft = tree.offsetLeft;
-        originalTop = tree.offsetTop;
-        
-        tree.setPointerCapture(e.pointerId);
-    });
-    
-    tree.addEventListener("pointermove", (e) => {
-        if (!isDragging) return;
-        
-        dragStarted = true;
-        const dx = e.clientX - startX;
-        const dy = e.clientY - startY;
-        
-        let newLeft = originalLeft + dx;
-        let newTop = originalTop + dy;
-        
-        // Constrain to viewport bounds
-        newLeft = Math.max(0, Math.min(window.innerWidth - tree.offsetWidth, newLeft));
-        newTop = Math.max(0, Math.min(window.innerHeight - tree.offsetHeight, newTop));
-        
-        tree.style.left = newLeft + "px";
-        tree.style.top = newTop + "px";
-    });
-    
-    tree.addEventListener("pointerup", (e) => {
-        isDragging = false;
-        if (tree.releasePointerCapture) {
-            tree.releasePointerCapture(e.pointerId);
-        }
-    });
-}
-
-// Fruit functions
-function addFruit(imageFile) {
-    if (!selectedTree) {
-        const trees = document.querySelectorAll(".treeGroup");
-        if (trees.length === 0) {
-            alert("សូមដាំដើមឈើសិន ដោយចុចលើប៊ូតុង ដើមឈើ ។");
-            return;
-        }
-        selectedTree = trees[0];
-        selectedTree.classList.add("treeSelected");
-    }
-    
-    const fruit = document.createElement("div");
-    fruit.className = "fruit";
-    fruit.innerHTML = `
-        <img src="assets/${imageFile}" draggable="false" alt="${imageFile}">
-    `;
-    
-    // Position fruit on the tree (randomized for natural look)
-    const randomX = 40 + Math.random() * 330;
-    const randomY = 40 + Math.random() * 330;
-    fruit.style.left = Math.round(randomX / GRID) * GRID + "px";
-    fruit.style.top = Math.round(randomY / GRID) * GRID + "px";
-    
-    selectedTree.appendChild(fruit);
-    setupFruitDrag(fruit);
-}
-
-function setupFruitDrag(fruit) {
-    let isDragging = false;
-    let startX, startY;
-    let originalLeft, originalTop;
-    let tapTimeout;
-    let tapCount = 0;
-    
-    fruit.addEventListener("pointerdown", (e) => {
-        e.stopPropagation();
-        
-        selectedFruit = fruit;
-        document.querySelectorAll(".fruit").forEach(f => {
-            f.classList.remove("selectedFruit");
-        });
-        fruit.classList.add("selectedFruit");
-        
-        // Clear tree selection when selecting fruit
-        if (selectedTree) {
-            selectedTree.classList.remove("treeSelected");
-        }
-        
-        const tree = fruit.parentElement;
-        if (!tree) return;
-        
-        isDragging = true;
-        startX = e.clientX;
-        startY = e.clientY;
-        originalLeft = fruit.offsetLeft;
-        originalTop = fruit.offsetTop;
-        
-        fruit.setPointerCapture(e.pointerId);
-        fruit.style.cursor = "grabbing";
-    });
-    
-    fruit.addEventListener("pointermove", (e) => {
-        if (!isDragging) return;
-        
-        const tree = fruit.parentElement;
-        if (!tree) return;
-        
-        const dx = e.clientX - startX;
-        const dy = e.clientY - startY;
-        
-        let newLeft = originalLeft + dx;
-        let newTop = originalTop + dy;
-        
-        // Snap to grid and constrain within tree bounds
-        newLeft = Math.max(0, Math.min(350, Math.round(newLeft / GRID) * GRID));
-        newTop = Math.max(0, Math.min(350, Math.round(newTop / GRID) * GRID));
-        
-        fruit.style.left = newLeft + "px";
-        fruit.style.top = newTop + "px";
-    });
-    
-    fruit.addEventListener("pointerup", (e) => {
-        isDragging = false;
-        fruit.style.cursor = "grab";
-        if (fruit.releasePointerCapture) {
-            fruit.releasePointerCapture(e.pointerId);
-        }
-    });
-    
-    // Double-click/tap to delete fruit
-    fruit.addEventListener("click", (e) => {
-        e.stopPropagation();
-        tapCount++;
-        
-        if (tapTimeout) clearTimeout(tapTimeout);
-        
-        tapTimeout = setTimeout(() => {
-            tapCount = 0;
-        }, 300);
-        
-        if (tapCount === 2) {
-            fruit.remove();
-            if (selectedFruit === fruit) selectedFruit = null;
-            tapCount = 0;
-        }
-    });
-    
-    fruit.style.cursor = "grab";
-}
-
-// Initialize with a tree
-function init() {
-    const startTree = createTree(DEFAULT_TREE_X, DEFAULT_TREE_Y);
-    selectedTree = startTree;
-    startTree.classList.add("treeSelected");
-    
-    // Add some sample fruits
-    setTimeout(() => {
-        if (selectedTree) {
-            addFruit('apple.png');
-            addFruit('orange.png');
-        }
-    }, 100);
-}
-
-// Keyboard shortcuts
-document.addEventListener("keydown", (e) => {
-    // Delete key to delete selected fruit
-    if (e.key === 'Delete' && selectedFruit) {
-        selectedFruit.remove();
-        selectedFruit = null;
-    }
-    // Delete tree with Shift+Delete
-    else if (e.key === 'Delete' && e.shiftKey && selectedTree) {
-        const fruits = selectedTree.querySelectorAll(".fruit");
-        fruits.forEach(fruit => {
-            if (selectedFruit === fruit) selectedFruit = null;
-        });
-        selectedTree.remove();
-        selectedTree = null;
-        
-        // Select another tree if available
-        const remainingTrees = document.querySelectorAll(".treeGroup");
-        if (remainingTrees.length > 0) {
-            selectedTree = remainingTrees[0];
-            selectedTree.classList.add("treeSelected");
-        }
-    }
-    // Escape to clear selection
-    else if (e.key === 'Escape') {
-        if (selectedFruit) {
-            selectedFruit.classList.remove("selectedFruit");
-            selectedFruit = null;
-        }
-        if (selectedTree) {
-            selectedTree.classList.remove("treeSelected");
-            selectedTree = null;
-        }
-    }
-    // D key for draw mode
-    else if (e.key === 'd' || e.key === 'D') {
-        toggleDraw();
-    }
-    // E key for erase mode
-    else if (e.key === 'e' || e.key === 'E') {
-        toggleEraser();
-    }
-    // T key for new tree
-    else if (e.key === 't' || e.key === 'T') {
-        addNewTree();
-    }
 });
 
-// Prevent default drag behavior on images
-window.addEventListener('dragstart', (e) => {
-    if (e.target.tagName === 'IMG') {
-        e.preventDefault();
-    }
+canvas.addEventListener("pointerup",()=>{
+
+    canvas.isDrawing=false;
+
+    ctx.globalCompositeOperation="source-over";
+
 });
 
-// Start the application
-init();
+/* ================= TREE ================= */
+
+function createTree(x,y){
+
+    const t=document.createElement("div");
+
+    t.className="treeGroup";
+
+    t.style.left=x+"px";
+
+    t.style.top=y+"px";
+
+    t.innerHTML=`<img class="treeImage" src="assets/tree.png">`;
+
+    workspace.appendChild(t);
+
+    enableTreeDrag(t);
+
+    return t;
+
+}
+
+/* ===== SMOOTH DRAG ENGINE ===== */
+
+function enableTreeDrag(el){
+
+    let startX,startY,origX,origY,drag=false;
+
+    el.addEventListener("pointerdown",e=>{
+
+        drag=true;
+
+        startX=e.clientX;
+
+        startY=e.clientY;
+
+        origX=el.offsetLeft;
+
+        origY=el.offsetTop;
+
+        el.setPointerCapture(e.pointerId);
+
+    });
+
+    el.addEventListener("pointermove",e=>{
+
+        if(!drag)return;
+
+        const dx=e.clientX-startX;
+
+        const dy=e.clientY-startY;
+
+        requestAnimationFrame(()=>{
+
+            el.style.transform=`translate3d(${dx}px,${dy}px,0)`;
+
+        });
+
+    });
+
+    el.addEventListener("pointerup",e=>{
+
+        drag=false;
+
+        const dx=e.clientX-startX;
+
+        const dy=e.clientY-startY;
+
+        el.style.transform="";
+
+        el.style.left=(origX+dx)+"px";
+
+        el.style.top=(origY+dy)+"px";
+
+        el.releasePointerCapture(e.pointerId);
+
+    });
+
+}
+
+/* ================= FRUIT ================= */
+
+function addFruit(img){
+
+    if(!selectedTree) selectedTree=document.querySelector(".treeGroup");
+
+    const f=document.createElement("div");
+
+    f.className="fruit";
+
+    f.innerHTML=`<img src="assets/${img}">`;
+
+    f.style.left=(40+Math.random()*300)+"px";
+
+    f.style.top=(40+Math.random()*300)+"px";
+
+    selectedTree.appendChild(f);
+
+    enableFruitDrag(f);
+
+}
+
+/* SMOOTH FRUIT DRAG */
+
+function enableFruitDrag(el){
+
+    let startX,startY,origX,origY,drag=false;
+
+    el.addEventListener("pointerdown",e=>{
+
+        drag=true;
+
+        startX=e.clientX;
+
+        startY=e.clientY;
+
+        origX=el.offsetLeft;
+
+        origY=el.offsetTop;
+
+        el.setPointerCapture(e.pointerId);
+
+    });
+
+    el.addEventListener("pointermove",e=>{
+
+        if(!drag)return;
+
+        const dx=e.clientX-startX;
+
+        const dy=e.clientY-startY;
+
+        requestAnimationFrame(()=>{
+
+            el.style.transform=`translate3d(${dx}px,${dy}px,0)`;
+
+        });
+
+    });
+
+    el.addEventListener("pointerup",e=>{
+
+        drag=false;
+
+        const dx=e.clientX-startX;
+
+        const dy=e.clientY-startY;
+
+        el.style.transform="";
+
+        el.style.left=(origX+dx)+"px";
+
+        el.style.top=(origY+dy)+"px";
+
+        el.releasePointerCapture(e.pointerId);
+
+    });
+
+}
+
+/* ================= TREE + INIT ================= */
+
+function addNewTree(){
+
+    const t=createTree(DEFAULT_X,DEFAULT_Y);
+
+    selectedTree=t;
+
+}
+
+addNewTree();
+
+/* TOGGLES */
+
+function toggleDraw(){drawMode=!drawMode;eraseMode=false;}
+
+function toggleEraser(){eraseMode=!eraseMode;drawMode=false;}
+
+function clearCanvas(){ctx.clearRect(0,0,canvas.width,canvas.height);}
+
 </script>
+
 </body>
+
 </html>
