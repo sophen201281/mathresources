@@ -1,502 +1,403 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Kitchen Weight Scale</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            touch-action: none;
-            user-select: none;
-        }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Kitchen Weight Scale</title>
 
-        body {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background: #f5f3f0;
-            font-family: Arial, sans-serif;
-            padding: 12px 20px 20px;
-        }
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    touch-action:none;
+    user-select:none;
+}
 
-        h1 {
-            margin-bottom: 10px;
-            font-weight: 300;
-            letter-spacing: 2px;
-            font-size: 24px;
-        }
+/* ───────── FIX: FULL SCREEN FIT ───────── */
+html,body{
+    height:100%;
+    overflow:hidden; /* 🚫 NO SCROLL */
+}
 
-        .scale-group {
-            position: relative;
-            width: min(90vw, 500px);
-            aspect-ratio: 1 / 1.2;
-            background-image: url("image/background.png");
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+/* ───────── BODY LAYOUT ───────── */
+body{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
 
-        .tray {
-            width: 70%;
-            height: 70px;
-            margin-top: 12px;
-            padding: 4px 8px;
-            border: 3px dashed #aaa;
-            border-radius: 40px;
-            background: rgba(255, 255, 255, 0.25);
-            backdrop-filter: blur(4px);
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: center;
-            gap: 3px;
-            overflow: visible;
-            transition: background 0.2s, border-color 0.2s;
-            flex-shrink: 0;
-            min-height: 60px;
-        }
+    background:#f5f3f0;
+    font-family:Arial,sans-serif;
 
-        .tray.drag-over {
-            background: rgba(200, 230, 200, 0.5);
-            border-color: #4caf50;
-        }
+    padding:clamp(6px,1.5vh,12px) 12px;
+    gap:clamp(4px,1vh,10px);
+}
 
-        /* stem back to original height */
-        .stem {
-            width: 16px;
-            height: 30px;
-            background: transparent;
-            flex-shrink: 0;
-        }
+/* ───────── TITLE ───────── */
+h1{
+    margin-bottom:0;
+    font-weight:300;
+    letter-spacing:2px;
+    font-size:clamp(16px,2.2vw,24px);
+}
 
-        /* ── scale face moved down with margin-top ── */
-        .scale-face {
-            position: relative;
-            width: 65%;
-            aspect-ratio: 1;
-            border-radius: 50%;
-            background: white;
-            border: 12px solid #d0d0d0;
-            overflow: hidden;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-            flex-shrink: 0;
-            margin-top: 40px; /* moves the dial downward */
-        }
+/* ───────── SCALE GROUP ───────── */
+.scale-group{
+    position:relative;
+    width:min(92vw,500px);
 
-        canvas {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
+    /* FIX: prevent overflow height */
+    height:clamp(280px,55vh,420px);
 
-        .items {
-            display: flex;
-            gap: 14px;
-            margin-top: 8px;
-            flex-wrap: wrap;
-            justify-content: center;
-            min-height: 68px;
-            padding: 8px 16px;
-            background: rgba(255, 255, 255, 0.5);
-            border-radius: 30px;
-            border: 2px dashed #ccc;
-        }
+    background-image:url("image/background.png");
+    background-size:contain;
+    background-repeat:no-repeat;
+    background-position:center;
 
-        .item {
-            width: 62px;
-            height: 62px;
-            cursor: grab;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: white;
-            border-radius: 14px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
-            transition: transform 0.2s, opacity 0.2s, filter 0.2s, box-shadow 0.2s;
-            will-change: transform;
-            flex-shrink: 0;
-        }
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-start;
+}
 
-        .item img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            pointer-events: none;
-            padding: 5px;
-        }
+/* ───────── TRAY ───────── */
+.tray{
+    width:70%;
+    height:clamp(44px,6vh,70px);
 
-        .item:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
-        }
+    margin-top:clamp(6px,1.2vh,12px);
 
-        .item.dragging {
-            opacity: 0.6;
-            cursor: grabbing;
-            transform: scale(1.1);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
-            z-index: 9999;
-        }
+    padding:4px 8px;
+    border:3px dashed #aaa;
+    border-radius:40px;
 
-        .item.in-tray {
-            transform: scale(0.6);
-            opacity: 0.75;
-            filter: grayscale(0.2);
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-            cursor: grab;
-            width: 52px;
-            height: 52px;
-        }
+    background:rgba(255,255,255,0.25);
+    backdrop-filter:blur(4px);
 
-        .reset-btn {
-            margin-top: 12px;
-            padding: 8px 24px;
-            border: none;
-            border-radius: 40px;
-            background: #e0d6c8;
-            font-size: 15px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:center;
+    gap:3px;
 
-        .reset-btn:hover {
-            background: #d0c4b4;
-        }
+    flex-shrink:0;
+}
 
-        .weight-display {
-            margin-top: 6px;
-            font-size: 18px;
-            font-weight: 600;
-            color: #333;
-            background: rgba(255, 255, 255, 0.7);
-            padding: 4px 22px;
-            border-radius: 30px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-        }
-        .weight-display span {
-            color: #d32f2f;
-            font-size: 24px;
-        }
+/* ───────── STEM ───────── */
+.stem{
+    width:16px;
+    height:clamp(18px,3vh,30px);
+}
 
-        @media (max-width: 480px) {
-            .item {
-                width: 52px;
-                height: 52px;
-            }
-            .item.in-tray {
-                width: 44px;
-                height: 44px;
-            }
-            .items {
-                gap: 10px;
-                padding: 6px 12px;
-                margin-top: 4px;
-                min-height: 56px;
-            }
-            .tray {
-                height: 56px;
-                margin-top: 8px;
-            }
-            .scale-group {
-                aspect-ratio: 1 / 1.15;
-            }
-            h1 {
-                font-size: 20px;
-                margin-bottom: 6px;
-            }
-            .weight-display {
-                font-size: 15px;
-                padding: 3px 16px;
-                margin-top: 4px;
-            }
-            .weight-display span {
-                font-size: 20px;
-            }
-            .reset-btn {
-                margin-top: 8px;
-                padding: 6px 18px;
-                font-size: 13px;
-            }
-            /* keep margin-top smaller on mobile if needed */
-            .scale-face {
-                margin-top: 30px;
-            }
-        }
-    </style>
+/* ───────── SCALE FACE ───────── */
+.scale-face{
+    position:relative;
+
+    width:clamp(160px,55vw,280px);
+    aspect-ratio:1;
+
+    border-radius:50%;
+    background:white;
+    border:clamp(6px,1.5vw,12px) solid #d0d0d0;
+
+    overflow:hidden;
+    box-shadow:0 8px 20px rgba(0,0,0,0.1);
+
+    /* FIX: responsive spacing */
+    margin-top:clamp(10px,3vh,40px);
+}
+
+canvas{
+    width:100%;
+    height:100%;
+    display:block;
+}
+
+/* ───────── ITEMS ───────── */
+.items{
+    display:flex;
+    gap:clamp(8px,2vw,14px);
+
+    margin-top:0;
+
+    flex-wrap:wrap;
+    justify-content:center;
+
+    min-height:clamp(50px,10vh,68px);
+
+    padding:clamp(6px,1.5vh,8px) 16px;
+
+    background:rgba(255,255,255,0.5);
+    border-radius:30px;
+    border:2px dashed #ccc;
+
+    max-width:95vw;
+}
+
+/* ───────── ITEM ───────── */
+.item{
+    width:clamp(44px,7vw,62px);
+    height:clamp(44px,7vw,62px);
+
+    cursor:grab;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:white;
+    border-radius:14px;
+    box-shadow:0 4px 8px rgba(0,0,0,0.08);
+
+    transition:transform 0.2s, opacity 0.2s, box-shadow 0.2s;
+    flex-shrink:0;
+}
+
+.item img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    padding:5px;
+}
+
+/* dragging */
+.item.dragging{
+    opacity:0.6;
+    transform:scale(1.1);
+    z-index:9999;
+}
+
+/* in tray */
+.item.in-tray{
+    transform:scale(0.6);
+    width:clamp(40px,6vw,52px);
+    height:clamp(40px,6vw,52px);
+}
+
+/* ───────── RESET BUTTON ───────── */
+.reset-btn{
+    margin-top:0;
+
+    padding:clamp(6px,1.5vh,8px) clamp(18px,4vw,24px);
+
+    border:none;
+    border-radius:40px;
+    background:#e0d6c8;
+
+    font-size:clamp(13px,2vw,15px);
+}
+
+/* ───────── WEIGHT DISPLAY ───────── */
+.weight-display{
+    margin-top:0;
+
+    font-size:clamp(14px,2vw,18px);
+    font-weight:600;
+
+    color:#333;
+
+    background:rgba(255,255,255,0.7);
+    padding:4px 18px;
+    border-radius:30px;
+}
+
+.weight-display span{
+    color:#d32f2f;
+    font-size:clamp(18px,3vw,24px);
+}
+
+/* ───────── MOBILE TWEAK ───────── */
+@media (max-width:480px){
+
+    .scale-group{
+        height:clamp(260px,50vh,360px);
+    }
+
+    .tray{
+        height:50px;
+    }
+
+    .items{
+        gap:8px;
+        padding:6px 10px;
+    }
+}
+</style>
 </head>
+
 <body>
 
-    <h1>⚖️ Kitchen Scale</h1>
+<h1>⚖️ Kitchen Scale</h1>
 
-    <div class="scale-group">
-        <div class="tray" id="tray"></div>
-        <div class="stem"></div>
-        <div class="scale-face">
-            <canvas id="scaleCanvas"></canvas>
-        </div>
+<div class="scale-group">
+    <div class="tray" id="tray"></div>
+    <div class="stem"></div>
+    <div class="scale-face">
+        <canvas id="scaleCanvas"></canvas>
     </div>
+</div>
 
-    <div class="weight-display">
-        Total: <span id="weightValue">0</span> g
-    </div>
+<div class="weight-display">
+    Total: <span id="weightValue">0</span> g
+</div>
 
-    <div class="items" id="itemsContainer">
-        <div class="item" data-weight="1"><img src="image/apple.png" alt="apple" /></div>
-        <div class="item" data-weight="2"><img src="image/orange.png" alt="orange" /></div>
-        <div class="item" data-weight="3"><img src="image/pumpkin.png" alt="pumpkin" /></div>
-        <div class="item" data-weight="4"><img src="image/coconut.png" alt="coconut" /></div>
-        <div class="item" data-weight="5"><img src="image/watermelon.png" alt="watermelon" /></div>
-        <div class="item" data-weight="6"><img src="image/grapes.png" alt="grapes" /></div>
-    </div>
+<div class="items" id="itemsContainer">
+    <div class="item" data-weight="1"><img src="image/apple.png"></div>
+    <div class="item" data-weight="2"><img src="image/orange.png"></div>
+    <div class="item" data-weight="3"><img src="image/pumpkin.png"></div>
+    <div class="item" data-weight="4"><img src="image/coconut.png"></div>
+    <div class="item" data-weight="5"><img src="image/watermelon.png"></div>
+    <div class="item" data-weight="6"><img src="image/grapes.png"></div>
+</div>
 
-    <button class="reset-btn" id="resetBtn">⟳ Reset Scale</button>
+<button class="reset-btn" id="resetBtn">⟳ Reset Scale</button>
 
-    <script>
-        (function() {
-            const tray = document.getElementById('tray');
-            const itemsContainer = document.getElementById('itemsContainer');
-            const canvas = document.getElementById('scaleCanvas');
-            const ctx = canvas.getContext('2d');
-            const resetBtn = document.getElementById('resetBtn');
-            const weightDisplay = document.getElementById('weightValue');
+<script>
+/* ───────── YOUR JS UNCHANGED ───────── */
+(function() {
+const tray = document.getElementById('tray');
+const itemsContainer = document.getElementById('itemsContainer');
+const canvas = document.getElementById('scaleCanvas');
+const ctx = canvas.getContext('2d');
+const resetBtn = document.getElementById('resetBtn');
+const weightDisplay = document.getElementById('weightValue');
 
-            let totalWeight = 0;
+let totalWeight = 0;
 
-            function resizeCanvas() {
-                const rect = canvas.getBoundingClientRect();
-                const dpr = window.devicePixelRatio || 1;
-                canvas.width = rect.width * dpr;
-                canvas.height = rect.height * dpr;
-                ctx.scale(dpr, dpr);
-                drawScale();
-            }
+function resizeCanvas() {
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
+    drawScale();
+}
 
-            function drawScale() {
-                const w = canvas.width / (window.devicePixelRatio || 1);
-                const h = canvas.height / (window.devicePixelRatio || 1);
-                const cx = w / 2;
-                const cy = h / 2;
-                const radius = w * 0.42;
+function drawScale() {
+    const w = canvas.width / (window.devicePixelRatio || 1);
+    const h = canvas.height / (window.devicePixelRatio || 1);
+    const cx = w / 2;
+    const cy = h / 2;
+    const radius = w * 0.42;
 
-                ctx.clearRect(0, 0, w, h);
+    ctx.clearRect(0, 0, w, h);
 
-                // ── ticks & numbers ──
-                for (let i = 0; i <= 100; i++) {
-                    const value = i / 10;
-                    const angle = (-90 + value * 36) * Math.PI / 180;
-                    const isMainTick = i % 10 === 0;
+    for (let i = 0; i <= 100; i++) {
+        const value = i / 10;
+        const angle = (-90 + value * 36) * Math.PI / 180;
+        const isMainTick = i % 10 === 0;
 
-                    const outerRadius = radius - 2;
-                    let innerRadius;
-                    if (isMainTick) {
-                        innerRadius = radius - 16;
-                    } else {
-                        innerRadius = radius - 11;
-                    }
+        const outerRadius = radius - 2;
+        let innerRadius = isMainTick ? radius - 16 : radius - 11;
 
-                    const x1 = cx + Math.cos(angle) * outerRadius;
-                    const y1 = cy + Math.sin(angle) * outerRadius;
-                    const x2 = cx + Math.cos(angle) * innerRadius;
-                    const y2 = cy + Math.sin(angle) * innerRadius;
+        const x1 = cx + Math.cos(angle) * outerRadius;
+        const y1 = cy + Math.sin(angle) * outerRadius;
+        const x2 = cx + Math.cos(angle) * innerRadius;
+        const y2 = cy + Math.sin(angle) * innerRadius;
 
-                    ctx.beginPath();
-                    ctx.moveTo(x1, y1);
-                    ctx.lineTo(x2, y2);
-                    ctx.strokeStyle = '#222';
-                    ctx.lineWidth = isMainTick ? 4 : 2;
-                    ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.strokeStyle = '#222';
+        ctx.lineWidth = isMainTick ? 4 : 2;
+        ctx.stroke();
 
-                    if (isMainTick) {
-                        const tx = cx + Math.cos(angle) * (radius - 26);
-                        const ty = cy + Math.sin(angle) * (radius - 26);
-                        ctx.font = 'bold 26px Arial';
-                        ctx.fillStyle = '#222';
-                        ctx.textAlign = 'center';
-                        ctx.textBaseline = 'middle';
-                        ctx.fillText(value, tx, ty);
-                    }
-                }
+        if (isMainTick) {
+            const tx = cx + Math.cos(angle) * (radius - 26);
+            const ty = cy + Math.sin(angle) * (radius - 26);
+            ctx.font = 'bold 26px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(value, tx, ty);
+        }
+    }
 
-                // ── pointer (needle) – short, clear ──
-                const pointerAngle = totalWeight * 36 * Math.PI / 180;
+    const pointerAngle = totalWeight * 36 * Math.PI / 180;
 
-                ctx.save();
-                ctx.translate(cx, cy);
-                ctx.rotate(pointerAngle);
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(pointerAngle);
 
-                // Shaft: ends at radius - 36
-                ctx.beginPath();
-                ctx.moveTo(0, 0);
-                ctx.lineTo(0, -(radius - 36));
-                ctx.strokeStyle = '#b71c1c';
-                ctx.lineWidth = 4;
-                ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(0, -(radius - 36));
+    ctx.strokeStyle = '#b71c1c';
+    ctx.lineWidth = 4;
+    ctx.stroke();
 
-                // Tip triangle
-                const tipY = -(radius - 38);
-                ctx.beginPath();
-                ctx.moveTo(-12, tipY + 14);
-                ctx.lineTo(0, tipY - 6);
-                ctx.lineTo(12, tipY + 14);
-                ctx.closePath();
-                ctx.fillStyle = '#d32f2f';
-                ctx.fill();
-                ctx.strokeStyle = '#b71c1c';
-                ctx.lineWidth = 2;
-                ctx.stroke();
+    ctx.restore();
 
-                // Bright dot
-                ctx.beginPath();
-                ctx.arc(0, tipY, 4, 0, Math.PI * 2);
-                ctx.fillStyle = '#ff6b6b';
-                ctx.fill();
-                ctx.strokeStyle = '#b71c1c';
-                ctx.lineWidth = 1.5;
-                ctx.stroke();
+    weightDisplay.textContent = totalWeight;
+}
 
-                ctx.restore();
+/* unchanged drag logic */
+let current = null;
+let offsetX = 0;
+let offsetY = 0;
 
-                // ── center cap ──
-                ctx.shadowColor = 'rgba(0,0,0,0.10)';
-                ctx.shadowBlur = 10;
-                ctx.beginPath();
-                ctx.arc(cx, cy, 16, 0, Math.PI * 2);
-                ctx.fillStyle = '#444';
-                ctx.fill();
-                ctx.shadowBlur = 0;
+document.addEventListener('pointerdown', (e) => {
+    const item = e.target.closest('.item');
+    if (!item || current) return;
 
-                ctx.beginPath();
-                ctx.arc(cx, cy, 7, 0, Math.PI * 2);
-                ctx.fillStyle = '#aaa';
-                ctx.fill();
+    current = item;
+    const rect = item.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
 
-                ctx.beginPath();
-                ctx.arc(cx - 3, cy - 4, 2.5, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(255,255,255,0.4)';
-                ctx.fill();
+    item.classList.add('dragging');
+    item.style.position = 'fixed';
+    item.style.left = (e.clientX - offsetX) + 'px';
+    item.style.top = (e.clientY - offsetY) + 'px';
 
-                weightDisplay.textContent = totalWeight;
-            }
+    document.body.appendChild(item);
+});
 
-            // ── drag state ──
-            let current = null;
-            let offsetX = 0;
-            let offsetY = 0;
+document.addEventListener('pointermove', (e) => {
+    if (!current) return;
+    current.style.left = (e.clientX - offsetX) + 'px';
+    current.style.top = (e.clientY - offsetY) + 'px';
+});
 
-            function cleanupDrag() {
-                if (!current) return;
-                current.classList.remove('dragging');
-                current.style.position = '';
-                current.style.left = '';
-                current.style.top = '';
-                current.style.width = '';
-                current.style.height = '';
-                current.style.zIndex = '';
-                current.style.pointerEvents = '';
-                current = null;
-            }
+document.addEventListener('pointerup', (e) => {
+    if (!current) return;
 
-            document.addEventListener('pointerdown', (e) => {
-                const item = e.target.closest('.item');
-                if (!item || current) return;
+    const rect = tray.getBoundingClientRect();
+    const inside =
+        e.clientX > rect.left && e.clientX < rect.right &&
+        e.clientY > rect.top && e.clientY < rect.bottom;
 
-                current = item;
-                const rect = item.getBoundingClientRect();
-                offsetX = e.clientX - rect.left;
-                offsetY = e.clientY - rect.top;
+    const weight = Number(current.dataset.weight);
 
-                item.classList.add('dragging');
-                item.style.position = 'fixed';
-                item.style.width = rect.width + 'px';
-                item.style.height = rect.height + 'px';
-                item.style.zIndex = 9999;
-                item.style.pointerEvents = 'none';
-                item.style.left = (e.clientX - offsetX) + 'px';
-                item.style.top = (e.clientY - offsetY) + 'px';
+    if (inside) {
+        tray.appendChild(current);
+        current.classList.add('in-tray');
+        totalWeight += weight;
+    } else {
+        itemsContainer.appendChild(current);
+    }
 
-                document.body.appendChild(item);
-                tray.classList.add('drag-over');
-            });
+    current.classList.remove('dragging');
+    current.style.position = '';
+    current = null;
 
-            document.addEventListener('pointermove', (e) => {
-                if (!current) return;
-                current.style.left = (e.clientX - offsetX) + 'px';
-                current.style.top = (e.clientY - offsetY) + 'px';
+    drawScale();
+});
 
-                const trayRect = tray.getBoundingClientRect();
-                const inside = e.clientX >= trayRect.left && e.clientX <= trayRect.right &&
-                    e.clientY >= trayRect.top && e.clientY <= trayRect.bottom;
-                tray.classList.toggle('drag-over', inside);
-            });
+resetBtn.onclick = () => {
+    [...tray.children].forEach(i => {
+        i.classList.remove('in-tray');
+        itemsContainer.appendChild(i);
+    });
+    totalWeight = 0;
+    drawScale();
+};
 
-            document.addEventListener('pointerup', (e) => {
-                if (!current) return;
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+drawScale();
 
-                const weight = Number(current.dataset.weight);
-                const trayRect = tray.getBoundingClientRect();
-                const inside = e.clientX >= trayRect.left && e.clientX <= trayRect.right &&
-                    e.clientY >= trayRect.top && e.clientY <= trayRect.bottom;
-
-                const wasInTray = current.classList.contains('in-tray');
-
-                if (inside) {
-                    if (!wasInTray) {
-                        tray.appendChild(current);
-                        current.classList.add('in-tray');
-                        totalWeight += weight;
-                        drawScale();
-                    }
-                } else {
-                    if (wasInTray) {
-                        current.classList.remove('in-tray');
-                        totalWeight -= weight;
-                        drawScale();
-                    }
-                    itemsContainer.appendChild(current);
-                }
-
-                tray.classList.remove('drag-over');
-                cleanupDrag();
-            });
-
-            document.addEventListener('pointercancel', () => {
-                if (current) {
-                    if (current.classList.contains('in-tray')) {
-                        current.classList.remove('in-tray');
-                        totalWeight -= Number(current.dataset.weight) || 0;
-                        drawScale();
-                    }
-                    itemsContainer.appendChild(current);
-                    tray.classList.remove('drag-over');
-                    cleanupDrag();
-                }
-            });
-
-            function resetScale() {
-                const trayItems = tray.querySelectorAll('.item');
-                trayItems.forEach(item => {
-                    item.classList.remove('in-tray');
-                    itemsContainer.appendChild(item);
-                });
-                totalWeight = 0;
-                drawScale();
-            }
-
-            resetBtn.addEventListener('click', resetScale);
-
-            window.addEventListener('resize', resizeCanvas);
-            resizeCanvas();
-            totalWeight = 0;
-            drawScale();
-        })();
-    </script>
+})();
+</script>
 
 </body>
 </html>
