@@ -6,225 +6,149 @@
 <title>Kitchen Weight Scale</title>
 
 <style>
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    touch-action: none;
-    user-select: none;
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    touch-action:none;
+    user-select:none;
 }
 
-/* ───────── NO SCROLL ───────── */
-html, body {
-    height: 100%;
-    overflow: hidden;
+html,body{
+    height:100%;
+    overflow:hidden;
 }
 
-/* ───────── MAIN LAYOUT (LEFT + CENTER SPLIT) ───────── */
-body {
-    min-height: 100vh;
-    display: flex;
-
-    background: #f5f3f0;
-    font-family: Arial, sans-serif;
-
-    padding: 10px;
-    gap: 10px;
+body{
+    min-height:100vh;
+    display:flex;
+    background:#f5f3f0;
+    font-family:Arial,sans-serif;
+    padding:10px;
+    gap:10px;
 }
 
-/* ───────── LEFT PANEL (ITEMS + BUTTON) ───────── */
-.left-panel {
-    width: clamp(120px, 22vw, 220px);
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    align-items: center;
+/* LEFT */
+.left-panel{
+    width:clamp(120px,22vw,220px);
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    align-items:center;
 }
 
-/* items moved LEFT */
-.items {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-
-    padding: 10px;
-    background: rgba(255, 255, 255, 0.5);
-    border-radius: 20px;
-    border: 2px dashed #ccc;
-
-    width: 100%;
-    align-items: center;
-    max-height: 70vh;
-    overflow: hidden;
+.items{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    padding:10px;
+    background:rgba(255,255,255,0.5);
+    border-radius:20px;
+    border:2px dashed #ccc;
+    width:100%;
+    align-items:center;
+    max-height:70vh;
+    overflow:hidden;
 }
 
-.item {
-    width: clamp(44px, 6vw, 62px);
-    height: clamp(44px, 6vw, 62px);
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background: white;
-    border-radius: 14px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.08);
-
-    cursor: grab;
+.item{
+    width:clamp(44px,6vw,62px);
+    height:clamp(44px,6vw,62px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:white;
+    border-radius:14px;
+    box-shadow:0 4px 8px rgba(0,0,0,0.08);
+    cursor:grab;
 }
 
-.item img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    padding: 5px;
+.item img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    padding:5px;
 }
 
-.item.dragging {
-    opacity: 0.6;
-    transform: scale(1.1);
-    z-index: 9999;
+.item.dragging{opacity:0.6;transform:scale(1.1);}
+.item.in-tray{transform:scale(0.6);}
+
+/* BUTTON */
+.reset-btn{
+    padding:8px 16px;
+    border:none;
+    border-radius:40px;
+    background:#e0d6c8;
+    width:100%;
 }
 
-.item.in-tray {
-    transform: scale(0.6);
-    width: 48px;
-    height: 48px;
+/* CENTER */
+.center-panel{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
 }
 
-/* reset button moved LEFT */
-.reset-btn {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 40px;
-    background: #e0d6c8;
-    font-size: 14px;
-    cursor: pointer;
-    width: 100%;
+h1{
+    margin-bottom:8px;
+    font-weight:300;
 }
 
-/* ───────── CENTER AREA (SCALE ONLY) ───────── */
-.center-panel {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+/* SCALE */
+.scale-group{
+    position:relative;
+    width:min(90vw,500px);
+    aspect-ratio:1 / 1.2;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
 }
 
-/* title */
-h1 {
-    margin-bottom: 8px;
-    font-weight: 300;
-    letter-spacing: 2px;
-    font-size: 24px;
+.tray{
+    width:100%;
+    height:70px;
+    margin-top:12px;
+    border:3px dashed #aaa;
+    border-radius:40px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
 }
 
-/* scale group stays SAME visual */
-.scale-group {
-    position: relative;
-    width: min(90vw, 500px);
-    aspect-ratio: 1 / 1.2;
+.scale-face{
+    position:relative;
+    width:65%;
+    aspect-ratio:1;
+    margin-top:40px;
+    border-radius:50%;
+    overflow:hidden;
 
-    background-image: url("image/background.png");
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
+    /* FIXED background alignment */
+    background:url("image/background.svg") center/100% 100% no-repeat;
 
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    border:12px solid #d0d0d0;
+    box-shadow:0 8px 20px rgba(0,0,0,0.1);
 }
 
-/* tray unchanged */
-.tray {
-    width: 100%;
-    height: 70px;
-    margin-top: 12px;
-    padding: 4px 8px;
-    border: 3px dashed #aaa;
-    border-radius: 40px;
-    background: rgba(255, 255, 255, 0.25);
-
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-    gap: 3px;
+canvas{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
 }
 
-/* stem unchanged */
-.stem {
-    width: 16px;
-    height: 30px;
-}
-
-/* scale face unchanged */
-.scale-face {
-    position: relative;
-    width: 65%;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    background: white;
-    border: 12px solid #d0d0d0;
-
-    margin-top: 40px;
-    overflow: hidden;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-}
-
-canvas {
-    width: 100%;
-    height: 100%;
-    display: block;
-}
-
-/* weight display stays center */
-.weight-display {
-    margin-top: 8px;
-    font-size: 18px;
-    font-weight: 600;
-    color: #333;
-
-    background: rgba(255,255,255,0.7);
-    padding: 4px 22px;
-    border-radius: 30px;
-}
-
-.weight-display span {
-    color: #d32f2f;
-    font-size: 24px;
-}
-
-/* mobile: stack left panel on top */
-@media (max-width: 700px) {
-    body {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .left-panel {
-        width: 100%;
-        flex-direction: row;
-        justify-content: center;
-    }
-
-    .items {
-        flex-direction: row;
-        flex-wrap: wrap;
-        max-height: none;
-    }
-
-    .reset-btn {
-        width: auto;
-    }
+.weight-display{
+    margin-top:8px;
+    font-size:18px;
+    font-weight:600;
 }
 </style>
 </head>
 
 <body>
 
-<!-- LEFT SIDE -->
 <div class="left-panel">
     <div class="items" id="itemsContainer">
         <div class="item" data-weight="1"><img src="image/Apple.svg"></div>
@@ -232,187 +156,188 @@ canvas {
         <div class="item" data-weight="3"><img src="image/pumpkin.png"></div>
         <div class="item" data-weight="4"><img src="image/coconut.png"></div>
         <div class="item" data-weight="5"><img src="image/watermelon.png"></div>
-        <div class="item" data-weight="6"><img src="image/grapes.png"></div>
     </div>
 
-    <button class="reset-btn" id="resetBtn">⟳ Reset Scale</button>
+    <button class="reset-btn" id="resetBtn">Reset</button>
 </div>
 
-<!-- CENTER -->
 <div class="center-panel">
 
-    <h1>⚖️ Kitchen Scale</h1>
+<h1>⚖️ Kitchen Scale</h1>
 
-    <div class="scale-group">
-        <div class="tray" id="tray"></div>
-        <div class="stem"></div>
-        <div class="scale-face">
-            <canvas id="scaleCanvas"></canvas>
-        </div>
-    </div>
+<div class="scale-group">
+    <div class="tray" id="tray"></div>
 
-    <div class="weight-display">
-        Total: <span id="weightValue">0</span> g
+    <div class="scale-face">
+        <canvas id="scaleCanvas"></canvas>
     </div>
+</div>
+
+<div class="weight-display">
+Total: <span id="weightValue">0</span> g
+</div>
 
 </div>
 
 <script>
-/* ───────── JS UNCHANGED ───────── */
-(function () {
+(function(){
 
-const tray = document.getElementById('tray');
-const itemsContainer = document.getElementById('itemsContainer');
-const canvas = document.getElementById('scaleCanvas');
-const ctx = canvas.getContext('2d');
-const weightDisplay = document.getElementById('weightValue');
-const resetBtn = document.getElementById('resetBtn');
+const tray=document.getElementById("tray");
+const itemsContainer=document.getElementById("itemsContainer");
+const canvas=document.getElementById("scaleCanvas");
+const ctx=canvas.getContext("2d");
+const weightDisplay=document.getElementById("weightValue");
 
-let totalWeight = 0;
-let current = null;
-let offsetX = 0;
-let offsetY = 0;
+let totalWeight=0;
+let current=null;
+let offsetX=0;
+let offsetY=0;
 
-function resizeCanvas() {
-    const rect = canvas.getBoundingClientRect();
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    drawScale();
+/* RESIZE */
+function resize(){
+    const r=canvas.getBoundingClientRect();
+    const dpr=window.devicePixelRatio||1;
+    canvas.width=r.width*dpr;
+    canvas.height=r.height*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    draw();
 }
 
-function drawScale() {
-    const w = canvas.clientWidth;
-    const h = canvas.clientHeight;
-    const cx = w / 2;
-    const cy = h / 2;
-    const radius = w * 0.42;
+/* DRAW SCALE (NUMBERS + NEEDLE RESTORED) */
+function draw(){
+    const w=canvas.clientWidth;
+    const h=canvas.clientHeight;
+    const cx=w/2;
+    const cy=h/2;
+    const radius=Math.min(w,h)*0.48;
 
-    ctx.clearRect(0, 0, w, h);
+    ctx.clearRect(0,0,w,h);
 
-    for (let i = 0; i <= 100; i++) {
-        const value = i / 10;
-        const angle = (-90 + value * 36) * Math.PI / 180;
-        const isMainTick = i % 10 === 0;
+    /* ticks + numbers */
+    for(let i=0;i<=100;i++){
+        const val=i/10;
+        const angle=(-90+val*36)*Math.PI/180;
+        const main=i%10===0;
 
-        const outerRadius = radius - 2;
-        const innerRadius = isMainTick ? radius - 16 : radius - 11;
+        const r1=radius-2;
+        const r2=main?radius-16:radius-11;
 
-        const x1 = cx + Math.cos(angle) * outerRadius;
-        const y1 = cy + Math.sin(angle) * outerRadius;
-        const x2 = cx + Math.cos(angle) * innerRadius;
-        const y2 = cy + Math.sin(angle) * innerRadius;
+        const x1=cx+Math.cos(angle)*r1;
+        const y1=cy+Math.sin(angle)*r1;
+        const x2=cx+Math.cos(angle)*r2;
+        const y2=cy+Math.sin(angle)*r2;
 
         ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.strokeStyle = '#222';
-        ctx.lineWidth = isMainTick ? 4 : 2;
+        ctx.moveTo(x1,y1);
+        ctx.lineTo(x2,y2);
+        ctx.strokeStyle="#222";
+        ctx.lineWidth=main?4:2;
         ctx.stroke();
 
-        if (isMainTick) {
-            const tx = cx + Math.cos(angle) * (radius - 26);
-            const ty = cy + Math.sin(angle) * (radius - 26);
-            ctx.font = 'bold 26px Arial';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(value, tx, ty);
+        if(main){
+            const tx=cx+Math.cos(angle)*(radius-26);
+            const ty=cy+Math.sin(angle)*(radius-26);
+            ctx.font="bold 20px Arial";
+            ctx.textAlign="center";
+            ctx.textBaseline="middle";
+            ctx.fillText(val,tx,ty);
         }
     }
 
-    const pointerAngle = totalWeight * 36 * Math.PI / 180;
+    /* needle */
+    const angle=totalWeight*36*Math.PI/180;
 
     ctx.save();
-    ctx.translate(cx, cy);
-    ctx.rotate(pointerAngle);
+    ctx.translate(cx,cy);
+    ctx.rotate(angle);
 
     ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(0, -(radius - 36));
-    ctx.strokeStyle = '#b71c1c';
-    ctx.lineWidth = 4;
+    ctx.moveTo(0,0);
+    ctx.lineTo(0,-(radius-36));
+    ctx.strokeStyle="#b71c1c";
+    ctx.lineWidth=4;
     ctx.stroke();
 
     ctx.restore();
 
-    weightDisplay.textContent = totalWeight;
+    weightDisplay.textContent=totalWeight;
 }
 
-/* drag logic unchanged */
-document.addEventListener('pointerdown', (e) => {
-    const item = e.target.closest('.item');
-    if (!item || current) return;
+/* DRAG */
+document.addEventListener("pointerdown",(e)=>{
+    const item=e.target.closest(".item");
+    if(!item||current)return;
 
-    current = item;
-    const rect = item.getBoundingClientRect();
+    current=item;
 
-    offsetX = e.clientX - rect.left;
-    offsetY = e.clientY - rect.top;
+    const r=item.getBoundingClientRect();
+    offsetX=e.clientX-r.left;
+    offsetY=e.clientY-r.top;
 
-    item.classList.add('dragging');
-    item.style.position = 'fixed';
-    item.style.left = (e.clientX - offsetX) + 'px';
-    item.style.top = (e.clientY - offsetY) + 'px';
+    item.classList.add("dragging");
+    item.style.position="fixed";
+    item.style.left=(e.clientX-offsetX)+"px";
+    item.style.top=(e.clientY-offsetY)+"px";
 
     document.body.appendChild(item);
 });
 
-document.addEventListener('pointermove', (e) => {
-    if (!current) return;
-    current.style.left = (e.clientX - offsetX) + 'px';
-    current.style.top = (e.clientY - offsetY) + 'px';
+document.addEventListener("pointermove",(e)=>{
+    if(!current)return;
+    current.style.left=(e.clientX-offsetX)+"px";
+    current.style.top=(e.clientY-offsetY)+"px";
 });
 
-document.addEventListener('pointerup', (e) => {
-    if (!current) return;
+/* FIXED WEIGHT LOGIC */
+document.addEventListener("pointerup",(e)=>{
+    if(!current)return;
 
-    const weight = Number(current.dataset.weight);
-    const r = tray.getBoundingClientRect();
+    const weight=+current.dataset.weight;
+    const r=tray.getBoundingClientRect();
 
-    const inside =
-        e.clientX >= r.left &&
-        e.clientX <= r.right &&
-        e.clientY >= r.top &&
-        e.clientY <= r.bottom;
+    const inside=
+        e.clientX>=r.left&&
+        e.clientX<=r.right&&
+        e.clientY>=r.top&&
+        e.clientY<=r.bottom;
 
-    const wasInTray = current.classList.contains('in-tray');
+    const wasInTray=current.classList.contains("in-tray");
 
-    if (inside) {
-        if (!wasInTray) {
+    if(inside){
+        if(!wasInTray){
             tray.appendChild(current);
-            current.classList.add('in-tray');
-            totalWeight += weight;
+            current.classList.add("in-tray");
+            totalWeight+=weight;
         }
-    } else {
-        if (wasInTray) {
-            current.classList.remove('in-tray');
-            totalWeight -= weight;
-            if (totalWeight < 0) totalWeight = 0;
+    }else{
+        if(wasInTray){
+            current.classList.remove("in-tray");
+            totalWeight-=weight;
+            if(totalWeight<0)totalWeight=0;
         }
         itemsContainer.appendChild(current);
     }
 
-    current.style.position = '';
-    current.classList.remove('dragging');
-    current = null;
+    current.style.position="";
+    current.classList.remove("dragging");
+    current=null;
 
-    drawScale();
+    draw();
 });
 
-resetBtn.onclick = () => {
-    [...tray.children].forEach(i => {
-        i.classList.remove('in-tray');
+/* RESET */
+document.getElementById("resetBtn").onclick=()=>{
+    [...tray.children].forEach(i=>{
+        i.classList.remove("in-tray");
         itemsContainer.appendChild(i);
     });
-
-    totalWeight = 0;
-    drawScale();
+    totalWeight=0;
+    draw();
 };
 
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
-drawScale();
+window.addEventListener("resize",resize);
+resize();
+draw();
 
 })();
 </script>
