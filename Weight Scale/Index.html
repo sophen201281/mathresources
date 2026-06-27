@@ -107,7 +107,7 @@ h1{
     gap:12px;
 }
 
-/* TRAY (NOW ABOVE SCALE FACE) */
+/* TRAY */
 .tray{
     width:100%;
     height:70px;
@@ -119,7 +119,6 @@ h1{
     overflow:hidden;
 }
 
-/* TRAY IMAGE */
 .tray-box{
     position:absolute;
     inset:0;
@@ -128,20 +127,22 @@ h1{
     pointer-events:none;
 }
 
-/* SCALE FACE */
+/* SCALE FACE (SMALLER RING) */
 .scale-face{
     position:relative;
     width:100%;
     aspect-ratio:1;
-    border-radius:%;
+    border-radius:50%;   /* fixed */
     overflow:hidden;
 
     background:url("image/background.png") center/100% 100% no-repeat;
-    border:12px solid #d0d0d0;
+
+    /* 🔽 smaller ring */
+    border:6px solid #d0d0d0;
+
     box-shadow:0 8px 20px rgba(0,0,0,0.1);
 }
 
-/* FACE OVERLAY */
 .face-box{
     position:absolute;
     inset:0;
@@ -150,7 +151,6 @@ h1{
     pointer-events:none;
 }
 
-/* CANVAS (NEEDLE + NUMBERS) */
 canvas{
     position:absolute;
     inset:0;
@@ -159,7 +159,6 @@ canvas{
     z-index:3;
 }
 
-/* WEIGHT TEXT */
 .weight-display{
     margin-top:8px;
     font-size:18px;
@@ -170,7 +169,6 @@ canvas{
 
 <body>
 
-<!-- LEFT PANEL -->
 <div class="left-panel">
     <div class="items" id="itemsContainer">
         <div class="item" data-weight="1"><img src="image/Apple.svg"></div>
@@ -183,19 +181,16 @@ canvas{
     <button class="reset-btn" id="resetBtn">Reset</button>
 </div>
 
-<!-- CENTER -->
 <div class="center-panel">
 
 <h1>⚖️ Kitchen Scale</h1>
 
 <div class="scale-group">
 
-    <!-- TRAY (TOP) -->
     <div class="tray" id="tray">
         <div class="tray-box"></div>
     </div>
 
-    <!-- SCALE FACE -->
     <div class="scale-face">
         <div class="face-box"></div>
         <canvas id="scaleCanvas"></canvas>
@@ -223,7 +218,6 @@ let current=null;
 let offsetX=0;
 let offsetY=0;
 
-/* RESIZE */
 function resize(){
     const r=canvas.getBoundingClientRect();
     const dpr=window.devicePixelRatio||1;
@@ -233,13 +227,14 @@ function resize(){
     draw();
 }
 
-/* DRAW SCALE */
 function draw(){
     const w=canvas.clientWidth;
     const h=canvas.clientHeight;
     const cx=w/2;
     const cy=h/2;
-    const radius=Math.min(w,h)*0.48;
+
+    /* 🔽 smaller dial */
+    const radius=Math.min(w,h)*0.40;
 
     ctx.clearRect(0,0,w,h);
 
@@ -249,7 +244,7 @@ function draw(){
         const main=i%10===0;
 
         const r1=radius-2;
-        const r2=main?radius-16:radius-11;
+        const r2=main?radius-14:radius-10;
 
         const x1=cx+Math.cos(angle)*r1;
         const y1=cy+Math.sin(angle)*r1;
@@ -260,13 +255,13 @@ function draw(){
         ctx.moveTo(x1,y1);
         ctx.lineTo(x2,y2);
         ctx.strokeStyle="#222";
-        ctx.lineWidth=main?4:2;
+        ctx.lineWidth=main?3:1.5;
         ctx.stroke();
 
         if(main){
-            const tx=cx+Math.cos(angle)*(radius-26);
-            const ty=cy+Math.sin(angle)*(radius-26);
-            ctx.font="bold 20px Arial";
+            const tx=cx+Math.cos(angle)*(radius-22);
+            const ty=cy+Math.sin(angle)*(radius-22);
+            ctx.font="bold 18px Arial";
             ctx.textAlign="center";
             ctx.textBaseline="middle";
             ctx.fillText(val,tx,ty);
@@ -281,7 +276,10 @@ function draw(){
 
     ctx.beginPath();
     ctx.moveTo(0,0);
-    ctx.lineTo(0,-(radius-36));
+
+    /* 🔽 shorter needle */
+    ctx.lineTo(0,-(radius-30));
+
     ctx.strokeStyle="#b71c1c";
     ctx.lineWidth=4;
     ctx.stroke();
@@ -291,7 +289,7 @@ function draw(){
     weightDisplay.textContent=totalWeight;
 }
 
-/* DRAG START */
+/* DRAG LOGIC (UNCHANGED) */
 document.addEventListener("pointerdown",(e)=>{
     const item=e.target.closest(".item");
     if(!item||current)return;
@@ -310,14 +308,12 @@ document.addEventListener("pointerdown",(e)=>{
     document.body.appendChild(item);
 });
 
-/* DRAG MOVE */
 document.addEventListener("pointermove",(e)=>{
     if(!current)return;
     current.style.left=(e.clientX-offsetX)+"px";
     current.style.top=(e.clientY-offsetY)+"px";
 });
 
-/* DROP LOGIC */
 document.addEventListener("pointerup",(e)=>{
     if(!current)return;
 
@@ -354,7 +350,6 @@ document.addEventListener("pointerup",(e)=>{
     draw();
 });
 
-/* RESET */
 document.getElementById("resetBtn").onclick=()=>{
     [...tray.children].forEach(i=>{
         i.classList.remove("in-tray");
