@@ -6,220 +6,227 @@
 <title>Kitchen Weight Scale</title>
 
 <style>
-*{
-    box-sizing:border-box;
-    margin:0;
-    padding:0;
-    touch-action:none;
-    user-select:none;
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    touch-action: none;
+    user-select: none;
 }
 
-/* ───────── FIX: FULL SCREEN FIT ───────── */
-html,body{
-    height:100%;
-    overflow:hidden; /* 🚫 NO SCROLL */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #f5f3f0;
+    font-family: Arial, sans-serif;
+    padding: 12px 20px 20px;
 }
 
-/* ───────── BODY LAYOUT ───────── */
-body{
-    min-height:100vh;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-
-    background:#f5f3f0;
-    font-family:Arial,sans-serif;
-
-    padding:clamp(6px,1.5vh,12px) 12px;
-    gap:clamp(4px,1vh,10px);
+h1 {
+    margin-bottom: 10px;
+    font-weight: 300;
+    letter-spacing: 2px;
+    font-size: 24px;
 }
 
-/* ───────── TITLE ───────── */
-h1{
-    margin-bottom:0;
-    font-weight:300;
-    letter-spacing:2px;
-    font-size:clamp(16px,2.2vw,24px);
+.scale-group {
+    position: relative;
+    width: min(90vw, 500px);
+    aspect-ratio: 1 / 1.2;
+    background-image: url("image/background.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-/* ───────── SCALE GROUP ───────── */
-.scale-group{
-    position:relative;
-    width:min(92vw,500px);
-
-    /* FIX: prevent overflow height */
-    height:clamp(280px,55vh,420px);
-
-    background-image:url("image/background.png");
-    background-size:contain;
-    background-repeat:no-repeat;
-    background-position:center;
-
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:flex-start;
+.tray {
+    width: 70%;
+    height: 70px;
+    margin-top: 12px;
+    padding: 4px 8px;
+    border: 3px dashed #aaa;
+    border-radius: 40px;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(4px);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    overflow: visible;
+    transition: background 0.2s, border-color 0.2s;
+    flex-shrink: 0;
+    min-height: 60px;
 }
 
-/* ───────── TRAY ───────── */
-.tray{
-    width:70%;
-    height:clamp(44px,6vh,70px);
-
-    margin-top:clamp(6px,1.2vh,12px);
-
-    padding:4px 8px;
-    border:3px dashed #aaa;
-    border-radius:40px;
-
-    background:rgba(255,255,255,0.25);
-    backdrop-filter:blur(4px);
-
-    display:flex;
-    flex-wrap:wrap;
-    align-items:center;
-    justify-content:center;
-    gap:3px;
-
-    flex-shrink:0;
+.tray.drag-over {
+    background: rgba(200, 230, 200, 0.5);
+    border-color: #4caf50;
 }
 
-/* ───────── STEM ───────── */
-.stem{
-    width:16px;
-    height:clamp(18px,3vh,30px);
+.stem {
+    width: 16px;
+    height: 30px;
+    background: transparent;
+    flex-shrink: 0;
 }
 
-/* ───────── SCALE FACE ───────── */
-.scale-face{
-    position:relative;
-
-    width:clamp(160px,55vw,280px);
-    aspect-ratio:1;
-
-    border-radius:50%;
-    background:white;
-    border:clamp(6px,1.5vw,12px) solid #d0d0d0;
-
-    overflow:hidden;
-    box-shadow:0 8px 20px rgba(0,0,0,0.1);
-
-    /* FIX: responsive spacing */
-    margin-top:clamp(10px,3vh,40px);
+.scale-face {
+    position: relative;
+    width: 65%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: white;
+    border: 12px solid #d0d0d0;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+    margin-top: 40px;
 }
 
-canvas{
-    width:100%;
-    height:100%;
-    display:block;
+canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
 }
 
-/* ───────── ITEMS ───────── */
-.items{
-    display:flex;
-    gap:clamp(8px,2vw,14px);
-
-    margin-top:0;
-
-    flex-wrap:wrap;
-    justify-content:center;
-
-    min-height:clamp(50px,10vh,68px);
-
-    padding:clamp(6px,1.5vh,8px) 16px;
-
-    background:rgba(255,255,255,0.5);
-    border-radius:30px;
-    border:2px dashed #ccc;
-
-    max-width:95vw;
+.items {
+    display: flex;
+    gap: 14px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    min-height: 68px;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 30px;
+    border: 2px dashed #ccc;
 }
 
-/* ───────── ITEM ───────── */
-.item{
-    width:clamp(44px,7vw,62px);
-    height:clamp(44px,7vw,62px);
-
-    cursor:grab;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    background:white;
-    border-radius:14px;
-    box-shadow:0 4px 8px rgba(0,0,0,0.08);
-
-    transition:transform 0.2s, opacity 0.2s, box-shadow 0.2s;
-    flex-shrink:0;
+.item {
+    width: 62px;
+    height: 62px;
+    cursor: grab;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border-radius: 14px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s, opacity 0.2s, filter 0.2s, box-shadow 0.2s;
+    will-change: transform;
+    flex-shrink: 0;
 }
 
-.item img{
-    width:100%;
-    height:100%;
-    object-fit:contain;
-    padding:5px;
+.item img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+    padding: 5px;
 }
 
-/* dragging */
-.item.dragging{
-    opacity:0.6;
-    transform:scale(1.1);
-    z-index:9999;
+.item:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
 }
 
-/* in tray */
-.item.in-tray{
-    transform:scale(0.6);
-    width:clamp(40px,6vw,52px);
-    height:clamp(40px,6vw,52px);
+.item.dragging {
+    opacity: 0.6;
+    cursor: grabbing;
+    transform: scale(1.1);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+    z-index: 9999;
 }
 
-/* ───────── RESET BUTTON ───────── */
-.reset-btn{
-    margin-top:0;
-
-    padding:clamp(6px,1.5vh,8px) clamp(18px,4vw,24px);
-
-    border:none;
-    border-radius:40px;
-    background:#e0d6c8;
-
-    font-size:clamp(13px,2vw,15px);
+.item.in-tray {
+    transform: scale(0.6);
+    opacity: 0.75;
+    filter: grayscale(0.2);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    cursor: grab;
+    width: 52px;
+    height: 52px;
 }
 
-/* ───────── WEIGHT DISPLAY ───────── */
-.weight-display{
-    margin-top:0;
-
-    font-size:clamp(14px,2vw,18px);
-    font-weight:600;
-
-    color:#333;
-
-    background:rgba(255,255,255,0.7);
-    padding:4px 18px;
-    border-radius:30px;
+.reset-btn {
+    margin-top: 12px;
+    padding: 8px 24px;
+    border: none;
+    border-radius: 40px;
+    background: #e0d6c8;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.2s;
 }
 
-.weight-display span{
-    color:#d32f2f;
-    font-size:clamp(18px,3vw,24px);
+.reset-btn:hover {
+    background: #d0c4b4;
 }
 
-/* ───────── MOBILE TWEAK ───────── */
-@media (max-width:480px){
+.weight-display {
+    margin-top: 6px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 4px 22px;
+    border-radius: 30px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
 
-    .scale-group{
-        height:clamp(260px,50vh,360px);
+.weight-display span {
+    color: #d32f2f;
+    font-size: 24px;
+}
+
+/* RESPONSIVE (unchanged behavior) */
+@media (max-width: 480px) {
+    .item {
+        width: 52px;
+        height: 52px;
     }
-
-    .tray{
-        height:50px;
+    .item.in-tray {
+        width: 44px;
+        height: 44px;
     }
-
-    .items{
-        gap:8px;
-        padding:6px 10px;
+    .items {
+        gap: 10px;
+        padding: 6px 12px;
+        margin-top: 4px;
+        min-height: 56px;
+    }
+    .tray {
+        height: 56px;
+        margin-top: 8px;
+    }
+    .scale-group {
+        aspect-ratio: 1 / 1.15;
+    }
+    h1 {
+        font-size: 20px;
+        margin-bottom: 6px;
+    }
+    .weight-display {
+        font-size: 15px;
+        padding: 3px 16px;
+        margin-top: 4px;
+    }
+    .weight-display span {
+        font-size: 20px;
+    }
+    .reset-btn {
+        margin-top: 8px;
+        padding: 6px 18px;
+        font-size: 13px;
+    }
+    .scale-face {
+        margin-top: 30px;
     }
 }
 </style>
@@ -253,29 +260,34 @@ canvas{
 <button class="reset-btn" id="resetBtn">⟳ Reset Scale</button>
 
 <script>
-/* ───────── YOUR JS UNCHANGED ───────── */
-(function() {
+(function () {
+
 const tray = document.getElementById('tray');
 const itemsContainer = document.getElementById('itemsContainer');
 const canvas = document.getElementById('scaleCanvas');
 const ctx = canvas.getContext('2d');
-const resetBtn = document.getElementById('resetBtn');
 const weightDisplay = document.getElementById('weightValue');
+const resetBtn = document.getElementById('resetBtn');
 
 let totalWeight = 0;
+let current = null;
+let offsetX = 0;
+let offsetY = 0;
 
+/* ───────── CANVAS ───────── */
 function resizeCanvas() {
     const rect = canvas.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
     canvas.width = rect.width * dpr;
     canvas.height = rect.height * dpr;
-    ctx.scale(dpr, dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     drawScale();
 }
 
+/* ───────── DRAW SCALE ───────── */
 function drawScale() {
-    const w = canvas.width / (window.devicePixelRatio || 1);
-    const h = canvas.height / (window.devicePixelRatio || 1);
+    const w = canvas.clientWidth;
+    const h = canvas.clientHeight;
     const cx = w / 2;
     const cy = h / 2;
     const radius = w * 0.42;
@@ -288,7 +300,7 @@ function drawScale() {
         const isMainTick = i % 10 === 0;
 
         const outerRadius = radius - 2;
-        let innerRadius = isMainTick ? radius - 16 : radius - 11;
+        const innerRadius = isMainTick ? radius - 16 : radius - 11;
 
         const x1 = cx + Math.cos(angle) * outerRadius;
         const y1 = cy + Math.sin(angle) * outerRadius;
@@ -330,17 +342,14 @@ function drawScale() {
     weightDisplay.textContent = totalWeight;
 }
 
-/* unchanged drag logic */
-let current = null;
-let offsetX = 0;
-let offsetY = 0;
-
+/* ───────── FIXED DRAG LOGIC (IMPORTANT) ───────── */
 document.addEventListener('pointerdown', (e) => {
     const item = e.target.closest('.item');
     if (!item || current) return;
 
     current = item;
     const rect = item.getBoundingClientRect();
+
     offsetX = e.clientX - rect.left;
     offsetY = e.clientY - rect.top;
 
@@ -361,21 +370,47 @@ document.addEventListener('pointermove', (e) => {
 document.addEventListener('pointerup', (e) => {
     if (!current) return;
 
-    const rect = tray.getBoundingClientRect();
-    const inside =
-        e.clientX > rect.left && e.clientX < rect.right &&
-        e.clientY > rect.top && e.clientY < rect.bottom;
-
     const weight = Number(current.dataset.weight);
+    const trayRect = tray.getBoundingClientRect();
 
+    const inside =
+        e.clientX >= trayRect.left &&
+        e.clientX <= trayRect.right &&
+        e.clientY >= trayRect.top &&
+        e.clientY <= trayRect.bottom;
+
+    const wasInTray = current.classList.contains('in-tray');
+
+    /* ✅ DROP INTO TRAY */
     if (inside) {
-        tray.appendChild(current);
-        current.classList.add('in-tray');
-        totalWeight += weight;
-    } else {
+        if (!wasInTray) {
+            tray.appendChild(current);
+            current.classList.add('in-tray');
+            totalWeight += weight;
+        }
+    }
+
+    /* ✅ REMOVE FROM TRAY */
+    else {
+        if (wasInTray) {
+            current.classList.remove('in-tray');
+            totalWeight -= weight;
+            if (totalWeight < 0) totalWeight = 0;
+        }
         itemsContainer.appendChild(current);
     }
 
+    current.style.position = '';
+    current.classList.remove('dragging');
+    current = null;
+
+    drawScale();
+});
+
+document.addEventListener('pointercancel', () => {
+    if (!current) return;
+
+    itemsContainer.appendChild(current);
     current.classList.remove('dragging');
     current.style.position = '';
     current = null;
@@ -383,15 +418,18 @@ document.addEventListener('pointerup', (e) => {
     drawScale();
 });
 
+/* ───────── RESET ───────── */
 resetBtn.onclick = () => {
     [...tray.children].forEach(i => {
         i.classList.remove('in-tray');
         itemsContainer.appendChild(i);
     });
+
     totalWeight = 0;
     drawScale();
 };
 
+/* ───────── INIT ───────── */
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 drawScale();
