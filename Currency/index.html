@@ -1,1 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>បណ្ណព្រួញតម្លៃលេខតាមខ្ទង់</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            background: #eef3ff;
+            touch-action: none;
+        }
 
+        h2 {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            text-align: center;
+            margin: 6px 0;
+            z-index: 3000;
+            pointer-events: none;
+            font-size: 22px;
+        }
+
+        /* ================= TOOLBAR ================= */
+        #toolbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            z-index: 3000;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 6px 10px;
+            border-radius: 14px 14px 0 0;
+            box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .toolbar-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        button,
+        .homeBtn {
+            padding: 6px 10px;
+            border: none;
+            border-radius: 7px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .onesBtn {
+            background: #ffd966;
+        }
+        .tensBtn {
+            background: #93c47d;
+            color: white;
+        }
+        .hundredsBtn {
+            background: #6fa8dc;
+            color: white;
+        }
+        .thousandsBtn {
+            background: #8e7cc3;
+            color: white;
+        }
+        .drawBtn {
+            background: #ff8c42;
+            color: white;
+        }
+        .eraseBtn {
+            background: #e06666;
+            color: white;
+        }
+        .clearBtn {
+            background: #5c6bc0;
+            color: white;
+        }
+        .homeBtn {
+            background: #26a69a;
+            color: white;
+            text-decoration: none;
+        }
+
+        /* ================= CANVAS ================= */
+        #drawCanvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* ================= PLAY AREA ================= */
+        #playArea {
+            position: absolute;
+            inset: 0;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        /* ================= CARD — RECTANGLE with IMAGE BG ================= */
+        .card {
+            position: absolute;
+            width: 120px;           /* ← all cards same width */
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 8px;
+            font-size: 22px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+            user-select: none;
+            cursor: grab;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+            pointer-events: auto;
+            border-radius: 8px;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        /* ---- background images per type (fallback colors) ---- */
+        .ones {
+            background-color: #ffd966;
+            background-image: url('image/ones.jpg');
+        }
+        .tens {
+            background-color: #93c47d;
+            background-image: url('image/tens.jpg');
+        }
+        .hundreds {
+            background-color: #6fa8dc;
+            background-image: url('image/hundreds.jpg');
+        }
+        .thousands {
+            background-color: #8e7cc3;
+            background-image: url('image/thousands.jpg');
+        }
+
+        /* subtle inner glow to make text pop */
+        .card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.2);
+            pointer-events: none;
+        }
+        .card span {
+            position: relative;
+            z-index: 2;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>បណ្ណព្រួយតម្លៃលេខតាមខ្ទង់</h2>
+
+    <canvas id="drawCanvas"></canvas>
+    <div id="playArea"></div>
+
+    <div id="toolbar">
+        <div class="toolbar-row">
+            <button class="thousandsBtn" onclick="createCard('thousands', this)">ពាន់</button>
+            <button class="hundredsBtn" onclick="createCard('hundreds', this)">រយ</button>
+            <button class="tensBtn" onclick="createCard('tens', this)">ដប់</button>
+            <button class="onesBtn" onclick="createCard('ones', this)">រាយ</button>
+        </div>
+        <div class="toolbar-row">
+            <button class="drawBtn" onclick="setTool('draw')">✏️សរសេរ</button>
+            <button class="eraseBtn" onclick="setTool('erase')">🩹លុប</button>
+            <button class="clearBtn" onclick="clearCanvas()">🧹សម្អាត</button>
+            <a class="homeBtn" href="../index.html">🏡 Home</a>
+        </div>
+    </div>
+
+    <script>
+        /* ================= CANVAS ================= */
+        const canvas = document.getElementById("drawCanvas");
+        const ctx = canvas.getContext("2d");
+        let drawing = false;
+        let currentTool = "draw";
+
+        function resizeCanvas() {
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = window.innerWidth * dpr;
+            canvas.height = window.innerHeight * dpr;
+            canvas.style.width = window.innerWidth + "px";
+            canvas.style.height = window.innerHeight + "px";
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.scale(dpr, dpr);
+        }
+        resizeCanvas();
+        window.addEventListener("resize", resizeCanvas);
+
+        canvas.addEventListener("pointerdown", e => {
+            drawing = true;
+            ctx.beginPath();
+            ctx.moveTo(e.clientX, e.clientY);
+        });
+
+        canvas.addEventListener("pointermove", e => {
+            if (!drawing) return;
+            if (currentTool === "erase") {
+                ctx.globalCompositeOperation = "destination-out";
+                ctx.lineWidth = 30;
+            } else {
+                ctx.globalCompositeOperation = "source-over";
+                ctx.strokeStyle = "black";
+                ctx.lineWidth = 3;
+            }
+            ctx.lineTo(e.clientX, e.clientY);
+            ctx.stroke();
+        });
+
+        function stopDraw() {
+            drawing = false;
+            ctx.beginPath();
+            ctx.globalCompositeOperation = "source-over";
+        }
+        canvas.addEventListener("pointerup", stopDraw);
+        canvas.addEventListener("pointercancel", stopDraw);
+
+        function setTool(t) { currentTool = t; }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        /* ================= CARD NAMES (instead of numbers) ================= */
+        const typeNames = {
+            ones: 'រាយ',
+            tens: 'ដប់',
+            hundreds: 'រយ',
+            thousands: 'ពាន់'
+        };
+
+        /* ================= CARDS ================= */
+        const playArea = document.getElementById("playArea");
+
+        function createCard(type, btn) {
+            const card = document.createElement("div");
+            card.className = "card " + type;   // keeps background image
+            const span = document.createElement("span");
+            span.textContent = typeNames[type];   // show the name
+            card.appendChild(span);
+
+            playArea.appendChild(card);
+
+            const r = btn.getBoundingClientRect();
+            const toolbarH = document.getElementById("toolbar").offsetHeight;
+            card.style.left = r.left + "px";
+            card.style.top = (window.innerHeight - toolbarH - 80) + "px";
+
+            makeDraggable(card);
+        }
+
+        /* ================= STACK 5768 (now shows names) ================= */
+        function createStack5768() {
+            // We'll show a stack of all four types, each with its name.
+            const types = ['thousands', 'hundreds', 'tens', 'ones'];
+            const baseRight = window.innerWidth * 0.75;
+            const baseY = window.innerHeight * 0.35;
+
+            types.forEach((type, i) => {
+                const card = document.createElement("div");
+                card.className = "card " + type;
+                const span = document.createElement("span");
+                span.textContent = typeNames[type];
+                card.appendChild(span);
+
+                // all cards have same width (120px) so we can position them
+                card.style.left = (baseRight - 120) + "px";
+                card.style.top = (baseY + i * 2) + "px";
+                card.style.zIndex = 10 + i;
+                playArea.appendChild(card);
+                makeDraggable(card);
+            });
+        }
+
+        /* AUTO RUN */
+        requestAnimationFrame(() => {
+            setTimeout(createStack5768, 300);
+        });
+
+        /* ================= DRAG ================= */
+        function makeDraggable(card) {
+            let dragging = false;
+            let ox = 0,
+                oy = 0;
+            let lastTap = 0;
+            let x = 0,
+                y = 0;
+            let raf = null;
+
+            function apply() {
+                card.style.left = x + "px";
+                card.style.top = y + "px";
+                raf = null;
+            }
+
+            card.addEventListener("pointerdown", e => {
+                const now = performance.now();
+                if (now - lastTap < 280) {
+                    card.remove();
+                    return;
+                }
+                lastTap = now;
+                dragging = true;
+                ox = e.clientX - card.offsetLeft;
+                oy = e.clientY - card.offsetTop;
+                card.setPointerCapture(e.pointerId);
+                e.stopPropagation();
+            });
+
+            card.addEventListener("pointermove", e => {
+                if (!dragging) return;
+                const toolbarH = document.getElementById("toolbar").offsetHeight;
+                x = e.clientX - ox;
+                y = e.clientY - oy;
+                x = Math.max(0, Math.min(window.innerWidth - card.offsetWidth, x));
+                y = Math.max(0, Math.min(window.innerHeight - toolbarH - card.offsetHeight, y));
+                if (!raf) raf = requestAnimationFrame(apply);
+            });
+
+            card.addEventListener("pointerup", () => dragging = false);
+            card.addEventListener("pointercancel", () => dragging = false);
+        }
+    </script>
+
+</body>
+</html>
