@@ -369,6 +369,7 @@
 
                 for (let i = 0; i <= 100; i++) {
                     const val = i / 10;
+                    // 0 at top (-90°), 10 at bottom (270°)
                     const angle = (-90 + val * 36) * Math.PI / 180;
                     const main = i % 10 === 0;
 
