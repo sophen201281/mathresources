@@ -63,6 +63,7 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
             cursor: grab;
             flex-shrink: 0;
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         .item img {
@@ -76,9 +77,12 @@
             opacity: 0.6;
             transform: scale(1.1);
             z-index: 999;
+            transition: none;
         }
+
+        /* ── BIGGER when on the tray ── */
         .item.in-tray {
-            transform: scale(0.6);
+            transform: scale(1.25);
         }
 
         .reset-btn {
@@ -134,8 +138,11 @@
             align-items: center;
             justify-content: center;
             position: relative;
-            overflow: hidden;
+            overflow: visible;
             flex-shrink: 0;
+            gap: 4px;
+            padding: 0 8px;
+            flex-wrap: wrap;
         }
 
         .tray-box {
@@ -144,6 +151,7 @@
             background: url("image/tray.png") center/100% 100% no-repeat;
             z-index: 5;
             pointer-events: none;
+            border-radius: 40px;
         }
 
         /* SCALE FACE */
@@ -229,6 +237,11 @@
 
             .tray {
                 height: 50px;
+                padding: 0 6px;
+                gap: 3px;
+            }
+            .tray-box {
+                border-radius: 30px;
             }
         }
 
@@ -239,6 +252,11 @@
             .tray {
                 height: 40px;
                 border-radius: 30px;
+                padding: 0 4px;
+                gap: 2px;
+            }
+            .tray-box {
+                border-radius: 24px;
             }
             .items {
                 gap: 4px;
@@ -252,6 +270,9 @@
             .item img {
                 padding: 3px;
             }
+            .item.in-tray {
+                transform: scale(1.15);
+            }
         }
 
         @media (max-width: 360px) {
@@ -260,9 +281,17 @@
             }
             .tray {
                 height: 34px;
+                padding: 0 3px;
+                gap: 2px;
+            }
+            .tray-box {
+                border-radius: 20px;
             }
             .weight-display {
                 font-size: 14px;
+            }
+            .item.in-tray {
+                transform: scale(1.1);
             }
         }
     </style>
@@ -333,7 +362,6 @@
                 const cx = w / 2;
                 const cy = h / 2;
 
-                // ── smaller dial ──
                 const radius = Math.min(w, h) * 0.30;
 
                 ctx.clearRect(0, 0, w, h);
@@ -343,7 +371,6 @@
                     const angle = (-90 + val * 36) * Math.PI / 180;
                     const main = i % 10 === 0;
 
-                    // shorter tick marks
                     const r1 = radius - 2;
                     const r2 = main ? radius - 10 : radius - 7;
 
@@ -360,7 +387,6 @@
                     ctx.stroke();
 
                     if (main) {
-                        // bigger numbers, placed closer to center
                         const tx = cx + Math.cos(angle) * (radius - 20);
                         const ty = cy + Math.sin(angle) * (radius - 20);
                         ctx.font = "bold 24px Arial";
@@ -371,7 +397,6 @@
                     }
                 }
 
-                // ── needle ── shorter to match the smaller dial
                 const angle = totalWeight * 36 * Math.PI / 180;
 
                 ctx.save();
@@ -449,7 +474,6 @@
                     itemsContainer.appendChild(current);
                 }
 
-                // reset styles
                 current.style.position = "";
                 current.style.left = "";
                 current.style.top = "";
@@ -465,8 +489,10 @@
 
             document.getElementById("resetBtn").onclick = () => {
                 [...tray.children].forEach(i => {
-                    i.classList.remove("in-tray");
-                    itemsContainer.appendChild(i);
+                    if (i.classList) {
+                        i.classList.remove("in-tray");
+                        itemsContainer.appendChild(i);
+                    }
                 });
                 totalWeight = 0;
                 draw();
