@@ -388,8 +388,11 @@
                     ctx.stroke();
 
                     if (main) {
-                        // Place '10' slightly further out (second row) to avoid overlap
-                        const labelOffset = (val === 10) ? 12 : 20;
+                        // Place '10' much further out to increase gap from '0'
+                        let labelOffset = 20; // default for all numbers
+                        if (val === 10) {
+                            labelOffset = 6; // move 10 far out
+                        }
                         const tx = cx + Math.cos(angle) * (radius - labelOffset);
                         const ty = cy + Math.sin(angle) * (radius - labelOffset);
                         ctx.font = "bold 24px Arial";
