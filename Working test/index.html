@@ -1,1 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flip Book – 20 Pages</title>
+    <style>
+        /* ── Reset & Base ── */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #2c2c2c;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+            padding: 20px;
+        }
+
+        /* ── Book Container ── */
+        .book-wrapper {
+            perspective: 2000px;
+            width: 700px;
+            max-width: 100%;
+            padding: 20px 0;
+        }
+
+        .book {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1.4 / 1;
+            /* ~ 700 x 500 */
+            transform-style: preserve-3d;
+            transition: transform 0.3s ease;
+            border-radius: 8px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7);
+        }
+
+        /* ── Each Page (Leaf) ── */
+        .page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transform-origin: left center;
+            transition: transform 0.8s cubic-bezier(0.4, 0.2, 0.2, 1);
+            border-radius: 6px;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            backface-visibility: hidden;
+            /* keep pages above when not flipped */;
+        }
+
+        /* flipped state = rotated 180° */
+        .page.flipped {
+            transform: rotateY(-180deg);
+            cursor: default;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.15);
+        }
+
+        /* ── Front / Back faces ── */
+        .page-face {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 6px;
+            overflow: hidden;
+            padding: 28px 30px;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+            background: #fcf8f0;
+            border: 1px solid #e0d6c8;
+        }
+
+        .page-face.front {
+            background: #fcf8f0;
+            z-index: 2;
+        }
+
+        .page-face.back {
+            background: #f5efe6;
+            transform: rotateY(180deg);
+            z-index: 1;
+        }
+
+        /* ── Page content styling ── */
+        .page-number {
+            position: absolute;
+            bottom: 18px;
+            right: 28px;
+            font-size: 14px;
+            color: #b0a89a;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        .page-number.left {
+            right: auto;
+            left: 28px;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #3d2e1e;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .page-title.large {
+            font-size: 42px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .page-title.cover {
+            font-size: 52px;
+            text-align: center;
+            margin-top: 50px;
+            color: #2c1810;
+            text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        .page-sub {
+            font-size: 18px;
+            color: #7a6b5a;
+            font-weight: 400;
+            letter-spacing: 2px;
+            text-align: center;
+        }
+
+        .page-body {
+            flex: 1;
+            font-size: 17px;
+            line-height: 1.7;
+            color: #3d3228;
+            padding: 6px 0;
+        }
+
+        .page-body p {
+            margin-bottom: 14px;
+        }
+
+        .page-body .chapter {
+            font-size: 22px;
+            font-weight: 600;
+            color: #5a4030;
+            margin-bottom: 8px;
+        }
+
+        .page-body .chapter-num {
+            font-size: 14px;
+            color: #b0a090;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* cover decorations */
+        .cover-deco {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 8px 0 16px;
+            font-size: 28px;
+        }
+
+        .cover-author {
+            font-size: 20px;
+            color: #8a7a6a;
+            text-align: center;
+            letter-spacing: 3px;
+            margin-top: auto;
+            padding-bottom: 20px;
+            border-top: 2px solid #e0d6c8;
+            padding-top: 18px;
+        }
+
+        .back-cover {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: #2c1810;
+            color: #f0e8dc;
+            border-color: #1a0f0a;
+        }
+
+        .back-cover .page-title.cover {
+            color: #f0e8dc;
+            text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        .back-cover .cover-author {
+            color: #b0a090;
+            border-top-color: #4a3a2a;
+        }
+
+        .back-cover .page-number {
+            color: #6a5a4a;
+        }
+
+        /* empty page */
+        .page-empty {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: #faf6ef;
+        }
+
+        .page-empty .empty-icon {
+            font-size: 48px;
+            opacity: 0.2;
+            margin-bottom: 10px;
+        }
+
+        .page-empty .empty-text {
+            font-size: 16px;
+            color: #c0b8a8;
+            letter-spacing: 4px;
+        }
+
+        /* ── Navigation ── */
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .controls button {
+            padding: 12px 32px;
+            border: none;
+            border-radius: 40px;
+            background: #f0e8dc;
+            color: #3d2e1e;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            letter-spacing: 0.5px;
+        }
+
+        .controls button:hover:not(:disabled) {
+            background: #e0d4c4;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .controls button:active:not(:disabled) {
+            transform: translateY(0px);
+        }
+
+        .controls button:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .controls .page-indicator {
+            font-size: 16px;
+            color: #d0c8b8;
+            font-weight: 300;
+            letter-spacing: 1px;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .controls .page-indicator span {
+            color: #f0e8dc;
+            font-weight: 600;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 600px) {
+            .page-face {
+                padding: 18px 16px;
+            }
+            .page-title.cover {
+                font-size: 32px;
+                margin-top: 30px;
+            }
+            .page-title.large {
+                font-size: 28px;
+            }
+            .page-title {
+                font-size: 20px;
+            }
+            .page-body {
+                font-size: 14px;
+                line-height: 1.5;
+            }
+            .controls button {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+            .page-number {
+                font-size: 12px;
+                bottom: 12px;
+                right: 16px;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .page-face {
+                padding: 12px 10px;
+            }
+            .page-title.cover {
+                font-size: 24px;
+                margin-top: 20px;
+            }
+            .page-title.large {
+                font-size: 20px;
+            }
+            .page-body {
+                font-size: 12px;
+            }
+            .controls {
+                gap: 10px;
+            }
+            .controls button {
+                padding: 8px 14px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="book-wrapper">
+        <div class="book" id="book">
+
+            <!-- Pages will be inserted by JavaScript -->
+            <!-- Each .page has .front and .back faces -->
+
+        </div>
+
+        <div class="controls">
+            <button id="prevBtn" disabled>◀ Prev</button>
+            <div class="page-indicator">
+                Page <span id="currentPageNum">1</span> / <span id="totalPagesNum">20</span>
+            </div>
+            <button id="nextBtn">Next ▶</button>
+        </div>
+    </div>
+
+    <script>
+        // ──────────────────────────────────────────────────────────────
+        // 1. CONTENT FOR ALL 20 PAGES
+        // ──────────────────────────────────────────────────────────────
+
+        // Each entry: { front: html, back: html }
+        // front = page content, back = next page content (shown after flip)
+
+        // We build 20 pages as 10 leaves (each leaf = front + back)
+        // Leaf 1: front=Page1, back=Page2
+        // Leaf 2: front=Page3, back=Page4
+        // ...
+        // Leaf 10: front=Page19, back=Page20
+
+        const pageContent = [];
+
+        // Helper: build a page object with front & back HTML
+        function makePage(frontHTML, backHTML) {
+            return { front: frontHTML, back: backHTML };
+        }
+
+        // ── Page 1: Cover ──
+        pageContent.push(makePage(`
+            <div class="page-face front">
+              <div class="page-title cover">✦ My Flip Book ✦</div>
+              <div class="cover-deco">✦ ✦ ✦</div>
+              <div class="page-sub">A 20‑Page Journey</div>
+              <div class="cover-author">✧ Designed with ❤️ ✧</div>
+              <div class="page-number">1</div>
+            </div>
+          `, `
+            <div class="page-face back page-empty">
+              <div class="empty-icon">◯</div>
+              <div class="empty-text">page 2</div>
+              <div class="page-number">2</div>
+            </div>
+          `));
+
+        // ── Page 2: Empty (front of leaf 2 is page 3) ──
+        // but we already have page 2 as the back of leaf 1.
+        // Leaf 2: front=Page3, back=Page4
+        pageContent.push(makePage(`
+            <div class="page-face front page-empty">
+              <div class="empty-icon">◯</div>
+              <div class="empty-text">page 3</div>
+              <div class="page-number">3</div>
+            </div>
+          `, `
+            <div class="page-face back">
+              <div class="page-title">The Title Page</div>
+              <div class="page-sub">A Book of Wonders</div>
+              <div class="page-body" style="margin-top:10px;">
+                <p style="font-size:20px;font-weight:300;letter-spacing:2px;color:#7a6b5a;">
+                  “Every page tells a story.”
+                </p>
+                <p style="margin-top:20px;font-size:15px;color:#8a7a6a;">
+                  Written by <strong>You</strong><br>
+                  Illustrated by <strong>Imagination</strong>
+                </p>
+              </div>
+              <div class="page-number">4</div>
+            </div>
+          `));
+
+        // ── Pages 5–18: content pages ──
+        const chapters = [
+            { num: 1, title: 'The Beginning', text: 'It all started on a quiet morning. The sun rose over the hills, casting golden light across the valley. A small bird sang its first song of the day, and somewhere, a door creaked open to a world of endless possibility.' },
+            { num: 2, title: 'The Journey', text: 'With a map in hand and curiosity in heart, our hero set out on a winding road. Each step brought new sights — towering forests, babbling brooks, and the distant echo of adventure calling from beyond the horizon.' },
+            { num: 3, title: 'The Discovery', text: 'Deep in the ancient woods, hidden beneath a canopy of leaves, lay a secret that had waited for centuries. A glint of gold, a whisper of magic — the world was about to change.' },
+            { num: 4, title: 'The Challenge', text: 'Not all paths are smooth. A treacherous mountain pass tested every ounce of courage. But with each stumble came a lesson, and with each lesson, strength grew.' },
+            { num: 5, title: 'The Resolution', text: 'At last, the journey came full circle. The lessons learned, the friendships forged — all led to a single moment of clarity. The treasure was not gold, but the story itself.' },
+            { num: 6, title: 'Epilogue', text: 'And so the tale ends, as all tales must. But in the heart of every reader, the adventure lives on — ready to be retold, reimagined, and relived.' },
+            { num: 7, title: 'About the Author', text: 'A lover of stories, a dreamer of worlds. Born under a wandering star, they spent years collecting whispers from the wind and turning them into words on a page.' },
+            { num: 8, title: 'Acknowledgments', text: 'Grateful thanks to the muse that never sleeps, to the friends who offered encouragement, and to you, dear reader, for turning these pages.' },
+        ];
+
+        // We'll make 8 leaves (16 pages) from these chapters
+        // Each chapter gets 2 pages: front = chapter start, back = chapter continued
+        for (let i = 0; i < chapters.length; i++) {
+            const ch = chapters[i];
+            const pageNumFront = 5 + i * 2; // 5,7,9,11,13,15,17,19
+            const pageNumBack = pageNumFront + 1;
+
+            // Front: chapter title + intro text
+            const frontHTML = `
+              <div class="page-face front">
+                <div class="page-number">${pageNumFront}</div>
+                <div class="page-body">
+                  <div class="chapter-num">Chapter ${ch.num}</div>
+                  <div class="chapter">${ch.title}</div>
+                  <p>${ch.text}</p>
+                </div>
+              </div>
+            `;
+
+            // Back: continuation or related content
+            const backHTML = `
+              <div class="page-face back">
+                <div class="page-number">${pageNumBack}</div>
+                <div class="page-body">
+                  <div class="chapter-num">Chapter ${ch.num} · continued</div>
+                  <div class="chapter" style="font-size:18px;">${ch.title}</div>
+                  <p style="font-style:italic;color:#6a5a4a;">
+                    “${ch.text.slice(0, 60)}…”
+                  </p>
+                  <p style="margin-top:12px;font-size:15px;color:#8a7a6a;">
+                    The story deepens as each page turns.
+                  </p>
+                  <p style="margin-top:8px;font-size:14px;color:#b0a090;letter-spacing:1px;">
+                    — ${ch.title} —
+                  </p>
+                </div>
+              </div>
+            `;
+
+            pageContent.push(makePage(frontHTML, backHTML));
+        }
+
+        // ── Page 19: Empty (front of leaf 10) ──
+        // Page 20: Back cover (back of leaf 10)
+        pageContent.push(makePage(`
+            <div class="page-face front page-empty">
+              <div class="empty-icon">◯</div>
+              <div class="empty-text">page 19</div>
+              <div class="page-number">19</div>
+            </div>
+          `, `
+            <div class="page-face back back-cover">
+              <div class="page-title cover" style="margin-top:60px;">✦ The End ✦</div>
+              <div class="cover-deco">✦ ✦ ✦</div>
+              <div class="page-sub" style="color:#b0a090;">Thank you for reading</div>
+              <div class="cover-author" style="border-top-color:#4a3a2a;">
+                ✧ 20 pages · A flip book ✧
+              </div>
+              <div class="page-number">20</div>
+            </div>
+          `));
+
+        // ──────────────────────────────────────────────────────────────
+        // 2. BUILD THE BOOK IN THE DOM
+        // ──────────────────────────────────────────────────────────────
+
+        const book = document.getElementById('book');
+        const totalPages = 20;
+        const totalLeaves = pageContent.length; // should be 10
+
+        // We'll store references to all page elements
+        const pageElements = [];
+
+        // Create each leaf
+        for (let i = 0; i < totalLeaves; i++) {
+            const data = pageContent[i];
+            const pageDiv = document.createElement('div');
+            pageDiv.className = 'page';
+            // data-page attribute stores the front page number
+            const frontPageNum = i * 2 + 1;
+            pageDiv.dataset.page = frontPageNum;
+            pageDiv.dataset.index = i;
+            pageDiv.innerHTML = data.front + data.back;
+            book.appendChild(pageDiv);
+            pageElements.push(pageDiv);
+        }
+
+        // ──────────────────────────────────────────────────────────────
+        // 3. FLIP LOGIC
+        // ──────────────────────────────────────────────────────────────
+
+        let currentPage = 1; // 1-based page number currently shown (front of top leaf)
+        let isFlipping = false;
+
+        // Get DOM refs
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const currentPageNumSpan = document.getElementById('currentPageNum');
+        const totalPagesNumSpan = document.getElementById('totalPagesNum');
+        totalPagesNumSpan.textContent = totalPages;
+
+        // Helper: update which page is on top and its flip state
+        function updateBook() {
+            // Show only pages that should be visible
+            // All pages before currentPage should be flipped (back visible)
+            // All pages after currentPage should be unflipped (front visible)
+            // The current page is the first unflipped page
+
+            // Find the leaf index for the current page
+            // currentPage is 1-based, leaf index = floor((currentPage-1)/2)
+            const leafIndex = Math.floor((currentPage - 1) / 2);
+
+            // If currentPage is odd, we're on the front of a leaf
+            // If even, we're on the back of a leaf (which means the leaf is flipped)
+
+            for (let i = 0; i < pageElements.length; i++) {
+                const el = pageElements[i];
+                // Remove all flip classes first
+                el.classList.remove('flipped');
+
+                if (i < leafIndex) {
+                    // This leaf is fully behind the current page → should be flipped
+                    el.classList.add('flipped');
+                } else if (i === leafIndex) {
+                    // This is the leaf containing the current page
+                    if (currentPage % 2 === 0) {
+                        // We're on the back of this leaf → flipped
+                        el.classList.add('flipped');
+                    } else {
+                        // We're on the front → not flipped
+                        el.classList.remove('flipped');
+                    }
+                } else {
+                    // Leaves after the current page → not flipped
+                    el.classList.remove('flipped');
+                }
+            }
+
+            // Update indicator
+            currentPageNumSpan.textContent = currentPage;
+
+            // Update buttons
+            prevBtn.disabled = currentPage <= 1;
+            nextBtn.disabled = currentPage >= totalPages;
+        }
+
+        // ── Flip to a specific page ──
+        function goToPage(pageNum) {
+            if (isFlipping) return;
+            if (pageNum < 1 || pageNum > totalPages) return;
+            if (pageNum === currentPage) return;
+
+            isFlipping = true;
+
+            // Determine direction
+            const goingForward = pageNum > currentPage;
+
+            // We need to flip one leaf at a time
+            // If going forward, we flip the leaf containing currentPage
+            // If going backward, we unflip the leaf containing currentPage-1
+
+            if (goingForward) {
+                // Flip the leaf containing currentPage
+                const leafIndex = Math.floor((currentPage - 1) / 2);
+                const el = pageElements[leafIndex];
+                // If currentPage is odd, we're on the front → flip it
+                // If currentPage is even, we're on the back → need to go to next leaf
+                if (currentPage % 2 === 1) {
+                    // Flip the current leaf
+                    el.classList.add('flipped');
+                    // After flip, we're on the back of this leaf = currentPage+1
+                    currentPage++;
+                } else {
+                    // We're on the back of a leaf, so we need to flip the next leaf
+                    // First, go to the front of the next leaf (currentPage+1)
+                    // Then flip it to go to currentPage+2
+                    // Actually, we should just go to the next page directly
+                    // But we need to handle the leaf state
+                    // currentPage is even, we're on the back of leaf index
+                    // Next page is currentPage+1 (front of next leaf)
+                    // We need to unflip the current leaf? No, it stays flipped.
+                    // We need to make sure the next leaf is not flipped
+                    // Then we flip it to show the back
+                    const nextLeafIndex = leafIndex + 1;
+                    if (nextLeafIndex < pageElements.length) {
+                        // Unflip the next leaf (show front)
+                        pageElements[nextLeafIndex].classList.remove('flipped');
+                        // Now currentPage becomes currentPage+1 (front of next leaf)
+                        currentPage++;
+                        // Then flip it to go to the back
+                        pageElements[nextLeafIndex].classList.add('flipped');
+                        currentPage++;
+                    } else {
+                        // No more pages
+                        isFlipping = false;
+                        return;
+                    }
+                }
+            } else {
+                // Going backward
+                // Unflip the leaf containing currentPage-1
+                const leafIndex = Math.floor((currentPage - 1) / 2);
+                if (currentPage % 2 === 1) {
+                    // We're on the front of a leaf, need to go to back of previous leaf
+                    // Unflip the previous leaf to show its front
+                    const prevLeafIndex = leafIndex - 1;
+                    if (prevLeafIndex >= 0) {
+                        // First, flip the current leaf? No, we want to go backward.
+                        // We need to unflip the previous leaf to show its front
+                        // But the previous leaf is already flipped (back showing)
+                        // We need to unflip it to show the front
+                        pageElements[prevLeafIndex].classList.remove('flipped');
+                        // Now we're on the front of the previous leaf = currentPage-2
+                        currentPage -= 2;
+                        // Then we want to go to the back of the previous leaf = currentPage+1
+                        // But we're going backward, so we want to go to currentPage-1
+                        // Actually, we want to go to the page before currentPage
+                        // which is the back of the previous leaf
+                        // So we flip the previous leaf to show its back
+                        pageElements[prevLeafIndex].classList.add('flipped');
+                        currentPage++;
+                    } else {
+                        // No more pages
+                        isFlipping = false;
+                        return;
+                    }
+                } else {
+                    // We're on the back of a leaf, unflip it to show the front
+                    const el = pageElements[leafIndex];
+                    el.classList.remove('flipped');
+                    currentPage--;
+                }
+            }
+
+            // Ensure currentPage is within bounds
+            if (currentPage < 1) currentPage = 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            updateBook();
+            isFlipping = false;
+        }
+
+        // ── Click on page to flip ──
+        function handlePageClick(e) {
+            if (isFlipping) return;
+            // Clicking on the current page flips to the next page
+            if (currentPage < totalPages) {
+                goToPage(currentPage + 1);
+            }
+        }
+
+        // ── Event listeners ──
+        prevBtn.addEventListener('click', () => {
+            if (currentPage > 1) goToPage(currentPage - 1);
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentPage < totalPages) goToPage(currentPage + 1);
+        });
+
+        // Click on book to flip forward
+        book.addEventListener('click', (e) => {
+            // Ignore clicks on buttons inside the book (none) or on controls
+            handlePageClick(e);
+        });
+
+        // ── Keyboard support ──
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                if (currentPage < totalPages) goToPage(currentPage + 1);
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                if (currentPage > 1) goToPage(currentPage - 1);
+            }
+        });
+
+        // ── Initialize ──
+        updateBook();
+
+        // ── Small fix: ensure the book looks right ──
+        // The back cover should show at the end
+        // And all pages should have correct z-ordering
+
+        // ──────────────────────────────────────────────────────────────
+        // 4. ADDITIONAL POLISH: Make sure pages stack correctly
+        // ──────────────────────────────────────────────────────────────
+
+        // Pages with higher z-index are on top
+        // We want page 1 on top, then page 2 underneath, etc.
+        // But with 3D transforms, we need to set z-index properly
+
+        // Set z-index for each page based on its position in the stack
+        // The first page (index 0) should be on top, the last page at the bottom
+        // But when pages flip, they should go underneath
+
+        function updateZIndex() {
+            // We want the page with the highest index (furthest back) to have the lowest z-index
+            // And the page with the lowest index (front) to have the highest z-index
+            // But we also need to account for flipped pages
+            for (let i = 0; i < pageElements.length; i++) {
+                const el = pageElements[i];
+                // The front page (index 0) should be on top
+                // But if it's flipped, it should go behind the next page
+                if (el.classList.contains('flipped')) {
+                    // Flipped pages go behind unflipped pages
+                    el.style.zIndex = pageElements.length - i - 1;
+                } else {
+                    // Unflipped pages are on top
+                    el.style.zIndex = pageElements.length + i + 1;
+                }
+            }
+        }
+
+        // Override updateBook to also update z-index
+        const originalUpdateBook = updateBook;
+        updateBook = function() {
+            originalUpdateBook();
+            updateZIndex();
+        };
+
+        // Re-run updateBook to apply z-index
+        updateBook();
+
+        console.log('📖 Flip book ready! 20 pages, enjoy!');
+    </script>
+
+</body>
+</html>
