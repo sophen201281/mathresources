@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>3D flip book · Reveal Words</title>
-  <!-- Google Font: Khmer Battambang -->
   <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@100;300;400;700;900&display=swap" rel="stylesheet">
   <style>
     * {
@@ -56,9 +55,9 @@
       box-shadow: inset 0 0 0 1px rgba(0,0,0,0.02);
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: space-between; /* Adjusted to distribute content cleanly */
       align-items: center;
-      padding: 1.2rem 1rem;
+      padding: 1.5rem 1.2rem;
       text-align: center;
       box-sizing: border-box;
       border: 1px solid #e3d7c8;
@@ -85,10 +84,37 @@
       background: #fcf8f0;
     }
 
+    /* Layout structural blocks inside left pages */
+    .page-content-wrapper {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      align-items: center;
+    }
+
+    /* Pattern Display Style */
+    .pattern-box {
+      width: 95%;
+      background: #ebdcc7;
+      border: 1px dashed #bfae99;
+      border-radius: 8px;
+      padding: 8px;
+      font-size: clamp(1rem, 3vw, 1.4rem);
+      color: #5c4e3c;
+      font-weight: bold;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .pattern-box span {
+      color: #c05c5c;
+    }
+
     .cover {
       background: #2b4a5c;
       color: #f5e9da;
       border: 2px solid #1d3442;
+      justify-content: center !important;
     }
     .cover h1 {
       font-size: clamp(2rem, 8vw, 3.8rem);
@@ -113,12 +139,21 @@
       border: 2px solid #1d3442;
       font-size: clamp(1.2rem, 3vw, 2rem);
       letter-spacing: 2px;
+      justify-content: center !important;
     }
     .back-cover .sub {
       opacity: 0.5;
       font-size: clamp(0.8rem, 2vw, 1.1rem);
       margin-top: 0.5rem;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+    }
+
+    .title-page-layout {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
     }
 
     .page-title {
@@ -135,17 +170,17 @@
       flex-wrap: wrap;
       justify-content: center;
       align-items: center;
-      gap: 12px;
+      gap: 8px;
       width: 100%;
-      padding: 10px;
+      padding: 5px;
       position: relative;
     }
     
     .word-box {
-      font-size: clamp(1.3rem, 4vw, 2.2rem);
+      font-size: clamp(1.1rem, 3.5vw, 1.9rem);
       color: #1f2e3a;
       font-weight: 400;
-      padding: 6px 12px;
+      padding: 4px 8px;
       background: transparent;
       border: none;
       display: flex;
@@ -160,12 +195,12 @@
       position: relative;
       pointer-events: auto;
       z-index: 20;
-      padding: 8px 20px;
+      padding: 6px 16px;
       background: #f0e6da;
       border-radius: 12px;
       box-shadow: inset 0 2px 5px rgba(0,0,0,0.06);
-      min-width: 100px;
-      min-height: 50px;
+      min-width: 90px;
+      min-height: 46px;
       align-items: center;
       border: 2px solid #cfc2b2;
       overflow: visible;
@@ -178,11 +213,11 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 40px;
+      min-height: 36px;
     }
 
     .hidden-word {
-      font-size: clamp(1.3rem, 4vw, 2.2rem);
+      font-size: clamp(1.1rem, 3.5vw, 1.9rem);
       font-weight: 400;
       color: #1f3a47;
       white-space: nowrap;
@@ -191,7 +226,7 @@
       letter-spacing: 0.5px;
       opacity: 0.3;
       transition: opacity 0.4s ease;
-      padding: 4px 8px;
+      padding: 4px 6px;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
     .hidden-word.revealed {
@@ -211,14 +246,14 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: clamp(1.3rem, 4vw, 2.2rem);
+      font-size: clamp(1.1rem, 3.5vw, 1.9rem);
       font-weight: 700;
       color: #c05c5c;
       cursor: grab;
       touch-action: none;
       z-index: 5;
       transition: box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
-      padding: 8px 16px;
+      padding: 4px 12px;
       letter-spacing: 0.5px;
       text-transform: uppercase;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
@@ -254,6 +289,15 @@
     }
     .word-cover.dragging ~ .drag-hint {
       opacity: 0;
+    }
+
+    .page-emoji-container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      width: 100%;
     }
 
     .page-emoji {
@@ -323,20 +367,25 @@
     }
 
     @media (max-width: 540px) {
-      .page { padding: 0.6rem 0.4rem; }
+      .page { padding: 0.8rem 0.5rem; }
+      .pattern-box { font-size: 0.95rem; padding: 5px; }
       .interactive-box {
-        padding: 6px 14px;
-        min-width: 80px;
-        min-height: 40px;
+        padding: 4px 10px;
+        min-width: 75px;
+        min-height: 38px;
       }
       .hidden-word {
-        font-size: 1rem;
+        font-size: 0.95rem;
         padding: 2px 4px;
       }
       .word-cover {
-        font-size: 1rem;
-        padding: 4px 10px;
+        font-size: 0.95rem;
+        padding: 2px 8px;
         border-radius: 8px;
+      }
+      .word-box {
+        font-size: 0.95rem;
+        padding: 2px 4px;
       }
       .drag-hint {
         font-size: 0.5rem;
@@ -378,7 +427,6 @@
   <div class="flipbook-wrapper" id="wrapper">
     <div class="flipbook" id="flipbook">
 
-      <!-- SPREAD 0: FRONT COVER -->
       <div class="page page-left cover" data-page="0">
         <h1>📖 ខ្ញុំអាចមើលឃើញ</h1>
         <div class="sub">✦ ចុចលើទំព័រ ✦</div>
@@ -387,142 +435,164 @@
         <span style="opacity:0.2;">·</span>
       </div>
 
-      <!-- SPREAD 1: empty + title page -->
       <div class="page page-left empty-page" data-page="2">
         <span style="opacity:0.3;">⋆</span>
       </div>
       <div class="page page-right" data-page="3">
-        <div class="page-title">ខ្ញុំ អាច មើល ឃើញ</div>
-        <div style="font-size:2rem; margin-top:0.2rem;">👁️</div>
+        <div class="title-page-layout">
+          <div class="page-title">ខ្ញុំ អាច មើល ឃើញ</div>
+          <div style="font-size:2rem; margin-top:0.2rem;">👁️</div>
+        </div>
       </div>
 
-      <!-- SPREAD 2: FLOWER -->
       <div class="page page-left" data-page="4">
-        <div class="sentence-container">
-          <div class="word-box">ខ្ញុំ</div>
-          <div class="word-box">អាច</div>
-          <div class="word-box">មើល</div>
-          <div class="word-box">ឃើញ</div>
-          <div class="interactive-box" id="flowerBox">
-            <div class="interactive-content">
-              <span class="hidden-word" id="flowerText">ផ្កា</span>
-              <div class="word-cover" id="flowerCover">ផ</div>
+        <div class="page-content-wrapper">
+          <div class="pattern-box">ទម្រង់ល្បះ៖ ខ្ញុំ អាច មើល ឃើញ <span>_______</span></div>
+          
+          <div class="sentence-container">
+            <div class="word-box">ខ្ញុំ</div>
+            <div class="word-box">អាច</div>
+            <div class="word-box">មើល</div>
+            <div class="word-box">ឃើញ</div>
+            <div class="interactive-box" id="flowerBox">
+              <div class="interactive-content">
+                <span class="hidden-word" id="flowerText">ផ្កា</span>
+                <div class="word-cover" id="flowerCover">ផ</div>
+              </div>
             </div>
-         
           </div>
         </div>
       </div>
       <div class="page page-right" data-page="5">
-        <div class="page-emoji">🌸</div>
-        <div class="word-label"></div>
+        <div class="page-emoji-container">
+          <div class="page-emoji">🌸</div>
+          <div class="word-label"></div>
+        </div>
       </div>
 
-      <!-- SPREAD 3: DOG -->
       <div class="page page-left" data-page="6">
-        <div class="sentence-container">
-          <div class="word-box">ខ្ញុំ</div>
-          <div class="word-box">អាច</div>
-          <div class="word-box">មើល</div>
-          <div class="word-box">ឃើញ</div>
-          <div class="interactive-box" id="dogBox">
-            <div class="interactive-content">
-              <span class="hidden-word" id="dogText">ឆ្កែ</span>
-              <div class="word-cover" id="dogCover">ឆ</div>
+        <div class="page-content-wrapper">
+          <div class="pattern-box">ទម្រង់ល្បះ៖ ខ្ញុំ អាច មើល ឃើញ <span>_______</span></div>
+          
+          <div class="sentence-container">
+            <div class="word-box">ខ្ញុំ</div>
+            <div class="word-box">អាច</div>
+            <div class="word-box">មើល</div>
+            <div class="word-box">ឃើញ</div>
+            <div class="interactive-box" id="dogBox">
+              <div class="interactive-content">
+                <span class="hidden-word" id="dogText">ឆ្កែ</span>
+                <div class="word-cover" id="dogCover">ឆ</div>
+              </div>
             </div>
-      
           </div>
         </div>
       </div>
       <div class="page page-right" data-page="7">
-        <div class="page-emoji">🐕</div>
-   
+        <div class="page-emoji-container">
+          <div class="page-emoji">🐕</div>
+        </div>
       </div>
 
-      <!-- SPREAD 4: CAT -->
       <div class="page page-left" data-page="8">
-        <div class="sentence-container">
-          <div class="word-box">ខ្ញុំ</div>
-          <div class="word-box">អាច</div>
-          <div class="word-box">មើល</div>
-          <div class="word-box">ឃើញ</div>
-          <div class="interactive-box" id="catBox">
-            <div class="interactive-content">
-              <span class="hidden-word" id="catText">ឆ្មា</span>
-              <div class="word-cover" id="catCover">ឆ</div>
+        <div class="page-content-wrapper">
+          <div class="pattern-box">ទម្រង់ល្បះ៖ ខ្ញុំ អាច មើល ឃើញ <span>_______</span></div>
+          
+          <div class="sentence-container">
+            <div class="word-box">ខ្ញុំ</div>
+            <div class="word-box">អាច</div>
+            <div class="word-box">មើល</div>
+            <div class="word-box">ឃើញ</div>
+            <div class="interactive-box" id="catBox">
+              <div class="interactive-content">
+                <span class="hidden-word" id="catText">ឆ្មា</span>
+                <div class="word-cover" id="catCover">ឆ</div>
+              </div>
             </div>
-       
           </div>
         </div>
       </div>
       <div class="page page-right" data-page="9">
-        <div class="page-emoji">🐈</div>
-        
+        <div class="page-emoji-container">
+          <div class="page-emoji">🐈</div>
+        </div>
       </div>
 
-      <!-- SPREAD 5: CAR -->
       <div class="page page-left" data-page="10">
-        <div class="sentence-container">
-          <div class="word-box">ខ្ញុំ</div>
-          <div class="word-box">អាច</div>
-          <div class="word-box">មើល</div>
-          <div class="word-box">ឃើញ</div>
-          <div class="interactive-box" id="carBox">
-            <div class="interactive-content">
-              <span class="hidden-word" id="carText">ឡាន</span>
-              <div class="word-cover" id="carCover">ឡ</div>
+        <div class="page-content-wrapper">
+          <div class="pattern-box">ទម្រង់ល្បះ៖ ខ្ញុំ អាច មើល ឃើញ <span>_______</span></div>
+          
+          <div class="sentence-container">
+            <div class="word-box">ខ្ញុំ</div>
+            <div class="word-box">អាច</div>
+            <div class="word-box">មើល</div>
+            <div class="word-box">ឃើញ</div>
+            <div class="interactive-box" id="carBox">
+              <div class="interactive-content">
+                <span class="hidden-word" id="carText">ឡាន</span>
+                <div class="word-cover" id="carCover">ឡ</div>
+              </div>
             </div>
-        
           </div>
         </div>
       </div>
       <div class="page page-right" data-page="11">
-        <div class="page-emoji">🚗</div>
-        <div class="word-label"></div>
+        <div class="page-emoji-container">
+          <div class="page-emoji">🚗</div>
+          <div class="word-label"></div>
+        </div>
       </div>
 
-      <!-- SPREAD 6: TREE -->
       <div class="page page-left" data-page="12">
-        <div class="sentence-container">
-          <div class="word-box">ខ្ញុំ</div>
-          <div class="word-box">អាច</div>
-          <div class="word-box">មើល</div>
-          <div class="word-box">ឃើញ</div>
-          <div class="interactive-box" id="treeBox">
-            <div class="interactive-content">
-              <span class="hidden-word" id="treeText">ដើមឈើ</span>
-              <div class="word-cover" id="treeCover">ដ</div>
-            </div>
+        <div class="page-content-wrapper">
+          <div class="pattern-box">ទម្រង់ល្បះ៖ ខ្ញុំ អាច មើល ឃើញ <span>_______</span></div>
           
+          <div class="sentence-container">
+            <div class="word-box">ខ្ញុំ</div>
+            <div class="word-box">អាច</div>
+            <div class="word-box">មើល</div>
+            <div class="word-box">ឃើញ</div>
+            <div class="interactive-box" id="treeBox">
+              <div class="interactive-content">
+                <span class="hidden-word" id="treeText">ដើមឈើ</span>
+                <div class="word-cover" id="treeCover">ដ</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
       <div class="page page-right" data-page="13">
-        <div class="page-emoji">🌳</div>
-        <div class="word-label"></div>
+        <div class="page-emoji-container">
+          <div class="page-emoji">🌳</div>
+          <div class="word-label"></div>
+        </div>
       </div>
 
-      <!-- SPREAD 7: SUN -->
       <div class="page page-left" data-page="14">
-        <div class="sentence-container">
-          <div class="word-box">ខ្ញុំ</div>
-          <div class="word-box">អាច</div>
-          <div class="word-box">មើល</div>
-          <div class="word-box">ឃើញ</div>
-          <div class="interactive-box" id="sunBox">
-            <div class="interactive-content">
-              <span class="hidden-word" id="sunText">ព្រះអាទិត្យ</span>
-              <div class="word-cover" id="sunCover">ព</div>
+        <div class="page-content-wrapper">
+          <div class="pattern-box">ទម្រង់ល្បះ៖ ខ្ញុំ អាច មើល ឃើញ <span>_______</span></div>
+          
+          <div class="sentence-container">
+            <div class="word-box">ខ្ញុំ</div>
+            <div class="word-box">អាច</div>
+            <div class="word-box">មើល</div>
+            <div class="word-box">ឃើញ</div>
+            <div class="interactive-box" id="sunBox">
+              <div class="interactive-content">
+                <span class="hidden-word" id="sunText">ព្រះអាទិត្យ</span>
+                <div class="word-cover" id="sunCover">ព</div>
+              </div>
             </div>
-         
           </div>
         </div>
       </div>
       <div class="page page-right" data-page="15">
-        <div class="page-emoji">☀️</div>
-        <div class="word-label"></div>
+        <div class="page-emoji-container">
+          <div class="page-emoji">☀️</div>
+          <div class="word-label"></div>
+        </div>
       </div>
 
-      <!-- SPREAD 8: BACK COVER -->
       <div class="page page-left empty-page" data-page="16">
         <span style="opacity:0.2;">·</span>
       </div>
