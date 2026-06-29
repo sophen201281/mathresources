@@ -41,19 +41,16 @@
       width: 100%;
       height: 100%;
       transform-style: preserve-3d;
-      transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-      box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-      border-radius: 4px 12px 12px 4px;
-      pointer-events: none;
     }
 
-    /* Each page is a 3D plane */
+    /* Each page is a 3D plane pivoting around the center axis */
     .page {
       position: absolute;
       width: 50%;
       height: 100%;
       top: 0;
       backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
       background: #fcf8f0;
       box-shadow: inset 0 0 0 1px rgba(0,0,0,0.02);
       display: flex;
@@ -66,13 +63,15 @@
       border: 1px solid #e3d7c8;
       pointer-events: none;
       transform-style: preserve-3d;
+      /* Animates the page flip smoothly */
+      transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
     }
 
     .page-left {
       left: 0;
       border-radius: 12px 0 0 12px;
       border-right: 1px solid #d0c0ac;
-      transform-origin: right center;
+      transform-origin: right center; /* Spine axis */
       background: #faf5eb;
     }
 
@@ -80,7 +79,7 @@
       left: 50%;
       border-radius: 0 12px 12px 0;
       border-left: 1px solid #d0c0ac;
-      transform-origin: left center;
+      transform-origin: left center;  /* Spine axis */
       background: #fcf8f0;
     }
 
@@ -143,7 +142,7 @@
       top: 0;
       height: 100%;
       width: 50%;
-      z-index: 10;
+      z-index: 100; /* Stays above pages */
       pointer-events: auto;
       cursor: pointer;
       touch-action: manipulation;
@@ -170,13 +169,12 @@
       letter-spacing: 1px;
       border: 1px solid #b6a692;
       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-      z-index: 30;
+      z-index: 200;
       pointer-events: none;
     }
 
-    /* active feedback */
     .touch-zone:active {
-      background: rgba(255,255,240,0.08);
+      background: rgba(255,255,240,0.04);
     }
 
     @media (max-width: 540px) {
@@ -193,51 +191,42 @@
   <div class="flipbook-wrapper" id="wrapper">
     <div class="flipbook" id="flipbook">
 
-      <!-- PAGE 0 (left cover) -->
       <div class="page page-left cover" data-page="0">
         <h1>📖 I can see.</h1>
         <div class="sub">✦ tap the page ✦</div>
       </div>
 
-      <!-- PAGE 1 (right cover – empty) -->
       <div class="page page-right empty-page" data-page="1">
         <span style="opacity:0.4;">· · ·</span>
       </div>
 
-      <!-- PAGE 2 (left) : empty -->
       <div class="page page-left empty-page" data-page="2">
         <span style="opacity:0.3;">⋆</span>
       </div>
 
-      <!-- PAGE 3 (right) : "I can see." -->
       <div class="page page-right" data-page="3">
         <div class="page-title">I can see.</div>
         <div style="font-size:2rem; margin-top:0.2rem;">👁️</div>
       </div>
 
-      <!-- PAGE 4 (left) : "I can see the flower." -->
       <div class="page page-left" data-page="4">
         <div class="page-sentence">I can see the flower.</div>
       </div>
 
-      <!-- PAGE 5 (right) : flower emoji -->
       <div class="page page-right" data-page="5">
         <div class="page-emoji">🌸</div>
         <div style="font-size:0.9rem; opacity:0.5; margin-top:0.3rem;">flower</div>
       </div>
 
-      <!-- PAGE 6 (left) : "I can see the dog." -->
       <div class="page page-left" data-page="6">
         <div class="page-sentence">I can see the dog.</div>
       </div>
 
-      <!-- PAGE 7 (right) : dog emoji -->
       <div class="page page-right" data-page="7">
         <div class="page-emoji">🐕</div>
         <div style="font-size:0.9rem; opacity:0.5; margin-top:0.3rem;">dog</div>
       </div>
 
-      <!-- Touch overlays -->
       <div class="touch-zone touch-left" id="touchLeft"></div>
       <div class="touch-zone touch-right" id="touchRight"></div>
 
@@ -246,12 +235,12 @@
 
   <script>
     (function(){
-      const flipbook = document.getElementById('flipbook');
-      const wrapper = document.getElementById('wrapper');
       const pageIndicator = document.getElementById('pageIndicator');
+      const wrapper = document.getElementById('wrapper');
+      const pages = document.querySelectorAll('.page');
 
-      const TOTAL_PAGES = 8;
-      const SPREADS = TOTAL_PAGES / 2; // 4 spreads
+      const TOTAL_PAGES = pages.length;
+      const SPREADS = TOTAL_PAGES / 2; 
       let currentSpread = 0;
 
       const spreadLabels = [
@@ -261,79 +250,76 @@
         'dog sentence · 🐕'
       ];
 
-      function updateFlip(animate = true) {
-        // rotateY for 3D flip: each spread is 180° apart
-        const angle = -180 * currentSpread;
-        flipbook.style.transform = `rotateY(${angle}deg)`;
-        if (!animate) {
-          flipbook.style.transition = 'none';
-          void flipbook.offsetHeight;
-          flipbook.style.transition = 'transform 0.6s cubic-bezier(0.23, 1, 0.32, 1)';
-        }
+      function updateFlip() {
+        pages.forEach(page => {
+          const pageNum = parseInt(page.getAttribute('data-page'), 10);
+          const pageSpread = Math.floor(pageNum / 2);
+
+          if (pageSpread < currentSpread) {
+            // Past pages: Right pages flip completely to the left side
+            if (page.classList.contains('page-right')) {
+              page.style.transform = 'rotateY(-180deg)';
+            } else {
+              page.style.transform = 'rotateY(0deg)';
+            }
+            // Stack older pages underneath lower down
+            page.style.zIndex = 10 + pageSpread; 
+          } 
+          else if (pageSpread === currentSpread) {
+            // Active current spread: Resting flat facing forward
+            page.style.transform = 'rotateY(0deg)';
+            page.style.zIndex = 50; 
+          } 
+          else {
+            // Future pages: Left pages flip completely to the right side
+            if (page.classList.contains('page-left')) {
+              page.style.transform = 'rotateY(180deg)';
+            } else {
+              page.style.transform = 'rotateY(0deg)';
+            }
+            // Stack future pages underneath inversely
+            page.style.zIndex = 10 + (TOTAL_PAGES - pageNum);
+          }
+        });
 
         if (currentSpread < spreadLabels.length) {
           pageIndicator.textContent = spreadLabels[currentSpread];
-        } else {
-          pageIndicator.textContent = `spread ${currentSpread+1}`;
         }
       }
 
       function goToSpread(spreadIndex) {
-        if (spreadIndex < 0) spreadIndex = 0;
-        if (spreadIndex >= SPREADS) spreadIndex = SPREADS - 1;
-        if (spreadIndex === currentSpread) return;
+        if (spreadIndex < 0 || spreadIndex >= SPREADS || spreadIndex === currentSpread) return;
         currentSpread = spreadIndex;
-        updateFlip(true);
+        updateFlip();
       }
 
-      // ----- tap handling (touch + click) -----
       function handleTap(e) {
         const rect = wrapper.getBoundingClientRect();
-        let clientX;
-        if (e.touches) {
-          clientX = e.touches[0].clientX;
-          e.preventDefault();
-        } else {
-          clientX = e.clientX;
-        }
+        let clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const x = clientX - rect.left;
         const mid = rect.width / 2;
 
         if (x < mid) {
-          // left half → previous
           if (currentSpread > 0) goToSpread(currentSpread - 1);
         } else {
-          // right half → next
           if (currentSpread < SPREADS - 1) goToSpread(currentSpread + 1);
         }
       }
 
-      // attach events to wrapper (covers the whole book)
-      wrapper.addEventListener('touchstart', handleTap, { passive: false });
       wrapper.addEventListener('click', handleTap);
 
-      // keyboard support (extra)
       document.addEventListener('keydown', function(e) {
         if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
-          e.preventDefault();
           if (currentSpread > 0) goToSpread(currentSpread - 1);
         } else if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
-          e.preventDefault();
           if (currentSpread < SPREADS - 1) goToSpread(currentSpread + 1);
         }
       });
 
-      // disable context menu on long press
       wrapper.addEventListener('contextmenu', (e) => e.preventDefault());
 
-      // initial render
-      updateFlip(false);
-
-      // ensure transition after load
-      window.addEventListener('load', function() {
-        flipbook.style.transition = 'transform 0.6s cubic-bezier(0.23, 1, 0.32, 1)';
-      });
-
+      // Render initial setup layout
+      updateFlip();
     })();
   </script>
 
