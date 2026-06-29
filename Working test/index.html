@@ -1,646 +1,382 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Flip Book – Center Spine</title>
-    <style>
-        /* ── Reset & Base ── */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>flip book · I can see</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background: #2c2c2c;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            user-select: none;
-            padding: 20px;
-        }
+    body {
+      background: #d9c8b2;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+      padding: 16px;
+      margin: 0;
+    }
 
-        /* ── Book Container ── */
-        .book-wrapper {
-            perspective: 2000px;
-            width: 760px;
-            max-width: 100%;
-            padding: 20px 0;
-        }
+    /* main container – spine exactly in the middle */
+    .flipbook-wrapper {
+      perspective: 1800px;
+      width: 100%;
+      max-width: 800px;
+      aspect-ratio: 4 / 3;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
 
-        .book {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 1.4 / 1;
-            /* ~ 760 x 540 */
-            transform-style: preserve-3d;
-            transition: transform 0.3s ease;
-            border-radius: 8px;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7);
-        }
+    .flipbook {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transition: transform 0.3s ease;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      border-radius: 4px 12px 12px 4px;
+    }
 
-        /* ── Each Page (Leaf) ── */
-        .page {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            transform-style: preserve-3d;
-            transform-origin: left center;
-            transition: transform 0.8s cubic-bezier(0.4, 0.2, 0.2, 1);
-            border-radius: 6px;
-            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
-            cursor: pointer;
-            backface-visibility: hidden;
-        }
+    /* Each page is half the book – spine at center */
+    .page {
+      position: absolute;
+      width: 50%;
+      height: 100%;
+      top: 0;
+      backface-visibility: hidden;
+      background: #fcf8f0;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.02);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 1.2rem 1rem;
+      text-align: center;
+      box-sizing: border-box;
+      transition: box-shadow 0.2s;
+      border: 1px solid #e3d7c8;
+    }
 
-        /* flipped state = rotated 180° (shows back face) */
-        .page.flipped {
-            transform: rotateY(-180deg);
-            cursor: default;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.15);
-        }
+    /* left pages (even indices) – left half */
+    .page-left {
+      left: 0;
+      border-radius: 12px 0 0 12px;
+      border-right: 1px solid #d0c0ac;
+      transform-origin: right center;
+      background: #faf5eb;
+    }
 
-        /* ── Front / Back faces ── */
-        .page-face {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            border-radius: 6px;
-            overflow: hidden;
-            padding: 28px 30px;
-            display: flex;
-            flex-direction: column;
-            box-sizing: border-box;
-            background: #fcf8f0;
-            border: 1px solid #e0d6c8;
-        }
+    /* right pages (odd indices) – right half */
+    .page-right {
+      left: 50%;
+      border-radius: 0 12px 12px 0;
+      border-left: 1px solid #d0c0ac;
+      transform-origin: left center;
+      background: #fcf8f0;
+    }
 
-        .page-face.front {
-            background: #fcf8f0;
-            z-index: 2;
-        }
+    /* cover styling */
+    .cover {
+      background: #2b4a5c;
+      color: #f5e9da;
+      border: 2px solid #1d3442;
+    }
+    .cover h1 {
+      font-size: clamp(2rem, 8vw, 3.8rem);
+      font-weight: 600;
+      letter-spacing: 4px;
+      text-shadow: 2px 2px 0 #14222b;
+      margin-bottom: 0.3rem;
+    }
+    .cover .sub {
+      font-size: clamp(0.9rem, 2.5vw, 1.3rem);
+      opacity: 0.7;
+      border-top: 1px solid #8ba0b0;
+      padding-top: 0.6rem;
+      width: 70%;
+    }
 
-        .page-face.back {
-            background: #f5efe6;
-            transform: rotateY(180deg);
-            z-index: 1;
-        }
+    .page-title {
+      font-size: clamp(1.8rem, 6vw, 3.2rem);
+      font-weight: 600;
+      color: #1f3a47;
+      margin-bottom: 0.5rem;
+      line-height: 1.2;
+    }
+    .page-sentence {
+      font-size: clamp(1.3rem, 4vw, 2.2rem);
+      color: #1f2e3a;
+      font-weight: 400;
+      padding: 0 0.2rem;
+      max-width: 90%;
+    }
+    .page-emoji {
+      font-size: clamp(4rem, 15vw, 8rem);
+      line-height: 1.2;
+      filter: drop-shadow(2px 6px 12px rgba(0,0,0,0.15));
+      margin: 0.2rem 0;
+    }
+    .page-emoji img {
+      width: clamp(4rem, 15vw, 8rem);
+      height: auto;
+      display: block;
+      object-fit: contain;
+    }
 
-        /* ── Page content styling ── */
-        .page-number {
-            position: absolute;
-            bottom: 18px;
-            right: 28px;
-            font-size: 14px;
-            color: #b0a89a;
-            font-weight: 300;
-            letter-spacing: 1px;
-        }
+    .empty-page {
+      background: #f4ede3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #b8aa98;
+      font-style: italic;
+      letter-spacing: 2px;
+      font-size: 1.2rem;
+    }
 
-        .page-number.left {
-            right: auto;
-            left: 28px;
-        }
+    /* navigation */
+    .nav-controls {
+      position: fixed;
+      bottom: 30px;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      z-index: 20;
+      pointer-events: none;
+    }
+    .nav-controls button {
+      pointer-events: auto;
+      background: #2b4a5c;
+      border: none;
+      color: white;
+      font-size: 1.6rem;
+      font-weight: 600;
+      padding: 0.5rem 1.8rem;
+      border-radius: 60px;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+      cursor: pointer;
+      transition: 0.15s;
+      letter-spacing: 2px;
+      border: 1px solid #4d6f83;
+      min-width: 100px;
+      background: #1f3a47;
+    }
+    .nav-controls button:active {
+      transform: scale(0.94);
+      background: #12303d;
+    }
+    .nav-controls button:disabled {
+      opacity: 0.35;
+      transform: scale(0.96);
+      pointer-events: none;
+      background: #4d5f6b;
+    }
 
-        .page-title {
-            font-size: 28px;
-            font-weight: 700;
-            color: #3d2e1e;
-            margin-bottom: 12px;
-            letter-spacing: 0.5px;
-        }
+    /* simple page counter */
+    .page-indicator {
+      position: fixed;
+      top: 20px;
+      right: 24px;
+      background: rgba(30, 45, 55, 0.8);
+      backdrop-filter: blur(4px);
+      color: #f0ede5;
+      padding: 6px 16px;
+      border-radius: 40px;
+      font-size: 1rem;
+      font-weight: 500;
+      letter-spacing: 1px;
+      border: 1px solid #b6a692;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      z-index: 30;
+      pointer-events: none;
+    }
 
-        .page-title.large {
-            font-size: 42px;
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .page-title.cover {
-            font-size: 52px;
-            text-align: center;
-            margin-top: 50px;
-            color: #2c1810;
-            text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.05);
-        }
-
-        .page-sub {
-            font-size: 18px;
-            color: #7a6b5a;
-            font-weight: 400;
-            letter-spacing: 2px;
-            text-align: center;
-        }
-
-        .page-body {
-            flex: 1;
-            font-size: 17px;
-            line-height: 1.7;
-            color: #3d3228;
-            padding: 6px 0;
-        }
-
-        .page-body p {
-            margin-bottom: 14px;
-        }
-
-        .page-body .chapter {
-            font-size: 22px;
-            font-weight: 600;
-            color: #5a4030;
-            margin-bottom: 8px;
-        }
-
-        .page-body .chapter-num {
-            font-size: 14px;
-            color: #b0a090;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        /* cover decorations */
-        .cover-deco {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            margin: 8px 0 16px;
-            font-size: 28px;
-        }
-
-        .cover-author {
-            font-size: 20px;
-            color: #8a7a6a;
-            text-align: center;
-            letter-spacing: 3px;
-            margin-top: auto;
-            padding-bottom: 20px;
-            border-top: 2px solid #e0d6c8;
-            padding-top: 18px;
-        }
-
-        .back-cover {
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            background: #2c1810;
-            color: #f0e8dc;
-            border-color: #1a0f0a;
-        }
-
-        .back-cover .page-title.cover {
-            color: #f0e8dc;
-            text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
-        }
-
-        .back-cover .cover-author {
-            color: #b0a090;
-            border-top-color: #4a3a2a;
-        }
-
-        .back-cover .page-number {
-            color: #6a5a4a;
-        }
-
-        /* empty page */
-        .page-empty {
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            background: #faf6ef;
-        }
-
-        .page-empty .empty-icon {
-            font-size: 48px;
-            opacity: 0.2;
-            margin-bottom: 10px;
-        }
-
-        .page-empty .empty-text {
-            font-size: 16px;
-            color: #c0b8a8;
-            letter-spacing: 4px;
-        }
-
-        /* ── Navigation ── */
-        .controls {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
-            margin-top: 30px;
-            flex-wrap: wrap;
-        }
-
-        .controls button {
-            padding: 12px 32px;
-            border: none;
-            border-radius: 40px;
-            background: #f0e8dc;
-            color: #3d2e1e;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            letter-spacing: 0.5px;
-        }
-
-        .controls button:hover:not(:disabled) {
-            background: #e0d4c4;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        .controls button:active:not(:disabled) {
-            transform: translateY(0px);
-        }
-
-        .controls button:disabled {
-            opacity: 0.35;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .controls .page-indicator {
-            font-size: 16px;
-            color: #d0c8b8;
-            font-weight: 300;
-            letter-spacing: 1px;
-            min-width: 80px;
-            text-align: center;
-        }
-
-        .controls .page-indicator span {
-            color: #f0e8dc;
-            font-weight: 600;
-        }
-
-        /* ── Responsive ── */
-        @media (max-width: 600px) {
-            .page-face {
-                padding: 18px 16px;
-            }
-            .page-title.cover {
-                font-size: 32px;
-                margin-top: 30px;
-            }
-            .page-title.large {
-                font-size: 28px;
-            }
-            .page-title {
-                font-size: 20px;
-            }
-            .page-body {
-                font-size: 14px;
-                line-height: 1.5;
-            }
-            .controls button {
-                padding: 10px 20px;
-                font-size: 14px;
-            }
-            .page-number {
-                font-size: 12px;
-                bottom: 12px;
-                right: 16px;
-            }
-        }
-
-        @media (max-width: 420px) {
-            .page-face {
-                padding: 12px 10px;
-            }
-            .page-title.cover {
-                font-size: 24px;
-                margin-top: 20px;
-            }
-            .page-title.large {
-                font-size: 20px;
-            }
-            .page-body {
-                font-size: 12px;
-            }
-            .controls {
-                gap: 10px;
-            }
-            .controls button {
-                padding: 8px 14px;
-                font-size: 12px;
-            }
-        }
-    </style>
+    /* responsiveness */
+    @media (max-width: 540px) {
+      .page {
+        padding: 0.6rem 0.4rem;
+      }
+      .nav-controls button {
+        min-width: 70px;
+        padding: 0.4rem 0.8rem;
+        font-size: 1.2rem;
+      }
+    }
+  </style>
 </head>
 <body>
 
-    <div class="book-wrapper">
-        <div class="book" id="book">
-            <!-- Pages will be inserted by JavaScript -->
-        </div>
+  <div class="page-indicator" id="pageIndicator">cover</div>
 
-        <div class="controls">
-            <button id="prevBtn" disabled>◀ Prev</button>
-            <div class="page-indicator">
-                Page <span id="currentPageNum">1</span> / <span id="totalPagesNum">20</span>
-            </div>
-            <button id="nextBtn">Next ▶</button>
-        </div>
+  <div class="flipbook-wrapper">
+    <div class="flipbook" id="flipbook">
+
+      <!-- PAGE 0 (left cover) -->
+      <div class="page page-left cover" data-page="0">
+        <h1>📖 I can see.</h1>
+        <div class="sub">✦ open the book ✦</div>
+      </div>
+
+      <!-- PAGE 1 (right cover – actually empty, but we treat as front cover right side) 
+           but we want the cover to be the first spread: left cover + right empty? 
+           We'll make page1 empty to match spec: "first time, shows front cover with title, page2 empty" 
+           But as a flip book: spread is page0 (left cover) + page1 (right empty) 
+      -->
+      <div class="page page-right empty-page" data-page="1">
+        <span style="opacity:0.4;">· · ·</span>
+      </div>
+
+      <!-- PAGE 2 (left) : empty (page 2 according to spec: page2 is empty) 
+           but our spread: page2 (left) + page3 (right) = page2 empty, page3 "I can see." 
+      -->
+      <div class="page page-left empty-page" data-page="2">
+        <span style="opacity:0.3;">⋆</span>
+      </div>
+
+      <!-- PAGE 3 (right) : "I can see." (page 1 of book) -->
+      <div class="page page-right" data-page="3">
+        <div class="page-title">I can see.</div>
+        <div style="font-size:2rem; margin-top:0.2rem;">👁️</div>
+      </div>
+
+      <!-- PAGE 4 (left) : "I can see the flower." -->
+      <div class="page page-left" data-page="4">
+        <div class="page-sentence">I can see the flower.</div>
+      </div>
+
+      <!-- PAGE 5 (right) : flower emoji image -->
+      <div class="page page-right" data-page="5">
+        <div class="page-emoji">🌸</div>
+        <div style="font-size:0.9rem; opacity:0.5; margin-top:0.3rem;">flower</div>
+      </div>
+
+      <!-- PAGE 6 (left) : "I can see the dog." -->
+      <div class="page page-left" data-page="6">
+        <div class="page-sentence">I can see the dog.</div>
+      </div>
+
+      <!-- PAGE 7 (right) : dog emoji image -->
+      <div class="page page-right" data-page="7">
+        <div class="page-emoji">🐕</div>
+        <div style="font-size:0.9rem; opacity:0.5; margin-top:0.3rem;">dog</div>
+      </div>
+
     </div>
+  </div>
 
-    <script>
-        // ──────────────────────────────────────────────────────────────
-        // 1. CONTENT FOR ALL 20 PAGES (10 leaves)
-        // ──────────────────────────────────────────────────────────────
+  <div class="nav-controls">
+    <button id="prevBtn" disabled>◀ prev</button>
+    <button id="nextBtn">next ▶</button>
+  </div>
 
-        const pageContent = [];
+  <script>
+    (function(){
+      const flipbook = document.getElementById('flipbook');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const pageIndicator = document.getElementById('pageIndicator');
 
-        function makePage(frontHTML, backHTML) {
-            return { front: frontHTML, back: backHTML };
+      // Total pages = 8 (0..7)
+      const TOTAL_PAGES = 8;
+      // We show spreads: currentSpread = index of left page (even)
+      // spread 0: pages 0-1 (cover + empty)
+      // spread 1: pages 2-3 (empty + "I can see.")
+      // spread 2: pages 4-5 ("I can see the flower." + flower emoji)
+      // spread 3: pages 6-7 ("I can see the dog." + dog emoji)
+      let currentSpread = 0; // 0-based spread index, left page = spread*2
+
+      // page labels for indicator
+      const spreadLabels = [
+        'cover · empty',
+        'empty · I can see.',
+        'flower sentence · 🌸',
+        'dog sentence · 🐕'
+      ];
+
+      // Helper: update flipbook transform and button states
+      function updateFlip(animate = true) {
+        // rotateY: each spread rotates 180deg? 
+        // but we want spine in middle: we rotate the entire book container 
+        // currentSpread 0 → 0deg, spread1 → -180deg? 
+        // Actually to show spread n, we rotate flipbook by -180 * n degrees
+        const angle = -180 * currentSpread;
+        flipbook.style.transform = `rotateY(${angle}deg)`;
+        if (!animate) {
+          flipbook.style.transition = 'none';
+          // force reflow
+          void flipbook.offsetHeight;
+          flipbook.style.transition = 'transform 0.3s ease';
         }
 
-        // ── Page 1 (front) + Page 2 (back) ──
-        pageContent.push(makePage(`
-            <div class="page-face front">
-                <div class="page-title cover">✦ My Flip Book ✦</div>
-                <div class="cover-deco">✦ ✦ ✦</div>
-                <div class="page-sub">A 20‑Page Journey</div>
-                <div class="cover-author">✧ Designed with ❤️ ✧</div>
-                <div class="page-number">1</div>
-            </div>
-        `, `
-            <div class="page-face back page-empty">
-                <div class="empty-icon">◯</div>
-                <div class="empty-text">page 2</div>
-                <div class="page-number">2</div>
-            </div>
-        `));
+        // update buttons
+        prevBtn.disabled = (currentSpread === 0);
+        nextBtn.disabled = (currentSpread >= TOTAL_PAGES/2 - 1);
 
-        // ── Page 3 (front) + Page 4 (back) ──
-        pageContent.push(makePage(`
-            <div class="page-face front page-empty">
-                <div class="empty-icon">◯</div>
-                <div class="empty-text">page 3</div>
-                <div class="page-number">3</div>
-            </div>
-        `, `
-            <div class="page-face back">
-                <div class="page-title">The Title Page</div>
-                <div class="page-sub">A Book of Wonders</div>
-                <div class="page-body" style="margin-top:10px;">
-                    <p style="font-size:20px;font-weight:300;letter-spacing:2px;color:#7a6b5a;">
-                        “Every page tells a story.”
-                    </p>
-                    <p style="margin-top:20px;font-size:15px;color:#8a7a6a;">
-                        Written by <strong>You</strong><br>
-                        Illustrated by <strong>Imagination</strong>
-                    </p>
-                </div>
-                <div class="page-number">4</div>
-            </div>
-        `));
-
-        // ── Pages 5–18: content chapters ──
-        const chapters = [
-            { num: 1, title: 'The Beginning', text: 'It all started on a quiet morning. The sun rose over the hills, casting golden light across the valley. A small bird sang its first song of the day, and somewhere, a door creaked open to a world of endless possibility.' },
-            { num: 2, title: 'The Journey', text: 'With a map in hand and curiosity in heart, our hero set out on a winding road. Each step brought new sights — towering forests, babbling brooks, and the distant echo of adventure calling from beyond the horizon.' },
-            { num: 3, title: 'The Discovery', text: 'Deep in the ancient woods, hidden beneath a canopy of leaves, lay a secret that had waited for centuries. A glint of gold, a whisper of magic — the world was about to change.' },
-            { num: 4, title: 'The Challenge', text: 'Not all paths are smooth. A treacherous mountain pass tested every ounce of courage. But with each stumble came a lesson, and with each lesson, strength grew.' },
-            { num: 5, title: 'The Resolution', text: 'At last, the journey came full circle. The lessons learned, the friendships forged — all led to a single moment of clarity. The treasure was not gold, but the story itself.' },
-            { num: 6, title: 'Epilogue', text: 'And so the tale ends, as all tales must. But in the heart of every reader, the adventure lives on — ready to be retold, reimagined, and relived.' },
-            { num: 7, title: 'About the Author', text: 'A lover of stories, a dreamer of worlds. Born under a wandering star, they spent years collecting whispers from the wind and turning them into words on a page.' },
-            { num: 8, title: 'Acknowledgments', text: 'Grateful thanks to the muse that never sleeps, to the friends who offered encouragement, and to you, dear reader, for turning these pages.' },
-        ];
-
-        for (let i = 0; i < chapters.length; i++) {
-            const ch = chapters[i];
-            const pageNumFront = 5 + i * 2;
-            const pageNumBack = pageNumFront + 1;
-
-            const frontHTML = `
-                <div class="page-face front">
-                    <div class="page-number">${pageNumFront}</div>
-                    <div class="page-body">
-                        <div class="chapter-num">Chapter ${ch.num}</div>
-                        <div class="chapter">${ch.title}</div>
-                        <p>${ch.text}</p>
-                    </div>
-                </div>
-            `;
-
-            const backHTML = `
-                <div class="page-face back">
-                    <div class="page-number">${pageNumBack}</div>
-                    <div class="page-body">
-                        <div class="chapter-num">Chapter ${ch.num} · continued</div>
-                        <div class="chapter" style="font-size:18px;">${ch.title}</div>
-                        <p style="font-style:italic;color:#6a5a4a;">
-                            “${ch.text.slice(0, 60)}…”
-                        </p>
-                        <p style="margin-top:12px;font-size:15px;color:#8a7a6a;">
-                            The story deepens as each page turns.
-                        </p>
-                        <p style="margin-top:8px;font-size:14px;color:#b0a090;letter-spacing:1px;">
-                            — ${ch.title} —
-                        </p>
-                    </div>
-                </div>
-            `;
-
-            pageContent.push(makePage(frontHTML, backHTML));
+        // update indicator
+        if (currentSpread < spreadLabels.length) {
+          pageIndicator.textContent = spreadLabels[currentSpread];
+        } else {
+          pageIndicator.textContent = `spread ${currentSpread+1}`;
         }
+      }
 
-        // ── Page 19 (front) + Page 20 (back cover) ──
-        pageContent.push(makePage(`
-            <div class="page-face front page-empty">
-                <div class="empty-icon">◯</div>
-                <div class="empty-text">page 19</div>
-                <div class="page-number">19</div>
-            </div>
-        `, `
-            <div class="page-face back back-cover">
-                <div class="page-title cover" style="margin-top:60px;">✦ The End ✦</div>
-                <div class="cover-deco">✦ ✦ ✦</div>
-                <div class="page-sub" style="color:#b0a090;">Thank you for reading</div>
-                <div class="cover-author" style="border-top-color:#4a3a2a;">
-                    ✧ 20 pages · A flip book ✧
-                </div>
-                <div class="page-number">20</div>
-            </div>
-        `));
+      // go to specific spread
+      function goToSpread(spreadIndex) {
+        if (spreadIndex < 0) spreadIndex = 0;
+        if (spreadIndex >= TOTAL_PAGES/2) spreadIndex = TOTAL_PAGES/2 - 1;
+        if (spreadIndex === currentSpread) return;
+        currentSpread = spreadIndex;
+        updateFlip(true);
+      }
 
-        // ──────────────────────────────────────────────────────────────
-        // 2. BUILD THE BOOK
-        // ──────────────────────────────────────────────────────────────
-
-        const book = document.getElementById('book');
-        const totalPages = 20;
-        const totalLeaves = pageContent.length; // 10
-
-        const pageElements = [];
-
-        for (let i = 0; i < totalLeaves; i++) {
-            const data = pageContent[i];
-            const pageDiv = document.createElement('div');
-            pageDiv.className = 'page';
-            pageDiv.dataset.page = i * 2 + 1;
-            pageDiv.dataset.index = i;
-            pageDiv.innerHTML = data.front + data.back;
-            book.appendChild(pageDiv);
-            pageElements.push(pageDiv);
+      // event listeners
+      prevBtn.addEventListener('click', function() {
+        if (currentSpread > 0) {
+          goToSpread(currentSpread - 1);
         }
+      });
 
-        // ──────────────────────────────────────────────────────────────
-        // 3. FLIP LOGIC (center spine: each leaf shows 2 pages)
-        // ──────────────────────────────────────────────────────────────
-
-        let currentPage = 1; // 1‑based page number visible on the left side
-        let isFlipping = false;
-
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
-        const currentPageNumSpan = document.getElementById('currentPageNum');
-        const totalPagesNumSpan = document.getElementById('totalPagesNum');
-        totalPagesNumSpan.textContent = totalPages;
-
-        // Update which leaves are flipped and z‑index
-        function updateBook() {
-            // currentPage is the left‑side page number (1‑based)
-            // leaf index = floor((currentPage - 1) / 2)
-            const leafIndex = Math.floor((currentPage - 1) / 2);
-
-            for (let i = 0; i < pageElements.length; i++) {
-                const el = pageElements[i];
-                el.classList.remove('flipped');
-
-                if (i < leafIndex) {
-                    el.classList.add('flipped');
-                } else if (i === leafIndex) {
-                    if (currentPage % 2 === 0) {
-                        el.classList.add('flipped');
-                    } else {
-                        el.classList.remove('flipped');
-                    }
-                } else {
-                    el.classList.remove('flipped');
-                }
-            }
-
-            // Update z‑index so unflipped pages are on top
-            for (let i = 0; i < pageElements.length; i++) {
-                const el = pageElements[i];
-                if (el.classList.contains('flipped')) {
-                    el.style.zIndex = pageElements.length - i - 1;
-                } else {
-                    el.style.zIndex = pageElements.length + i + 1;
-                }
-            }
-
-            currentPageNumSpan.textContent = currentPage;
-            prevBtn.disabled = currentPage <= 1;
-            nextBtn.disabled = currentPage >= totalPages;
+      nextBtn.addEventListener('click', function() {
+        if (currentSpread < TOTAL_PAGES/2 - 1) {
+          goToSpread(currentSpread + 1);
         }
+      });
 
-        // Navigate to a specific page (left side)
-        function goToPage(pageNum) {
-            if (isFlipping) return;
-            if (pageNum < 1 || pageNum > totalPages) return;
-            if (pageNum === currentPage) return;
-
-            isFlipping = true;
-            const goingForward = pageNum > currentPage;
-
-            if (goingForward) {
-                // Flip one leaf at a time
-                const leafIndex = Math.floor((currentPage - 1) / 2);
-                if (currentPage % 2 === 1) {
-                    // currently on front of leaf → flip it to show back (page+1)
-                    pageElements[leafIndex].classList.add('flipped');
-                    currentPage++;
-                } else {
-                    // currently on back of leaf → move to next leaf front (page+1)
-                    const nextLeaf = leafIndex + 1;
-                    if (nextLeaf < pageElements.length) {
-                        pageElements[nextLeaf].classList.remove('flipped');
-                        currentPage++;
-                        // then flip that next leaf to show its back (page+2)
-                        pageElements[nextLeaf].classList.add('flipped');
-                        currentPage++;
-                    } else {
-                        isFlipping = false;
-                        return;
-                    }
-                }
-            } else {
-                // Going backward
-                const leafIndex = Math.floor((currentPage - 1) / 2);
-                if (currentPage % 2 === 1) {
-                    // on front → go to back of previous leaf
-                    const prevLeaf = leafIndex - 1;
-                    if (prevLeaf >= 0) {
-                        // unflip previous leaf to show its front (page-2)
-                        pageElements[prevLeaf].classList.remove('flipped');
-                        currentPage -= 2;
-                        // then flip it to show its back (page-1)
-                        pageElements[prevLeaf].classList.add('flipped');
-                        currentPage++;
-                    } else {
-                        isFlipping = false;
-                        return;
-                    }
-                } else {
-                    // on back → unflip current leaf to show front (page-1)
-                    pageElements[leafIndex].classList.remove('flipped');
-                    currentPage--;
-                }
-            }
-
-            if (currentPage < 1) currentPage = 1;
-            if (currentPage > totalPages) currentPage = totalPages;
-
-            updateBook();
-            isFlipping = false;
+      // keyboard support (optional)
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+          e.preventDefault();
+          if (currentSpread > 0) goToSpread(currentSpread - 1);
+        } else if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
+          e.preventDefault();
+          if (currentSpread < TOTAL_PAGES/2 - 1) goToSpread(currentSpread + 1);
         }
+      });
 
-        // ── Click on book to flip forward ──
-        function handlePageClick(e) {
-            if (isFlipping) return;
-            if (currentPage < totalPages) {
-                goToPage(currentPage + 1);
-            }
-        }
+      // initial render (cover spread)
+      updateFlip(false);
 
-        // ── Event listeners ──
-        prevBtn.addEventListener('click', () => {
-            if (currentPage > 1) goToPage(currentPage - 1);
-        });
+      // small touch / mobile hint: disable transition on load to avoid glitch
+      window.addEventListener('load', function() {
+        flipbook.style.transition = 'transform 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.1)';
+      });
 
-        nextBtn.addEventListener('click', () => {
-            if (currentPage < totalPages) goToPage(currentPage + 1);
-        });
+      // handle resize: just keep aspect
+      // (nothing else needed)
 
-        book.addEventListener('click', handlePageClick);
+      // expose to window for debug
+      window.__flip = { goToSpread, currentSpread: () => currentSpread };
 
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowRight' || e.key === ' ') {
-                e.preventDefault();
-                if (currentPage < totalPages) goToPage(currentPage + 1);
-            } else if (e.key === 'ArrowLeft') {
-                e.preventDefault();
-                if (currentPage > 1) goToPage(currentPage - 1);
-            }
-        });
-
-        // ── Init ──
-        updateBook();
-
-        console.log('📖 Flip book ready! Center spine — two pages visible.');
-    </script>
+    })();
+  </script>
 
 </body>
 </html>
