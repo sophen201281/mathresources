@@ -110,13 +110,35 @@
       margin-bottom: 0.5rem;
       line-height: 1.2;
     }
-    .page-sentence {
-      font-size: clamp(1.3rem, 4vw, 2.2rem);
-      color: #1f2e3a;
-      font-weight: 400;
-      padding: 0 0.2rem;
-      max-width: 90%;
+
+    /* Word Box Styles */
+    .sentence-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      width: 100%;
+      pointer-events: auto; /* allows interaction inside pages */
     }
+
+    .word-boxes {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .word-box {
+      background: #ffffff;
+      border: 2px solid #2b4a5c;
+      color: #2b4a5c;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: clamp(1rem, 3vw, 1.6rem);
+      font-weight: 600;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+
     .page-emoji {
       font-size: clamp(4rem, 15vw, 8rem);
       line-height: 1.2;
@@ -180,6 +202,9 @@
       .page {
         padding: 0.6rem 0.4rem;
       }
+      .word-box {
+        padding: 6px 12px;
+      }
     }
   </style>
 </head>
@@ -190,16 +215,14 @@
   <div class="flipbook-wrapper" id="wrapper">
     <div class="flipbook" id="flipbook">
 
-      <!-- SPREAD 0: COVER -->
       <div class="page page-left cover" data-page="0">
         <h1>📖 I can see.</h1>
-        <div class="sub">✦ tap the page ✦</div>
+        <div class="sub">✦ tap the edges to turn ✦</div>
       </div>
       <div class="page page-right empty-page" data-page="1">
         <span style="opacity:0.4;">· · ·</span>
       </div>
 
-      <!-- SPREAD 1: TITLE INTRO -->
       <div class="page page-left empty-page" data-page="2">
         <span style="opacity:0.3;">⋆</span>
       </div>
@@ -208,61 +231,96 @@
         <div style="font-size:2rem; margin-top:0.2rem;">👁️</div>
       </div>
 
-      <!-- SPREAD 2: FLOWER -->
       <div class="page page-left" data-page="4">
-        <div class="page-sentence">ខ្ញុំ អាច មើល ឃើញ ផ្កា។.</div>
+        <div class="sentence-container">
+          <div class="word-boxes">
+            <span class="word-box">I</span>
+            <span class="word-box">can</span>
+            <span class="word-box">see</span>
+            <span class="word-box">the flower</span>
+          </div>
+        </div>
       </div>
       <div class="page page-right" data-page="5">
         <div class="page-emoji">🌸</div>
         <div style="font-size:0.9rem; opacity:0.5; margin-top:0.3rem;">flower</div>
       </div>
 
-      <!-- SPREAD 3: DOG -->
       <div class="page page-left" data-page="6">
-        <div class="page-sentence">I can see the dog.</div>
+        <div class="sentence-container">
+          <div class="word-boxes">
+            <span class="word-box">I</span>
+            <span class="word-box">can</span>
+            <span class="word-box">see</span>
+            <span class="word-box">the dog</span>
+          </div>
+        </div>
       </div>
       <div class="page page-right" data-page="7">
         <div class="page-emoji">🐕</div>
         <div style="font-size:0.9rem; opacity:0.5; margin-top:0.3rem;">dog</div>
       </div>
 
-      <!-- SPREAD 4: CAT -->
       <div class="page page-left" data-page="8">
-        <div class="page-sentence">I can see the cat.</div>
+        <div class="sentence-container">
+          <div class="word-boxes">
+            <span class="word-box">I</span>
+            <span class="word-box">can</span>
+            <span class="word-box">see</span>
+            <span class="word-box">the cat</span>
+          </div>
+        </div>
       </div>
       <div class="page page-right" data-page="9">
         <div class="page-emoji">🐈</div>
         <div style="font-size:0.9rem; opacity:0.5; margin-top:0.3rem;">cat</div>
       </div>
 
-      <!-- SPREAD 5: CAR -->
       <div class="page page-left" data-page="10">
-        <div class="page-sentence">I can see the car.</div>
+        <div class="sentence-container">
+          <div class="word-boxes">
+            <span class="word-box">I</span>
+            <span class="word-box">can</span>
+            <span class="word-box">see</span>
+            <span class="word-box">the car</span>
+          </div>
+        </div>
       </div>
       <div class="page page-right" data-page="11">
         <div class="page-emoji">🚗</div>
         <div style="font-size:0.9rem; opacity:0.5; margin-top:0.3rem;">car</div>
       </div>
 
-      <!-- SPREAD 6: TREE -->
       <div class="page page-left" data-page="12">
-        <div class="page-sentence">I can see the tree.</div>
+        <div class="sentence-container">
+          <div class="word-boxes">
+            <span class="word-box">I</span>
+            <span class="word-box">can</span>
+            <span class="word-box">see</span>
+            <span class="word-box">the tree</span>
+          </div>
+        </div>
       </div>
       <div class="page page-right" data-page="13">
         <div class="page-emoji">🌳</div>
         <div style="font-size:0.9rem; opacity:0.5; margin-top:0.3rem;">tree</div>
       </div>
 
-      <!-- SPREAD 7: SUN -->
       <div class="page page-left" data-page="14">
-        <div class="page-sentence">I can see the sun.</div>
+        <div class="sentence-container">
+          <div class="word-boxes">
+            <span class="word-box">I</span>
+            <span class="word-box">can</span>
+            <span class="word-box">see</span>
+            <span class="word-box">the sun</span>
+          </div>
+        </div>
       </div>
       <div class="page page-right" data-page="15">
         <div class="page-emoji">☀️</div>
         <div style="font-size:0.9rem; opacity:0.5; margin-top:0.3rem;">sun</div>
       </div>
 
-      <!-- Touch overlays -->
       <div class="touch-zone touch-left" id="touchLeft"></div>
       <div class="touch-zone touch-right" id="touchRight"></div>
 
@@ -330,7 +388,10 @@
         updateFlip();
       }
 
+      // Updated handling to avoid intercepting clicks directly on the word-boxes
       function handleTap(e) {
+        if (e.target.classList.contains('word-box')) return;
+
         const rect = wrapper.getBoundingClientRect();
         let clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const x = clientX - rect.left;
