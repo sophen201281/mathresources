@@ -70,11 +70,16 @@
     }
     button:active { transform: scale(0.94); }
 
-    /* card creation buttons – new labels */
-    .onesBtn   { background: #ffd966; color: #2d2a1e; }
-    .tensBtn   { background: #93c47d; color: #1f3a1a; }
+    /* card creation buttons – all labels in order: 50k,20k,10k,5k,2k,1k,500,200,100 */
+    .fiftykBtn  { background: #b5838d; color: #f5f0f0; }
+    .twentykBtn { background: #e5989b; color: #2d1a1a; }
+    .tenkBtn   { background: #f7b977; color: #2d1f0c; }
+    .fivekBtn  { background: #b8a9c9; color: #1f1630; }
+    .twokBtn   { background: #a8c4d6; color: #0d2b44; }
+    .thousandsBtn { background: #b39ddb; color: #241b3a; }
     .hundredsBtn { background: #6fa8dc; color: #0d2b44; }
-    .thousandsBtn { background: #b39ddb; color: #241b3a; } /* softer purple */
+    .tensBtn   { background: #93c47d; color: #1f3a1a; }
+    .onesBtn   { background: #ffd966; color: #2d2a1e; }
 
     .drawBtn   { background: #ffa94d; color: #2d1f0c; }
     .eraseBtn  { background: #f28b82; color: #3b1b1a; }
@@ -130,6 +135,11 @@
     .tens     { background-color: #93c47d; background-image: url('image/tens.png'); }
     .hundreds { background-color: #6fa8dc; background-image: url('image/hundreds.png'); }
     .thousands{ background-color: #b39ddb; background-image: url('image/thousands.png'); }
+    .fivek    { background-color: #b8a9c9; background-image: url('image/hundreds.png'); }
+    .twok     { background-color: #a8c4d6; background-image: url('image/tens.png'); }
+    .tenk     { background-color: #f7b977; background-image: url('image/tens.png'); }
+    .twentyk  { background-color: #e5989b; background-image: url('image/hundreds.png'); }
+    .fiftyk   { background-color: #b5838d; background-image: url('image/thousands.png'); }
 
     /* inner glow overlay */
     .card::before {
@@ -156,13 +166,19 @@
 
   <!-- TOOLBAR -->
   <div id="toolbar">
+    <!-- SINGLE ROW: all value buttons in order: 50k,20k,10k,5k,2k,1k,500,200,100 -->
     <div class="toolbar-row">
-      <!-- labels updated: ones→100, tens→200, hundreds→500, thousands→1k -->
+      <button class="fiftykBtn" onclick="createCard('fiftyk', this)">50k</button>
+      <button class="twentykBtn" onclick="createCard('twentyk', this)">20k</button>
+      <button class="tenkBtn" onclick="createCard('tenk', this)">10k</button>
+      <button class="fivekBtn" onclick="createCard('fivek', this)">5k</button>
+      <button class="twokBtn" onclick="createCard('twok', this)">2k</button>
       <button class="thousandsBtn" onclick="createCard('thousands', this)">1k</button>
       <button class="hundredsBtn" onclick="createCard('hundreds', this)">500</button>
       <button class="tensBtn" onclick="createCard('tens', this)">200</button>
       <button class="onesBtn" onclick="createCard('ones', this)">100</button>
     </div>
+    <!-- second row: drawing tools + home -->
     <div class="toolbar-row">
       <button class="drawBtn" onclick="setTool('draw')">✏️ សរសេរ</button>
       <button class="eraseBtn" onclick="setTool('erase')">🧽 លុប</button>
@@ -226,20 +242,17 @@
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
-    // ================= CARD LABELS (new values) =================
+    // ================= CARD LABELS (all values) =================
     const typeLabels = {
-      ones: '100',
-      tens: '200',
-      hundreds: '500',
-      thousands: '1k'
-    };
-
-    // optional extra: 10k, 20k, 50k — we add a separate button later (but we can also include them)
-    // we keep them in a separate map for future use, but we also add them to the toolbar via JS.
-    const extraLabels = {
-      tenk: '10k',
+      fiftyk: '50k',
       twentyk: '20k',
-      fiftyk: '50k'
+      tenk: '10k',
+      fivek: '5k',
+      twok: '2k',
+      thousands: '1k',
+      hundreds: '500',
+      tens: '200',
+      ones: '100'
     };
 
     // ================= CARD CREATION =================
@@ -249,7 +262,6 @@
       const card = document.createElement('div');
       card.className = `card ${type}`;
       const span = document.createElement('span');
-      // use label from typeLabels, fallback to type if missing
       span.textContent = typeLabels[type] || type;
       card.appendChild(span);
       playArea.appendChild(card);
@@ -261,62 +273,6 @@
       card.style.top = (window.innerHeight - toolbarH - 90) + 'px';
 
       makeDraggable(card);
-    }
-
-    // ================= EXTRA CARDS: 10k, 20k, 50k =================
-    function createExtraCard(label, typeClass) {
-      const card = document.createElement('div');
-      // use a generic class but we want background – we use a fallback color + we can set image if needed
-      // we use 'ones' as fallback background but we'll style differently
-      card.className = `card ${typeClass}`;
-      const span = document.createElement('span');
-      span.textContent = label;
-      card.appendChild(span);
-      playArea.appendChild(card);
-
-      // random position in upper area
-      const x = 30 + Math.random() * (window.innerWidth - 180);
-      const y = 60 + Math.random() * (window.innerHeight - 300);
-      card.style.left = x + 'px';
-      card.style.top = y + 'px';
-      makeDraggable(card);
-    }
-
-    // ================= ADD EXTRA BUTTONS (10k, 20k, 50k) =================
-    function addExtraButtons() {
-      const toolbar = document.getElementById('toolbar');
-      const row = document.createElement('div');
-      row.className = 'toolbar-row';
-      row.style.marginTop = '2px';
-
-      const extras = [
-        { label: '10k', cls: 'tens' },    // reuse tens bg (green) – can be changed
-        { label: '20k', cls: 'hundreds' },
-        { label: '50k', cls: 'thousands' }
-      ];
-
-      extras.forEach(ext => {
-        const btn = document.createElement('button');
-        btn.textContent = ext.label;
-        btn.style.background = '#cfd8e6';
-        btn.style.fontWeight = '700';
-        btn.style.color = '#1e2b3c';
-        btn.style.padding = '6px 14px';
-        btn.style.borderRadius = '40px';
-        btn.addEventListener('click', () => {
-          // create a card with that label, using a specific class for background
-          // we map to existing classes: tens, hundreds, thousands
-          let typeClass = 'ones';
-          if (ext.label === '10k') typeClass = 'tens';
-          else if (ext.label === '20k') typeClass = 'hundreds';
-          else if (ext.label === '50k') typeClass = 'thousands';
-          // but we also want the label to be exactly 10k etc.
-          createExtraCard(ext.label, typeClass);
-        });
-        row.appendChild(btn);
-      });
-
-      toolbar.appendChild(row);
     }
 
     // ================= DRAGGABLE =================
@@ -352,7 +308,6 @@
         const toolbarH = document.getElementById('toolbar').offsetHeight;
         x = e.clientX - ox;
         y = e.clientY - oy;
-        // keep inside viewport
         x = Math.max(0, Math.min(window.innerWidth - card.offsetWidth, x));
         y = Math.max(0, Math.min(window.innerHeight - toolbarH - card.offsetHeight, y));
         if (!raf) raf = requestAnimationFrame(apply);
@@ -362,11 +317,12 @@
       card.addEventListener('pointercancel', () => { dragging = false; });
     }
 
-    // ================= STACK 5768 with new labels =================
-    function createStack5768() {
-      const types = ['thousands', 'hundreds', 'tens', 'ones'];
+    // ================= STACK with all values =================
+    function createInitialStack() {
+      // Show a stack of all 9 values in descending order
+      const types = ['fiftyk', 'twentyk', 'tenk', 'fivek', 'twok', 'thousands', 'hundreds', 'tens', 'ones'];
       const baseRight = window.innerWidth * 0.72;
-      const baseY = window.innerHeight * 0.32;
+      const baseY = window.innerHeight * 0.28;
 
       types.forEach((type, i) => {
         const card = document.createElement('div');
@@ -376,7 +332,7 @@
         card.appendChild(span);
 
         card.style.left = (baseRight - 120) + 'px';
-        card.style.top = (baseY + i * 3) + 'px';
+        card.style.top = (baseY + i * 2.5) + 'px';
         card.style.zIndex = 10 + i;
         playArea.appendChild(card);
         makeDraggable(card);
@@ -385,26 +341,35 @@
 
     // ================= INIT =================
     requestAnimationFrame(() => {
-      // add extra buttons (10k, 20k, 50k) to toolbar
-      addExtraButtons();
-      // create initial stack
-      setTimeout(createStack5768, 250);
-      // also spawn a few extra cards to show variety (optional)
+      setTimeout(createInitialStack, 250);
+      // also spawn a few extra cards scattered around
       setTimeout(() => {
-        createExtraCard('10k', 'tens');
-        createExtraCard('20k', 'hundreds');
-        createExtraCard('50k', 'thousands');
+        const allTypes = ['fiftyk', 'twentyk', 'tenk', 'fivek', 'twok', 'thousands', 'hundreds', 'tens', 'ones'];
+        // place 3 random extra cards
+        for (let i = 0; i < 5; i++) {
+          const idx = Math.floor(Math.random() * allTypes.length);
+          const type = allTypes[idx];
+          const card = document.createElement('div');
+          card.className = `card ${type}`;
+          const span = document.createElement('span');
+          span.textContent = typeLabels[type] || type;
+          card.appendChild(span);
+          playArea.appendChild(card);
+          const x = 30 + Math.random() * (window.innerWidth - 180);
+          const y = 60 + Math.random() * (window.innerHeight - 350);
+          card.style.left = x + 'px';
+          card.style.top = y + 'px';
+          makeDraggable(card);
+        }
       }, 400);
     });
 
-    // expose createCard globally for inline onclick
+    // expose globally for inline onclick
     window.createCard = createCard;
     window.setTool = setTool;
     window.clearCanvas = clearCanvas;
-    // also expose extra if needed
-    window.createExtraCard = createExtraCard;
 
-    console.log('✅ Riel Cards: ones=100, tens=200, hundreds=500, thousands=1k, +10k,20k,50k');
+    console.log('✅ Riel Cards: 50k,20k,10k,5k,2k,1k,500,200,100 – all in order');
   </script>
 
 </body>
