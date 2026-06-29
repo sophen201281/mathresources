@@ -2,13 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>flip book · I can see</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>flip book · touch</title>
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
@@ -20,9 +22,9 @@
       font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
       padding: 16px;
       margin: 0;
+      touch-action: pan-y;
     }
 
-    /* main container – spine exactly in the middle */
     .flipbook-wrapper {
       perspective: 1800px;
       width: 100%;
@@ -31,6 +33,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      cursor: pointer;
     }
 
     .flipbook {
@@ -38,12 +41,12 @@
       width: 100%;
       height: 100%;
       transform-style: preserve-3d;
-      transition: transform 0.3s ease;
+      transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.1);
       box-shadow: 0 20px 40px rgba(0,0,0,0.4);
       border-radius: 4px 12px 12px 4px;
+      pointer-events: none; /* let wrapper handle clicks */
     }
 
-    /* Each page is half the book – spine at center */
     .page {
       position: absolute;
       width: 50%;
@@ -59,11 +62,10 @@
       padding: 1.2rem 1rem;
       text-align: center;
       box-sizing: border-box;
-      transition: box-shadow 0.2s;
       border: 1px solid #e3d7c8;
+      pointer-events: none;
     }
 
-    /* left pages (even indices) – left half */
     .page-left {
       left: 0;
       border-radius: 12px 0 0 12px;
@@ -72,7 +74,6 @@
       background: #faf5eb;
     }
 
-    /* right pages (odd indices) – right half */
     .page-right {
       left: 50%;
       border-radius: 0 12px 12px 0;
@@ -81,7 +82,6 @@
       background: #fcf8f0;
     }
 
-    /* cover styling */
     .cover {
       background: #2b4a5c;
       color: #f5e9da;
@@ -122,12 +122,6 @@
       filter: drop-shadow(2px 6px 12px rgba(0,0,0,0.15));
       margin: 0.2rem 0;
     }
-    .page-emoji img {
-      width: clamp(4rem, 15vw, 8rem);
-      height: auto;
-      display: block;
-      object-fit: contain;
-    }
 
     .empty-page {
       background: #f4ede3;
@@ -140,47 +134,25 @@
       font-size: 1.2rem;
     }
 
-    /* navigation */
-    .nav-controls {
-      position: fixed;
-      bottom: 30px;
-      left: 0;
-      right: 0;
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      z-index: 20;
-      pointer-events: none;
-    }
-    .nav-controls button {
+    /* touch hit areas – invisible overlays on left/right half */
+    .touch-zone {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      width: 50%;
+      z-index: 10;
       pointer-events: auto;
-      background: #2b4a5c;
-      border: none;
-      color: white;
-      font-size: 1.6rem;
-      font-weight: 600;
-      padding: 0.5rem 1.8rem;
-      border-radius: 60px;
-      box-shadow: 0 6px 14px rgba(0,0,0,0.25);
       cursor: pointer;
-      transition: 0.15s;
-      letter-spacing: 2px;
-      border: 1px solid #4d6f83;
-      min-width: 100px;
-      background: #1f3a47;
+      touch-action: manipulation;
     }
-    .nav-controls button:active {
-      transform: scale(0.94);
-      background: #12303d;
+    .touch-left {
+      left: 0;
     }
-    .nav-controls button:disabled {
-      opacity: 0.35;
-      transform: scale(0.96);
-      pointer-events: none;
-      background: #4d5f6b;
+    .touch-right {
+      right: 0;
     }
 
-    /* simple page counter */
+    /* page indicator */
     .page-indicator {
       position: fixed;
       top: 20px;
@@ -199,49 +171,42 @@
       pointer-events: none;
     }
 
-    /* responsiveness */
+    /* subtle feedback on tap */
+    .touch-zone:active {
+      background: rgba(255,255,240,0.08);
+    }
+
     @media (max-width: 540px) {
       .page {
         padding: 0.6rem 0.4rem;
-      }
-      .nav-controls button {
-        min-width: 70px;
-        padding: 0.4rem 0.8rem;
-        font-size: 1.2rem;
       }
     }
   </style>
 </head>
 <body>
 
-  <div class="page-indicator" id="pageIndicator">cover</div>
+  <div class="page-indicator" id="pageIndicator">cover · empty</div>
 
-  <div class="flipbook-wrapper">
+  <div class="flipbook-wrapper" id="wrapper">
     <div class="flipbook" id="flipbook">
 
       <!-- PAGE 0 (left cover) -->
       <div class="page page-left cover" data-page="0">
         <h1>📖 I can see.</h1>
-        <div class="sub">✦ open the book ✦</div>
+        <div class="sub">✦ tap the page ✦</div>
       </div>
 
-      <!-- PAGE 1 (right cover – actually empty, but we treat as front cover right side) 
-           but we want the cover to be the first spread: left cover + right empty? 
-           We'll make page1 empty to match spec: "first time, shows front cover with title, page2 empty" 
-           But as a flip book: spread is page0 (left cover) + page1 (right empty) 
-      -->
+      <!-- PAGE 1 (right cover – empty) -->
       <div class="page page-right empty-page" data-page="1">
         <span style="opacity:0.4;">· · ·</span>
       </div>
 
-      <!-- PAGE 2 (left) : empty (page 2 according to spec: page2 is empty) 
-           but our spread: page2 (left) + page3 (right) = page2 empty, page3 "I can see." 
-      -->
+      <!-- PAGE 2 (left) : empty -->
       <div class="page page-left empty-page" data-page="2">
         <span style="opacity:0.3;">⋆</span>
       </div>
 
-      <!-- PAGE 3 (right) : "I can see." (page 1 of book) -->
+      <!-- PAGE 3 (right) : "I can see." -->
       <div class="page page-right" data-page="3">
         <div class="page-title">I can see.</div>
         <div style="font-size:2rem; margin-top:0.2rem;">👁️</div>
@@ -252,7 +217,7 @@
         <div class="page-sentence">I can see the flower.</div>
       </div>
 
-      <!-- PAGE 5 (right) : flower emoji image -->
+      <!-- PAGE 5 (right) : flower emoji -->
       <div class="page page-right" data-page="5">
         <div class="page-emoji">🌸</div>
         <div style="font-size:0.9rem; opacity:0.5; margin-top:0.3rem;">flower</div>
@@ -263,37 +228,31 @@
         <div class="page-sentence">I can see the dog.</div>
       </div>
 
-      <!-- PAGE 7 (right) : dog emoji image -->
+      <!-- PAGE 7 (right) : dog emoji -->
       <div class="page page-right" data-page="7">
         <div class="page-emoji">🐕</div>
         <div style="font-size:0.9rem; opacity:0.5; margin-top:0.3rem;">dog</div>
       </div>
 
-    </div>
-  </div>
+      <!-- Touch overlays (invisible, but capture taps) -->
+      <div class="touch-zone touch-left" id="touchLeft"></div>
+      <div class="touch-zone touch-right" id="touchRight"></div>
 
-  <div class="nav-controls">
-    <button id="prevBtn" disabled>◀ prev</button>
-    <button id="nextBtn">next ▶</button>
+    </div>
   </div>
 
   <script>
     (function(){
       const flipbook = document.getElementById('flipbook');
-      const prevBtn = document.getElementById('prevBtn');
-      const nextBtn = document.getElementById('nextBtn');
+      const wrapper = document.getElementById('wrapper');
       const pageIndicator = document.getElementById('pageIndicator');
+      const touchLeft = document.getElementById('touchLeft');
+      const touchRight = document.getElementById('touchRight');
 
-      // Total pages = 8 (0..7)
       const TOTAL_PAGES = 8;
-      // We show spreads: currentSpread = index of left page (even)
-      // spread 0: pages 0-1 (cover + empty)
-      // spread 1: pages 2-3 (empty + "I can see.")
-      // spread 2: pages 4-5 ("I can see the flower." + flower emoji)
-      // spread 3: pages 6-7 ("I can see the dog." + dog emoji)
-      let currentSpread = 0; // 0-based spread index, left page = spread*2
+      const SPREADS = TOTAL_PAGES / 2; // 4
+      let currentSpread = 0;
 
-      // page labels for indicator
       const spreadLabels = [
         'cover · empty',
         'empty · I can see.',
@@ -301,24 +260,14 @@
         'dog sentence · 🐕'
       ];
 
-      // Helper: update flipbook transform and button states
       function updateFlip(animate = true) {
-        // rotateY: each spread rotates 180deg? 
-        // but we want spine in middle: we rotate the entire book container 
-        // currentSpread 0 → 0deg, spread1 → -180deg? 
-        // Actually to show spread n, we rotate flipbook by -180 * n degrees
         const angle = -180 * currentSpread;
         flipbook.style.transform = `rotateY(${angle}deg)`;
         if (!animate) {
           flipbook.style.transition = 'none';
-          // force reflow
           void flipbook.offsetHeight;
-          flipbook.style.transition = 'transform 0.3s ease';
+          flipbook.style.transition = 'transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.1)';
         }
-
-        // update buttons
-        prevBtn.disabled = (currentSpread === 0);
-        nextBtn.disabled = (currentSpread >= TOTAL_PAGES/2 - 1);
 
         // update indicator
         if (currentSpread < spreadLabels.length) {
@@ -328,52 +277,68 @@
         }
       }
 
-      // go to specific spread
       function goToSpread(spreadIndex) {
         if (spreadIndex < 0) spreadIndex = 0;
-        if (spreadIndex >= TOTAL_PAGES/2) spreadIndex = TOTAL_PAGES/2 - 1;
+        if (spreadIndex >= SPREADS) spreadIndex = SPREADS - 1;
         if (spreadIndex === currentSpread) return;
         currentSpread = spreadIndex;
         updateFlip(true);
       }
 
-      // event listeners
-      prevBtn.addEventListener('click', function() {
-        if (currentSpread > 0) {
-          goToSpread(currentSpread - 1);
+      // ----- touch / click handling -----
+      function handleTap(e) {
+        // get click/touch position relative to wrapper
+        const rect = wrapper.getBoundingClientRect();
+        let clientX;
+        if (e.touches) {
+          // touch event
+          clientX = e.touches[0].clientX;
+          e.preventDefault(); // prevent scroll
+        } else {
+          clientX = e.clientX;
         }
-      });
+        const x = clientX - rect.left;
+        const mid = rect.width / 2;
 
-      nextBtn.addEventListener('click', function() {
-        if (currentSpread < TOTAL_PAGES/2 - 1) {
-          goToSpread(currentSpread + 1);
+        if (x < mid) {
+          // tap left half → previous spread
+          if (currentSpread > 0) goToSpread(currentSpread - 1);
+        } else {
+          // tap right half → next spread
+          if (currentSpread < SPREADS - 1) goToSpread(currentSpread + 1);
         }
-      });
+      }
 
-      // keyboard support (optional)
+      // Use both touch and mouse events
+      wrapper.addEventListener('touchstart', handleTap, { passive: false });
+      wrapper.addEventListener('click', handleTap);
+
+      // Also allow direct click on the touch zones (for safety)
+      // but we already handle on wrapper, so we just prevent double trigger
+      // we keep zones for visual feedback but let wrapper handle logic
+      // (zones are transparent but we want the wrapper to handle all)
+
+      // Keyboard support (nice extra)
       document.addEventListener('keydown', function(e) {
         if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
           e.preventDefault();
           if (currentSpread > 0) goToSpread(currentSpread - 1);
         } else if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
           e.preventDefault();
-          if (currentSpread < TOTAL_PAGES/2 - 1) goToSpread(currentSpread + 1);
+          if (currentSpread < SPREADS - 1) goToSpread(currentSpread + 1);
         }
       });
 
-      // initial render (cover spread)
+      // initial render
       updateFlip(false);
 
-      // small touch / mobile hint: disable transition on load to avoid glitch
+      // ensure transition after load
       window.addEventListener('load', function() {
-        flipbook.style.transition = 'transform 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.1)';
+        flipbook.style.transition = 'transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.1)';
       });
 
-      // handle resize: just keep aspect
-      // (nothing else needed)
-
-      // expose to window for debug
-      window.__flip = { goToSpread, currentSpread: () => currentSpread };
+      // prevent context menu on long press (optional)
+      wrapper.addEventListener('contextmenu', (e) => e.preventDefault());
 
     })();
   </script>
