@@ -1,346 +1,411 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ក្រដាសប្រាក់</title>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-        body {
-            margin: 0;
-            overflow: hidden;
-            font-family: Arial, sans-serif;
-            background: #eef3ff;
-            touch-action: none;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>ក្រដាសប្រាក់ – Riel Cards</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+      background: #eef3ff;
+      touch-action: none;
+      user-select: none;
+    }
+    h2 {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      margin: 8px 0 0;
+      z-index: 3000;
+      pointer-events: none;
+      font-size: 22px;
+      font-weight: 600;
+      color: #1e2b3c;
+      text-shadow: 0 1px 4px rgba(255, 255, 255, 0.6);
+      letter-spacing: 0.5px;
+    }
 
-        h2 {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            text-align: center;
-            margin: 6px 0;
-            z-index: 3000;
-            pointer-events: none;
-            font-size: 22px;
-        }
+    /* ========== TOOLBAR ========== */
+    #toolbar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      z-index: 3000;
+      background: rgba(255, 255, 255, 0.96);
+      padding: 8px 10px 10px;
+      border-radius: 20px 20px 0 0;
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.12);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      backdrop-filter: blur(2px);
+    }
+    .toolbar-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 6px;
+    }
+    button, .homeBtn {
+      padding: 8px 14px;
+      border: none;
+      border-radius: 40px;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      background: #f0f4fe;
+      color: #1e2b3c;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      transition: 0.1s ease;
+      letter-spacing: 0.3px;
+    }
+    button:active { transform: scale(0.94); }
 
-        /* ================= TOOLBAR ================= */
-        #toolbar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            z-index: 3000;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 6px 10px;
-            border-radius: 14px 14px 0 0;
-            box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.15);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-        }
+    /* card creation buttons – new labels */
+    .onesBtn   { background: #ffd966; color: #2d2a1e; }
+    .tensBtn   { background: #93c47d; color: #1f3a1a; }
+    .hundredsBtn { background: #6fa8dc; color: #0d2b44; }
+    .thousandsBtn { background: #b39ddb; color: #241b3a; } /* softer purple */
 
-        .toolbar-row {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 6px;
-        }
+    .drawBtn   { background: #ffa94d; color: #2d1f0c; }
+    .eraseBtn  { background: #f28b82; color: #3b1b1a; }
+    .clearBtn  { background: #7986cb; color: #f0f4ff; }
+    .homeBtn   { background: #4db6ac; color: #f0faff; text-decoration: none; }
 
-        button,
-        .homeBtn {
-            padding: 6px 10px;
-            border: none;
-            border-radius: 7px;
-            font-weight: bold;
-            cursor: pointer;
-        }
+    /* ========== CANVAS ========== */
+    #drawCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      touch-action: none;
+    }
 
-        .onesBtn {
-            background: #ffd966;
-        }
-        .tensBtn {
-            background: #93c47d;
-            color: white;
-        }
-        .hundredsBtn {
-            background: #6fa8dc;
-            color: white;
-        }
-        .thousandsBtn {
-            background: #8e7cc3;
-            color: white;
-        }
-        .drawBtn {
-            background: #ff8c42;
-            color: white;
-        }
-        .eraseBtn {
-            background: #e06666;
-            color: white;
-        }
-        .clearBtn {
-            background: #5c6bc0;
-            color: white;
-        }
-        .homeBtn {
-            background: #26a69a;
-            color: white;
-            text-decoration: none;
-        }
+    /* ========== PLAY AREA ========== */
+    #playArea {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      pointer-events: none;
+    }
 
-        /* ================= CANVAS ================= */
-        #drawCanvas {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-        }
+    /* ========== CARD ========== */
+    .card {
+      position: absolute;
+      width: 120px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 8px;
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+      user-select: none;
+      cursor: grab;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+      pointer-events: auto;
+      border-radius: 8px;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      transition: box-shadow 0.1s;
+      will-change: left, top;
+    }
+    .card:active { cursor: grabbing; box-shadow: 0 10px 24px rgba(0,0,0,0.25); }
 
-        /* ================= PLAY AREA ================= */
-        #playArea {
-            position: absolute;
-            inset: 0;
-            z-index: 5;
-            pointer-events: none;
-        }
+    /* backgrounds – keep your image paths */
+    .ones     { background-color: #ffd966; background-image: url('image/ones.png'); }
+    .tens     { background-color: #93c47d; background-image: url('image/tens.png'); }
+    .hundreds { background-color: #6fa8dc; background-image: url('image/hundreds.png'); }
+    .thousands{ background-color: #b39ddb; background-image: url('image/thousands.png'); }
 
-        /* ================= CARD — RECTANGLE with IMAGE BG ================= */
-        .card {
-            position: absolute;
-            width: 120px;           /* ← all cards same width */
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0 8px;
-            font-size: 22px;
-            font-weight: bold;
-            color: #fff;
-            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
-            user-select: none;
-            cursor: grab;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
-            pointer-events: auto;
-            border-radius: 0px;
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-        }
-
-        /* ---- background images per type (fallback colors) ---- */
-        .ones {
-            background-color: #ffd966;
-            background-image: url('image/ones.png');
-        }
-        .tens {
-            background-color: #93c47d;
-            background-image: url('image/tens.png');
-        }
-        .hundreds {
-            background-color: #6fa8dc;
-            background-image: url('image/hundreds.png');
-        }
-        .thousands {
-            background-color: #8e7cc3;
-            background-image: url('image/thousands.png');
-        }
-
-        /* subtle inner glow to make text pop */
-        .card::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            border-radius: 8px;
-            background: rgba(0, 0, 0, 0.2);
-            pointer-events: none;
-        }
-        .card span {
-            position: relative;
-            z-index: 2;
-        }
-    </style>
+    /* inner glow overlay */
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.15);
+      pointer-events: none;
+    }
+    .card span {
+      position: relative;
+      z-index: 2;
+      letter-spacing: 0.5px;
+    }
+  </style>
 </head>
 <body>
 
-    <h2>ក្រដាសប្រាក់រៀល</h2>
+  <h2>🇰🇭 ក្រដាសប្រាក់រៀល</h2>
 
-    <canvas id="drawCanvas"></canvas>
-    <div id="playArea"></div>
+  <canvas id="drawCanvas"></canvas>
+  <div id="playArea"></div>
 
-    <div id="toolbar">
-        <div class="toolbar-row">
-            <button class="thousandsBtn" onclick="createCard('thousands', this)">ម៉ឺន</button>
-            <button class="hundredsBtn" onclick="createCard('hundreds', this)">ពាន់</button>
-            <button class="tensBtn" onclick="createCard('tens', this)">៥រយ</button>
-            <button class="onesBtn" onclick="createCard('ones', this)">រយ</button>
-        </div>
-        <div class="toolbar-row">
-            <button class="drawBtn" onclick="setTool('draw')">✏️សរសេរ</button>
-            <button class="eraseBtn" onclick="setTool('erase')">🩹លុប</button>
-            <button class="clearBtn" onclick="clearCanvas()">🧹សម្អាត</button>
-            <a class="homeBtn" href="../index.html">🏡 Home</a>
-        </div>
+  <!-- TOOLBAR -->
+  <div id="toolbar">
+    <div class="toolbar-row">
+      <!-- labels updated: ones→100, tens→200, hundreds→500, thousands→1k -->
+      <button class="thousandsBtn" onclick="createCard('thousands', this)">1k</button>
+      <button class="hundredsBtn" onclick="createCard('hundreds', this)">500</button>
+      <button class="tensBtn" onclick="createCard('tens', this)">200</button>
+      <button class="onesBtn" onclick="createCard('ones', this)">100</button>
     </div>
+    <div class="toolbar-row">
+      <button class="drawBtn" onclick="setTool('draw')">✏️ សរសេរ</button>
+      <button class="eraseBtn" onclick="setTool('erase')">🧽 លុប</button>
+      <button class="clearBtn" onclick="clearCanvas()">🧹 សម្អាត</button>
+      <a class="homeBtn" href="../index.html">🏠 ទំព័រដើម</a>
+    </div>
+  </div>
 
-    <script>
-        /* ================= CANVAS ================= */
-        const canvas = document.getElementById("drawCanvas");
-        const ctx = canvas.getContext("2d");
-        let drawing = false;
-        let currentTool = "draw";
+  <script>
+    // ================= CANVAS SETUP =================
+    const canvas = document.getElementById('drawCanvas');
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+    let currentTool = 'draw';
 
-        function resizeCanvas() {
-            const dpr = window.devicePixelRatio || 1;
-            canvas.width = window.innerWidth * dpr;
-            canvas.height = window.innerHeight * dpr;
-            canvas.style.width = window.innerWidth + "px";
-            canvas.style.height = window.innerHeight + "px";
-            ctx.setTransform(1, 0, 0, 1, 0, 0);
-            ctx.scale(dpr, dpr);
-        }
-        resizeCanvas();
-        window.addEventListener("resize", resizeCanvas);
+    function resizeCanvas() {
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      canvas.style.width = window.innerWidth + 'px';
+      canvas.style.height = window.innerHeight + 'px';
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.scale(dpr, dpr);
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
 
-        canvas.addEventListener("pointerdown", e => {
-            drawing = true;
-            ctx.beginPath();
-            ctx.moveTo(e.clientX, e.clientY);
+    canvas.addEventListener('pointerdown', e => {
+      drawing = true;
+      ctx.beginPath();
+      ctx.moveTo(e.clientX, e.clientY);
+    });
+
+    canvas.addEventListener('pointermove', e => {
+      if (!drawing) return;
+      if (currentTool === 'erase') {
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.lineWidth = 30;
+      } else {
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.strokeStyle = '#1a1f2e';
+        ctx.lineWidth = 3;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+      }
+      ctx.lineTo(e.clientX, e.clientY);
+      ctx.stroke();
+    });
+
+    function stopDraw() {
+      drawing = false;
+      ctx.beginPath();
+      ctx.globalCompositeOperation = 'source-over';
+    }
+    canvas.addEventListener('pointerup', stopDraw);
+    canvas.addEventListener('pointercancel', stopDraw);
+
+    function setTool(t) { currentTool = t; }
+
+    function clearCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    // ================= CARD LABELS (new values) =================
+    const typeLabels = {
+      ones: '100',
+      tens: '200',
+      hundreds: '500',
+      thousands: '1k'
+    };
+
+    // optional extra: 10k, 20k, 50k — we add a separate button later (but we can also include them)
+    // we keep them in a separate map for future use, but we also add them to the toolbar via JS.
+    const extraLabels = {
+      tenk: '10k',
+      twentyk: '20k',
+      fiftyk: '50k'
+    };
+
+    // ================= CARD CREATION =================
+    const playArea = document.getElementById('playArea');
+
+    function createCard(type, btn) {
+      const card = document.createElement('div');
+      card.className = `card ${type}`;
+      const span = document.createElement('span');
+      // use label from typeLabels, fallback to type if missing
+      span.textContent = typeLabels[type] || type;
+      card.appendChild(span);
+      playArea.appendChild(card);
+
+      // position near the clicked button
+      const r = btn.getBoundingClientRect();
+      const toolbarH = document.getElementById('toolbar').offsetHeight;
+      card.style.left = r.left + 'px';
+      card.style.top = (window.innerHeight - toolbarH - 90) + 'px';
+
+      makeDraggable(card);
+    }
+
+    // ================= EXTRA CARDS: 10k, 20k, 50k =================
+    function createExtraCard(label, typeClass) {
+      const card = document.createElement('div');
+      // use a generic class but we want background – we use a fallback color + we can set image if needed
+      // we use 'ones' as fallback background but we'll style differently
+      card.className = `card ${typeClass}`;
+      const span = document.createElement('span');
+      span.textContent = label;
+      card.appendChild(span);
+      playArea.appendChild(card);
+
+      // random position in upper area
+      const x = 30 + Math.random() * (window.innerWidth - 180);
+      const y = 60 + Math.random() * (window.innerHeight - 300);
+      card.style.left = x + 'px';
+      card.style.top = y + 'px';
+      makeDraggable(card);
+    }
+
+    // ================= ADD EXTRA BUTTONS (10k, 20k, 50k) =================
+    function addExtraButtons() {
+      const toolbar = document.getElementById('toolbar');
+      const row = document.createElement('div');
+      row.className = 'toolbar-row';
+      row.style.marginTop = '2px';
+
+      const extras = [
+        { label: '10k', cls: 'tens' },    // reuse tens bg (green) – can be changed
+        { label: '20k', cls: 'hundreds' },
+        { label: '50k', cls: 'thousands' }
+      ];
+
+      extras.forEach(ext => {
+        const btn = document.createElement('button');
+        btn.textContent = ext.label;
+        btn.style.background = '#cfd8e6';
+        btn.style.fontWeight = '700';
+        btn.style.color = '#1e2b3c';
+        btn.style.padding = '6px 14px';
+        btn.style.borderRadius = '40px';
+        btn.addEventListener('click', () => {
+          // create a card with that label, using a specific class for background
+          // we map to existing classes: tens, hundreds, thousands
+          let typeClass = 'ones';
+          if (ext.label === '10k') typeClass = 'tens';
+          else if (ext.label === '20k') typeClass = 'hundreds';
+          else if (ext.label === '50k') typeClass = 'thousands';
+          // but we also want the label to be exactly 10k etc.
+          createExtraCard(ext.label, typeClass);
         });
+        row.appendChild(btn);
+      });
 
-        canvas.addEventListener("pointermove", e => {
-            if (!drawing) return;
-            if (currentTool === "erase") {
-                ctx.globalCompositeOperation = "destination-out";
-                ctx.lineWidth = 30;
-            } else {
-                ctx.globalCompositeOperation = "source-over";
-                ctx.strokeStyle = "black";
-                ctx.lineWidth = 3;
-            }
-            ctx.lineTo(e.clientX, e.clientY);
-            ctx.stroke();
-        });
+      toolbar.appendChild(row);
+    }
 
-        function stopDraw() {
-            drawing = false;
-            ctx.beginPath();
-            ctx.globalCompositeOperation = "source-over";
+    // ================= DRAGGABLE =================
+    function makeDraggable(card) {
+      let dragging = false;
+      let ox = 0, oy = 0;
+      let lastTap = 0;
+      let x = 0, y = 0;
+      let raf = null;
+
+      function apply() {
+        card.style.left = x + 'px';
+        card.style.top = y + 'px';
+        raf = null;
+      }
+
+      card.addEventListener('pointerdown', e => {
+        const now = performance.now();
+        if (now - lastTap < 280) {
+          card.remove();   // double-tap to delete
+          return;
         }
-        canvas.addEventListener("pointerup", stopDraw);
-        canvas.addEventListener("pointercancel", stopDraw);
+        lastTap = now;
+        dragging = true;
+        ox = e.clientX - card.offsetLeft;
+        oy = e.clientY - card.offsetTop;
+        card.setPointerCapture(e.pointerId);
+        e.stopPropagation();
+      });
 
-        function setTool(t) { currentTool = t; }
+      card.addEventListener('pointermove', e => {
+        if (!dragging) return;
+        const toolbarH = document.getElementById('toolbar').offsetHeight;
+        x = e.clientX - ox;
+        y = e.clientY - oy;
+        // keep inside viewport
+        x = Math.max(0, Math.min(window.innerWidth - card.offsetWidth, x));
+        y = Math.max(0, Math.min(window.innerHeight - toolbarH - card.offsetHeight, y));
+        if (!raf) raf = requestAnimationFrame(apply);
+      });
 
-        function clearCanvas() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }
+      card.addEventListener('pointerup', () => { dragging = false; });
+      card.addEventListener('pointercancel', () => { dragging = false; });
+    }
 
-        /* ================= CARD NAMES (instead of numbers) ================= */
-        const typeNames = {
-            ones: '',
-            tens: '',
-            hundreds: '',
-            thousands: ''
-        };
+    // ================= STACK 5768 with new labels =================
+    function createStack5768() {
+      const types = ['thousands', 'hundreds', 'tens', 'ones'];
+      const baseRight = window.innerWidth * 0.72;
+      const baseY = window.innerHeight * 0.32;
 
-        /* ================= CARDS ================= */
-        const playArea = document.getElementById("playArea");
+      types.forEach((type, i) => {
+        const card = document.createElement('div');
+        card.className = `card ${type}`;
+        const span = document.createElement('span');
+        span.textContent = typeLabels[type] || type;
+        card.appendChild(span);
 
-        function createCard(type, btn) {
-            const card = document.createElement("div");
-            card.className = "card " + type;   // keeps background image
-            const span = document.createElement("span");
-            span.textContent = typeNames[type];   // show the name
-            card.appendChild(span);
+        card.style.left = (baseRight - 120) + 'px';
+        card.style.top = (baseY + i * 3) + 'px';
+        card.style.zIndex = 10 + i;
+        playArea.appendChild(card);
+        makeDraggable(card);
+      });
+    }
 
-            playArea.appendChild(card);
+    // ================= INIT =================
+    requestAnimationFrame(() => {
+      // add extra buttons (10k, 20k, 50k) to toolbar
+      addExtraButtons();
+      // create initial stack
+      setTimeout(createStack5768, 250);
+      // also spawn a few extra cards to show variety (optional)
+      setTimeout(() => {
+        createExtraCard('10k', 'tens');
+        createExtraCard('20k', 'hundreds');
+        createExtraCard('50k', 'thousands');
+      }, 400);
+    });
 
-            const r = btn.getBoundingClientRect();
-            const toolbarH = document.getElementById("toolbar").offsetHeight;
-            card.style.left = r.left + "px";
-            card.style.top = (window.innerHeight - toolbarH - 80) + "px";
+    // expose createCard globally for inline onclick
+    window.createCard = createCard;
+    window.setTool = setTool;
+    window.clearCanvas = clearCanvas;
+    // also expose extra if needed
+    window.createExtraCard = createExtraCard;
 
-            makeDraggable(card);
-        }
-
-        /* ================= STACK 5768 (now shows names) ================= */
-        function createStack5768() {
-            // We'll show a stack of all four types, each with its name.
-            const types = ['thousands', 'hundreds', 'tens', 'ones'];
-            const baseRight = window.innerWidth * 0.75;
-            const baseY = window.innerHeight * 0.35;
-
-            types.forEach((type, i) => {
-                const card = document.createElement("div");
-                card.className = "card " + type;
-                const span = document.createElement("span");
-                span.textContent = typeNames[type];
-                card.appendChild(span);
-
-                // all cards have same width (120px) so we can position them
-                card.style.left = (baseRight - 120) + "px";
-                card.style.top = (baseY + i * 2) + "px";
-                card.style.zIndex = 10 + i;
-                playArea.appendChild(card);
-                makeDraggable(card);
-            });
-        }
-
-        /* AUTO RUN */
-        requestAnimationFrame(() => {
-            setTimeout(createStack5768, 300);
-        });
-
-        /* ================= DRAG ================= */
-        function makeDraggable(card) {
-            let dragging = false;
-            let ox = 0,
-                oy = 0;
-            let lastTap = 0;
-            let x = 0,
-                y = 0;
-            let raf = null;
-
-            function apply() {
-                card.style.left = x + "px";
-                card.style.top = y + "px";
-                raf = null;
-            }
-
-            card.addEventListener("pointerdown", e => {
-                const now = performance.now();
-                if (now - lastTap < 280) {
-                    card.remove();
-                    return;
-                }
-                lastTap = now;
-                dragging = true;
-                ox = e.clientX - card.offsetLeft;
-                oy = e.clientY - card.offsetTop;
-                card.setPointerCapture(e.pointerId);
-                e.stopPropagation();
-            });
-
-            card.addEventListener("pointermove", e => {
-                if (!dragging) return;
-                const toolbarH = document.getElementById("toolbar").offsetHeight;
-                x = e.clientX - ox;
-                y = e.clientY - oy;
-                x = Math.max(0, Math.min(window.innerWidth - card.offsetWidth, x));
-                y = Math.max(0, Math.min(window.innerHeight - toolbarH - card.offsetHeight, y));
-                if (!raf) raf = requestAnimationFrame(apply);
-            });
-
-            card.addEventListener("pointerup", () => dragging = false);
-            card.addEventListener("pointercancel", () => dragging = false);
-        }
-    </script>
+    console.log('✅ Riel Cards: ones=100, tens=200, hundreds=500, thousands=1k, +10k,20k,50k');
+  </script>
 
 </body>
 </html>
