@@ -63,7 +63,6 @@
       border: 1px solid #e3d7c8;
       pointer-events: none;
       transform-style: preserve-3d;
-      /* Animates the page flip smoothly */
       transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
     }
 
@@ -71,7 +70,7 @@
       left: 0;
       border-radius: 12px 0 0 12px;
       border-right: 1px solid #d0c0ac;
-      transform-origin: right center; /* Spine axis */
+      transform-origin: right center;
       background: #faf5eb;
     }
 
@@ -79,7 +78,7 @@
       left: 50%;
       border-radius: 0 12px 12px 0;
       border-left: 1px solid #d0c0ac;
-      transform-origin: left center;  /* Spine axis */
+      transform-origin: left center;
       background: #fcf8f0;
     }
 
@@ -136,13 +135,13 @@
       font-size: 1.2rem;
     }
 
-    /* 3D touch zones – invisible but capture taps */
+    /* 3D touch zones */
     .touch-zone {
       position: absolute;
       top: 0;
       height: 100%;
       width: 50%;
-      z-index: 100; /* Stays above pages */
+      z-index: 200; 
       pointer-events: auto;
       cursor: pointer;
       touch-action: manipulation;
@@ -169,7 +168,7 @@
       letter-spacing: 1px;
       border: 1px solid #b6a692;
       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-      z-index: 200;
+      z-index: 300;
       pointer-events: none;
     }
 
@@ -191,42 +190,79 @@
   <div class="flipbook-wrapper" id="wrapper">
     <div class="flipbook" id="flipbook">
 
+      <!-- SPREAD 0: COVER -->
       <div class="page page-left cover" data-page="0">
         <h1>📖 I can see.</h1>
         <div class="sub">✦ tap the page ✦</div>
       </div>
-
       <div class="page page-right empty-page" data-page="1">
         <span style="opacity:0.4;">· · ·</span>
       </div>
 
+      <!-- SPREAD 1: TITLE INTRO -->
       <div class="page page-left empty-page" data-page="2">
         <span style="opacity:0.3;">⋆</span>
       </div>
-
       <div class="page page-right" data-page="3">
         <div class="page-title">I can see.</div>
         <div style="font-size:2rem; margin-top:0.2rem;">👁️</div>
       </div>
 
+      <!-- SPREAD 2: FLOWER -->
       <div class="page page-left" data-page="4">
         <div class="page-sentence">I can see the flower.</div>
       </div>
-
       <div class="page page-right" data-page="5">
         <div class="page-emoji">🌸</div>
         <div style="font-size:0.9rem; opacity:0.5; margin-top:0.3rem;">flower</div>
       </div>
 
+      <!-- SPREAD 3: DOG -->
       <div class="page page-left" data-page="6">
         <div class="page-sentence">I can see the dog.</div>
       </div>
-
       <div class="page page-right" data-page="7">
         <div class="page-emoji">🐕</div>
         <div style="font-size:0.9rem; opacity:0.5; margin-top:0.3rem;">dog</div>
       </div>
 
+      <!-- SPREAD 4: CAT -->
+      <div class="page page-left" data-page="8">
+        <div class="page-sentence">I can see the cat.</div>
+      </div>
+      <div class="page page-right" data-page="9">
+        <div class="page-emoji">🐈</div>
+        <div style="font-size:0.9rem; opacity:0.5; margin-top:0.3rem;">cat</div>
+      </div>
+
+      <!-- SPREAD 5: CAR -->
+      <div class="page page-left" data-page="10">
+        <div class="page-sentence">I can see the car.</div>
+      </div>
+      <div class="page page-right" data-page="11">
+        <div class="page-emoji">🚗</div>
+        <div style="font-size:0.9rem; opacity:0.5; margin-top:0.3rem;">car</div>
+      </div>
+
+      <!-- SPREAD 6: TREE -->
+      <div class="page page-left" data-page="12">
+        <div class="page-sentence">I can see the tree.</div>
+      </div>
+      <div class="page page-right" data-page="13">
+        <div class="page-emoji">🌳</div>
+        <div style="font-size:0.9rem; opacity:0.5; margin-top:0.3rem;">tree</div>
+      </div>
+
+      <!-- SPREAD 7: SUN -->
+      <div class="page page-left" data-page="14">
+        <div class="page-sentence">I can see the sun.</div>
+      </div>
+      <div class="page page-right" data-page="15">
+        <div class="page-emoji">☀️</div>
+        <div style="font-size:0.9rem; opacity:0.5; margin-top:0.3rem;">sun</div>
+      </div>
+
+      <!-- Touch overlays -->
       <div class="touch-zone touch-left" id="touchLeft"></div>
       <div class="touch-zone touch-right" id="touchRight"></div>
 
@@ -247,7 +283,11 @@
         'cover · empty',
         'empty · I can see.',
         'flower sentence · 🌸',
-        'dog sentence · 🐕'
+        'dog sentence · 🐕',
+        'cat sentence · 🐈',
+        'car sentence · 🚗',
+        'tree sentence · 🌳',
+        'sun sentence · ☀️'
       ];
 
       function updateFlip() {
@@ -256,34 +296,31 @@
           const pageSpread = Math.floor(pageNum / 2);
 
           if (pageSpread < currentSpread) {
-            // Past pages: Right pages flip completely to the left side
             if (page.classList.contains('page-right')) {
               page.style.transform = 'rotateY(-180deg)';
             } else {
               page.style.transform = 'rotateY(0deg)';
             }
-            // Stack older pages underneath lower down
             page.style.zIndex = 10 + pageSpread; 
           } 
           else if (pageSpread === currentSpread) {
-            // Active current spread: Resting flat facing forward
             page.style.transform = 'rotateY(0deg)';
-            page.style.zIndex = 50; 
+            page.style.zIndex = 150; 
           } 
           else {
-            // Future pages: Left pages flip completely to the right side
             if (page.classList.contains('page-left')) {
               page.style.transform = 'rotateY(180deg)';
             } else {
               page.style.transform = 'rotateY(0deg)';
             }
-            // Stack future pages underneath inversely
             page.style.zIndex = 10 + (TOTAL_PAGES - pageNum);
           }
         });
 
         if (currentSpread < spreadLabels.length) {
           pageIndicator.textContent = spreadLabels[currentSpread];
+        } else {
+          pageIndicator.textContent = `spread ${currentSpread + 1}`;
         }
       }
 
@@ -318,7 +355,6 @@
 
       wrapper.addEventListener('contextmenu', (e) => e.preventDefault());
 
-      // Render initial setup layout
       updateFlip();
     })();
   </script>
