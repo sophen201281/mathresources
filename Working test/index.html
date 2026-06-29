@@ -110,33 +110,62 @@
       margin-bottom: 0.5rem;
       line-height: 1.2;
     }
-
-    /* Word Box Styles */
-    .sentence-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 15px;
-      width: 100%;
-      pointer-events: auto; /* allows interaction inside pages */
+    .page-sentence {
+      font-size: clamp(1.3rem, 4vw, 2.2rem);
+      color: #1f2e3a;
+      font-weight: 400;
+      padding: 0 0.2rem;
+      max-width: 90%;
     }
 
-    .word-boxes {
+    /* Word boxes layout for Spread 2 */
+    .sentence-container {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 10px;
+      gap: 12px;
+      width: 100%;
+      padding: 10px;
+    }
+    
+    .word-box {
+      font-size: clamp(1.3rem, 4vw, 2.2rem);
+      color: #1f2e3a;
+      font-weight: 500;
+      padding: 6px 12px;
+      background: transparent; /* No background/border structure */
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .word-box {
-      background: #ffffff;
-      border: 2px solid #2b4a5c;
-      color: #2b4a5c;
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-size: clamp(1rem, 3vw, 1.6rem);
-      font-weight: 600;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    /* The interactive fifth box container */
+    .flower-box-wrapper {
+      display: inline-block;
+      position: relative;
+      pointer-events: auto; /* Required to intercept taps independent of the page */
+    }
+
+    .flower-image-overlay {
+      position: absolute;
+      top: -15px;
+      left: -5px;
+      width: calc(100% + 10px);
+      height: calc(100% + 30px);
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      background: #faf5eb; /* Matches left page background to seamlessly cover text */
+      transition: opacity 0.2s ease;
+      z-index: 10;
+    }
+
+    .flower-image-overlay.hidden {
+      opacity: 0;
+      pointer-events: none; /* Allows interacting with what's underneath when hidden */
     }
 
     .page-emoji {
@@ -202,9 +231,6 @@
       .page {
         padding: 0.6rem 0.4rem;
       }
-      .word-box {
-        padding: 6px 12px;
-      }
     }
   </style>
 </head>
@@ -217,7 +243,7 @@
 
       <div class="page page-left cover" data-page="0">
         <h1>📖 I can see.</h1>
-        <div class="sub">✦ tap the edges to turn ✦</div>
+        <div class="sub">✦ tap the page ✦</div>
       </div>
       <div class="page page-right empty-page" data-page="1">
         <span style="opacity:0.4;">· · ·</span>
@@ -233,11 +259,13 @@
 
       <div class="page page-left" data-page="4">
         <div class="sentence-container">
-          <div class="word-boxes">
-            <span class="word-box">I</span>
-            <span class="word-box">can</span>
-            <span class="word-box">see</span>
-            <span class="word-box">the flower</span>
+          <div class="word-box">I</div>
+          <div class="word-box">can</div>
+          <div class="word-box">see</div>
+          <div class="word-box">the</div>
+          <div class="flower-box-wrapper">
+            <div class="word-box">flower.</div>
+            <div class="flower-image-overlay" id="flowerCover">🌸</div>
           </div>
         </div>
       </div>
@@ -247,14 +275,7 @@
       </div>
 
       <div class="page page-left" data-page="6">
-        <div class="sentence-container">
-          <div class="word-boxes">
-            <span class="word-box">I</span>
-            <span class="word-box">can</span>
-            <span class="word-box">see</span>
-            <span class="word-box">the dog</span>
-          </div>
-        </div>
+        <div class="page-sentence">I can see the dog.</div>
       </div>
       <div class="page page-right" data-page="7">
         <div class="page-emoji">🐕</div>
@@ -262,14 +283,7 @@
       </div>
 
       <div class="page page-left" data-page="8">
-        <div class="sentence-container">
-          <div class="word-boxes">
-            <span class="word-box">I</span>
-            <span class="word-box">can</span>
-            <span class="word-box">see</span>
-            <span class="word-box">the cat</span>
-          </div>
-        </div>
+        <div class="page-sentence">I can see the cat.</div>
       </div>
       <div class="page page-right" data-page="9">
         <div class="page-emoji">🐈</div>
@@ -277,14 +291,7 @@
       </div>
 
       <div class="page page-left" data-page="10">
-        <div class="sentence-container">
-          <div class="word-boxes">
-            <span class="word-box">I</span>
-            <span class="word-box">can</span>
-            <span class="word-box">see</span>
-            <span class="word-box">the car</span>
-          </div>
-        </div>
+        <div class="page-sentence">I can see the car.</div>
       </div>
       <div class="page page-right" data-page="11">
         <div class="page-emoji">🚗</div>
@@ -292,14 +299,7 @@
       </div>
 
       <div class="page page-left" data-page="12">
-        <div class="sentence-container">
-          <div class="word-boxes">
-            <span class="word-box">I</span>
-            <span class="word-box">can</span>
-            <span class="word-box">see</span>
-            <span class="word-box">the tree</span>
-          </div>
-        </div>
+        <div class="page-sentence">I can see the tree.</div>
       </div>
       <div class="page page-right" data-page="13">
         <div class="page-emoji">🌳</div>
@@ -307,14 +307,7 @@
       </div>
 
       <div class="page page-left" data-page="14">
-        <div class="sentence-container">
-          <div class="word-boxes">
-            <span class="word-box">I</span>
-            <span class="word-box">can</span>
-            <span class="word-box">see</span>
-            <span class="word-box">the sun</span>
-          </div>
-        </div>
+        <div class="page-sentence">I can see the sun.</div>
       </div>
       <div class="page page-right" data-page="15">
         <div class="page-emoji">☀️</div>
@@ -332,6 +325,7 @@
       const pageIndicator = document.getElementById('pageIndicator');
       const wrapper = document.getElementById('wrapper');
       const pages = document.querySelectorAll('.page');
+      const flowerCover = document.getElementById('flowerCover');
 
       const TOTAL_PAGES = pages.length;
       const SPREADS = TOTAL_PAGES / 2; 
@@ -340,7 +334,7 @@
       const spreadLabels = [
         'cover · empty',
         'empty · I can see.',
-        'flower sentence · 🌸',
+        'flower boxes · 🌸',
         'dog sentence · 🐕',
         'cat sentence · 🐈',
         'car sentence · 🚗',
@@ -388,9 +382,9 @@
         updateFlip();
       }
 
-      // Updated handling to avoid intercepting clicks directly on the word-boxes
       function handleTap(e) {
-        if (e.target.classList.contains('word-box')) return;
+        // Prevent turning pages if the target is inside the interactive flower box wrapper
+        if (e.target.closest('.flower-box-wrapper')) return;
 
         const rect = wrapper.getBoundingClientRect();
         let clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -404,7 +398,28 @@
         }
       }
 
+      // Single-tap navigation handling
       wrapper.addEventListener('click', handleTap);
+
+      // Dedicated double-tap engine for the flower image element 
+      let lastTap = 0;
+      function handleFlowerDoubleTap(e) {
+        e.preventDefault();
+        e.stopPropagation(); // Stops event cascading to page turns
+
+        const now = new Date().getTime();
+        const timespan = now - lastTap;
+        
+        if (timespan < 300 && timespan > 0) {
+          // Toggle visibility on double tap
+          flowerCover.classList.toggle('hidden');
+        }
+        lastTap = now;
+      }
+
+      // Attach interaction to the flower component (works on desktop and touch devices)
+      flowerCover.addEventListener('click', handleFlowerDoubleTap);
+      flowerCover.addEventListener('touchstart', handleFlowerDoubleTap, { passive: false });
 
       document.addEventListener('keydown', function(e) {
         if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
