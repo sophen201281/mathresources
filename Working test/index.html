@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>3D flip book · I can see</title>
+  <title>3D flip book · Reveal Words</title>
   <style>
     * {
       margin: 0;
@@ -26,14 +26,14 @@
     }
 
     .flipbook-wrapper {
-      perspective: 2000px;
+      perspective: 2500px;
       width: 100%;
       max-width: 800px;
       aspect-ratio: 4 / 3;
       display: flex;
       justify-content: center;
       align-items: center;
-      cursor: pointer;
+      position: relative;
     }
 
     .flipbook {
@@ -43,7 +43,6 @@
       transform-style: preserve-3d;
     }
 
-    /* Each page is a 3D plane pivoting around the center axis */
     .page {
       position: absolute;
       width: 50%;
@@ -63,12 +62,14 @@
       border: 1px solid #e3d7c8;
       pointer-events: none;
       transform-style: preserve-3d;
-      transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+      transition: transform 0.7s cubic-bezier(0.23, 1, 0.32, 1), filter 0.3s ease;
+      will-change: transform;
+      background-image: radial-gradient(circle at 20% 30%, rgba(255,245,235,0.3) 0%, transparent 60%);
     }
 
     .page-left {
       left: 0;
-      border-radius: 12px 0 0 12px;
+      border-radius: 8px 0 0 8px;
       border-right: 1px solid #d0c0ac;
       transform-origin: right center;
       background: #faf5eb;
@@ -76,13 +77,12 @@
 
     .page-right {
       left: 50%;
-      border-radius: 0 12px 12px 0;
+      border-radius: 0 8px 8px 0;
       border-left: 1px solid #d0c0ac;
       transform-origin: left center;
       background: #fcf8f0;
     }
 
-    /* Cover styling */
     .cover {
       background: #2b4a5c;
       color: #f5e9da;
@@ -103,6 +103,19 @@
       width: 70%;
     }
 
+    .back-cover {
+      background: #2b4a5c;
+      color: #f5e9da;
+      border: 2px solid #1d3442;
+      font-size: clamp(1.2rem, 3vw, 2rem);
+      letter-spacing: 2px;
+    }
+    .back-cover .sub {
+      opacity: 0.5;
+      font-size: clamp(0.8rem, 2vw, 1.1rem);
+      margin-top: 0.5rem;
+    }
+
     .page-title {
       font-size: clamp(1.8rem, 6vw, 3.2rem);
       font-weight: 600;
@@ -110,22 +123,16 @@
       margin-bottom: 0.5rem;
       line-height: 1.2;
     }
-    .page-sentence {
-      font-size: clamp(1.3rem, 4vw, 2.2rem);
-      color: #1f2e3a;
-      font-weight: 400;
-      padding: 0 0.2rem;
-      max-width: 90%;
-    }
 
-    /* Word boxes layout for Spread 2 */
     .sentence-container {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
+      align-items: center;
       gap: 12px;
       width: 100%;
       padding: 10px;
+      position: relative;
     }
     
     .word-box {
@@ -133,39 +140,110 @@
       color: #1f2e3a;
       font-weight: 500;
       padding: 6px 12px;
-      background: transparent; /* No background/border structure */
+      background: transparent;
       border: none;
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
-    /* The interactive fifth box container */
-    .flower-box-wrapper {
-      display: inline-block;
+    /* INTERACTIVE WORD BOX */
+    .interactive-box {
+      display: inline-flex;
       position: relative;
-      pointer-events: auto; /* Required to intercept taps independent of the page */
+      pointer-events: auto;
+      z-index: 20;
+      padding: 8px 20px;
+      background: #f0e6da;
+      border-radius: 12px;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.06);
+      min-width: 100px;
+      min-height: 50px;
+      align-items: center;
+      border: 2px solid #cfc2b2;
+      overflow: visible;
     }
 
-    .flower-image-overlay {
-      position: absolute;
-      top: -15px;
-      left: -5px;
-      width: calc(100% + 10px);
-      height: calc(100% + 30px);
-      font-size: clamp(2rem, 6vw, 3.5rem);
+    .interactive-content {
+      position: relative;
+      width: 100%;
+      height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
-      background: #faf5eb; /* Matches left page background to seamlessly cover text */
-      transition: opacity 0.2s ease;
-      z-index: 10;
+      min-height: 40px;
     }
 
-    .flower-image-overlay.hidden {
+    .hidden-word {
+      font-size: clamp(1.3rem, 4vw, 2.2rem);
+      font-weight: 500;
+      color: #1f3a47;
+      white-space: nowrap;
+      position: relative;
+      z-index: 1;
+      letter-spacing: 0.5px;
+      opacity: 0.3;
+      transition: opacity 0.4s ease;
+      padding: 4px 8px;
+    }
+    .hidden-word.revealed {
+      opacity: 1;
+    }
+
+    .word-cover {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #faf5eb;
+      border: 2px solid #d4c4b0;
+      border-radius: 10px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(1.3rem, 4vw, 2.2rem);
+      font-weight: 700;
+      color: #c05c5c;
+      cursor: grab;
+      touch-action: none;
+      z-index: 5;
+      transition: box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+      padding: 8px 16px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .word-cover:hover {
+      box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+      border-color: #bfae99;
+    }
+    .word-cover:active {
+      cursor: grabbing;
+    }
+    .word-cover.dragging {
+      box-shadow: 0 8px 28px rgba(0,0,0,0.3);
+      background: #fcfbf7;
+      border-color: #a8907a;
+      z-index: 10;
+      cursor: grabbing;
+    }
+
+    .drag-hint {
+      position: absolute;
+      bottom: -22px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.55rem;
+      color: #b0a496;
+      opacity: 0.8;
+      white-space: nowrap;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      letter-spacing: 0.5px;
+    }
+    .word-cover.dragging ~ .drag-hint {
       opacity: 0;
-      pointer-events: none; /* Allows interacting with what's underneath when hidden */
     }
 
     .page-emoji {
@@ -186,25 +264,26 @@
       font-size: 1.2rem;
     }
 
-    /* 3D touch zones */
+    .touch-zones-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 5;
+      pointer-events: none;
+    }
     .touch-zone {
       position: absolute;
       top: 0;
       height: 100%;
       width: 50%;
-      z-index: 200; 
       pointer-events: auto;
       cursor: pointer;
-      touch-action: manipulation;
     }
-    .touch-left {
-      left: 0;
-    }
-    .touch-right {
-      right: 0;
-    }
+    .touch-left { left: 0; }
+    .touch-right { right: 0; }
 
-    /* page indicator */
     .page-indicator {
       position: fixed;
       top: 20px;
@@ -223,32 +302,72 @@
       pointer-events: none;
     }
 
-    .touch-zone:active {
-      background: rgba(255,255,240,0.04);
+    @media (max-width: 540px) {
+      .page { padding: 0.6rem 0.4rem; }
+      .interactive-box {
+        padding: 6px 14px;
+        min-width: 80px;
+        min-height: 40px;
+      }
+      .hidden-word {
+        font-size: 1rem;
+        padding: 2px 4px;
+      }
+      .word-cover {
+        font-size: 1rem;
+        padding: 4px 10px;
+        border-radius: 8px;
+      }
+      .drag-hint {
+        font-size: 0.5rem;
+        bottom: -18px;
+      }
     }
 
-    @media (max-width: 540px) {
-      .page {
-        padding: 0.6rem 0.4rem;
-      }
+    .page.flipping-left {
+      transform: rotateY(-18deg) skewY(1.5deg) scaleX(0.96);
+      filter: brightness(0.96) drop-shadow(4px 0 12px rgba(0,0,0,0.08));
+    }
+    .page.flipping-right {
+      transform: rotateY(18deg) skewY(-1.5deg) scaleX(0.96);
+      filter: brightness(0.96) drop-shadow(-4px 0 12px rgba(0,0,0,0.08));
+    }
+
+    .page.turning {
+      transition: transform 0.7s cubic-bezier(0.15, 0.85, 0.35, 1), filter 0.4s ease;
+    }
+
+    .flipbook-wrapper::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 5%;
+      width: 90%;
+      height: 20px;
+      background: radial-gradient(ellipse at center, rgba(0,0,0,0.15) 0%, transparent 70%);
+      border-radius: 50%;
+      filter: blur(8px);
+      z-index: -1;
     }
   </style>
 </head>
 <body>
 
-  <div class="page-indicator" id="pageIndicator">cover · empty</div>
+  <div class="page-indicator" id="pageIndicator">front cover</div>
 
   <div class="flipbook-wrapper" id="wrapper">
     <div class="flipbook" id="flipbook">
 
+      <!-- SPREAD 0: FRONT COVER -->
       <div class="page page-left cover" data-page="0">
         <h1>📖 I can see.</h1>
         <div class="sub">✦ tap the page ✦</div>
       </div>
       <div class="page page-right empty-page" data-page="1">
-        <span style="opacity:0.4;">· · ·</span>
+        <span style="opacity:0.2;">·</span>
       </div>
 
+      <!-- SPREAD 1: empty + title page -->
       <div class="page page-left empty-page" data-page="2">
         <span style="opacity:0.3;">⋆</span>
       </div>
@@ -257,15 +376,19 @@
         <div style="font-size:2rem; margin-top:0.2rem;">👁️</div>
       </div>
 
+      <!-- SPREAD 2: FLOWER -->
       <div class="page page-left" data-page="4">
         <div class="sentence-container">
           <div class="word-box">I</div>
           <div class="word-box">can</div>
           <div class="word-box">see</div>
           <div class="word-box">the</div>
-          <div class="flower-box-wrapper">
-            <div class="word-box">flower.</div>
-            <div class="flower-image-overlay" id="flowerCover">🌸</div>
+          <div class="interactive-box" id="flowerBox">
+            <div class="interactive-content">
+              <span class="hidden-word" id="flowerText">flower.</span>
+              <div class="word-cover" id="flowerCover">F</div>
+            </div>
+            <div class="drag-hint">↕ drag</div>
           </div>
         </div>
       </div>
@@ -274,48 +397,125 @@
         <div style="font-size:0.9rem; opacity:0.5; margin-top:0.3rem;">flower</div>
       </div>
 
+      <!-- SPREAD 3: DOG -->
       <div class="page page-left" data-page="6">
-        <div class="page-sentence">I can see the dog.</div>
+        <div class="sentence-container">
+          <div class="word-box">I</div>
+          <div class="word-box">can</div>
+          <div class="word-box">see</div>
+          <div class="word-box">the</div>
+          <div class="interactive-box" id="dogBox">
+            <div class="interactive-content">
+              <span class="hidden-word" id="dogText">dog.</span>
+              <div class="word-cover" id="dogCover">D</div>
+            </div>
+            <div class="drag-hint">↕ drag</div>
+          </div>
+        </div>
       </div>
       <div class="page page-right" data-page="7">
         <div class="page-emoji">🐕</div>
         <div style="font-size:0.9rem; opacity:0.5; margin-top:0.3rem;">dog</div>
       </div>
 
+      <!-- SPREAD 4: CAT -->
       <div class="page page-left" data-page="8">
-        <div class="page-sentence">I can see the cat.</div>
+        <div class="sentence-container">
+          <div class="word-box">I</div>
+          <div class="word-box">can</div>
+          <div class="word-box">see</div>
+          <div class="word-box">the</div>
+          <div class="interactive-box" id="catBox">
+            <div class="interactive-content">
+              <span class="hidden-word" id="catText">cat.</span>
+              <div class="word-cover" id="catCover">C</div>
+            </div>
+            <div class="drag-hint">↕ drag</div>
+          </div>
+        </div>
       </div>
       <div class="page page-right" data-page="9">
         <div class="page-emoji">🐈</div>
         <div style="font-size:0.9rem; opacity:0.5; margin-top:0.3rem;">cat</div>
       </div>
 
+      <!-- SPREAD 5: CAR -->
       <div class="page page-left" data-page="10">
-        <div class="page-sentence">I can see the car.</div>
+        <div class="sentence-container">
+          <div class="word-box">I</div>
+          <div class="word-box">can</div>
+          <div class="word-box">see</div>
+          <div class="word-box">the</div>
+          <div class="interactive-box" id="carBox">
+            <div class="interactive-content">
+              <span class="hidden-word" id="carText">car.</span>
+              <div class="word-cover" id="carCover">C</div>
+            </div>
+            <div class="drag-hint">↕ drag</div>
+          </div>
+        </div>
       </div>
       <div class="page page-right" data-page="11">
         <div class="page-emoji">🚗</div>
         <div style="font-size:0.9rem; opacity:0.5; margin-top:0.3rem;">car</div>
       </div>
 
+      <!-- SPREAD 6: TREE -->
       <div class="page page-left" data-page="12">
-        <div class="page-sentence">I can see the tree.</div>
+        <div class="sentence-container">
+          <div class="word-box">I</div>
+          <div class="word-box">can</div>
+          <div class="word-box">see</div>
+          <div class="word-box">the</div>
+          <div class="interactive-box" id="treeBox">
+            <div class="interactive-content">
+              <span class="hidden-word" id="treeText">tree.</span>
+              <div class="word-cover" id="treeCover">T</div>
+            </div>
+            <div class="drag-hint">↕ drag</div>
+          </div>
+        </div>
       </div>
       <div class="page page-right" data-page="13">
         <div class="page-emoji">🌳</div>
         <div style="font-size:0.9rem; opacity:0.5; margin-top:0.3rem;">tree</div>
       </div>
 
+      <!-- SPREAD 7: SUN -->
       <div class="page page-left" data-page="14">
-        <div class="page-sentence">I can see the sun.</div>
+        <div class="sentence-container">
+          <div class="word-box">I</div>
+          <div class="word-box">can</div>
+          <div class="word-box">see</div>
+          <div class="word-box">the</div>
+          <div class="interactive-box" id="sunBox">
+            <div class="interactive-content">
+              <span class="hidden-word" id="sunText">sun.</span>
+              <div class="word-cover" id="sunCover">S</div>
+            </div>
+            <div class="drag-hint">↕ drag</div>
+          </div>
+        </div>
       </div>
       <div class="page page-right" data-page="15">
         <div class="page-emoji">☀️</div>
         <div style="font-size:0.9rem; opacity:0.5; margin-top:0.3rem;">sun</div>
       </div>
 
-      <div class="touch-zone touch-left" id="touchLeft"></div>
-      <div class="touch-zone touch-right" id="touchRight"></div>
+      <!-- SPREAD 8: BACK COVER -->
+      <div class="page page-left empty-page" data-page="16">
+        <span style="opacity:0.2;">·</span>
+      </div>
+      <div class="page page-right back-cover" data-page="17">
+        <div style="font-size: clamp(2.5rem, 8vw, 4rem); margin-bottom: 0.3rem;">📚</div>
+        <div>The End</div>
+        <div class="sub">✦ thank you ✦</div>
+      </div>
+
+      <div class="touch-zones-container">
+        <div class="touch-zone touch-left" id="touchLeft"></div>
+        <div class="touch-zone touch-right" id="touchRight"></div>
+      </div>
 
     </div>
   </div>
@@ -325,103 +525,270 @@
       const pageIndicator = document.getElementById('pageIndicator');
       const wrapper = document.getElementById('wrapper');
       const pages = document.querySelectorAll('.page');
-      const flowerCover = document.getElementById('flowerCover');
+      const touchLeft = document.getElementById('touchLeft');
+      const touchRight = document.getElementById('touchRight');
 
       const TOTAL_PAGES = pages.length;
       const SPREADS = TOTAL_PAGES / 2; 
       let currentSpread = 0;
+      let isFlipping = false;
 
       const spreadLabels = [
-        'cover · empty',
-        'empty · I can see.',
-        'flower boxes · 🌸',
-        'dog sentence · 🐕',
-        'cat sentence · 🐈',
-        'car sentence · 🚗',
-        'tree sentence · 🌳',
-        'sun sentence · ☀️'
+        '📖 front cover',
+        'title page',
+        '🌸 flower',
+        '🐕 dog',
+        '🐈 cat',
+        '🚗 car',
+        '🌳 tree',
+        '☀️ sun',
+        '📚 back cover'
       ];
+
+      // ----- DRAG SYSTEM FOR ALL INTERACTIVE WORDS -----
+      const dragInstances = [];
+
+      function createDragInstance(coverId, textId, boxId) {
+        const cover = document.getElementById(coverId);
+        const text = document.getElementById(textId);
+        const box = document.getElementById(boxId);
+        
+        if (!cover || !text || !box) return null;
+
+        let isDragging = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+        let currentX = 0;
+        let currentY = 0;
+        let elementStartX = 0;
+        let elementStartY = 0;
+        let isRevealed = false;
+
+        const SNAP_THRESHOLD = 30;
+        const REVEAL_THRESHOLD = 50;
+
+        function setPosition(x, y, animate = false) {
+          currentX = x;
+          currentY = y;
+          
+          if (animate) {
+            cover.style.transition = 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+          } else {
+            cover.style.transition = 'none';
+          }
+          
+          cover.style.transform = `translate(${x}px, ${y}px)`;
+          
+          const distance = Math.sqrt(x * x + y * y);
+          
+          if (distance > REVEAL_THRESHOLD && !isRevealed) {
+            isRevealed = true;
+            text.classList.add('revealed');
+          } else if (distance <= REVEAL_THRESHOLD && isRevealed) {
+            isRevealed = false;
+            text.classList.remove('revealed');
+          }
+        }
+
+        function snapToOrigin() {
+          setPosition(0, 0, true);
+          setTimeout(() => {
+            cover.style.transition = '';
+          }, 500);
+        }
+
+        function onDragStart(e) {
+          if (isFlipping) return;
+          
+          const touch = e.touches ? e.touches[0] : e;
+          isDragging = true;
+          
+          dragStartX = touch.clientX;
+          dragStartY = touch.clientY;
+          elementStartX = currentX;
+          elementStartY = currentY;
+          
+          cover.classList.add('dragging');
+          cover.style.transition = 'none';
+          
+          e.preventDefault();
+          e.stopPropagation();
+        }
+
+        function onDragMove(e) {
+          if (!isDragging) return;
+          
+          const touch = e.touches ? e.touches[0] : e;
+          const deltaX = touch.clientX - dragStartX;
+          const deltaY = touch.clientY - dragStartY;
+          
+          let newX = elementStartX + deltaX;
+          let newY = elementStartY + deltaY;
+          
+          newX = Math.max(-200, Math.min(200, newX));
+          newY = Math.max(-200, Math.min(200, newY));
+          
+          setPosition(newX, newY, false);
+          
+          e.preventDefault();
+          e.stopPropagation();
+        }
+
+        function onDragEnd(e) {
+          if (!isDragging) return;
+          isDragging = false;
+          
+          cover.classList.remove('dragging');
+          
+          const distance = Math.sqrt(currentX * currentX + currentY * currentY);
+          if (distance < SNAP_THRESHOLD) {
+            snapToOrigin();
+          } else {
+            cover.style.transition = '';
+          }
+          
+          e.preventDefault();
+          e.stopPropagation();
+        }
+
+        // Mouse events
+        cover.addEventListener('mousedown', onDragStart);
+        document.addEventListener('mousemove', onDragMove);
+        document.addEventListener('mouseup', onDragEnd);
+
+        // Touch events
+        cover.addEventListener('touchstart', onDragStart, { passive: false });
+        document.addEventListener('touchmove', onDragMove, { passive: false });
+        document.addEventListener('touchend', onDragEnd, { passive: false });
+
+        // Prevent click from triggering page flip
+        cover.addEventListener('click', function(e) {
+          e.stopPropagation();
+        });
+
+        return {
+          setPosition,
+          snapToOrigin,
+          reset: () => setPosition(0, 0, false)
+        };
+      }
+
+      // Initialize all interactive words
+      const wordConfigs = [
+        { cover: 'flowerCover', text: 'flowerText', box: 'flowerBox' },
+        { cover: 'dogCover', text: 'dogText', box: 'dogBox' },
+        { cover: 'catCover', text: 'catText', box: 'catBox' },
+        { cover: 'carCover', text: 'carText', box: 'carBox' },
+        { cover: 'treeCover', text: 'treeText', box: 'treeBox' },
+        { cover: 'sunCover', text: 'sunText', box: 'sunBox' }
+      ];
+
+      wordConfigs.forEach(config => {
+        const instance = createDragInstance(config.cover, config.text, config.box);
+        if (instance) {
+          dragInstances.push(instance);
+          instance.reset();
+        }
+      });
+
+      // ----- PAGE FLIP LOGIC -----
+      function applyCurve(page, direction) {
+        page.classList.add('turning');
+        if (direction === 'left') {
+          page.classList.add('flipping-left');
+          page.classList.remove('flipping-right');
+        } else if (direction === 'right') {
+          page.classList.add('flipping-right');
+          page.classList.remove('flipping-left');
+        }
+        setTimeout(() => {
+          page.classList.remove('flipping-left', 'flipping-right', 'turning');
+        }, 750);
+      }
 
       function updateFlip() {
         pages.forEach(page => {
           const pageNum = parseInt(page.getAttribute('data-page'), 10);
           const pageSpread = Math.floor(pageNum / 2);
+          const isLeft = page.classList.contains('page-left');
+          const isRight = page.classList.contains('page-right');
+
+          page.classList.remove('flipping-left', 'flipping-right', 'turning');
 
           if (pageSpread < currentSpread) {
-            if (page.classList.contains('page-right')) {
+            if (isRight) {
               page.style.transform = 'rotateY(-180deg)';
             } else {
               page.style.transform = 'rotateY(0deg)';
             }
-            page.style.zIndex = 10 + pageSpread; 
+            page.style.zIndex = 10 + pageSpread;
+            page.style.filter = 'brightness(0.92) drop-shadow(-2px 0 6px rgba(0,0,0,0.06))';
           } 
           else if (pageSpread === currentSpread) {
             page.style.transform = 'rotateY(0deg)';
-            page.style.zIndex = 150; 
+            page.style.zIndex = 150;
+            page.style.filter = 'brightness(1) drop-shadow(0 0 6px rgba(0,0,0,0.02))';
           } 
           else {
-            if (page.classList.contains('page-left')) {
+            if (isLeft) {
               page.style.transform = 'rotateY(180deg)';
             } else {
               page.style.transform = 'rotateY(0deg)';
             }
             page.style.zIndex = 10 + (TOTAL_PAGES - pageNum);
+            page.style.filter = 'brightness(0.96) drop-shadow(2px 0 8px rgba(0,0,0,0.04))';
           }
         });
 
         if (currentSpread < spreadLabels.length) {
           pageIndicator.textContent = spreadLabels[currentSpread];
-        } else {
-          pageIndicator.textContent = `spread ${currentSpread + 1}`;
+        }
+      }
+
+      function animateCurve(direction) {
+        const leftPage = document.querySelector(`.page-left[data-page="${currentSpread * 2}"]`);
+        const rightPage = document.querySelector(`.page-right[data-page="${currentSpread * 2 + 1}"]`);
+        
+        if (direction === 1) {
+          if (leftPage) applyCurve(leftPage, 'left');
+          const prevRight = document.querySelector(`.page-right[data-page="${(currentSpread - 1) * 2 + 1}"]`);
+          if (prevRight) applyCurve(prevRight, 'right');
+        } else if (direction === -1) {
+          if (rightPage) applyCurve(rightPage, 'right');
+          const prevLeft = document.querySelector(`.page-left[data-page="${(currentSpread + 1) * 2}"]`);
+          if (prevLeft) applyCurve(prevLeft, 'left');
         }
       }
 
       function goToSpread(spreadIndex) {
+        if (isFlipping) return;
         if (spreadIndex < 0 || spreadIndex >= SPREADS || spreadIndex === currentSpread) return;
+        
+        isFlipping = true;
+        const dir = spreadIndex > currentSpread ? 1 : -1;
+        animateCurve(dir);
         currentSpread = spreadIndex;
         updateFlip();
-      }
-
-      function handleTap(e) {
-        // Prevent turning pages if the target is inside the interactive flower box wrapper
-        if (e.target.closest('.flower-box-wrapper')) return;
-
-        const rect = wrapper.getBoundingClientRect();
-        let clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const x = clientX - rect.left;
-        const mid = rect.width / 2;
-
-        if (x < mid) {
-          if (currentSpread > 0) goToSpread(currentSpread - 1);
-        } else {
-          if (currentSpread < SPREADS - 1) goToSpread(currentSpread + 1);
-        }
-      }
-
-      // Single-tap navigation handling
-      wrapper.addEventListener('click', handleTap);
-
-      // Dedicated double-tap engine for the flower image element 
-      let lastTap = 0;
-      function handleFlowerDoubleTap(e) {
-        e.preventDefault();
-        e.stopPropagation(); // Stops event cascading to page turns
-
-        const now = new Date().getTime();
-        const timespan = now - lastTap;
         
-        if (timespan < 300 && timespan > 0) {
-          // Toggle visibility on double tap
-          flowerCover.classList.toggle('hidden');
-        }
-        lastTap = now;
+        setTimeout(() => {
+          isFlipping = false;
+        }, 750);
       }
 
-      // Attach interaction to the flower component (works on desktop and touch devices)
-      flowerCover.addEventListener('click', handleFlowerDoubleTap);
-      flowerCover.addEventListener('touchstart', handleFlowerDoubleTap, { passive: false });
+      touchLeft.addEventListener('click', function(e) {
+        if (isFlipping) return;
+        if (currentSpread > 0) goToSpread(currentSpread - 1);
+        e.stopPropagation();
+      });
+
+      touchRight.addEventListener('click', function(e) {
+        if (isFlipping) return;
+        if (currentSpread < SPREADS - 1) goToSpread(currentSpread + 1);
+        e.stopPropagation();
+      });
 
       document.addEventListener('keydown', function(e) {
+        if (isFlipping) return;
         if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
           if (currentSpread > 0) goToSpread(currentSpread - 1);
         } else if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
@@ -431,7 +798,9 @@
 
       wrapper.addEventListener('contextmenu', (e) => e.preventDefault());
 
+      // Initialize
       updateFlip();
+
     })();
   </script>
 
