@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>flip book · touch</title>
+  <title>3D flip book · I can see</title>
   <style>
     * {
       margin: 0;
@@ -26,7 +26,7 @@
     }
 
     .flipbook-wrapper {
-      perspective: 1800px;
+      perspective: 2000px;
       width: 100%;
       max-width: 800px;
       aspect-ratio: 4 / 3;
@@ -41,12 +41,13 @@
       width: 100%;
       height: 100%;
       transform-style: preserve-3d;
-      transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.1);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+      box-shadow: 0 25px 50px rgba(0,0,0,0.5);
       border-radius: 4px 12px 12px 4px;
-      pointer-events: none; /* let wrapper handle clicks */
+      pointer-events: none;
     }
 
+    /* Each page is a 3D plane */
     .page {
       position: absolute;
       width: 50%;
@@ -64,6 +65,7 @@
       box-sizing: border-box;
       border: 1px solid #e3d7c8;
       pointer-events: none;
+      transform-style: preserve-3d;
     }
 
     .page-left {
@@ -82,6 +84,7 @@
       background: #fcf8f0;
     }
 
+    /* Cover styling */
     .cover {
       background: #2b4a5c;
       color: #f5e9da;
@@ -134,7 +137,7 @@
       font-size: 1.2rem;
     }
 
-    /* touch hit areas – invisible overlays on left/right half */
+    /* 3D touch zones – invisible but capture taps */
     .touch-zone {
       position: absolute;
       top: 0;
@@ -171,7 +174,7 @@
       pointer-events: none;
     }
 
-    /* subtle feedback on tap */
+    /* active feedback */
     .touch-zone:active {
       background: rgba(255,255,240,0.08);
     }
@@ -234,7 +237,7 @@
         <div style="font-size:0.9rem; opacity:0.5; margin-top:0.3rem;">dog</div>
       </div>
 
-      <!-- Touch overlays (invisible, but capture taps) -->
+      <!-- Touch overlays -->
       <div class="touch-zone touch-left" id="touchLeft"></div>
       <div class="touch-zone touch-right" id="touchRight"></div>
 
@@ -246,11 +249,9 @@
       const flipbook = document.getElementById('flipbook');
       const wrapper = document.getElementById('wrapper');
       const pageIndicator = document.getElementById('pageIndicator');
-      const touchLeft = document.getElementById('touchLeft');
-      const touchRight = document.getElementById('touchRight');
 
       const TOTAL_PAGES = 8;
-      const SPREADS = TOTAL_PAGES / 2; // 4
+      const SPREADS = TOTAL_PAGES / 2; // 4 spreads
       let currentSpread = 0;
 
       const spreadLabels = [
@@ -261,15 +262,15 @@
       ];
 
       function updateFlip(animate = true) {
+        // rotateY for 3D flip: each spread is 180° apart
         const angle = -180 * currentSpread;
         flipbook.style.transform = `rotateY(${angle}deg)`;
         if (!animate) {
           flipbook.style.transition = 'none';
           void flipbook.offsetHeight;
-          flipbook.style.transition = 'transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.1)';
+          flipbook.style.transition = 'transform 0.6s cubic-bezier(0.23, 1, 0.32, 1)';
         }
 
-        // update indicator
         if (currentSpread < spreadLabels.length) {
           pageIndicator.textContent = spreadLabels[currentSpread];
         } else {
@@ -285,15 +286,13 @@
         updateFlip(true);
       }
 
-      // ----- touch / click handling -----
+      // ----- tap handling (touch + click) -----
       function handleTap(e) {
-        // get click/touch position relative to wrapper
         const rect = wrapper.getBoundingClientRect();
         let clientX;
         if (e.touches) {
-          // touch event
           clientX = e.touches[0].clientX;
-          e.preventDefault(); // prevent scroll
+          e.preventDefault();
         } else {
           clientX = e.clientX;
         }
@@ -301,24 +300,19 @@
         const mid = rect.width / 2;
 
         if (x < mid) {
-          // tap left half → previous spread
+          // left half → previous
           if (currentSpread > 0) goToSpread(currentSpread - 1);
         } else {
-          // tap right half → next spread
+          // right half → next
           if (currentSpread < SPREADS - 1) goToSpread(currentSpread + 1);
         }
       }
 
-      // Use both touch and mouse events
+      // attach events to wrapper (covers the whole book)
       wrapper.addEventListener('touchstart', handleTap, { passive: false });
       wrapper.addEventListener('click', handleTap);
 
-      // Also allow direct click on the touch zones (for safety)
-      // but we already handle on wrapper, so we just prevent double trigger
-      // we keep zones for visual feedback but let wrapper handle logic
-      // (zones are transparent but we want the wrapper to handle all)
-
-      // Keyboard support (nice extra)
+      // keyboard support (extra)
       document.addEventListener('keydown', function(e) {
         if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
           e.preventDefault();
@@ -329,16 +323,16 @@
         }
       });
 
+      // disable context menu on long press
+      wrapper.addEventListener('contextmenu', (e) => e.preventDefault());
+
       // initial render
       updateFlip(false);
 
       // ensure transition after load
       window.addEventListener('load', function() {
-        flipbook.style.transition = 'transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.1)';
+        flipbook.style.transition = 'transform 0.6s cubic-bezier(0.23, 1, 0.32, 1)';
       });
-
-      // prevent context menu on long press (optional)
-      wrapper.addEventListener('contextmenu', (e) => e.preventDefault());
 
     })();
   </script>
