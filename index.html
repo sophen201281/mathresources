@@ -1,616 +1,326 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Balance Scale · Heavy & Light</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      user-select: none;
-      -webkit-tap-highlight-color: transparent;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: linear-gradient(145deg, #f7f3e9 0%, #e8e0d5 100%);
-      font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 12px;
-    }
+<title>សម្ភារគណិតវិទ្យា</title>
 
-    .game-container {
-      max-width: 700px;
-      width: 100%;
-      background: #d9d0c0;
-      background-image: radial-gradient(circle at 20% 30%, #e6ddd0, #c6bcaa);
-      border-radius: 60px 60px 40px 40px;
-      box-shadow: 0 20px 30px rgba(0,0,0,0.4), inset 0 2px 8px rgba(255, 245, 215, 0.6);
-      padding: 20px 16px 30px;
-      border-bottom: 6px solid #b3a692;
-      transition: all 0.2s;
-    }
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css">
 
-    h1 {
-      text-align: center;
-      margin: 0 0 6px 0;
-      font-weight: 500;
-      font-size: 1.8rem;
-      letter-spacing: 2px;
-      color: #3f372b;
-      text-shadow: 0 2px 4px rgba(255, 215, 140, 0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    h1 small {
-      font-size: 1rem;
-      background: #4d3e2b;
-      color: #f5e7d3;
-      padding: 4px 18px;
-      border-radius: 40px;
-      box-shadow: inset 0 1px 4px #b3956a;
-    }
+<!-- Khmer Font -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Battambang&display=swap" rel="stylesheet">
 
-    /* scale area */
-    .scale-wrapper {
-      position: relative;
-      margin: 20px 0 30px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+<style>
+body{
+    background:#f4f6f9;
+    margin:0;
+    padding:0;
+    font-family:'Battambang',sans-serif;
+}
 
-    /* the balance beam + central pivot */
-    .scale-beam {
-      position: relative;
-      width: 100%;
-      height: 50px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+/* =========================
+   KHMER FONT
+========================= */
+.font-khmer{
+    font-family:'Battambang',sans-serif;
+}
 
-    .pivot {
-      width: 16px;
-      height: 60px;
-      background: #6b5a44;
-      background: radial-gradient(ellipse at 30% 20%, #9c886e, #4d3e2b);
-      border-radius: 20px 20px 8px 8px;
-      box-shadow: 0 8px 0 #3f3221, 0 12px 12px rgba(0,0,0,0.3);
-      z-index: 5;
-      position: relative;
-      top: 6px;
-      transform: translateY(-8px);
-    }
+/* =========================
+   HEADER
+========================= */
+header{
+    background:white;
+    border-radius:18px;
+    padding:12px 20px;
+    margin-top:18px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
 
-    .beam {
-      position: absolute;
-      top: 16px;
-      left: 0;
-      right: 0;
-      height: 14px;
-      background: #8b785b;
-      background: linear-gradient(180deg, #b8a387, #7d6b4f);
-      border-radius: 40px;
-      box-shadow: 0 6px 0 #5b4b34, 0 8px 12px rgba(0,0,0,0.3);
-      transform-origin: center center;
-      transition: transform 0.4s cubic-bezier(0.34, 1.2, 0.64, 1);
-      will-change: transform;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0 6%;
-      z-index: 2;
-    }
+.bi{
+    fill:#0d6efd;
+}
 
-    /* scale pans */
-    .pan {
-      position: relative;
-      width: 40%;
-      min-height: 120px;
-      background: #cbbaa6;
-      background: radial-gradient(circle at 30% 20%, #ddcfbb, #b6a38b);
-      border-radius: 20% 20% 40px 40px / 30% 30% 60px 60px;
-      box-shadow: inset 0 -8px 0 #8d7a61, 0 8px 16px rgba(0,0,0,0.25);
-      display: flex;
-      flex-wrap: wrap;
-      align-content: center;
-      justify-content: center;
-      gap: 6px 8px;
-      padding: 20px 8px 8px;
-      transition: all 0.2s;
-      border: 2px solid #b7a186;
-      border-top: 4px solid #dfd0bb;
-    }
-    .pan-left {
-      border-radius: 30% 10% 40px 40px / 40% 20% 60px 60px;
-    }
-    .pan-right {
-      border-radius: 10% 30% 40px 40px / 20% 40% 60px 60px;
-    }
+/* =========================
+   GRID
+========================= */
+.gridbox{
+    display:grid;
+    grid-template-columns: repeat(auto-fit,minmax(180px,1fr));
+    gap:24px;
+    margin-top:25px;
+    margin-bottom:40px;
+}
 
-    .pan-label {
-      position: absolute;
-      top: -26px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: #3f3221;
-      background: #e3d5c0;
-      padding: 2px 14px;
-      border-radius: 30px;
-      box-shadow: inset 0 1px 4px #fff3e0, 0 4px 0 #897a63;
-      letter-spacing: 1px;
-    }
+/* =========================
+   CARD
+========================= */
+.divclass{
+    background:white;
+    border-radius:20px;
+    overflow:hidden;
+    position:relative;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    cursor:pointer;
+}
 
-    .pan-left .pan-label { left: 10px; }
-    .pan-right .pan-label { right: 10px; }
+.divclass:hover{
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 14px 28px rgba(0,0,0,0.18);
+}
 
-    .pan-items {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: center;
-      gap: 6px 10px;
-      min-height: 70px;
-      width: 100%;
-      padding: 4px 2px;
-    }
+.divclass:active{
+    transform:scale(0.96);
+}
 
-    .item-on-scale {
-      font-size: 2.4rem;
-      line-height: 1;
-      filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.2));
-      transition: 0.1s ease;
-      background: rgba(255, 242, 220, 0.2);
-      border-radius: 30px;
-      padding: 4px 6px;
-      backdrop-filter: blur(1px);
-    }
+/* =========================
+   IMAGE
+========================= */
+.divclass img{
+    width:100%;
+    height:190px;
+    object-fit:cover;
+    display:block;
+    background:white;
+}
 
-    /* weight result */
-    .weight-indicator {
-      display: flex;
-      justify-content: center;
-      gap: 20px 40px;
-      flex-wrap: wrap;
-      margin: 16px 0 6px;
-      font-size: 1.4rem;
-      font-weight: 600;
-      color: #2b241b;
-      background: #b9aa93;
-      background: linear-gradient(180deg, #d5c8b4, #bba58c);
-      padding: 12px 20px;
-      border-radius: 60px;
-      box-shadow: inset 0 2px 6px #f3e7d3, 0 6px 0 #7d6b52;
-      border-bottom: 2px solid #9b8870;
-    }
+/* =========================
+   LABEL
+========================= */
+.divclass::after{
+    content:attr(data-title);
+    position:absolute;
+    left:0;
+    bottom:0;
+    width:100%;
+    padding:12px;
+    text-align:center;
+    color:white;
+    font-size:15px;
+    font-weight:bold;
+    background: linear-gradient(transparent, rgba(0,0,0,0.8));
+}
 
-    .weight-badge {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: #4d3e2b;
-      padding: 2px 16px 2px 12px;
-      border-radius: 40px;
-      color: #f7ebd6;
-      box-shadow: inset 0 -2px 0 #aa8f72;
-    }
-    .weight-badge span {
-      font-size: 1.8rem;
-      line-height: 1;
-    }
+/* =========================
+   FOOTER
+========================= */
+footer{
+    margin-bottom:30px;
+}
 
-    /* draggable item pool */
-    .item-pool {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 14px 18px;
-      padding: 20px 12px 14px;
-      margin: 10px 0 4px;
-      background: #cfc1ad;
-      background: linear-gradient(145deg, #ded1be, #bba992);
-      border-radius: 100px 100px 40px 40px;
-      box-shadow: inset 0 4px 10px #b19c84, 0 8px 0 #7f6f58;
-      border-top: 2px solid #efe2ce;
-    }
+.copyright{
+    background:white;
+    border-radius:16px;
+    padding:16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
 
-    .drag-item {
-      font-size: 3.2rem;
-      cursor: grab;
-      display: inline-block;
-      padding: 6px 10px;
-      background: #f5eddd;
-      background: radial-gradient(circle at 30% 30%, #fff7e6, #e7dac6);
-      border-radius: 50px;
-      box-shadow: 0 6px 0 #7f6e56, 0 8px 12px rgba(0,0,0,0.2);
-      transition: 0.06s linear;
-      transform: translateY(-4px);
-      line-height: 1;
-      border: 1px solid #dac9b2;
-      touch-action: none;
+/* =========================
+   RESPONSIVE
+========================= */
+@media(max-width:768px){
+    .gridbox{
+        grid-template-columns: repeat(auto-fit,minmax(140px,1fr));
+        gap:16px;
     }
-    .drag-item:active {
-      cursor: grabbing;
-      opacity: 0.6;
-      transform: scale(0.95);
+    .divclass img{
+        height:140px;
     }
-    .drag-item.dragging {
-      opacity: 0.3;
-      transform: scale(0.85);
+    .fs-4{
+        font-size:20px !important;
     }
-
-    /* utility */
-    .reset-btn {
-      background: #4e3f2c;
-      border: none;
-      color: #f2e0ca;
-      font-size: 1.1rem;
-      font-weight: 600;
-      padding: 10px 28px;
-      border-radius: 60px;
-      box-shadow: 0 6px 0 #2f2419, 0 4px 12px rgba(0,0,0,0.2);
-      transition: 0.08s linear;
-      cursor: pointer;
-      margin: 10px auto 0;
-      display: block;
-      width: fit-content;
-      border: 1px solid #b59673;
-      letter-spacing: 1px;
-    }
-    .reset-btn:active {
-      transform: translateY(4px);
-      box-shadow: 0 2px 0 #2f2419;
-    }
-
-    /* responsive */
-    @media (max-width: 550px) {
-      .game-container { padding: 12px 6px 20px; }
-      .beam { padding: 0 3%; }
-      .pan { min-height: 100px; padding: 16px 4px 4px; }
-      .item-on-scale { font-size: 2rem; }
-      .drag-item { font-size: 2.6rem; padding: 2px 8px; }
-      .weight-indicator { font-size: 1.2rem; gap: 10px; }
-    }
-    @media (max-width: 420px) {
-      .pan { min-height: 80px; }
-      .item-on-scale { font-size: 1.7rem; }
-      .drag-item { font-size: 2.2rem; }
-      .pan-label { font-size: 0.7rem; top: -22px; }
-    }
-  </style>
+}
+</style>
 </head>
+
 <body>
-<div class="game-container">
-  <h1>
-    ⚖️ Balance
-    <small>drag & drop</small>
-  </h1>
 
-  <div class="scale-wrapper">
-    <!-- beam + pivot -->
-    <div class="scale-beam">
-      <div class="pivot"></div>
-      <div class="beam" id="beam">
-        <div class="pan pan-left" id="panLeft">
-          <div class="pan-label">⬅️ left</div>
-          <div class="pan-items" id="leftItems"></div>
-        </div>
-        <div class="pan pan-right" id="panRight">
-          <div class="pan-label">right ➡️</div>
-          <div class="pan-items" id="rightItems"></div>
-        </div>
-      </div>
-    </div>
+<svg style="display: none;">
+<symbol id="bootstrap" viewBox="0 0 118 94">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M24.509 0c-6.733 0-11.715 5.893-11.492 12.284.214 6.14-.064 14.092-2.066 20.577C8.943 39.365 5.547 43.485 0 44.014v4.972c5.547.529 8.943 4.649 10.951 11.153 2.002 6.485 2.28 14.437 2.066 20.577C12.794 88.106 17.776 94 24.51 94H93.5c6.733 0 11.714-5.893 11.491-12.284-.214-6.14.064-14.092 2.066-20.577 2.009-6.504 5.396-10.624 10.943-11.153v-4.972c-5.547-.529-8.934-4.649-10.943-11.153-2.002-6.484-2.28-14.437-2.066-20.577C105.214 5.893 100.233 0 93.5 0H24.508z"></path>
+</symbol>
+</svg>
 
-    <!-- heavy / light display -->
-    <div class="weight-indicator" id="weightIndicator">
-      <div class="weight-badge" id="leftBadge">⬅️ <span id="leftWeightLabel">⚖️</span></div>
-      <div class="weight-badge" id="rightBadge">➡️ <span id="rightWeightLabel">⚖️</span></div>
-    </div>
-  </div>
-
-  <!-- draggable items -->
-  <div class="item-pool" id="itemPool">
-    <div class="drag-item" draggable="true" data-emoji="🍎" data-weight="3">🍎</div>
-    <div class="drag-item" draggable="true" data-emoji="🍌" data-weight="2">🍌</div>
-    <div class="drag-item" draggable="true" data-emoji="🍉" data-weight="5">🍉</div>
-    <div class="drag-item" draggable="true" data-emoji="🥝" data-weight="1">🥝</div>
-    <div class="drag-item" draggable="true" data-emoji="🧀" data-weight="4">🧀</div>
-    <div class="drag-item" draggable="true" data-emoji="🍇" data-weight="3">🍇</div>
-  </div>
-
-  <button class="reset-btn" id="resetBtn">⟳ reset scale</button>
+<main>
+<div class="container">
+<header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
+<a href="index.html" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+<svg class="bi me-2" width="40" height="32"><use xlink:href="#bootstrap"></use></svg>
+<span class="fs-4 font-khmer">សម្ភារគណិតវិទ្យា</span>
+</a>
+</header>
 </div>
 
+<!-- =========================
+      GRID CARDS
+========================= -->
+<div class="container">
+<div class="gridbox">
+
+<div class="divclass" data-title="តារាងការេ១០០">
+<a href="./100chart/100chart.html"><img src="image/100.jpg" alt="100 Chart"></a>
+</div>
+
+<div class="divclass" data-title="តម្លៃលេខតាមខ្ទង់ ដល់១០០">
+<a href="./Dice/dice.html"><img src="image/placevalue2.jpg" alt="Dice"></a>
+</div>
+
+<div class="divclass" data-title="ការបូកចំនួនដដែលៗ វិធីគុណ">
+<a href="./dots array/dotschart.html"><img src="image/dot.jpg" alt="Dots Array"></a>
+</div>
+
+<div class="divclass" data-title="ពង្រាយចំនួន">
+<a href="./Expanded form/expanded.html"><img src="image/exp.png" alt="Expanded Form"></a>
+</div>
+
+<div class="divclass" data-title="គោល៥ និង១០">
+<a href="./Five and Ten frames/five.html"><img src="image/5frame.png" alt="Five and Ten Frames"></a>
+</div>
+
+<div class="divclass" data-title="ប្រភាគ">
+<a href="./Fraction/Fractionhomepage.html"><img src="image/fraction.png" alt="Fraction"></a>
+</div>
+
+<div class="divclass" data-title="វិធីបូក គុណមានលក្ខណៈត្រឡប់">
+<a href="./New Counters/Counters.html"><img src="image/add.png" alt="Counters"></a>
+</div>
+
+<div class="divclass" data-title="បន្ទាត់លេខ">
+<a href="./Numberline/numberline.html"><img src="image/numberline.png" alt="Numberline"></a>
+</div>
+
+<div class="divclass" data-title="ប្រៀបធៀបចំនួន">
+<a href="./placevaluechart/placevaluechart.html"><img src="image/3.png" alt="Place Value"></a>
+</div>
+
+<div class="divclass" data-title="នាឡិកា">
+<a href="./Time/time.html"><img src="image/clock.png" alt="Clock"></a>
+</div>
+
+<div class="divclass" data-title="ចាប់ក្រុម គុណ ចែក">
+<a href="./scale/scale.html"><img src="image/Group.png" alt="Scale"></a>
+</div>
+
+<div class="divclass" data-title="រង្វាស់ប្រវែង">
+<a href="./patterning/pattern.html"><img src="image/measure.png" alt="Pattern"></a>
+</div>
+
+<div class="divclass" data-title="រៀបលេខតាមលំដាប់">
+<a href="./ordernumber/index.html"><img src="image/order.png" alt="Order Number"></a>
+</div>
+
+<div class="divclass" data-title="ដើមឈើគណិតវិទ្យា">
+<a href="./Tree/index.html"><img src="image/tree.png" alt="Fruits Tree"></a>
+</div>
+
+<div class="divclass" data-title="តារាងតម្លៃលេខតាមខ្ទង់">
+<a href="./Test/index.html"><img src="image/writing.png" alt="Test"></a>
+</div>
+
+<div class="divclass" data-title="ជញ្ជីងថ្លឹងទម្ងន់">
+<a href="./Weight Scale/Index.html"><img src="image/scale.png" alt="Weight Scale"></a>
+</div>
+
+<div class="divclass" data-title="ផ្គូផ្គងចំនួន">
+<a href="./Matching Number/index.html"><img src="image/matching number.png" alt="Matching number"></a>
+</div>
+
+<div class="divclass" data-title="តម្លៃលរខតាមខ្ទង់ម៉ឺន">
+<a href="./10000 place value/index.html"><img src="image/10000.png" alt="10000"></a>
+</div>
+
+<div class="divclass" data-title="បណ្ណលេខ">
+<a href="./Number card/index.html"><img src="image/number.png" alt="Number"></a>
+</div>
+
+<div class="divclass" data-title="បណ្ណពាក្យ">
+<a href="./Words card/index.html"><img src="image/word.png" alt="Word"></a>
+</div>
+
+<div class="divclass" data-title="ធរណីមាត្រ">
+<a href="./Geometry/index.html"><img src="image/geometry.png" alt="Geometry"></a>
+</div>
+
+<div class="divclass" data-title="ប្រភាគរូបធរណីមាត្រ">
+<a href="./New Fraction/Shape fraction.html"><img src="image/fraction.png" alt="Fraction"></a>
+</div>
+
+<div class="divclass" data-title="ពីរចំនួនបន្សំគ្នា ឬបំបែកចំនួន">
+<a href="./combination/index.html"><img src="image/combination.png" alt="Combination"></a>
+</div>
+
+<div class="divclass" data-title="ក្រដាសប្រាក់">
+<a href="./Currency/index.html"><img src="image/combination.png" alt="Combination"></a>
+</div>
+
+<div class="divclass" data-title="ព្យញ្ជនៈផ្សំស្រៈ">
+<a href="./alphabet/index.html"><img src="image/combination.png" alt="Combination"></a>
+</div>
+
+<div class="divclass" data-title="សៀវភៅធំ">
+<a href="./Big book/index.html"><img src="image/combination.png" alt="Combination"></a>
+</div>
+
+<div class="divclass" data-title="សាកល្បង">
+<a href="./Working test/index.html"><img src="image/combination.png" alt="working test"></a>
+</div>
+</div>
+</div>
+</main>
+
+<!-- =========================
+      FOOTER
+========================= -->
+<footer class="container mt-5">
+<div class="copyright text-center">
+<p class="font-khmer"><strong>ផលិតដោយ ផាន់ សុភេន © <span id="year"></span></strong></p>
+</div>
+</footer>
+
+<!-- =========================
+      JAVASCRIPT
+========================= -->
 <script>
-  (function() {
-    // ----- data state -----
-    const leftItems = [];
-    const rightItems = [];
+/* =========================
+   YEAR
+========================= */
+document.getElementById("year").innerHTML = new Date().getFullYear();
 
-    const leftContainer = document.getElementById('leftItems');
-    const rightContainer = document.getElementById('rightItems');
-    const beam = document.getElementById('beam');
-    const leftWeightLabel = document.getElementById('leftWeightLabel');
-    const rightWeightLabel = document.getElementById('rightWeightLabel');
-    const itemPool = document.getElementById('itemPool');
-
-    // ----- helpers: update UI -----
-    function renderScale() {
-      leftContainer.innerHTML = '';
-      rightContainer.innerHTML = '';
-
-      leftItems.forEach(item => {
-        const span = document.createElement('span');
-        span.className = 'item-on-scale';
-        span.textContent = item.emoji;
-        span.dataset.weight = item.weight;
-        leftContainer.appendChild(span);
-      });
-
-      rightItems.forEach(item => {
-        const span = document.createElement('span');
-        span.className = 'item-on-scale';
-        span.textContent = item.emoji;
-        span.dataset.weight = item.weight;
-        rightContainer.appendChild(span);
-      });
-
-      updateWeightLabels();
-      updateBeamTilt();
-    }
-
-    function updateWeightLabels() {
-      const leftTotal = leftItems.reduce((sum, i) => sum + i.weight, 0);
-      const rightTotal = rightItems.reduce((sum, i) => sum + i.weight, 0);
-
-      leftWeightLabel.textContent = leftTotal > 0 ? leftTotal : '⚖️';
-      rightWeightLabel.textContent = rightTotal > 0 ? rightTotal : '⚖️';
-
-      const leftBadge = document.getElementById('leftBadge');
-      const rightBadge = document.getElementById('rightBadge');
-
-      leftBadge.style.background = '#4d3e2b';
-      rightBadge.style.background = '#4d3e2b';
-      leftBadge.style.color = '#f7ebd6';
-      rightBadge.style.color = '#f7ebd6';
-
-      if (leftTotal === 0 && rightTotal === 0) return;
-
-      if (leftTotal > rightTotal) {
-        leftBadge.style.background = '#a6522b';
-        leftBadge.style.color = '#ffebc0';
-        rightBadge.style.background = '#3f5a3a';
-        rightBadge.style.color = '#d4d9b0';
-      } else if (rightTotal > leftTotal) {
-        rightBadge.style.background = '#a6522b';
-        rightBadge.style.color = '#ffebc0';
-        leftBadge.style.background = '#3f5a3a';
-        leftBadge.style.color = '#d4d9b0';
-      } else {
-        leftBadge.style.background = '#5f6b4b';
-        rightBadge.style.background = '#5f6b4b';
-        leftBadge.style.color = '#f0efd0';
-        rightBadge.style.color = '#f0efd0';
-      }
-    }
-
-    function updateBeamTilt() {
-      const leftTotal = leftItems.reduce((sum, i) => sum + i.weight, 0);
-      const rightTotal = rightItems.reduce((sum, i) => sum + i.weight, 0);
-
-      // FIX: heavy side goes DOWN.
-      // If left is heavier, left side should tilt DOWN → beam rotates clockwise (positive deg)
-      // If right is heavier, right side tilts DOWN → beam rotates counter-clockwise (negative deg)
-      const diff = leftTotal - rightTotal;
-      let tilt = 0;
-      if (diff > 0) {
-        // left heavy → left side down → rotate clockwise (positive)
-        tilt = Math.min(20, diff * 2.5);
-      } else if (diff < 0) {
-        // right heavy → right side down → rotate counter-clockwise (negative)
-        tilt = Math.max(-20, diff * 2.5);
-      } else {
-        tilt = 0;
-      }
-
-      beam.style.transform = `rotate(${tilt}deg)`;
-    }
-
-    // ----- add item to pan -----
-    function addItemToPan(emoji, weight, side) {
-      if (side === 'left') {
-        leftItems.push({ emoji, weight });
-      } else if (side === 'right') {
-        rightItems.push({ emoji, weight });
-      } else {
-        return false;
-      }
-      renderScale();
-      return true;
-    }
-
-    // ----- reset -----
-    function resetScale() {
-      leftItems.length = 0;
-      rightItems.length = 0;
-      renderScale();
-    }
-
-    // ----- drag & drop setup -----
-    function setupDragAndDrop() {
-      const draggables = document.querySelectorAll('.drag-item');
-      let draggedElement = null;
-      let draggedEmoji = '';
-      let draggedWeight = 0;
-
-      function onDragStart(e) {
-        const target = e.target.closest('.drag-item');
-        if (!target) return;
-        draggedElement = target;
-        draggedEmoji = target.dataset.emoji;
-        draggedWeight = parseInt(target.dataset.weight, 10) || 1;
-        target.classList.add('dragging');
-
-        if (e.dataTransfer) {
-          e.dataTransfer.setData('text/plain', draggedEmoji);
-          e.dataTransfer.effectAllowed = 'move';
-        }
-      }
-
-      function onDragEnd(e) {
-        const target = e.target.closest('.drag-item');
-        if (target) target.classList.remove('dragging');
-        draggedElement = null;
-      }
-
-      function allowDrop(e) {
-        e.preventDefault();
-      }
-
-      function onDrop(e) {
-        e.preventDefault();
-        const pan = e.target.closest('.pan');
-        if (!pan) return;
-
-        let side = pan.classList.contains('pan-left') ? 'left' : 'right';
-
-        let emoji = draggedEmoji;
-        let weight = draggedWeight;
-
-        if (!emoji && e.dataTransfer) {
-          const data = e.dataTransfer.getData('text/plain');
-          const poolItem = document.querySelector(`.drag-item[data-emoji="${data}"]`);
-          if (poolItem) {
-            emoji = poolItem.dataset.emoji;
-            weight = parseInt(poolItem.dataset.weight, 10) || 1;
-          }
-        }
-
-        if (!emoji) return;
-
-        const success = addItemToPan(emoji, weight, side);
-        if (success) {
-          if (draggedElement && draggedElement.parentNode === itemPool) {
-            draggedElement.remove();
-          } else {
-            const toRemove = document.querySelector(`.drag-item[data-emoji="${emoji}"]`);
-            if (toRemove) toRemove.remove();
-          }
-          if (draggedElement) {
-            draggedElement.classList.remove('dragging');
-            draggedElement = null;
-          }
-          draggedEmoji = '';
-          draggedWeight = 0;
-        }
-      }
-
-      draggables.forEach(el => {
-        el.addEventListener('dragstart', onDragStart);
-        el.addEventListener('dragend', onDragEnd);
-
-        el.addEventListener('touchstart', (e) => {
-          const touch = e.target.closest('.drag-item');
-          if (!touch) return;
-          draggedElement = touch;
-          draggedEmoji = touch.dataset.emoji;
-          draggedWeight = parseInt(touch.dataset.weight, 10) || 1;
-          touch.classList.add('dragging');
-        }, { passive: true });
-
-        el.addEventListener('touchend', (e) => {
-          const touch = e.changedTouches[0];
-          const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
-          const pan = dropTarget?.closest('.pan');
-          if (pan && draggedElement) {
-            const side = pan.classList.contains('pan-left') ? 'left' : 'right';
-            const emoji = draggedEmoji;
-            const weight = draggedWeight;
-            if (emoji) {
-              const success = addItemToPan(emoji, weight, side);
-              if (success && draggedElement.parentNode === itemPool) {
-                draggedElement.remove();
-              }
-            }
-            if (draggedElement) {
-              draggedElement.classList.remove('dragging');
-              draggedElement = null;
-            }
-            draggedEmoji = '';
-            draggedWeight = 0;
-          } else {
-            if (draggedElement) {
-              draggedElement.classList.remove('dragging');
-              draggedElement = null;
-            }
-            draggedEmoji = '';
-            draggedWeight = 0;
-          }
-        }, { passive: true });
-      });
-
-      const pans = document.querySelectorAll('.pan');
-      pans.forEach(pan => {
-        pan.addEventListener('dragover', allowDrop);
-        pan.addEventListener('drop', onDrop);
-      });
-
-      document.addEventListener('dragover', allowDrop);
-      document.addEventListener('drop', (e) => {
-        if (!e.target.closest('.pan')) {
-          e.preventDefault();
-        }
-      });
-    }
-
-    // ----- reset button -----
-    document.getElementById('resetBtn').addEventListener('click', () => {
-      resetScale();
-      const originalItems = [
-        { emoji: '🍎', weight: 3 },
-        { emoji: '🍌', weight: 2 },
-        { emoji: '🍉', weight: 5 },
-        { emoji: '🥝', weight: 1 },
-        { emoji: '🧀', weight: 4 },
-        { emoji: '🍇', weight: 3 }
-      ];
-      itemPool.innerHTML = '';
-      originalItems.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'drag-item';
-        div.setAttribute('draggable', 'true');
-        div.dataset.emoji = item.emoji;
-        div.dataset.weight = item.weight;
-        div.textContent = item.emoji;
-        itemPool.appendChild(div);
-      });
-      document.querySelectorAll('.drag-item').forEach(el => {
-        el.removeEventListener('dragstart', onDragStart);
-        el.removeEventListener('dragend', onDragEnd);
-        el.addEventListener('dragstart', onDragStart);
-        el.addEventListener('dragend', onDragEnd);
-      });
-      beam.style.transform = 'rotate(0deg)';
-      updateWeightLabels();
+/* =========================
+   CARD ANIMATION
+========================= */
+const cards = document.querySelectorAll(".divclass");
+window.addEventListener("load",()=>{
+    cards.forEach((card,index)=>{
+        card.style.opacity="0";
+        card.style.transform="translateY(30px)";
+        setTimeout(()=>{
+            card.style.transition="all 0.5s ease";
+            card.style.opacity="1";
+            card.style.transform="translateY(0)";
+        },index*70);
     });
+});
 
-    // ----- init -----
-    function init() {
-      resetScale();
-      setupDragAndDrop();
-    }
-
-    init();
-
-  })();
+/* =========================
+   TOUCH EFFECT
+========================= */
+cards.forEach(card=>{
+    card.addEventListener("pointerdown",()=>{
+        card.style.transform="scale(0.95)";
+    });
+    card.addEventListener("pointerup",()=>{
+        card.style.transform="";
+    });
+    card.addEventListener("pointerleave",()=>{
+        card.style.transform="";
+    });
+});
 </script>
+
 </body>
 </html>
