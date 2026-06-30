@@ -476,6 +476,70 @@
       margin: 0.2rem 0;
     }
 
+    .emoji-container {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: auto;
+      z-index: 20;
+      padding: 20px;
+      min-width: 120px;
+      min-height: 120px;
+    }
+
+    .hidden-emoji {
+      font-size: clamp(4rem, 15vw, 8rem);
+      line-height: 1.2;
+      filter: drop-shadow(2px 6px 12px rgba(0,0,0,0.15));
+      margin: 0.2rem 0;
+      opacity: 0.3;
+      transition: opacity 0.4s ease;
+    }
+    .hidden-emoji.revealed {
+      opacity: 1;
+    }
+
+    .emoji-cover {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #faf5eb;
+      border: 3px solid #d4c4b0;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      font-weight: 700;
+      color: #c05c5c;
+      cursor: grab;
+      touch-action: none;
+      z-index: 5;
+      transition: box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+      padding: 8px 16px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+    }
+    .emoji-cover:hover {
+      box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+      border-color: #bfae99;
+    }
+    .emoji-cover:active {
+      cursor: grabbing;
+    }
+    .emoji-cover.dragging {
+      box-shadow: 0 8px 28px rgba(0,0,0,0.3);
+      background: #fcfbf7;
+      border-color: #a8907a;
+      z-index: 10;
+      cursor: grabbing;
+    }
+
     .word-label {
       font-size: clamp(0.9rem, 2vw, 1.2rem);
       opacity: 0.5;
@@ -582,6 +646,12 @@
         min-width: 70px;
         min-height: 40px;
       }
+
+      .emoji-container {
+        padding: 15px;
+        min-width: 90px;
+        min-height: 90px;
+      }
     }
 
     /* Mobile adjustments */
@@ -629,6 +699,17 @@
         font-size: 1rem;
         padding: 4px 10px;
         border-radius: 8px;
+      }
+
+      .emoji-container {
+        padding: 10px;
+        min-width: 70px;
+        min-height: 70px;
+      }
+
+      .emoji-cover {
+        font-size: 1.2rem;
+        border-radius: 10px;
       }
       
       .drag-hint {
@@ -682,6 +763,16 @@
       .hidden-word,
       .word-cover {
         font-size: 0.85rem;
+      }
+
+      .emoji-container {
+        padding: 8px;
+        min-width: 60px;
+        min-height: 60px;
+      }
+
+      .emoji-cover {
+        font-size: 1rem;
       }
     }
   </style>
@@ -810,7 +901,10 @@
         </div>
       </div>
       <div class="page page-right" data-page="5">
-        <div class="page-emoji" id="flowerEmoji">🌸</div>
+        <div class="emoji-container" id="flowerEmojiContainer">
+          <span class="hidden-emoji" id="flowerEmoji">🌸</span>
+          <div class="emoji-cover" id="flowerEmojiCover">🌸</div>
+        </div>
         <div class="word-label"></div>
       </div>
 
@@ -830,7 +924,10 @@
         </div>
       </div>
       <div class="page page-right" data-page="7">
-        <div class="page-emoji" id="dogEmoji">🐕</div>
+        <div class="emoji-container" id="dogEmojiContainer">
+          <span class="hidden-emoji" id="dogEmoji">🐕</span>
+          <div class="emoji-cover" id="dogEmojiCover">🐕</div>
+        </div>
       </div>
 
       <!-- SPREAD 4: CAT -->
@@ -849,7 +946,10 @@
         </div>
       </div>
       <div class="page page-right" data-page="9">
-        <div class="page-emoji" id="catEmoji">🐈</div>
+        <div class="emoji-container" id="catEmojiContainer">
+          <span class="hidden-emoji" id="catEmoji">🐈</span>
+          <div class="emoji-cover" id="catEmojiCover">🐈</div>
+        </div>
       </div>
 
       <!-- SPREAD 5: CAR -->
@@ -868,7 +968,10 @@
         </div>
       </div>
       <div class="page page-right" data-page="11">
-        <div class="page-emoji" id="carEmoji">🚗</div>
+        <div class="emoji-container" id="carEmojiContainer">
+          <span class="hidden-emoji" id="carEmoji">🚗</span>
+          <div class="emoji-cover" id="carEmojiCover">🚗</div>
+        </div>
         <div class="word-label"></div>
       </div>
 
@@ -888,7 +991,10 @@
         </div>
       </div>
       <div class="page page-right" data-page="13">
-        <div class="page-emoji" id="treeEmoji">🌳</div>
+        <div class="emoji-container" id="treeEmojiContainer">
+          <span class="hidden-emoji" id="treeEmoji">🌳</span>
+          <div class="emoji-cover" id="treeEmojiCover">🌳</div>
+        </div>
         <div class="word-label"></div>
       </div>
 
@@ -908,7 +1014,10 @@
         </div>
       </div>
       <div class="page page-right" data-page="15">
-        <div class="page-emoji" id="sunEmoji">☀️</div>
+        <div class="emoji-container" id="sunEmojiContainer">
+          <span class="hidden-emoji" id="sunEmoji">☀️</span>
+          <div class="emoji-cover" id="sunEmojiCover">☀️</div>
+        </div>
         <div class="word-label"></div>
       </div>
 
@@ -999,6 +1108,8 @@
           <input type="text" id="edit_${config.id}Cover" value="${document.getElementById(config.id + 'Cover').textContent}">
           <label style="margin-top:8px;">${config.name} - រូបតំណាង</label>
           <input type="text" id="edit_${config.id}Emoji" value="${document.getElementById(config.id + 'Emoji').textContent}">
+          <label style="margin-top:8px;">${config.name} - គម្របរូបតំណាង</label>
+          <input type="text" id="edit_${config.id}EmojiCover" value="${document.getElementById(config.id + 'EmojiCover').textContent}">
         `;
         wordPagesContainer.appendChild(fieldDiv);
       });
@@ -1034,6 +1145,7 @@
           document.getElementById(config.id + 'Text').textContent = document.getElementById('edit_' + config.id + 'Word').value;
           document.getElementById(config.id + 'Cover').textContent = document.getElementById('edit_' + config.id + 'Cover').value;
           document.getElementById(config.id + 'Emoji').textContent = document.getElementById('edit_' + config.id + 'Emoji').value;
+          document.getElementById(config.id + 'EmojiCover').textContent = document.getElementById('edit_' + config.id + 'EmojiCover').value;
         });
         
         // Save back cover
@@ -1095,12 +1207,12 @@
       // ----- DRAG SYSTEM FOR ALL INTERACTIVE WORDS -----
       const dragInstances = [];
 
-      function createDragInstance(coverId, textId, boxId) {
+      function createDragInstance(coverId, textId, containerId, isEmoji = false) {
         const cover = document.getElementById(coverId);
         const text = document.getElementById(textId);
-        const box = document.getElementById(boxId);
+        const container = document.getElementById(containerId);
         
-        if (!cover || !text || !box) return null;
+        if (!cover || !text || !container) return null;
 
         let isDragging = false;
         let dragStartX = 0;
@@ -1222,16 +1334,34 @@
 
       // Initialize all interactive words
       const dragWordConfigs = [
-        { cover: 'flowerCover', text: 'flowerText', box: 'flowerBox' },
-        { cover: 'dogCover', text: 'dogText', box: 'dogBox' },
-        { cover: 'catCover', text: 'catText', box: 'catBox' },
-        { cover: 'carCover', text: 'carText', box: 'carBox' },
-        { cover: 'treeCover', text: 'treeText', box: 'treeBox' },
-        { cover: 'sunCover', text: 'sunText', box: 'sunBox' }
+        { cover: 'flowerCover', text: 'flowerText', box: 'flowerBox', isEmoji: false },
+        { cover: 'dogCover', text: 'dogText', box: 'dogBox', isEmoji: false },
+        { cover: 'catCover', text: 'catText', box: 'catBox', isEmoji: false },
+        { cover: 'carCover', text: 'carText', box: 'carBox', isEmoji: false },
+        { cover: 'treeCover', text: 'treeText', box: 'treeBox', isEmoji: false },
+        { cover: 'sunCover', text: 'sunText', box: 'sunBox', isEmoji: false }
       ];
 
       dragWordConfigs.forEach(config => {
-        const instance = createDragInstance(config.cover, config.text, config.box);
+        const instance = createDragInstance(config.cover, config.text, config.box, config.isEmoji);
+        if (instance) {
+          dragInstances.push(instance);
+          instance.reset();
+        }
+      });
+
+      // Initialize emoji covers
+      const emojiConfigs = [
+        { cover: 'flowerEmojiCover', text: 'flowerEmoji', container: 'flowerEmojiContainer' },
+        { cover: 'dogEmojiCover', text: 'dogEmoji', container: 'dogEmojiContainer' },
+        { cover: 'catEmojiCover', text: 'catEmoji', container: 'catEmojiContainer' },
+        { cover: 'carEmojiCover', text: 'carEmoji', container: 'carEmojiContainer' },
+        { cover: 'treeEmojiCover', text: 'treeEmoji', container: 'treeEmojiContainer' },
+        { cover: 'sunEmojiCover', text: 'sunEmoji', container: 'sunEmojiContainer' }
+      ];
+
+      emojiConfigs.forEach(config => {
+        const instance = createDragInstance(config.cover, config.text, config.container, true);
         if (instance) {
           dragInstances.push(instance);
           instance.reset();
