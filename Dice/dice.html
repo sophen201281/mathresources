@@ -343,7 +343,6 @@
         return pos;
       }
 
-      // Reset row/col based on number of ones (only ones affect grid)
       function resetRowPosition() {
         const ones = blocks.filter(b => b.type === 'one');
         const count = ones.length;
@@ -364,12 +363,10 @@
       function combineBlocks() {
         let combined = false;
         
-        // Step 1: Combine ones into tens (10 ones → 1 ten)
         let ones = blocks.filter(b => b.type === 'one');
         while (ones.length >= 10) {
           combined = true;
           const firstTen = ones.slice(0, 10);
-          // find the lowest Y among the ten ones, so we place the ten-block under them
           let minY = Infinity;
           let sumX = 0;
           for (const b of firstTen) {
@@ -377,7 +374,6 @@
             sumX += b.x;
           }
           const avgX = sumX / firstTen.length;
-          // remove the ten ones
           let removed = 0;
           blocks = blocks.filter(b => {
             if (b.type === 'one' && removed < 10) {
@@ -390,9 +386,7 @@
             return true;
           });
           
-          // place the new ten-block right under the lowest one (minY + SIZE + 2)
           const tenY = minY + SIZE + 2;
-          // center the ten-block horizontally around avgX
           const tenX = avgX - (SIZE * 10) / 2;
           blocks.push({
             type: 'ten',
@@ -406,12 +400,10 @@
           ones = blocks.filter(b => b.type === 'one');
         }
 
-        // Step 2: Combine tens into hundreds (10 tens → 1 hundred)
         let tens = blocks.filter(b => b.type === 'ten');
         while (tens.length >= 10) {
           combined = true;
           const firstTen = tens.slice(0, 10);
-          // find the bounding box of these tens
           let minX = Infinity, minY = Infinity;
           let maxX = -Infinity, maxY = -Infinity;
           for (const b of firstTen) {
@@ -420,7 +412,6 @@
             if (b.x + b.w > maxX) maxX = b.x + b.w;
             if (b.y + b.h > maxY) maxY = b.y + b.h;
           }
-          // remove them
           let removed = 0;
           blocks = blocks.filter(b => {
             if (b.type === 'ten' && removed < 10) {
@@ -433,7 +424,6 @@
             return true;
           });
           
-          // place hundred-block at the average position (centered)
           const centerX = (minX + maxX) / 2 - (SIZE * 10) / 2;
           const centerY = (minY + maxY) / 2 - (SIZE * 10) / 2;
           blocks.push({
@@ -551,26 +541,21 @@
         }, 450);
       }
 
-      // Function to initialize counters with a specific number
       function initializeCounters(count) {
-        // Clear all existing blocks
         blocks = [];
         drawings = [];
         selected = null;
         resetRowPosition();
         
-        // Reset processing state
         isProcessing = true;
         pendingCounters = 0;
         
-        // Add the specified number of counters
         for (let i = 0; i < count; i++) {
           setTimeout(() => {
             spawnFlyingCounter();
           }, i * 120);
         }
         
-        // Update status after all counters are added
         setTimeout(() => {
           updateStatus();
         }, count * 120 + 500);
@@ -586,7 +571,6 @@
         }
       });
 
-      // Set initial counters when "Set" button is clicked
       initBtn.addEventListener('click', function(e) {
         e.preventDefault();
         let count = parseInt(initInput.value);
@@ -596,7 +580,6 @@
         initializeCounters(count);
       });
 
-      // Allow Enter key on input field
       initInput.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
           e.preventDefault();
@@ -720,6 +703,7 @@
           selected = block;
           dragOffsetX = pos.x - block.x;
           dragOffsetY = pos.y - block.y;
+          // reorder: bring to top
           blocks = blocks.filter(b => b !== block);
           blocks.push(block);
           drawing = false;
@@ -834,7 +818,6 @@
 
       resetRowPosition();
 
-      // Initialize with default value from input (12)
       setTimeout(() => {
         const defaultCount = parseInt(initInput.value) || 12;
         initializeCounters(defaultCount);
