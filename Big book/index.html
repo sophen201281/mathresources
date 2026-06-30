@@ -1,1 +1,1485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>3D flip book · Reveal Words</title>
+  <!-- Google Font: Khmer Battambang -->
+  <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@100;300;400;700;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
 
+    body {
+      background: #d9c8b2;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Battambang', 'Segoe UI', Roboto, system-ui, sans-serif;
+      padding: 16px;
+      margin: 0;
+      touch-action: pan-y;
+      overflow-x: hidden;
+    }
+
+    /* Admin Panel Styles - Responsive */
+    .admin-toggle {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      background: rgba(30, 45, 55, 0.9);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      color: #f0ede5;
+      padding: 10px 20px;
+      border-radius: 50px;
+      font-size: clamp(0.85rem, 2.5vw, 1rem);
+      font-weight: 500;
+      letter-spacing: 1px;
+      border: 1.5px solid #b6a692;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+      z-index: 400;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+      white-space: nowrap;
+    }
+    .admin-toggle:hover {
+      background: rgba(50, 70, 85, 0.95);
+      transform: scale(1.05);
+    }
+    .admin-toggle:active {
+      transform: scale(0.95);
+    }
+
+    /* Overlay for mobile */
+    .admin-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 450;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .admin-overlay.active {
+      display: block;
+      opacity: 1;
+    }
+
+    .admin-panel {
+      position: fixed;
+      top: 0;
+      left: -100%;
+      width: min(420px, 90vw);
+      height: 100vh;
+      height: 100dvh;
+      background: linear-gradient(135deg, #1f2e3a 0%, #2a3f4d 100%);
+      color: #f0ede5;
+      z-index: 500;
+      transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 20px;
+      box-shadow: 4px 0 30px rgba(0,0,0,0.4);
+      border-right: 2px solid #8ba0b0;
+      -webkit-overflow-scrolling: touch;
+    }
+    .admin-panel.open {
+      left: 0;
+    }
+    
+    .admin-panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      border-bottom: 2px solid #8ba0b0;
+      padding-bottom: 12px;
+    }
+    
+    .admin-panel h2 {
+      font-size: clamp(1.3rem, 4vw, 1.8rem);
+      color: #f5e9da;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+      margin: 0;
+    }
+    
+    .close-panel-btn {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #f0ede5;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      padding: 0;
+    }
+    .close-panel-btn:hover {
+      background: rgba(255,255,255,0.2);
+      transform: rotate(90deg);
+    }
+
+    .admin-section {
+      margin-bottom: 20px;
+      padding: 14px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: all 0.3s ease;
+    }
+    .admin-section:hover {
+      background: rgba(255,255,255,0.08);
+    }
+    
+    .admin-section h3 {
+      font-size: clamp(0.95rem, 3vw, 1.2rem);
+      margin-bottom: 14px;
+      color: #d4c4b0;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+    }
+    
+    .admin-field {
+      margin-bottom: 14px;
+    }
+    
+    .admin-field label {
+      display: block;
+      font-size: clamp(0.75rem, 2vw, 0.85rem);
+      margin-bottom: 5px;
+      opacity: 0.8;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+    }
+    
+    .admin-field input, 
+    .admin-field textarea {
+      width: 100%;
+      padding: 10px 14px;
+      background: rgba(255,255,255,0.08);
+      border: 1.5px solid rgba(255,255,255,0.15);
+      border-radius: 10px;
+      color: #f0ede5;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+      font-size: clamp(0.85rem, 2.5vw, 0.95rem);
+      transition: all 0.3s ease;
+      outline: none;
+    }
+    
+    .admin-field input:focus, 
+    .admin-field textarea:focus {
+      outline: none;
+      border-color: #d4c4b0;
+      background: rgba(255,255,255,0.15);
+      box-shadow: 0 0 0 3px rgba(212, 196, 176, 0.1);
+    }
+    
+    .admin-field textarea {
+      resize: vertical;
+      min-height: 50px;
+    }
+    
+    .save-btn {
+      width: 100%;
+      padding: 12px;
+      background: #c05c5c;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: clamp(0.9rem, 2.5vw, 1rem);
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+      margin-top: 8px;
+      letter-spacing: 0.5px;
+    }
+    .save-btn:hover {
+      background: #d46a6a;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(192, 92, 92, 0.3);
+    }
+    .save-btn:active {
+      transform: translateY(0);
+    }
+    
+    .save-all-btn {
+      width: 100%;
+      padding: 14px;
+      background: #2b4a5c;
+      color: #f5e9da;
+      border: 2px solid #8ba0b0;
+      border-radius: 12px;
+      font-size: clamp(1rem, 3vw, 1.1rem);
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+      margin-top: 12px;
+      letter-spacing: 1px;
+    }
+    .save-all-btn:hover {
+      background: #3a5f73;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(43, 74, 92, 0.3);
+    }
+    .save-all-btn:active {
+      transform: translateY(0);
+    }
+
+    .flipbook-wrapper {
+      perspective: 2500px;
+      width: 100%;
+      max-width: 800px;
+      aspect-ratio: 4 / 3;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .flipbook {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+    }
+
+    .page {
+      position: absolute;
+      width: 50%;
+      height: 100%;
+      top: 0;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      background: #fcf8f0;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.02);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 1.2rem 1rem;
+      text-align: center;
+      box-sizing: border-box;
+      border: 1px solid #e3d7c8;
+      pointer-events: none;
+      transform-style: preserve-3d;
+      transition: transform 0.7s cubic-bezier(0.23, 1, 0.32, 1), filter 0.3s ease;
+      will-change: transform;
+      background-image: radial-gradient(circle at 20% 30%, rgba(255,245,235,0.3) 0%, transparent 60%);
+    }
+
+    .page-left {
+      left: 0;
+      border-radius: 8px 0 0 8px;
+      border-right: 1px solid #d0c0ac;
+      transform-origin: right center;
+      background: #faf5eb;
+    }
+
+    .page-right {
+      left: 50%;
+      border-radius: 0 8px 8px 0;
+      border-left: 1px solid #d0c0ac;
+      transform-origin: left center;
+      background: #fcf8f0;
+    }
+
+    .cover {
+      background: #2b4a5c;
+      color: #f5e9da;
+      border: 2px solid #1d3442;
+    }
+    .cover h1 {
+      font-size: clamp(2rem, 8vw, 3.8rem);
+      font-weight: 700;
+      letter-spacing: 4px;
+      text-shadow: 2px 2px 0 #14222b;
+      margin-bottom: 0.3rem;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+    }
+    .cover .sub {
+      font-size: clamp(0.9rem, 2.5vw, 1.3rem);
+      opacity: 0.7;
+      border-top: 1px solid #8ba0b0;
+      padding-top: 0.6rem;
+      width: 70%;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+    }
+
+    .back-cover {
+      background: #2b4a5c;
+      color: #f5e9da;
+      border: 2px solid #1d3442;
+      font-size: clamp(1.2rem, 3vw, 2rem);
+      letter-spacing: 2px;
+    }
+    .back-cover .sub {
+      opacity: 0.5;
+      font-size: clamp(0.8rem, 2vw, 1.1rem);
+      margin-top: 0.5rem;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+    }
+
+    .page-title {
+      font-size: clamp(1.8rem, 6vw, 3.2rem);
+      font-weight: 700;
+      color: #1f3a47;
+      margin-bottom: 0.5rem;
+      line-height: 1.2;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+    }
+
+    .sentence-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 10px;
+      position: relative;
+    }
+    
+    .word-box {
+      font-size: clamp(1.3rem, 4vw, 2.2rem);
+      color: #1f2e3a;
+      font-weight: 400;
+      padding: 6px 12px;
+      background: transparent;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+    }
+
+    .interactive-box {
+      display: inline-flex;
+      position: relative;
+      pointer-events: auto;
+      z-index: 20;
+      padding: 8px 20px;
+      background: #f0e6da;
+      border-radius: 12px;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.06);
+      min-width: 100px;
+      min-height: 50px;
+      align-items: center;
+      border: 2px solid #cfc2b2;
+      overflow: visible;
+    }
+
+    .interactive-content {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+    }
+
+    .hidden-word {
+      font-size: clamp(1.3rem, 4vw, 2.2rem);
+      font-weight: 400;
+      color: #1f3a47;
+      white-space: nowrap;
+      position: relative;
+      z-index: 1;
+      letter-spacing: 0.5px;
+      opacity: 0.3;
+      transition: opacity 0.4s ease;
+      padding: 4px 8px;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+    }
+    .hidden-word.revealed {
+      opacity: 1;
+    }
+
+    .word-cover {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #faf5eb;
+      border: 2px solid #d4c4b0;
+      border-radius: 1px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(1.3rem, 4vw, 2.2rem);
+      font-weight: 700;
+      color: #c05c5c;
+      cursor: grab;
+      touch-action: none;
+      z-index: 5;
+      transition: box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+      padding: 8px 16px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+    }
+    .word-cover:hover {
+      box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+      border-color: #bfae99;
+    }
+    .word-cover:active {
+      cursor: grabbing;
+    }
+    .word-cover.dragging {
+      box-shadow: 0 8px 28px rgba(0,0,0,0.3);
+      background: #fcfbf7;
+      border-color: #a8907a;
+      z-index: 10;
+      cursor: grabbing;
+    }
+
+    .drag-hint {
+      position: absolute;
+      bottom: -22px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.55rem;
+      color: #b0a496;
+      opacity: 0.8;
+      white-space: nowrap;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      letter-spacing: 0.5px;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+    }
+    .word-cover.dragging ~ .drag-hint {
+      opacity: 0;
+    }
+
+    .page-emoji {
+      font-size: clamp(4rem, 15vw, 8rem);
+      line-height: 1.2;
+      filter: drop-shadow(2px 6px 12px rgba(0,0,0,0.15));
+      margin: 0.2rem 0;
+    }
+
+    .emoji-container {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: auto;
+      z-index: 20;
+      padding: 20px;
+      min-width: 120px;
+      min-height: 120px;
+    }
+
+    .hidden-emoji {
+      font-size: clamp(4rem, 15vw, 8rem);
+      line-height: 1.2;
+      filter: drop-shadow(2px 6px 12px rgba(0,0,0,0.15));
+      margin: 0.2rem 0;
+      opacity: 0.3;
+      transition: opacity 0.4s ease;
+    }
+    .hidden-emoji.revealed {
+      opacity: 1;
+    }
+
+    .emoji-cover {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #faf5eb;
+      border: 3px solid #d4c4b0;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      font-weight: 700;
+      color: #c05c5c;
+      cursor: grab;
+      touch-action: none;
+      z-index: 5;
+      transition: box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+      padding: 8px 16px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+    }
+    .emoji-cover:hover {
+      box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+      border-color: #bfae99;
+    }
+    .emoji-cover:active {
+      cursor: grabbing;
+    }
+    .emoji-cover.dragging {
+      box-shadow: 0 8px 28px rgba(0,0,0,0.3);
+      background: #fcfbf7;
+      border-color: #a8907a;
+      z-index: 10;
+      cursor: grabbing;
+    }
+
+    .word-label {
+      font-size: clamp(0.9rem, 2vw, 1.2rem);
+      opacity: 0.5;
+      margin-top: 0.3rem;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+      font-weight: 400;
+    }
+
+    .empty-page {
+      background: #f4ede3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #b8aa98;
+      font-style: italic;
+      letter-spacing: 2px;
+      font-size: 1.2rem;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+    }
+
+    .touch-zones-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 5;
+      pointer-events: none;
+    }
+    .touch-zone {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      width: 50%;
+      pointer-events: auto;
+      cursor: pointer;
+    }
+    .touch-left { left: 0; }
+    .touch-right { right: 0; }
+
+    .page-indicator {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      background: rgba(30, 45, 55, 0.85);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      color: #f0ede5;
+      padding: 8px 18px;
+      border-radius: 50px;
+      font-size: clamp(0.8rem, 2.5vw, 1rem);
+      font-weight: 500;
+      letter-spacing: 1px;
+      border: 1.5px solid #b6a692;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+      z-index: 300;
+      pointer-events: none;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+    }
+
+    .page.flipping-left {
+      transform: rotateY(-18deg) skewY(1.5deg) scaleX(0.96);
+      filter: brightness(0.96) drop-shadow(4px 0 12px rgba(0,0,0,0.08));
+    }
+    .page.flipping-right {
+      transform: rotateY(18deg) skewY(-1.5deg) scaleX(0.96);
+      filter: brightness(0.96) drop-shadow(-4px 0 12px rgba(0,0,0,0.08));
+    }
+
+    .page.turning {
+      transition: transform 0.7s cubic-bezier(0.15, 0.85, 0.35, 1), filter 0.4s ease;
+    }
+
+    .flipbook-wrapper::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 5%;
+      width: 90%;
+      height: 20px;
+      background: radial-gradient(ellipse at center, rgba(0,0,0,0.15) 0%, transparent 70%);
+      border-radius: 50%;
+      filter: blur(8px);
+      z-index: -1;
+    }
+
+    /* Tablet adjustments */
+    @media (max-width: 768px) {
+      body {
+        padding: 12px;
+      }
+      
+      .admin-panel {
+        width: min(380px, 85vw);
+        padding: 16px;
+      }
+      
+      .page {
+        padding: 0.8rem 0.5rem;
+      }
+      
+      .interactive-box {
+        padding: 6px 14px;
+        min-width: 70px;
+        min-height: 40px;
+      }
+
+      .emoji-container {
+        padding: 15px;
+        min-width: 90px;
+        min-height: 90px;
+      }
+    }
+
+    /* Mobile adjustments */
+    @media (max-width: 540px) {
+      body {
+        padding: 8px;
+      }
+      
+      .admin-toggle {
+        top: 10px;
+        left: 10px;
+        padding: 8px 16px;
+        font-size: 0.8rem;
+      }
+      
+      .admin-panel {
+        width: 100vw;
+        padding: 14px;
+        border-right: none;
+      }
+      
+      .page-indicator {
+        top: 10px;
+        right: 10px;
+        padding: 6px 14px;
+        font-size: 0.75rem;
+      }
+      
+      .page { 
+        padding: 0.5rem 0.3rem; 
+      }
+      
+      .interactive-box {
+        padding: 5px 10px;
+        min-width: 60px;
+        min-height: 35px;
+      }
+      
+      .hidden-word {
+        font-size: 1rem;
+        padding: 2px 4px;
+      }
+      
+      .word-cover {
+        font-size: 1rem;
+        padding: 4px 10px;
+        border-radius: 8px;
+      }
+
+      .emoji-container {
+        padding: 10px;
+        min-width: 70px;
+        min-height: 70px;
+      }
+
+      .emoji-cover {
+        font-size: 1.2rem;
+        border-radius: 10px;
+      }
+      
+      .drag-hint {
+        font-size: 0.5rem;
+        bottom: -18px;
+      }
+      
+      .sentence-container {
+        gap: 8px;
+      }
+      
+      .word-box {
+        font-size: 1rem;
+        padding: 4px 8px;
+      }
+      
+      .admin-section {
+        padding: 10px;
+        margin-bottom: 14px;
+      }
+      
+      .admin-field input,
+      .admin-field textarea {
+        padding: 8px 10px;
+        font-size: 0.85rem;
+      }
+    }
+
+    /* Small mobile devices */
+    @media (max-width: 360px) {
+      .admin-toggle {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+        top: 8px;
+        left: 8px;
+      }
+      
+      .page-indicator {
+        top: 8px;
+        right: 8px;
+        padding: 5px 10px;
+        font-size: 0.7rem;
+      }
+      
+      .interactive-box {
+        padding: 4px 8px;
+        min-width: 50px;
+        min-height: 30px;
+      }
+      
+      .hidden-word,
+      .word-cover {
+        font-size: 0.85rem;
+      }
+
+      .emoji-container {
+        padding: 8px;
+        min-width: 60px;
+        min-height: 60px;
+      }
+
+      .emoji-cover {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Admin Overlay for mobile -->
+  <div class="admin-overlay" id="adminOverlay"></div>
+
+  <!-- Admin Toggle Button -->
+  <button class="admin-toggle" id="adminToggle">⚙️ កែសម្រួល</button>
+
+  <!-- Admin Panel -->
+  <div class="admin-panel" id="adminPanel">
+    <div class="admin-panel-header">
+      <h2>📝 កែសម្រួលមាតិកា</h2>
+      <button class="close-panel-btn" id="closePanelBtn">✕</button>
+    </div>
+    
+    <div class="admin-section">
+      <h3>📖 គម្របខាងមុខ</h3>
+      <div class="admin-field">
+        <label>ចំណងជើង</label>
+        <input type="text" id="editCoverTitle" value="ខ្ញុំអាចមើលឃើញ">
+      </div>
+      <div class="admin-field">
+        <label>អត្ថបទរង</label>
+        <input type="text" id="editCoverSub" value="✦ ចុចលើទំព័រ ✦">
+      </div>
+    </div>
+
+    <div class="admin-section">
+      <h3>📄 ទំព័រចំណងជើង</h3>
+      <div class="admin-field">
+        <label>ចំណងជើង</label>
+        <input type="text" id="editTitlePage" value="ខ្ញុំ អាច មើល ឃើញ">
+      </div>
+      <div class="admin-field">
+        <label>រូបតំណាង (Emoji)</label>
+        <input type="text" id="editTitleEmoji" value="👁️">
+      </div>
+    </div>
+
+    <!-- Pattern Sentence Section -->
+    <div class="admin-section">
+      <h3>📝 ប្រយោគគំរូ (Pattern Sentence)</h3>
+      <div class="admin-field">
+        <label>ពាក្យទី 1</label>
+        <input type="text" id="editPattern1" value="ខ្ញុំ">
+      </div>
+      <div class="admin-field">
+        <label>ពាក្យទី 2</label>
+        <input type="text" id="editPattern2" value="អាច">
+      </div>
+      <div class="admin-field">
+        <label>ពាក្យទី 3</label>
+        <input type="text" id="editPattern3" value="មើល">
+      </div>
+      <div class="admin-field">
+        <label>ពាក្យទី 4</label>
+        <input type="text" id="editPattern4" value="ឃើញ">
+      </div>
+    </div>
+
+    <!-- Word Pages -->
+    <div class="admin-section" id="wordPagesSection">
+      <h3>📝 ទំព័រពាក្យ</h3>
+      <div id="wordPagesContainer"></div>
+    </div>
+
+    <div class="admin-section">
+      <h3>📚 គម្របខាងក្រោយ</h3>
+      <div class="admin-field">
+        <label>អត្ថបទ</label>
+        <input type="text" id="editBackText" value="ចប់ហើយ">
+      </div>
+      <div class="admin-field">
+        <label>អត្ថបទរង</label>
+        <input type="text" id="editBackSub" value="✦ អរគុណ ✦">
+      </div>
+      <div class="admin-field">
+        <label>រូបតំណាង</label>
+        <input type="text" id="editBackEmoji" value="📚">
+      </div>
+    </div>
+
+    <button class="save-all-btn" id="saveAllBtn">💾 រក្សាទុកទាំងអស់</button>
+  </div>
+
+  <div class="page-indicator" id="pageIndicator">គម្របខាងមុខ</div>
+
+  <div class="flipbook-wrapper" id="wrapper">
+    <div class="flipbook" id="flipbook">
+
+      <!-- SPREAD 0: FRONT COVER -->
+      <div class="page page-left cover" data-page="0">
+        <h1 id="coverTitle">📖 ខ្ញុំអាចមើលឃើញ</h1>
+        <div class="sub" id="coverSub">✦ ចុចលើទំព័រ ✦</div>
+      </div>
+      <div class="page page-right empty-page" data-page="1">
+        <span style="opacity:0.2;">·</span>
+      </div>
+
+      <!-- SPREAD 1: empty + title page -->
+      <div class="page page-left empty-page" data-page="2">
+        <span style="opacity:0.3;">⋆</span>
+      </div>
+      <div class="page page-right" data-page="3">
+        <div class="page-title" id="titlePage">ខ្ញុំ អាច មើល ឃើញ</div>
+        <div style="font-size:2rem; margin-top:0.2rem;" id="titleEmoji">👁️</div>
+      </div>
+
+      <!-- SPREAD 2: FLOWER -->
+      <div class="page page-left" data-page="4">
+        <div class="sentence-container">
+          <span class="word-box pattern-word" data-pattern="1">ខ្ញុំ</span>
+          <span class="word-box pattern-word" data-pattern="2">អាច</span>
+          <span class="word-box pattern-word" data-pattern="3">មើល</span>
+          <span class="word-box pattern-word" data-pattern="4">ឃើញ</span>
+          <div class="interactive-box" id="flowerBox">
+            <div class="interactive-content">
+              <span class="hidden-word" id="flowerText">ផ្កា</span>
+              <div class="word-cover" id="flowerCover">ផ</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="page page-right" data-page="5">
+        <div class="emoji-container" id="flowerEmojiContainer">
+          <span class="hidden-emoji" id="flowerEmoji">🌸</span>
+          <div class="emoji-cover" id="flowerEmojiCover">🌸</div>
+        </div>
+        <div class="word-label"></div>
+      </div>
+
+      <!-- SPREAD 3: DOG -->
+      <div class="page page-left" data-page="6">
+        <div class="sentence-container">
+          <span class="word-box pattern-word" data-pattern="1">ខ្ញុំ</span>
+          <span class="word-box pattern-word" data-pattern="2">អាច</span>
+          <span class="word-box pattern-word" data-pattern="3">មើល</span>
+          <span class="word-box pattern-word" data-pattern="4">ឃើញ</span>
+          <div class="interactive-box" id="dogBox">
+            <div class="interactive-content">
+              <span class="hidden-word" id="dogText">ឆ្កែ</span>
+              <div class="word-cover" id="dogCover">ឆ</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="page page-right" data-page="7">
+        <div class="emoji-container" id="dogEmojiContainer">
+          <span class="hidden-emoji" id="dogEmoji">🐕</span>
+          <div class="emoji-cover" id="dogEmojiCover">🐕</div>
+        </div>
+      </div>
+
+      <!-- SPREAD 4: CAT -->
+      <div class="page page-left" data-page="8">
+        <div class="sentence-container">
+          <span class="word-box pattern-word" data-pattern="1">ខ្ញុំ</span>
+          <span class="word-box pattern-word" data-pattern="2">អាច</span>
+          <span class="word-box pattern-word" data-pattern="3">មើល</span>
+          <span class="word-box pattern-word" data-pattern="4">ឃើញ</span>
+          <div class="interactive-box" id="catBox">
+            <div class="interactive-content">
+              <span class="hidden-word" id="catText">ឆ្មា</span>
+              <div class="word-cover" id="catCover">ឆ</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="page page-right" data-page="9">
+        <div class="emoji-container" id="catEmojiContainer">
+          <span class="hidden-emoji" id="catEmoji">🐈</span>
+          <div class="emoji-cover" id="catEmojiCover">🐈</div>
+        </div>
+      </div>
+
+      <!-- SPREAD 5: CAR -->
+      <div class="page page-left" data-page="10">
+        <div class="sentence-container">
+          <span class="word-box pattern-word" data-pattern="1">ខ្ញុំ</span>
+          <span class="word-box pattern-word" data-pattern="2">អាច</span>
+          <span class="word-box pattern-word" data-pattern="3">មើល</span>
+          <span class="word-box pattern-word" data-pattern="4">ឃើញ</span>
+          <div class="interactive-box" id="carBox">
+            <div class="interactive-content">
+              <span class="hidden-word" id="carText">ឡាន</span>
+              <div class="word-cover" id="carCover">ឡ</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="page page-right" data-page="11">
+        <div class="emoji-container" id="carEmojiContainer">
+          <span class="hidden-emoji" id="carEmoji">🚗</span>
+          <div class="emoji-cover" id="carEmojiCover">🚗</div>
+        </div>
+        <div class="word-label"></div>
+      </div>
+
+      <!-- SPREAD 6: TREE -->
+      <div class="page page-left" data-page="12">
+        <div class="sentence-container">
+          <span class="word-box pattern-word" data-pattern="1">ខ្ញុំ</span>
+          <span class="word-box pattern-word" data-pattern="2">អាច</span>
+          <span class="word-box pattern-word" data-pattern="3">មើល</span>
+          <span class="word-box pattern-word" data-pattern="4">ឃើញ</span>
+          <div class="interactive-box" id="treeBox">
+            <div class="interactive-content">
+              <span class="hidden-word" id="treeText">ដើមឈើ</span>
+              <div class="word-cover" id="treeCover">ដ</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="page page-right" data-page="13">
+        <div class="emoji-container" id="treeEmojiContainer">
+          <span class="hidden-emoji" id="treeEmoji">🌳</span>
+          <div class="emoji-cover" id="treeEmojiCover">🌳</div>
+        </div>
+        <div class="word-label"></div>
+      </div>
+
+      <!-- SPREAD 7: SUN -->
+      <div class="page page-left" data-page="14">
+        <div class="sentence-container">
+          <span class="word-box pattern-word" data-pattern="1">ខ្ញុំ</span>
+          <span class="word-box pattern-word" data-pattern="2">អាច</span>
+          <span class="word-box pattern-word" data-pattern="3">មើល</span>
+          <span class="word-box pattern-word" data-pattern="4">ឃើញ</span>
+          <div class="interactive-box" id="sunBox">
+            <div class="interactive-content">
+              <span class="hidden-word" id="sunText">ព្រះអាទិត្យ</span>
+              <div class="word-cover" id="sunCover">ព</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="page page-right" data-page="15">
+        <div class="emoji-container" id="sunEmojiContainer">
+          <span class="hidden-emoji" id="sunEmoji">☀️</span>
+          <div class="emoji-cover" id="sunEmojiCover">☀️</div>
+        </div>
+        <div class="word-label"></div>
+      </div>
+
+      <!-- SPREAD 8: BACK COVER -->
+      <div class="page page-left empty-page" data-page="16">
+        <span style="opacity:0.2;">·</span>
+      </div>
+      <div class="page page-right back-cover" data-page="17">
+        <div style="font-size: clamp(2.5rem, 8vw, 4rem); margin-bottom: 0.3rem;" id="backEmoji">📚</div>
+        <div id="backText">ចប់ហើយ</div>
+        <div class="sub" id="backSub">✦ អរគុណ ✦</div>
+      </div>
+
+      <div class="touch-zones-container">
+        <div class="touch-zone touch-left" id="touchLeft"></div>
+        <div class="touch-zone touch-right" id="touchRight"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      // ============ ADMIN PANEL LOGIC ============
+      const adminToggle = document.getElementById('adminToggle');
+      const adminPanel = document.getElementById('adminPanel');
+      const adminOverlay = document.getElementById('adminOverlay');
+      const closePanelBtn = document.getElementById('closePanelBtn');
+      const saveAllBtn = document.getElementById('saveAllBtn');
+      
+      // Function to open admin panel
+      function openAdminPanel() {
+        adminPanel.classList.add('open');
+        adminOverlay.classList.add('active');
+        adminToggle.textContent = '✕ បិទ';
+        document.body.style.overflow = 'hidden';
+      }
+      
+      // Function to close admin panel
+      function closeAdminPanel() {
+        adminPanel.classList.remove('open');
+        adminOverlay.classList.remove('active');
+        adminToggle.textContent = '⚙️ កែសម្រួល';
+        document.body.style.overflow = '';
+      }
+      
+      // Toggle admin panel
+      adminToggle.addEventListener('click', () => {
+        if (adminPanel.classList.contains('open')) {
+          closeAdminPanel();
+        } else {
+          openAdminPanel();
+        }
+      });
+      
+      // Close panel with X button
+      closePanelBtn.addEventListener('click', closeAdminPanel);
+      
+      // Close panel when clicking overlay
+      adminOverlay.addEventListener('click', closeAdminPanel);
+      
+      // Close panel with Escape key
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && adminPanel.classList.contains('open')) {
+          closeAdminPanel();
+        }
+      });
+
+      // Word configurations for dynamic admin fields
+      const wordConfigs = [
+        { id: 'flower', name: 'ផ្កា (Flower)' },
+        { id: 'dog', name: 'ឆ្កែ (Dog)' },
+        { id: 'cat', name: 'ឆ្មា (Cat)' },
+        { id: 'car', name: 'ឡាន (Car)' },
+        { id: 'tree', name: 'ដើមឈើ (Tree)' },
+        { id: 'sun', name: 'ព្រះអាទិត្យ (Sun)' }
+      ];
+
+      // Generate word editing fields
+      const wordPagesContainer = document.getElementById('wordPagesContainer');
+      wordConfigs.forEach(config => {
+        const fieldDiv = document.createElement('div');
+        fieldDiv.className = 'admin-field';
+        fieldDiv.innerHTML = `
+          <label>${config.name} - ពាក្យលាក់</label>
+          <input type="text" id="edit_${config.id}Word" value="${document.getElementById(config.id + 'Text').textContent}">
+          <label style="margin-top:8px;">${config.name} - អក្សរគម្រប</label>
+          <input type="text" id="edit_${config.id}Cover" value="${document.getElementById(config.id + 'Cover').textContent}">
+          <label style="margin-top:8px;">${config.name} - រូបតំណាង</label>
+          <input type="text" id="edit_${config.id}Emoji" value="${document.getElementById(config.id + 'Emoji').textContent}">
+          <label style="margin-top:8px;">${config.name} - គម្របរូបតំណាង</label>
+          <input type="text" id="edit_${config.id}EmojiCover" value="${document.getElementById(config.id + 'EmojiCover').textContent}">
+        `;
+        wordPagesContainer.appendChild(fieldDiv);
+      });
+
+      // Save all changes
+      saveAllBtn.addEventListener('click', () => {
+        // Save cover
+        document.getElementById('coverTitle').textContent = '📖 ' + document.getElementById('editCoverTitle').value;
+        document.getElementById('coverSub').textContent = document.getElementById('editCoverSub').value;
+        
+        // Save title page
+        document.getElementById('titlePage').textContent = document.getElementById('editTitlePage').value;
+        document.getElementById('titleEmoji').textContent = document.getElementById('editTitleEmoji').value;
+        
+        // Save pattern words
+        const patternValues = [
+          document.getElementById('editPattern1').value,
+          document.getElementById('editPattern2').value,
+          document.getElementById('editPattern3').value,
+          document.getElementById('editPattern4').value
+        ];
+        
+        // Update all pattern words on all pages
+        document.querySelectorAll('.pattern-word').forEach(word => {
+          const patternIndex = parseInt(word.getAttribute('data-pattern')) - 1;
+          if (patternIndex >= 0 && patternIndex < patternValues.length) {
+            word.textContent = patternValues[patternIndex];
+          }
+        });
+        
+        // Save word pages
+        wordConfigs.forEach(config => {
+          document.getElementById(config.id + 'Text').textContent = document.getElementById('edit_' + config.id + 'Word').value;
+          document.getElementById(config.id + 'Cover').textContent = document.getElementById('edit_' + config.id + 'Cover').value;
+          document.getElementById(config.id + 'Emoji').textContent = document.getElementById('edit_' + config.id + 'Emoji').value;
+          document.getElementById(config.id + 'EmojiCover').textContent = document.getElementById('edit_' + config.id + 'EmojiCover').value;
+        });
+        
+        // Save back cover
+        document.getElementById('backText').textContent = document.getElementById('editBackText').value;
+        document.getElementById('backSub').textContent = document.getElementById('editBackSub').value;
+        document.getElementById('backEmoji').textContent = document.getElementById('editBackEmoji').value;
+        
+        // Update spread labels
+        spreadLabels[0] = document.getElementById('editCoverTitle').value;
+        spreadLabels[1] = document.getElementById('editTitlePage').value;
+        wordConfigs.forEach((config, index) => {
+          spreadLabels[index + 2] = config.name;
+        });
+        
+        // Show success feedback
+        saveAllBtn.textContent = '✅ បានរក្សាទុក!';
+        saveAllBtn.style.background = '#4CAF50';
+        saveAllBtn.style.borderColor = '#66BB6A';
+        
+        setTimeout(() => {
+          saveAllBtn.textContent = '💾 រក្សាទុកទាំងអស់';
+          saveAllBtn.style.background = '#2b4a5c';
+          saveAllBtn.style.borderColor = '#8ba0b0';
+        }, 2000);
+        
+        // Update page indicator if on that spread
+        updateFlip();
+        
+        // Close admin panel after saving
+        setTimeout(() => {
+          closeAdminPanel();
+        }, 800);
+      });
+
+      // ============ ORIGINAL FLIPBOOK LOGIC ============
+      const pageIndicator = document.getElementById('pageIndicator');
+      const wrapper = document.getElementById('wrapper');
+      const pages = document.querySelectorAll('.page');
+      const touchLeft = document.getElementById('touchLeft');
+      const touchRight = document.getElementById('touchRight');
+
+      const TOTAL_PAGES = pages.length;
+      const SPREADS = TOTAL_PAGES / 2; 
+      let currentSpread = 0;
+      let isFlipping = false;
+
+      const spreadLabels = [
+        'គម្របខាងមុខ',
+        'ទំព័រចំណងជើង',
+        'ផ្កា',
+        'ឆ្កែ',
+        'ឆ្មា',
+        'ឡាន',
+        'ដើមឈើ',
+        'ព្រះអាទិត្យ',
+        'គម្របខាងក្រោយ'
+      ];
+
+      // ----- DRAG SYSTEM FOR ALL INTERACTIVE WORDS -----
+      const dragInstances = [];
+
+      function createDragInstance(coverId, textId, containerId, isEmoji = false) {
+        const cover = document.getElementById(coverId);
+        const text = document.getElementById(textId);
+        const container = document.getElementById(containerId);
+        
+        if (!cover || !text || !container) return null;
+
+        let isDragging = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+        let currentX = 0;
+        let currentY = 0;
+        let elementStartX = 0;
+        let elementStartY = 0;
+        let isRevealed = false;
+
+        const SNAP_THRESHOLD = 30;
+        const REVEAL_THRESHOLD = 50;
+
+        function setPosition(x, y, animate = false) {
+          currentX = x;
+          currentY = y;
+          
+          if (animate) {
+            cover.style.transition = 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+          } else {
+            cover.style.transition = 'none';
+          }
+          
+          cover.style.transform = `translate(${x}px, ${y}px)`;
+          
+          const distance = Math.sqrt(x * x + y * y);
+          
+          if (distance > REVEAL_THRESHOLD && !isRevealed) {
+            isRevealed = true;
+            text.classList.add('revealed');
+          } else if (distance <= REVEAL_THRESHOLD && isRevealed) {
+            isRevealed = false;
+            text.classList.remove('revealed');
+          }
+        }
+
+        function snapToOrigin() {
+          setPosition(0, 0, true);
+          setTimeout(() => {
+            cover.style.transition = '';
+          }, 500);
+        }
+
+        function onDragStart(e) {
+          if (isFlipping) return;
+          
+          const touch = e.touches ? e.touches[0] : e;
+          isDragging = true;
+          
+          dragStartX = touch.clientX;
+          dragStartY = touch.clientY;
+          elementStartX = currentX;
+          elementStartY = currentY;
+          
+          cover.classList.add('dragging');
+          cover.style.transition = 'none';
+          
+          e.preventDefault();
+          e.stopPropagation();
+        }
+
+        function onDragMove(e) {
+          if (!isDragging) return;
+          
+          const touch = e.touches ? e.touches[0] : e;
+          const deltaX = touch.clientX - dragStartX;
+          const deltaY = touch.clientY - dragStartY;
+          
+          let newX = elementStartX + deltaX;
+          let newY = elementStartY + deltaY;
+          
+          newX = Math.max(-200, Math.min(200, newX));
+          newY = Math.max(-200, Math.min(200, newY));
+          
+          setPosition(newX, newY, false);
+          
+          e.preventDefault();
+          e.stopPropagation();
+        }
+
+        function onDragEnd(e) {
+          if (!isDragging) return;
+          isDragging = false;
+          
+          cover.classList.remove('dragging');
+          
+          const distance = Math.sqrt(currentX * currentX + currentY * currentY);
+          if (distance < SNAP_THRESHOLD) {
+            snapToOrigin();
+          } else {
+            cover.style.transition = '';
+          }
+          
+          e.preventDefault();
+          e.stopPropagation();
+        }
+
+        // Mouse events
+        cover.addEventListener('mousedown', onDragStart);
+        document.addEventListener('mousemove', onDragMove);
+        document.addEventListener('mouseup', onDragEnd);
+
+        // Touch events
+        cover.addEventListener('touchstart', onDragStart, { passive: false });
+        document.addEventListener('touchmove', onDragMove, { passive: false });
+        document.addEventListener('touchend', onDragEnd, { passive: false });
+
+        // Prevent click from triggering page flip
+        cover.addEventListener('click', function(e) {
+          e.stopPropagation();
+        });
+
+        return {
+          setPosition,
+          snapToOrigin,
+          reset: () => setPosition(0, 0, false)
+        };
+      }
+
+      // Initialize all interactive words
+      const dragWordConfigs = [
+        { cover: 'flowerCover', text: 'flowerText', box: 'flowerBox', isEmoji: false },
+        { cover: 'dogCover', text: 'dogText', box: 'dogBox', isEmoji: false },
+        { cover: 'catCover', text: 'catText', box: 'catBox', isEmoji: false },
+        { cover: 'carCover', text: 'carText', box: 'carBox', isEmoji: false },
+        { cover: 'treeCover', text: 'treeText', box: 'treeBox', isEmoji: false },
+        { cover: 'sunCover', text: 'sunText', box: 'sunBox', isEmoji: false }
+      ];
+
+      dragWordConfigs.forEach(config => {
+        const instance = createDragInstance(config.cover, config.text, config.box, config.isEmoji);
+        if (instance) {
+          dragInstances.push(instance);
+          instance.reset();
+        }
+      });
+
+      // Initialize emoji covers
+      const emojiConfigs = [
+        { cover: 'flowerEmojiCover', text: 'flowerEmoji', container: 'flowerEmojiContainer' },
+        { cover: 'dogEmojiCover', text: 'dogEmoji', container: 'dogEmojiContainer' },
+        { cover: 'catEmojiCover', text: 'catEmoji', container: 'catEmojiContainer' },
+        { cover: 'carEmojiCover', text: 'carEmoji', container: 'carEmojiContainer' },
+        { cover: 'treeEmojiCover', text: 'treeEmoji', container: 'treeEmojiContainer' },
+        { cover: 'sunEmojiCover', text: 'sunEmoji', container: 'sunEmojiContainer' }
+      ];
+
+      emojiConfigs.forEach(config => {
+        const instance = createDragInstance(config.cover, config.text, config.container, true);
+        if (instance) {
+          dragInstances.push(instance);
+          instance.reset();
+        }
+      });
+
+      // ----- PAGE FLIP LOGIC -----
+      function applyCurve(page, direction) {
+        page.classList.add('turning');
+        if (direction === 'left') {
+          page.classList.add('flipping-left');
+          page.classList.remove('flipping-right');
+        } else if (direction === 'right') {
+          page.classList.add('flipping-right');
+          page.classList.remove('flipping-left');
+        }
+        setTimeout(() => {
+          page.classList.remove('flipping-left', 'flipping-right', 'turning');
+        }, 750);
+      }
+
+      function updateFlip() {
+        pages.forEach(page => {
+          const pageNum = parseInt(page.getAttribute('data-page'), 10);
+          const pageSpread = Math.floor(pageNum / 2);
+          const isLeft = page.classList.contains('page-left');
+          const isRight = page.classList.contains('page-right');
+
+          page.classList.remove('flipping-left', 'flipping-right', 'turning');
+
+          if (pageSpread < currentSpread) {
+            if (isRight) {
+              page.style.transform = 'rotateY(-180deg)';
+            } else {
+              page.style.transform = 'rotateY(0deg)';
+            }
+            page.style.zIndex = 10 + pageSpread;
+            page.style.filter = 'brightness(0.92) drop-shadow(-2px 0 6px rgba(0,0,0,0.06))';
+          } 
+          else if (pageSpread === currentSpread) {
+            page.style.transform = 'rotateY(0deg)';
+            page.style.zIndex = 150;
+            page.style.filter = 'brightness(1) drop-shadow(0 0 6px rgba(0,0,0,0.02))';
+          } 
+          else {
+            if (isLeft) {
+              page.style.transform = 'rotateY(180deg)';
+            } else {
+              page.style.transform = 'rotateY(0deg)';
+            }
+            page.style.zIndex = 10 + (TOTAL_PAGES - pageNum);
+            page.style.filter = 'brightness(0.96) drop-shadow(2px 0 8px rgba(0,0,0,0.04))';
+          }
+        });
+
+        if (currentSpread < spreadLabels.length) {
+          pageIndicator.textContent = spreadLabels[currentSpread];
+        }
+      }
+
+      function animateCurve(direction) {
+        const leftPage = document.querySelector(`.page-left[data-page="${currentSpread * 2}"]`);
+        const rightPage = document.querySelector(`.page-right[data-page="${currentSpread * 2 + 1}"]`);
+        
+        if (direction === 1) {
+          if (leftPage) applyCurve(leftPage, 'left');
+          const prevRight = document.querySelector(`.page-right[data-page="${(currentSpread - 1) * 2 + 1}"]`);
+          if (prevRight) applyCurve(prevRight, 'right');
+        } else if (direction === -1) {
+          if (rightPage) applyCurve(rightPage, 'right');
+          const prevLeft = document.querySelector(`.page-left[data-page="${(currentSpread + 1) * 2}"]`);
+          if (prevLeft) applyCurve(prevLeft, 'left');
+        }
+      }
+
+      function goToSpread(spreadIndex) {
+        if (isFlipping) return;
+        if (spreadIndex < 0 || spreadIndex >= SPREADS || spreadIndex === currentSpread) return;
+        
+        isFlipping = true;
+        const dir = spreadIndex > currentSpread ? 1 : -1;
+        animateCurve(dir);
+        currentSpread = spreadIndex;
+        updateFlip();
+        
+        setTimeout(() => {
+          isFlipping = false;
+        }, 750);
+      }
+
+      touchLeft.addEventListener('click', function(e) {
+        if (isFlipping) return;
+        if (currentSpread > 0) goToSpread(currentSpread - 1);
+        e.stopPropagation();
+      });
+
+      touchRight.addEventListener('click', function(e) {
+        if (isFlipping) return;
+        if (currentSpread < SPREADS - 1) goToSpread(currentSpread + 1);
+        e.stopPropagation();
+      });
+
+      document.addEventListener('keydown', function(e) {
+        if (isFlipping) return;
+        if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+          if (currentSpread > 0) goToSpread(currentSpread - 1);
+        } else if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
+          if (currentSpread < SPREADS - 1) goToSpread(currentSpread + 1);
+        }
+      });
+
+      wrapper.addEventListener('contextmenu', (e) => e.preventDefault());
+
+      // Initialize
+      updateFlip();
+
+    })();
+  </script>
+
+</body>
+</html>
