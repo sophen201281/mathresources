@@ -7,7 +7,7 @@
   <style>
     * {
       box-sizing: border-box;
-      user-select: none; /* prevent text selection while dragging */
+      user-select: none;
       -webkit-tap-highlight-color: transparent;
     }
 
@@ -57,7 +57,6 @@
       box-shadow: inset 0 1px 4px #b3956a;
     }
 
-    /* scale area */
     .scale-wrapper {
       position: relative;
       margin: 20px 0 30px;
@@ -66,7 +65,6 @@
       align-items: center;
     }
 
-    /* the balance beam + central pivot */
     .scale-beam {
       position: relative;
       width: 100%;
@@ -100,7 +98,7 @@
       border-radius: 40px;
       box-shadow: 0 6px 0 #5b4b34, 0 8px 12px rgba(0,0,0,0.3);
       transform-origin: center center;
-      transition: transform 0.4s cubic-bezier(0.34, 1.2, 0.64, 1);
+      transition: transform 0.5s cubic-bezier(0.34, 1.2, 0.64, 1);
       will-change: transform;
       display: flex;
       justify-content: space-between;
@@ -109,7 +107,6 @@
       z-index: 2;
     }
 
-    /* scale pans */
     .pan {
       position: relative;
       width: 40%;
@@ -173,7 +170,6 @@
       backdrop-filter: blur(1px);
     }
 
-    /* weight result */
     .weight-indicator {
       display: flex;
       justify-content: center;
@@ -206,7 +202,6 @@
       line-height: 1;
     }
 
-    /* draggable item pool */
     .item-pool {
       display: flex;
       flex-wrap: wrap;
@@ -234,7 +229,7 @@
       transform: translateY(-4px);
       line-height: 1;
       border: 1px solid #dac9b2;
-      touch-action: none;  /* improve touch dragging */
+      touch-action: none;
     }
     .drag-item:active {
       cursor: grabbing;
@@ -246,7 +241,6 @@
       transform: scale(0.85);
     }
 
-    /* utility */
     .reset-btn {
       background: #4e3f2c;
       border: none;
@@ -269,7 +263,6 @@
       box-shadow: 0 2px 0 #2f2419;
     }
 
-    /* responsive */
     @media (max-width: 550px) {
       .game-container { padding: 12px 6px 20px; }
       .beam { padding: 0 3%; }
@@ -294,7 +287,6 @@
   </h1>
 
   <div class="scale-wrapper">
-    <!-- beam + pivot -->
     <div class="scale-beam">
       <div class="pivot"></div>
       <div class="beam" id="beam">
@@ -309,14 +301,12 @@
       </div>
     </div>
 
-    <!-- heavy / light display -->
     <div class="weight-indicator" id="weightIndicator">
       <div class="weight-badge" id="leftBadge">⬅️ <span id="leftWeightLabel">⚖️</span></div>
       <div class="weight-badge" id="rightBadge">➡️ <span id="rightWeightLabel">⚖️</span></div>
     </div>
   </div>
 
-  <!-- draggable items -->
   <div class="item-pool" id="itemPool">
     <div class="drag-item" draggable="true" data-emoji="🍎" data-weight="3">🍎</div>
     <div class="drag-item" draggable="true" data-emoji="🍌" data-weight="2">🍌</div>
@@ -331,8 +321,7 @@
 
 <script>
   (function() {
-    // ----- data state -----
-    const leftItems = [];      // store { emoji, weight }
+    const leftItems = [];
     const rightItems = [];
 
     const leftContainer = document.getElementById('leftItems');
@@ -342,13 +331,10 @@
     const rightWeightLabel = document.getElementById('rightWeightLabel');
     const itemPool = document.getElementById('itemPool');
 
-    // ----- helpers: update UI -----
     function renderScale() {
-      // clear containers
       leftContainer.innerHTML = '';
       rightContainer.innerHTML = '';
 
-      // render left items
       leftItems.forEach(item => {
         const span = document.createElement('span');
         span.className = 'item-on-scale';
@@ -357,7 +343,6 @@
         leftContainer.appendChild(span);
       });
 
-      // render right items
       rightItems.forEach(item => {
         const span = document.createElement('span');
         span.className = 'item-on-scale';
@@ -377,20 +362,15 @@
       leftWeightLabel.textContent = leftTotal > 0 ? leftTotal : '⚖️';
       rightWeightLabel.textContent = rightTotal > 0 ? rightTotal : '⚖️';
 
-      // heavy / light text
       const leftBadge = document.getElementById('leftBadge');
       const rightBadge = document.getElementById('rightBadge');
 
-      // remove previous status
       leftBadge.style.background = '#4d3e2b';
       rightBadge.style.background = '#4d3e2b';
       leftBadge.style.color = '#f7ebd6';
       rightBadge.style.color = '#f7ebd6';
 
-      if (leftTotal === 0 && rightTotal === 0) {
-        // neutral
-        return;
-      }
+      if (leftTotal === 0 && rightTotal === 0) return;
 
       if (leftTotal > rightTotal) {
         leftBadge.style.background = '#a6522b';
@@ -403,7 +383,6 @@
         leftBadge.style.background = '#3f5a3a';
         leftBadge.style.color = '#d4d9b0';
       } else {
-        // equal
         leftBadge.style.background = '#5f6b4b';
         rightBadge.style.background = '#5f6b4b';
         leftBadge.style.color = '#f0efd0';
@@ -417,15 +396,18 @@
 
       const diff = leftTotal - rightTotal;
       let tilt = 0;
-      if (diff > 0) tilt = Math.min(18, diff * 2.5);    // left heavy -> tilt left (negative)
-      else if (diff < 0) tilt = Math.max(-18, diff * 2.5); // right heavy -> tilt right (positive)
-      else tilt = 0;
+      
+      if (diff > 0) {
+        // Left is heavier → left side goes DOWN → beam rotates clockwise (positive)
+        tilt = Math.min(20, diff * 2.5);
+      } else if (diff < 0) {
+        // Right is heavier → right side goes DOWN → beam rotates counter-clockwise (negative)
+        tilt = Math.max(-20, diff * 2.5);
+      }
 
-      // apply rotation, with a little damping
       beam.style.transform = `rotate(${tilt}deg)`;
     }
 
-    // ----- add item to pan (side: 'left' or 'right') -----
     function addItemToPan(emoji, weight, side) {
       if (side === 'left') {
         leftItems.push({ emoji, weight });
@@ -438,21 +420,18 @@
       return true;
     }
 
-    // ----- reset -----
     function resetScale() {
       leftItems.length = 0;
       rightItems.length = 0;
       renderScale();
     }
 
-    // ----- drag & drop handling (desktop + touch) -----
     function setupDragAndDrop() {
       const draggables = document.querySelectorAll('.drag-item');
       let draggedElement = null;
       let draggedEmoji = '';
       let draggedWeight = 0;
 
-      // ---- drag start ----
       function onDragStart(e) {
         const target = e.target.closest('.drag-item');
         if (!target) return;
@@ -461,7 +440,6 @@
         draggedWeight = parseInt(target.dataset.weight, 10) || 1;
         target.classList.add('dragging');
 
-        // For drag & drop API
         if (e.dataTransfer) {
           e.dataTransfer.setData('text/plain', draggedEmoji);
           e.dataTransfer.effectAllowed = 'move';
@@ -471,11 +449,9 @@
       function onDragEnd(e) {
         const target = e.target.closest('.drag-item');
         if (target) target.classList.remove('dragging');
-        // clean up
         draggedElement = null;
       }
 
-      // ---- drop targets: pans ----
       function allowDrop(e) {
         e.preventDefault();
       }
@@ -487,14 +463,11 @@
 
         let side = pan.classList.contains('pan-left') ? 'left' : 'right';
 
-        // get data from drag (use stored data if available)
         let emoji = draggedEmoji;
         let weight = draggedWeight;
 
-        // fallback: if drag API used
         if (!emoji && e.dataTransfer) {
           const data = e.dataTransfer.getData('text/plain');
-          // find by emoji in pool
           const poolItem = document.querySelector(`.drag-item[data-emoji="${data}"]`);
           if (poolItem) {
             emoji = poolItem.dataset.emoji;
@@ -504,36 +477,28 @@
 
         if (!emoji) return;
 
-        // add item to pan
         const success = addItemToPan(emoji, weight, side);
         if (success) {
-          // remove from pool (if the dragged element still exists)
           if (draggedElement && draggedElement.parentNode === itemPool) {
             draggedElement.remove();
           } else {
-            // if not, try to remove by emoji from pool
             const toRemove = document.querySelector(`.drag-item[data-emoji="${emoji}"]`);
             if (toRemove) toRemove.remove();
           }
-          // reset drag state
           if (draggedElement) {
             draggedElement.classList.remove('dragging');
             draggedElement = null;
           }
-          // clean any leftover drag data
           draggedEmoji = '';
           draggedWeight = 0;
         }
       }
 
-      // ---- attach events ----
       draggables.forEach(el => {
-        // drag API
         el.addEventListener('dragstart', onDragStart);
         el.addEventListener('dragend', onDragEnd);
-        // touch events
+
         el.addEventListener('touchstart', (e) => {
-          // simulate drag start for touch
           const touch = e.target.closest('.drag-item');
           if (!touch) return;
           draggedElement = touch;
@@ -543,8 +508,6 @@
         }, { passive: true });
 
         el.addEventListener('touchend', (e) => {
-          // we handle drop via touchmove + touchend on pans
-          // but we need to know where touch ends
           const touch = e.changedTouches[0];
           const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
           const pan = dropTarget?.closest('.pan');
@@ -558,7 +521,6 @@
                 draggedElement.remove();
               }
             }
-            // clean
             if (draggedElement) {
               draggedElement.classList.remove('dragging');
               draggedElement = null;
@@ -566,7 +528,6 @@
             draggedEmoji = '';
             draggedWeight = 0;
           } else {
-            // if dropped outside, just clean
             if (draggedElement) {
               draggedElement.classList.remove('dragging');
               draggedElement = null;
@@ -577,30 +538,22 @@
         }, { passive: true });
       });
 
-      // pan drop targets (drag API)
       const pans = document.querySelectorAll('.pan');
       pans.forEach(pan => {
         pan.addEventListener('dragover', allowDrop);
         pan.addEventListener('drop', onDrop);
-        // also for touch we already handle via touchend
       });
 
-      // also allow drop on the container (fallback)
       document.addEventListener('dragover', allowDrop);
       document.addEventListener('drop', (e) => {
-        // only if not handled by pan
         if (!e.target.closest('.pan')) {
           e.preventDefault();
         }
       });
     }
 
-    // ----- reset button -----
     document.getElementById('resetBtn').addEventListener('click', () => {
       resetScale();
-      // restore items to pool: remove all from pool and re-add from original list
-      // but we need to keep the original set. 
-      // We'll rebuild pool from a static list.
       const originalItems = [
         { emoji: '🍎', weight: 3 },
         { emoji: '🍌', weight: 2 },
@@ -609,7 +562,6 @@
         { emoji: '🧀', weight: 4 },
         { emoji: '🍇', weight: 3 }
       ];
-      // clear pool
       itemPool.innerHTML = '';
       originalItems.forEach(item => {
         const div = document.createElement('div');
@@ -620,29 +572,22 @@
         div.textContent = item.emoji;
         itemPool.appendChild(div);
       });
-      // reattach drag events (but we already have global listeners, just reset)
-      // rebind to new elements: 
       document.querySelectorAll('.drag-item').forEach(el => {
         el.removeEventListener('dragstart', onDragStart);
         el.removeEventListener('dragend', onDragEnd);
         el.addEventListener('dragstart', onDragStart);
         el.addEventListener('dragend', onDragEnd);
       });
-      // reset beam
       beam.style.transform = 'rotate(0deg)';
-      // clear labels
       updateWeightLabels();
     });
 
-    // ----- init -----
     function init() {
-      resetScale(); // empty
-      // populate pool with items from html (already there)
+      resetScale();
       setupDragAndDrop();
     }
 
     init();
-
   })();
 </script>
 </body>
