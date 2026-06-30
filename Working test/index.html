@@ -81,7 +81,7 @@
       position: fixed;
       top: 0;
       left: -100%;
-      width: min(380px, 90vw);
+      width: min(420px, 90vw);
       height: 100vh;
       height: 100dvh;
       background: linear-gradient(135deg, #1f2e3a 0%, #2a3f4d 100%);
@@ -569,7 +569,7 @@
       }
       
       .admin-panel {
-        width: min(350px, 85vw);
+        width: min(380px, 85vw);
         padding: 16px;
       }
       
@@ -725,6 +725,27 @@
       </div>
     </div>
 
+    <!-- Pattern Sentence Section -->
+    <div class="admin-section">
+      <h3>📝 ប្រយោគគំរូ (Pattern Sentence)</h3>
+      <div class="admin-field">
+        <label>ពាក្យទី 1</label>
+        <input type="text" id="editPattern1" value="ខ្ញុំ">
+      </div>
+      <div class="admin-field">
+        <label>ពាក្យទី 2</label>
+        <input type="text" id="editPattern2" value="អាច">
+      </div>
+      <div class="admin-field">
+        <label>ពាក្យទី 3</label>
+        <input type="text" id="editPattern3" value="មើល">
+      </div>
+      <div class="admin-field">
+        <label>ពាក្យទី 4</label>
+        <input type="text" id="editPattern4" value="ឃើញ">
+      </div>
+    </div>
+
     <!-- Word Pages -->
     <div class="admin-section" id="wordPagesSection">
       <h3>📝 ទំព័រពាក្យ</h3>
@@ -776,10 +797,10 @@
       <!-- SPREAD 2: FLOWER -->
       <div class="page page-left" data-page="4">
         <div class="sentence-container">
-          <div class="word-box">ខ្ញុំ</div>
-          <div class="word-box">អាច</div>
-          <div class="word-box">មើល</div>
-          <div class="word-box">ឃើញ</div>
+          <span class="word-box pattern-word" data-pattern="1">ខ្ញុំ</span>
+          <span class="word-box pattern-word" data-pattern="2">អាច</span>
+          <span class="word-box pattern-word" data-pattern="3">មើល</span>
+          <span class="word-box pattern-word" data-pattern="4">ឃើញ</span>
           <div class="interactive-box" id="flowerBox">
             <div class="interactive-content">
               <span class="hidden-word" id="flowerText">ផ្កា</span>
@@ -796,10 +817,10 @@
       <!-- SPREAD 3: DOG -->
       <div class="page page-left" data-page="6">
         <div class="sentence-container">
-          <div class="word-box">ខ្ញុំ</div>
-          <div class="word-box">អាច</div>
-          <div class="word-box">មើល</div>
-          <div class="word-box">ឃើញ</div>
+          <span class="word-box pattern-word" data-pattern="1">ខ្ញុំ</span>
+          <span class="word-box pattern-word" data-pattern="2">អាច</span>
+          <span class="word-box pattern-word" data-pattern="3">មើល</span>
+          <span class="word-box pattern-word" data-pattern="4">ឃើញ</span>
           <div class="interactive-box" id="dogBox">
             <div class="interactive-content">
               <span class="hidden-word" id="dogText">ឆ្កែ</span>
@@ -815,10 +836,10 @@
       <!-- SPREAD 4: CAT -->
       <div class="page page-left" data-page="8">
         <div class="sentence-container">
-          <div class="word-box">ខ្ញុំ</div>
-          <div class="word-box">អាច</div>
-          <div class="word-box">មើល</div>
-          <div class="word-box">ឃើញ</div>
+          <span class="word-box pattern-word" data-pattern="1">ខ្ញុំ</span>
+          <span class="word-box pattern-word" data-pattern="2">អាច</span>
+          <span class="word-box pattern-word" data-pattern="3">មើល</span>
+          <span class="word-box pattern-word" data-pattern="4">ឃើញ</span>
           <div class="interactive-box" id="catBox">
             <div class="interactive-content">
               <span class="hidden-word" id="catText">ឆ្មា</span>
@@ -834,10 +855,10 @@
       <!-- SPREAD 5: CAR -->
       <div class="page page-left" data-page="10">
         <div class="sentence-container">
-          <div class="word-box">ខ្ញុំ</div>
-          <div class="word-box">អាច</div>
-          <div class="word-box">មើល</div>
-          <div class="word-box">ឃើញ</div>
+          <span class="word-box pattern-word" data-pattern="1">ខ្ញុំ</span>
+          <span class="word-box pattern-word" data-pattern="2">អាច</span>
+          <span class="word-box pattern-word" data-pattern="3">មើល</span>
+          <span class="word-box pattern-word" data-pattern="4">ឃើញ</span>
           <div class="interactive-box" id="carBox">
             <div class="interactive-content">
               <span class="hidden-word" id="carText">ឡាន</span>
@@ -854,10 +875,10 @@
       <!-- SPREAD 6: TREE -->
       <div class="page page-left" data-page="12">
         <div class="sentence-container">
-          <div class="word-box">ខ្ញុំ</div>
-          <div class="word-box">អាច</div>
-          <div class="word-box">មើល</div>
-          <div class="word-box">ឃើញ</div>
+          <span class="word-box pattern-word" data-pattern="1">ខ្ញុំ</span>
+          <span class="word-box pattern-word" data-pattern="2">អាច</span>
+          <span class="word-box pattern-word" data-pattern="3">មើល</span>
+          <span class="word-box pattern-word" data-pattern="4">ឃើញ</span>
           <div class="interactive-box" id="treeBox">
             <div class="interactive-content">
               <span class="hidden-word" id="treeText">ដើមឈើ</span>
@@ -874,10 +895,10 @@
       <!-- SPREAD 7: SUN -->
       <div class="page page-left" data-page="14">
         <div class="sentence-container">
-          <div class="word-box">ខ្ញុំ</div>
-          <div class="word-box">អាច</div>
-          <div class="word-box">មើល</div>
-          <div class="word-box">ឃើញ</div>
+          <span class="word-box pattern-word" data-pattern="1">ខ្ញុំ</span>
+          <span class="word-box pattern-word" data-pattern="2">អាច</span>
+          <span class="word-box pattern-word" data-pattern="3">មើល</span>
+          <span class="word-box pattern-word" data-pattern="4">ឃើញ</span>
           <div class="interactive-box" id="sunBox">
             <div class="interactive-content">
               <span class="hidden-word" id="sunText">ព្រះអាទិត្យ</span>
@@ -991,6 +1012,22 @@
         // Save title page
         document.getElementById('titlePage').textContent = document.getElementById('editTitlePage').value;
         document.getElementById('titleEmoji').textContent = document.getElementById('editTitleEmoji').value;
+        
+        // Save pattern words
+        const patternValues = [
+          document.getElementById('editPattern1').value,
+          document.getElementById('editPattern2').value,
+          document.getElementById('editPattern3').value,
+          document.getElementById('editPattern4').value
+        ];
+        
+        // Update all pattern words on all pages
+        document.querySelectorAll('.pattern-word').forEach(word => {
+          const patternIndex = parseInt(word.getAttribute('data-pattern')) - 1;
+          if (patternIndex >= 0 && patternIndex < patternValues.length) {
+            word.textContent = patternValues[patternIndex];
+          }
+        });
         
         // Save word pages
         wordConfigs.forEach(config => {
