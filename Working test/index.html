@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
-  <title>Balance Scale · responsive</title>
+  <title>Balance Scale · attached trays</title>
   <style>
     * {
       box-sizing: border-box;
@@ -73,29 +73,38 @@
       position: relative;
       width: min(700px, 96vw);
       max-width: 700px;
-      height: 380px;
+      height: 420px;
       margin: 8px auto 0;
       touch-action: none;
     }
-    #beam {
+    /* beam group: everything rotates together */
+    #beamGroup {
       position: absolute;
       left: 50%;
       top: 170px;
-      width: 440px;
+      width: 500px;
       max-width: 78vw;
+      height: 8px;
+      transform: translateX(-50%) rotate(0deg);
+      transform-origin: center center;
+      transition: transform 0.25s cubic-bezier(0.34, 1.2, 0.64, 1);
+      will-change: transform;
+      pointer-events: none; /* allow clicks to pass to items */
+    }
+    #beam {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
       height: 8px;
       background: #5a3e2b;
       border-radius: 12px;
-      transform: translateX(-50%) rotate(0deg);
-      transform-origin: center center;
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      transition: transform 0.2s cubic-bezier(0.34, 1.2, 0.64, 1);
-      will-change: transform;
     }
     #pivot {
       position: absolute;
       left: 50%;
-      top: 148px;
+      top: -28px;
       width: 0;
       height: 0;
       border-left: 18px solid transparent;
@@ -104,18 +113,18 @@
       transform: translateX(-50%);
       filter: drop-shadow(0 6px 8px rgba(0,0,0,0.15));
       z-index: 5;
+      pointer-events: none;
     }
     .tray {
       position: absolute;
       width: 180px;
-      max-width: 42vw;
+      max-width: 38vw;
       height: 22px;
       background: #b8a99a;
       border-radius: 0 0 100px 100px;
       border: 2px solid #5a4a3a;
       border-top: 1px solid #7a6a5a;
       box-shadow: inset 0 -4px 6px rgba(0,0,0,0.08), 0 6px 12px rgba(0,0,0,0.1);
-      transition: top 0.2s cubic-bezier(0.34, 1.2, 0.64, 1);
       display: flex;
       align-items: flex-start;
       justify-content: flex-start;
@@ -125,14 +134,15 @@
       min-height: 50px;
       touch-action: none;
       background: #cfc1b0;
+      pointer-events: auto; /* items inside can be grabbed */
     }
-    #left {
-      left: 20px;
-      top: 200px;
+    #leftTray {
+      left: -120px;  /* relative to beamGroup center */
+      top: 30px;
     }
-    #right {
-      right: 20px;
-      top: 200px;
+    #rightTray {
+      right: -120px;
+      top: 30px;
     }
     .tray .item {
       width: 42px;
@@ -146,31 +156,37 @@
       border: 1px solid #b0a090;
       transition: none;
       background: #fefefe;
+      pointer-events: auto;
+      cursor: grab;
     }
+    .tray .item:active {
+      cursor: grabbing;
+    }
+    /* dynamic layout for tray items */
     .tray .item:nth-child(2) { left: 50px; }
     .tray .item:nth-child(3) { left: 96px; }
     .tray .item:nth-child(4) { left: 142px; }
     .tray .item:nth-child(5) { left: 188px; }
     .tray .item:nth-child(6) { left: 234px; }
-    /* responsive tray items */
-    @media (max-width: 500px) {
-      .tray { width: 150px; max-width: 42vw; }
+
+    @media (max-width: 550px) {
+      .tray { width: 140px; max-width: 40vw; }
       .tray .item { width: 34px; height: 34px; font-size: 20px; top: -32px; }
-      .tray .item:nth-child(2) { left: 40px; }
-      .tray .item:nth-child(3) { left: 76px; }
-      .tray .item:nth-child(4) { left: 112px; }
-      .tray .item:nth-child(5) { left: 148px; }
-      .tray .item:nth-child(6) { left: 184px; }
-      #beam { width: 70vw; max-width: 70vw; top: 160px; }
-      #pivot { border-bottom-width: 90px; top: 138px; }
-      #left { top: 190px; }
-      #right { top: 190px; }
+      .tray .item:nth-child(2) { left: 38px; }
+      .tray .item:nth-child(3) { left: 72px; }
+      .tray .item:nth-child(4) { left: 106px; }
+      #leftTray { left: -90px; }
+      #rightTray { right: -90px; }
+      #beamGroup { width: 70vw; max-width: 70vw; top: 160px; }
+      #pivot { border-bottom-width: 90px; top: -24px; }
     }
     @media (max-width: 400px) {
       .tray .item { width: 28px; height: 28px; font-size: 16px; top: -26px; }
-      .tray .item:nth-child(2) { left: 32px; }
-      .tray .item:nth-child(3) { left: 60px; }
-      .tray .item:nth-child(4) { left: 88px; }
+      .tray .item:nth-child(2) { left: 30px; }
+      .tray .item:nth-child(3) { left: 56px; }
+      .tray .item:nth-child(4) { left: 82px; }
+      #leftTray { left: -70px; }
+      #rightTray { right: -70px; }
     }
     #status {
       margin: 12px 0 4px;
@@ -206,13 +222,15 @@
   </style>
 </head>
 <body>
-<h2>⚖️ balance scale</h2>
+<h2>⚖️ attached balance</h2>
 <div id="palette"></div>
 <div id="scene">
-  <div id="pivot"></div>
-  <div id="beam"></div>
-  <div id="left" class="tray"></div>
-  <div id="right" class="tray"></div>
+  <div id="beamGroup">
+    <div id="beam"></div>
+    <div id="pivot"></div>
+    <div id="leftTray" class="tray"></div>
+    <div id="rightTray" class="tray"></div>
+  </div>
 </div>
 <div class="footer">
   <div id="status">⚖️ drag & drop items</div>
@@ -220,7 +238,6 @@
 </div>
 <script>
   (function() {
-    // ----- define items (emoji, weight) -----
     const defs = [
       ["🍎", 1], ["🍌", 1], ["🧱", 5], ["⚽", 2], 
       ["📚", 4], ["🪨", 6], ["🐘", 9], ["🪶", 0.5],
@@ -228,46 +245,44 @@
     ];
 
     const palette = document.getElementById('palette');
-    const leftTray = document.getElementById('left');
-    const rightTray = document.getElementById('right');
-    const beam = document.getElementById('beam');
+    const leftTray = document.getElementById('leftTray');
+    const rightTray = document.getElementById('rightTray');
+    const beamGroup = document.getElementById('beamGroup');
     const statusDiv = document.getElementById('status');
 
-    // ----- helper: place items in tray (fixed horizontal) -----
+    // ----- helper: arrange items in a tray (fixed horizontal) -----
     function arrangeTray(tray) {
       const children = [...tray.children];
       const count = children.length;
-      // use dynamic spacing based on container width
-      const containerWidth = tray.offsetWidth || 180;
-      const itemWidth = Math.min(48, (containerWidth - 20) / Math.max(1, count));
+      if (count === 0) return;
+      const containerWidth = tray.offsetWidth || 140;
+      const maxItemWidth = Math.min(44, (containerWidth - 16) / Math.max(1, count));
+      const gap = Math.min(30, (containerWidth - 16) / Math.max(1, count + 1));
       const baseLeft = 6;
-      const gap = Math.min(28, (containerWidth - 20) / Math.max(1, count + 1));
       children.forEach((el, i) => {
         el.style.position = 'absolute';
         el.style.left = (baseLeft + i * gap) + 'px';
         el.style.top = '-38px';
-        el.style.width = Math.min(44, itemWidth) + 'px';
-        el.style.height = Math.min(44, itemWidth) + 'px';
-        el.style.fontSize = Math.min(26, itemWidth * 0.65) + 'px';
+        const size = Math.min(42, maxItemWidth);
+        el.style.width = size + 'px';
+        el.style.height = size + 'px';
+        el.style.fontSize = Math.min(26, size * 0.65) + 'px';
       });
     }
 
-    // ----- update beam tilt and tray positions -----
+    // ----- update beam tilt + move trays together (attached) -----
     function updateScale() {
       const leftItems = [...leftTray.children];
       const rightItems = [...rightTray.children];
       let leftWeight = leftItems.reduce((sum, el) => sum + parseFloat(el.dataset.w || 0), 0);
       let rightWeight = rightItems.reduce((sum, el) => sum + parseFloat(el.dataset.w || 0), 0);
       
-      // clamp diff to avoid extreme tilt
       let diff = rightWeight - leftWeight; 
       let angle = Math.max(-15, Math.min(15, diff * 2.2)); 
       
-      beam.style.transform = `translateX(-50%) rotate(${angle}deg)`;
-      // move trays proportionally
-      leftTray.style.top = (200 + angle) + 'px';
-      rightTray.style.top = (200 - angle) + 'px';
-
+      // rotate the whole beamGroup (trays are children → move together)
+      beamGroup.style.transform = `translateX(-50%) rotate(${angle}deg)`;
+      
       // update status
       let statusText = '';
       if (Math.abs(diff) < 0.3) statusText = '⚖️ balanced';
@@ -280,43 +295,33 @@
       arrangeTray(rightTray);
     }
 
-    // ----- drag & drop logic (with pointer events) -----
+    // ----- drag & drop (pointer events) -----
     function makeDraggable(el) {
       let isDragging = false;
       let startX, startY, origX, origY;
-      let rect, parentRect;
       
       el.addEventListener('pointerdown', function(e) {
         e.preventDefault();
-        const touch = e;
-        const rectEl = el.getBoundingClientRect();
-        // store initial offset
-        startX = touch.clientX;
-        startY = touch.clientY;
-        origX = rectEl.left;
-        origY = rectEl.top;
+        const rect = el.getBoundingClientRect();
+        startX = e.clientX;
+        startY = e.clientY;
+        origX = rect.left;
+        origY = rect.top;
         
-        // store current parent
+        // detach from current parent, attach to body for free movement
         const parent = el.parentNode;
-        if (parent === palette) {
-          // already in palette – fine
-        } else {
-          // detach from tray and attach to body for free movement
-          const bodyRect = document.body.getBoundingClientRect();
-          const elRect = el.getBoundingClientRect();
-          el.style.position = 'fixed';
-          el.style.left = elRect.left + 'px';
-          el.style.top = elRect.top + 'px';
-          el.style.width = elRect.width + 'px';
-          el.style.height = elRect.height + 'px';
-          el.style.zIndex = 1000;
-          // remove from tray
-          if (el.parentNode) el.parentNode.removeChild(el);
-          document.body.appendChild(el);
+        if (parent) {
+          // store original parent for later
+          el._origParent = parent;
+          el._origNextSibling = el.nextSibling;
+          parent.removeChild(el);
         }
+        document.body.appendChild(el);
         el.style.position = 'fixed';
         el.style.left = origX + 'px';
         el.style.top = origY + 'px';
+        el.style.width = rect.width + 'px';
+        el.style.height = rect.height + 'px';
         el.style.zIndex = 1000;
         el.style.pointerEvents = 'none';
         el.setPointerCapture(e.pointerId);
@@ -340,11 +345,11 @@
 
         const dropX = e.clientX;
         const dropY = e.clientY;
+        const elRect = el.getBoundingClientRect();
 
-        // check collision with trays
+        // check collision with trays (using getBoundingClientRect)
         const leftRect = leftTray.getBoundingClientRect();
         const rightRect = rightTray.getBoundingClientRect();
-        const elRect = el.getBoundingClientRect();
 
         function isOver(rect) {
           return elRect.left < rect.right - 6 && elRect.right > rect.left + 6 &&
@@ -355,12 +360,13 @@
         if (isOver(leftRect)) targetTray = leftTray;
         else if (isOver(rightRect)) targetTray = rightTray;
 
-        // detach from body
+        // remove from body
         if (el.parentNode === document.body) {
           document.body.removeChild(el);
         } else if (el.parentNode) {
           el.parentNode.removeChild(el);
         }
+        // reset styles
         el.style.position = '';
         el.style.left = '';
         el.style.top = '';
@@ -400,9 +406,8 @@
       makeDraggable(item);
     });
 
-    // ----- reset functionality -----
+    // ----- reset -----
     document.getElementById('resetBtn').addEventListener('click', function() {
-      // move all items from trays back to palette
       const allItems = [...leftTray.children, ...rightTray.children];
       allItems.forEach(el => {
         el.parentNode.removeChild(el);
@@ -414,15 +419,13 @@
         el.style.fontSize = '';
         palette.appendChild(el);
       });
-      // reset beam
-      beam.style.transform = 'translateX(-50%) rotate(0deg)';
-      leftTray.style.top = '200px';
-      rightTray.style.top = '200px';
+      beamGroup.style.transform = 'translateX(-50%) rotate(0deg)';
       statusDiv.innerHTML = '⚖️ reset · drag items to trays';
-      // rearrange palette (no-op, default flex)
+      arrangeTray(leftTray);
+      arrangeTray(rightTray);
     });
 
-    // extra: ensure trays arrange on window resize
+    // ----- arrange on resize -----
     let resizeTimer;
     window.addEventListener('resize', function() {
       clearTimeout(resizeTimer);
@@ -433,14 +436,14 @@
       }, 80);
     });
 
-    // initial arrangement
+    // initial setup
     setTimeout(() => {
       arrangeTray(leftTray);
       arrangeTray(rightTray);
       updateScale();
     }, 20);
 
-    // also observe if items added later (mutation)
+    // mutation observer for tray children
     const observer = new MutationObserver(() => {
       arrangeTray(leftTray);
       arrangeTray(rightTray);
@@ -448,7 +451,6 @@
     observer.observe(leftTray, { childList: true, subtree: false });
     observer.observe(rightTray, { childList: true, subtree: false });
 
-    // expose update for manual calls
     window.updateScale = updateScale;
   })();
 </script>
