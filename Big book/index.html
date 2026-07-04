@@ -27,7 +27,7 @@
       justify-content: center;
       align-items: center;
       font-family: 'Battambang', 'Segoe UI', Roboto, system-ui, sans-serif;
-      padding: 10px;
+      padding: 8px;
       touch-action: pan-y;
       overflow: hidden;
       position: fixed;
@@ -40,15 +40,15 @@
     /* Admin Panel Styles - Responsive */
     .admin-toggle {
       position: fixed;
-      top: 12px;
-      left: 12px;
+      top: 10px;
+      left: 10px;
       background: rgba(30, 45, 55, 0.9);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       color: #f0ede5;
-      padding: 8px 16px;
+      padding: 6px 14px;
       border-radius: 50px;
-      font-size: clamp(0.7rem, 1.8vw, 0.9rem);
+      font-size: clamp(0.6rem, 1.6vw, 0.8rem);
       font-weight: 500;
       letter-spacing: 0.5px;
       border: 1.5px solid #b6a692;
@@ -89,7 +89,7 @@
       position: fixed;
       top: 0;
       left: -100%;
-      width: min(400px, 92vw);
+      width: min(380px, 90vw);
       height: 100vh;
       height: 100dvh;
       background: linear-gradient(135deg, #1f2e3a 0%, #2a3f4d 100%);
@@ -98,7 +98,7 @@
       transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       overflow-y: auto;
       overflow-x: hidden;
-      padding: 16px;
+      padding: 14px;
       box-shadow: 4px 0 30px rgba(0,0,0,0.4);
       border-right: 2px solid #8ba0b0;
       -webkit-overflow-scrolling: touch;
@@ -111,13 +111,13 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       border-bottom: 2px solid #8ba0b0;
-      padding-bottom: 10px;
+      padding-bottom: 8px;
     }
     
     .admin-panel h2 {
-      font-size: clamp(1.1rem, 3vw, 1.5rem);
+      font-size: clamp(1rem, 2.8vw, 1.4rem);
       color: #f5e9da;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
       margin: 0;
@@ -127,10 +127,10 @@
       background: rgba(255,255,255,0.1);
       border: 1px solid rgba(255,255,255,0.2);
       color: #f0ede5;
-      width: 32px;
-      height: 32px;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
-      font-size: 1rem;
+      font-size: 0.9rem;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -144,8 +144,8 @@
     }
 
     .admin-section {
-      margin-bottom: 14px;
-      padding: 12px;
+      margin-bottom: 12px;
+      padding: 10px;
       background: rgba(255,255,255,0.05);
       border-radius: 12px;
       border: 1px solid rgba(255,255,255,0.1);
@@ -156,20 +156,20 @@
     }
     
     .admin-section h3 {
-      font-size: clamp(0.85rem, 2.5vw, 1rem);
-      margin-bottom: 10px;
+      font-size: clamp(0.8rem, 2.2vw, 0.95rem);
+      margin-bottom: 8px;
       color: #d4c4b0;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
     
     .admin-field {
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
     
     .admin-field label {
       display: block;
-      font-size: clamp(0.65rem, 1.8vw, 0.8rem);
-      margin-bottom: 4px;
+      font-size: clamp(0.6rem, 1.6vw, 0.75rem);
+      margin-bottom: 3px;
       opacity: 0.8;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
@@ -177,13 +177,13 @@
     .admin-field input, 
     .admin-field textarea {
       width: 100%;
-      padding: 8px 12px;
+      padding: 6px 10px;
       background: rgba(255,255,255,0.08);
       border: 1.5px solid rgba(255,255,255,0.15);
       border-radius: 8px;
       color: #f0ede5;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
-      font-size: clamp(0.8rem, 2vw, 0.9rem);
+      font-size: clamp(0.75rem, 1.8vw, 0.85rem);
       transition: all 0.3s ease;
       outline: none;
     }
@@ -198,46 +198,22 @@
     
     .admin-field textarea {
       resize: vertical;
-      min-height: 40px;
-    }
-    
-    .save-btn {
-      width: 100%;
-      padding: 10px;
-      background: #c05c5c;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: clamp(0.8rem, 2vw, 0.9rem);
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
-      margin-top: 6px;
-      letter-spacing: 0.5px;
-    }
-    .save-btn:hover {
-      background: #d46a6a;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(192, 92, 92, 0.3);
-    }
-    .save-btn:active {
-      transform: translateY(0);
+      min-height: 36px;
     }
     
     .save-all-btn {
       width: 100%;
-      padding: 12px;
+      padding: 10px;
       background: #2b4a5c;
       color: #f5e9da;
       border: 2px solid #8ba0b0;
       border-radius: 10px;
-      font-size: clamp(0.9rem, 2.5vw, 1rem);
+      font-size: clamp(0.85rem, 2.2vw, 0.95rem);
       font-weight: 700;
       cursor: pointer;
       transition: all 0.3s ease;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
-      margin-top: 10px;
+      margin-top: 8px;
       letter-spacing: 1px;
     }
     .save-all-btn:hover {
@@ -253,18 +229,18 @@
     .mode-buttons {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 10px;
+      gap: 6px;
+      margin-top: 8px;
     }
     .mode-btn {
       flex: 1 0 auto;
-      padding: 8px 12px;
+      padding: 6px 10px;
       background: rgba(255,255,255,0.08);
       border: 2px solid rgba(255,255,255,0.15);
       border-radius: 8px;
       color: #f0ede5;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
-      font-size: clamp(0.75rem, 1.8vw, 0.85rem);
+      font-size: clamp(0.7rem, 1.6vw, 0.8rem);
       cursor: pointer;
       transition: all 0.3s ease;
       text-align: center;
@@ -280,17 +256,17 @@
     }
 
     .flipbook-wrapper {
-      perspective: 2500px;
+      perspective: 2000px;
       width: 100%;
-      max-width: 850px;
+      max-width: 750px;
       height: 100%;
-      max-height: 85vh;
+      max-height: 80vh;
       display: flex;
       justify-content: center;
       align-items: center;
       position: relative;
       margin: 0 auto;
-      padding: 10px 0;
+      padding: 6px 0;
     }
 
     .flipbook {
@@ -298,9 +274,10 @@
       width: 100%;
       height: 100%;
       transform-style: preserve-3d;
-      max-width: 850px;
-      max-height: 85vh;
+      max-width: 750px;
+      max-height: 80vh;
       aspect-ratio: 3 / 4;
+      min-height: 0;
     }
 
     .page {
@@ -316,7 +293,7 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      padding: clamp(0.8rem, 3vh, 2rem) clamp(0.8rem, 2vw, 1.8rem);
+      padding: clamp(0.4rem, 2vh, 1.5rem) clamp(0.4rem, 1.5vw, 1.5rem);
       text-align: center;
       box-sizing: border-box;
       border: 1px solid #e3d7c8;
@@ -349,20 +326,20 @@
       border: 2px solid #1d3442;
     }
     .cover h1 {
-      font-size: clamp(1.8rem, 5vw, 3.5rem);
+      font-size: clamp(1.4rem, 4vw, 2.8rem);
       font-weight: 700;
-      letter-spacing: 2px;
+      letter-spacing: 1px;
       text-shadow: 2px 2px 0 #14222b;
-      margin-bottom: 0.3rem;
+      margin-bottom: 0.2rem;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
       line-height: 1.2;
-      padding: 0 0.5rem;
+      padding: 0 0.3rem;
     }
     .cover .sub {
-      font-size: clamp(0.8rem, 1.8vw, 1.2rem);
+      font-size: clamp(0.7rem, 1.6vw, 1rem);
       opacity: 0.7;
       border-top: 1px solid #8ba0b0;
-      padding-top: 0.5rem;
+      padding-top: 0.3rem;
       width: 70%;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
@@ -371,24 +348,24 @@
       background: #2b4a5c;
       color: #f5e9da;
       border: 2px solid #1d3442;
-      font-size: clamp(1.2rem, 2.5vw, 1.8rem);
-      letter-spacing: 2px;
+      font-size: clamp(1rem, 2.2vw, 1.6rem);
+      letter-spacing: 1px;
     }
     .back-cover .sub {
       opacity: 0.5;
-      font-size: clamp(0.7rem, 1.5vw, 1rem);
-      margin-top: 0.4rem;
+      font-size: clamp(0.6rem, 1.4vw, 0.9rem);
+      margin-top: 0.3rem;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
 
     .page-title {
-      font-size: clamp(1.8rem, 4.5vw, 3rem);
+      font-size: clamp(1.4rem, 4vw, 2.6rem);
       font-weight: 700;
       color: #1f3a47;
-      margin-bottom: 0.4rem;
+      margin-bottom: 0.2rem;
       line-height: 1.2;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
-      padding: 0 0.5rem;
+      padding: 0 0.3rem;
     }
 
     .sentence-container {
@@ -396,17 +373,17 @@
       flex-wrap: wrap;
       justify-content: center;
       align-items: center;
-      gap: 4px;
+      gap: 3px;
       width: 100%;
-      padding: clamp(6px, 1.5vh, 12px);
+      padding: clamp(4px, 1vh, 10px);
       position: relative;
     }
     
     .word-box {
-      font-size: clamp(1.1rem, 3vw, 2rem);
+      font-size: clamp(0.9rem, 2.5vw, 1.8rem);
       color: #1f2e3a;
       font-weight: 400;
-      padding: clamp(4px, 0.8vh, 8px) clamp(8px, 1.5vw, 14px);
+      padding: clamp(2px, 0.5vh, 6px) clamp(5px, 1.2vw, 12px);
       background: transparent;
       border: none;
       display: flex;
@@ -420,12 +397,12 @@
       position: relative;
       pointer-events: auto;
       z-index: 20;
-      padding: clamp(6px, 1.5vh, 12px) clamp(12px, 2vw, 22px);
+      padding: clamp(4px, 1vh, 10px) clamp(8px, 1.5vw, 18px);
       background: #f0e6da;
-      border-radius: clamp(8px, 1.5vw, 12px);
+      border-radius: clamp(6px, 1.2vw, 10px);
       box-shadow: inset 0 2px 5px rgba(0,0,0,0.06);
-      min-width: clamp(70px, 15vw, 130px);
-      min-height: clamp(35px, 8vh, 65px);
+      min-width: clamp(55px, 12vw, 110px);
+      min-height: clamp(28px, 6vh, 55px);
       align-items: center;
       border: 2px solid #cfc2b2;
       overflow: visible;
@@ -438,20 +415,20 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: clamp(30px, 6vh, 50px);
+      min-height: clamp(24px, 5vh, 45px);
     }
 
     .hidden-word {
-      font-size: clamp(1.1rem, 3vw, 2.2rem);
+      font-size: clamp(0.9rem, 2.5vw, 2rem);
       font-weight: 400;
       color: #1f3a47;
       white-space: nowrap;
       position: relative;
       z-index: 1;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.3px;
       opacity: 0.3;
       transition: opacity 0.4s ease;
-      padding: clamp(3px, 0.5vh, 6px) clamp(6px, 1vw, 10px);
+      padding: clamp(2px, 0.4vh, 5px) clamp(4px, 0.8vw, 8px);
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
     .hidden-word.revealed {
@@ -466,20 +443,20 @@
       height: 100%;
       background: #faf5eb;
       border: 2px solid #d4c4b0;
-      border-radius: clamp(4px, 0.5vw, 8px);
+      border-radius: clamp(4px, 0.5vw, 7px);
       box-shadow: 0 3px 8px rgba(0,0,0,0.12);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: clamp(1.1rem, 3vw, 2.2rem);
+      font-size: clamp(0.9rem, 2.5vw, 2rem);
       font-weight: 700;
       color: #c05c5c;
       cursor: grab;
       touch-action: none;
       z-index: 5;
       transition: box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
-      padding: clamp(4px, 1vh, 10px) clamp(8px, 2vw, 18px);
-      letter-spacing: 0.5px;
+      padding: clamp(3px, 0.8vh, 8px) clamp(5px, 1.5vw, 14px);
+      letter-spacing: 0.3px;
       text-transform: uppercase;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
@@ -500,16 +477,16 @@
 
     .drag-hint {
       position: absolute;
-      bottom: clamp(-18px, -3vh, -24px);
+      bottom: clamp(-16px, -2.5vh, -20px);
       left: 50%;
       transform: translateX(-50%);
-      font-size: clamp(0.45rem, 1vw, 0.6rem);
+      font-size: clamp(0.4rem, 0.8vw, 0.55rem);
       color: #b0a496;
       opacity: 0.8;
       white-space: nowrap;
       pointer-events: none;
       transition: opacity 0.2s ease;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.3px;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
     .word-cover.dragging ~ .drag-hint {
@@ -523,13 +500,13 @@
       justify-content: center;
       pointer-events: auto;
       z-index: 20;
-      padding: clamp(12px, 3vh, 28px);
-      min-width: clamp(80px, 20vw, 150px);
-      min-height: clamp(80px, 20vw, 150px);
+      padding: clamp(8px, 2vh, 22px);
+      min-width: clamp(60px, 16vw, 120px);
+      min-height: clamp(60px, 16vw, 120px);
     }
 
     .hidden-emoji {
-      font-size: clamp(3.5rem, 12vw, 7rem);
+      font-size: clamp(2.8rem, 10vw, 6rem);
       line-height: 1.2;
       filter: drop-shadow(2px 6px 12px rgba(0,0,0,0.15));
       margin: 0.1rem 0;
@@ -551,26 +528,26 @@
       height: 100%;
       background: #faf5eb;
       border: 3px solid #d4c4b0;
-      border-radius: clamp(10px, 2vw, 18px);
+      border-radius: clamp(8px, 1.5vw, 15px);
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: clamp(1.8rem, 5vw, 3.5rem);
+      font-size: clamp(1.4rem, 4vw, 3rem);
       font-weight: 700;
       color: #c05c5c;
       cursor: grab;
       touch-action: none;
       z-index: 5;
       transition: box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
-      padding: clamp(4px, 1vh, 10px) clamp(8px, 2vw, 18px);
-      letter-spacing: 0.5px;
+      padding: clamp(3px, 0.8vh, 8px) clamp(5px, 1.5vw, 14px);
+      letter-spacing: 0.3px;
       text-transform: uppercase;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
       overflow: hidden;
     }
     .emoji-cover span {
-      font-size: clamp(2.2rem, 6vw, 4rem);
+      font-size: clamp(1.8rem, 5vw, 3.5rem);
       line-height: 1;
       display: block;
       text-align: center;
@@ -592,9 +569,9 @@
     }
 
     .word-label {
-      font-size: clamp(0.8rem, 1.5vw, 1.1rem);
+      font-size: clamp(0.65rem, 1.3vw, 0.95rem);
       opacity: 0.5;
-      margin-top: 0.3rem;
+      margin-top: 0.2rem;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
       font-weight: 400;
     }
@@ -607,7 +584,7 @@
       color: #b8aa98;
       font-style: italic;
       letter-spacing: 2px;
-      font-size: clamp(0.9rem, 2vw, 1.2rem);
+      font-size: clamp(0.7rem, 1.8vw, 1.1rem);
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
 
@@ -633,17 +610,17 @@
 
     .page-indicator {
       position: fixed;
-      top: 12px;
-      right: 12px;
+      top: 10px;
+      right: 10px;
       background: rgba(30, 45, 55, 0.85);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       color: #f0ede5;
-      padding: 6px 14px;
+      padding: 5px 12px;
       border-radius: 50px;
-      font-size: clamp(0.6rem, 1.5vw, 0.85rem);
+      font-size: clamp(0.55rem, 1.3vw, 0.75rem);
       font-weight: 500;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.3px;
       border: 1.5px solid #b6a692;
       box-shadow: 0 4px 15px rgba(0,0,0,0.25);
       z-index: 300;
@@ -667,10 +644,10 @@
     .flipbook-wrapper::after {
       content: '';
       position: absolute;
-      bottom: -10px;
+      bottom: -8px;
       left: 5%;
       width: 90%;
-      height: 20px;
+      height: 16px;
       background: radial-gradient(ellipse at center, rgba(0,0,0,0.12) 0%, transparent 70%);
       border-radius: 50%;
       filter: blur(8px);
@@ -683,7 +660,7 @@
       position: absolute;
       left: 50%;
       top: 0;
-      width: 4px;
+      width: 3px;
       height: 100%;
       background: linear-gradient(to right, 
         rgba(0,0,0,0.15) 0%,
@@ -696,333 +673,317 @@
       transform: translateX(-50%);
     }
 
-    /* Responsive breakpoints */
-    @media (max-width: 768px) {
-      body {
-        padding: 6px;
-      }
-      
-      .admin-panel {
-        width: min(360px, 90vw);
-        padding: 12px;
-      }
-      
-      .admin-toggle {
-        top: 8px;
-        left: 8px;
-        padding: 6px 12px;
-        font-size: 0.7rem;
-      }
-      
-      .page-indicator {
-        top: 8px;
-        right: 8px;
-        padding: 5px 12px;
-        font-size: 0.65rem;
-      }
-      
-      .flipbook {
-        aspect-ratio: 3 / 4;
-      }
-      
-      .page {
-        padding: 0.6rem 0.5rem;
-      }
-      
-      .interactive-box {
-        padding: 5px 10px;
-        min-width: 55px;
-        min-height: 30px;
-      }
-
-      .emoji-container {
-        padding: 10px;
-        min-width: 65px;
-        min-height: 65px;
-      }
-      
-      .drag-hint {
-        font-size: 0.4rem;
-        bottom: -14px;
-      }
-      
-      .sentence-container {
-        gap: 3px;
-        padding: 4px;
-      }
-      
-      .word-box {
-        font-size: 0.9rem;
-        padding: 3px 6px;
-      }
-      
-      .admin-section {
-        padding: 8px;
-        margin-bottom: 10px;
-      }
-      
-      .admin-field input,
-      .admin-field textarea {
-        padding: 6px 8px;
-        font-size: 0.8rem;
-      }
-    }
-
-    @media (max-width: 480px) {
-      body {
-        padding: 4px;
-      }
-      
-      .admin-toggle {
-        top: 6px;
-        left: 6px;
-        padding: 4px 10px;
-        font-size: 0.6rem;
-      }
-      
-      .page-indicator {
-        top: 6px;
-        right: 6px;
-        padding: 4px 10px;
-        font-size: 0.55rem;
-      }
-      
-      .flipbook {
-        aspect-ratio: 2.5 / 4;
-      }
-      
-      .interactive-box {
-        padding: 4px 8px;
-        min-width: 45px;
-        min-height: 26px;
-        border-width: 1.5px;
-      }
-      
-      .hidden-word {
-        font-size: 0.85rem;
-      }
-      
-      .word-cover {
-        font-size: 0.85rem;
-        padding: 3px 6px;
-        border-width: 1.5px;
-      }
-
-      .emoji-container {
-        padding: 8px;
-        min-width: 55px;
-        min-height: 55px;
-      }
-
-      .emoji-cover {
-        font-size: 1rem;
-        border-width: 2px;
-      }
-      
-      .hidden-emoji {
-        font-size: 2.8rem;
-      }
-      
-      .emoji-cover span {
-        font-size: 1.8rem;
-      }
-      
-      .drag-hint {
-        font-size: 0.35rem;
-        bottom: -12px;
-      }
-      
-      .word-box {
-        font-size: 0.8rem;
-        padding: 2px 4px;
-      }
-      
-      .page-title {
-        font-size: 1.4rem;
-      }
-      
-      .cover h1 {
-        font-size: 1.4rem;
-      }
-      
-      .admin-panel {
-        padding: 10px;
-      }
-    }
-
-    /* Landscape mode optimizations */
-    @media (orientation: landscape) and (max-height: 500px) {
+    /* Responsive breakpoints - height focused */
+    @media (max-height: 700px) {
       .flipbook-wrapper {
-        max-height: 80vh;
-      }
-      
-      .flipbook {
-        aspect-ratio: 4 / 3;
         max-height: 75vh;
       }
-      
-      .page {
-        padding: 0.4rem 0.6rem;
-      }
-      
-      .interactive-box {
-        min-height: 28px;
-        min-width: 50px;
-        padding: 4px 10px;
-      }
-      
-      .emoji-container {
-        min-width: 60px;
-        min-height: 60px;
-        padding: 8px;
-      }
-      
-      .hidden-emoji {
-        font-size: 3rem;
-      }
-      
-      .emoji-cover span {
-        font-size: 2rem;
-      }
-      
-      .word-box {
-        font-size: 0.9rem;
-        padding: 2px 5px;
-      }
-      
-      .hidden-word {
-        font-size: 0.9rem;
-      }
-      
-      .word-cover {
-        font-size: 0.9rem;
-      }
-      
-      .cover h1 {
-        font-size: 1.4rem;
-      }
-      
-      .page-title {
-        font-size: 1.4rem;
-      }
-      
-      .sentence-container {
-        gap: 2px;
-        padding: 2px 4px;
-      }
-      
-      .admin-toggle {
-        padding: 4px 10px;
-        font-size: 0.6rem;
-      }
-      
-      .page-indicator {
-        padding: 4px 10px;
-        font-size: 0.55rem;
-      }
-    }
-
-    @media (orientation: landscape) and (max-height: 400px) {
       .flipbook {
-        aspect-ratio: 4 / 3;
-        max-height: 70vh;
+        max-height: 75vh;
       }
-      
+      .page {
+        padding: 0.3rem 0.4rem;
+      }
+      .cover h1 {
+        font-size: clamp(1.2rem, 3.5vw, 2rem);
+      }
+      .page-title {
+        font-size: clamp(1.2rem, 3.5vw, 2rem);
+      }
       .interactive-box {
-        min-height: 22px;
-        min-width: 40px;
+        min-height: 24px;
+        min-width: 48px;
         padding: 3px 8px;
       }
-      
       .emoji-container {
-        min-width: 45px;
-        min-height: 45px;
+        min-width: 50px;
+        min-height: 50px;
         padding: 6px;
       }
-      
       .hidden-emoji {
-        font-size: 2.2rem;
+        font-size: 2.4rem;
       }
-      
       .emoji-cover span {
         font-size: 1.6rem;
       }
-      
       .word-box {
-        font-size: 0.7rem;
-        padding: 1px 4px;
+        font-size: 0.8rem;
+        padding: 2px 4px;
       }
-      
       .hidden-word {
-        font-size: 0.75rem;
+        font-size: 0.8rem;
       }
-      
       .word-cover {
-        font-size: 0.75rem;
+        font-size: 0.8rem;
         padding: 2px 5px;
       }
-      
+      .admin-toggle {
+        padding: 4px 10px;
+        font-size: 0.6rem;
+        top: 6px;
+        left: 6px;
+      }
+      .page-indicator {
+        padding: 4px 10px;
+        font-size: 0.55rem;
+        top: 6px;
+        right: 6px;
+      }
+    }
+
+    @media (max-height: 600px) {
+      .flipbook-wrapper {
+        max-height: 70vh;
+      }
+      .flipbook {
+        max-height: 70vh;
+        aspect-ratio: 4 / 3;
+      }
+      .page {
+        padding: 0.2rem 0.3rem;
+      }
       .cover h1 {
-        font-size: 1.1rem;
+        font-size: clamp(1rem, 3vw, 1.6rem);
       }
-      
       .page-title {
-        font-size: 1.1rem;
+        font-size: clamp(1rem, 3vw, 1.6rem);
       }
-      
+      .interactive-box {
+        min-height: 20px;
+        min-width: 40px;
+        padding: 2px 6px;
+        border-width: 1.5px;
+      }
+      .emoji-container {
+        min-width: 40px;
+        min-height: 40px;
+        padding: 4px;
+      }
+      .hidden-emoji {
+        font-size: 2rem;
+      }
+      .emoji-cover span {
+        font-size: 1.3rem;
+      }
+      .word-box {
+        font-size: 0.7rem;
+        padding: 1px 3px;
+      }
+      .hidden-word {
+        font-size: 0.7rem;
+      }
+      .word-cover {
+        font-size: 0.7rem;
+        padding: 2px 4px;
+        border-width: 1.5px;
+      }
+      .sentence-container {
+        gap: 2px;
+        padding: 2px;
+      }
       .drag-hint {
+        display: none;
+      }
+      .admin-toggle {
+        padding: 3px 8px;
+        font-size: 0.5rem;
+        top: 4px;
+        left: 4px;
+      }
+      .page-indicator {
+        padding: 3px 8px;
+        font-size: 0.5rem;
+        top: 4px;
+        right: 4px;
+      }
+    }
+
+    @media (max-height: 500px) {
+      .flipbook-wrapper {
+        max-height: 65vh;
+      }
+      .flipbook {
+        max-height: 65vh;
+        aspect-ratio: 4 / 3;
+      }
+      .page {
+        padding: 0.15rem 0.2rem;
+      }
+      .cover h1 {
+        font-size: clamp(0.8rem, 2.5vw, 1.2rem);
+        margin-bottom: 0.1rem;
+      }
+      .cover .sub {
+        font-size: 0.5rem;
+        padding-top: 0.15rem;
+        width: 80%;
+      }
+      .page-title {
+        font-size: clamp(0.8rem, 2.5vw, 1.2rem);
+        margin-bottom: 0.1rem;
+      }
+      .interactive-box {
+        min-height: 16px;
+        min-width: 32px;
+        padding: 2px 5px;
+        border-width: 1px;
+        border-radius: 4px;
+      }
+      .emoji-container {
+        min-width: 32px;
+        min-height: 32px;
+        padding: 3px;
+      }
+      .hidden-emoji {
+        font-size: 1.5rem;
+      }
+      .emoji-cover {
+        border-width: 2px;
+      }
+      .emoji-cover span {
+        font-size: 1rem;
+      }
+      .word-box {
+        font-size: 0.6rem;
+        padding: 1px 2px;
+      }
+      .hidden-word {
+        font-size: 0.6rem;
+      }
+      .word-cover {
+        font-size: 0.6rem;
+        padding: 1px 3px;
+        border-width: 1px;
+        border-radius: 3px;
+      }
+      .sentence-container {
+        gap: 1px;
+        padding: 1px;
+      }
+      .admin-toggle {
+        padding: 2px 6px;
+        font-size: 0.45rem;
+        top: 3px;
+        left: 3px;
+        border-width: 1px;
+      }
+      .page-indicator {
+        padding: 2px 6px;
+        font-size: 0.45rem;
+        top: 3px;
+        right: 3px;
+        border-width: 1px;
+      }
+      .back-cover {
+        font-size: 0.8rem;
+      }
+      .back-cover .sub {
+        font-size: 0.5rem;
+      }
+      .flipbook-wrapper::after {
         display: none;
       }
     }
 
-    /* Very small screens */
-    @media (max-width: 360px) and (orientation: portrait) {
-      .flipbook {
-        aspect-ratio: 2.2 / 4;
+    /* Small width screens */
+    @media (max-width: 420px) {
+      body {
+        padding: 4px;
       }
-      
+      .flipbook-wrapper {
+        padding: 4px 0;
+      }
+      .page {
+        padding: 0.2rem 0.3rem;
+      }
       .interactive-box {
         min-height: 22px;
-        min-width: 38px;
-        padding: 3px 6px;
+        min-width: 40px;
+        padding: 2px 6px;
       }
-      
+      .emoji-container {
+        min-width: 40px;
+        min-height: 40px;
+        padding: 4px;
+      }
+      .hidden-emoji {
+        font-size: 2rem;
+      }
+      .word-box {
+        font-size: 0.7rem;
+        padding: 1px 3px;
+      }
       .hidden-word {
         font-size: 0.7rem;
       }
-      
       .word-cover {
         font-size: 0.7rem;
-        padding: 2px 5px;
+        padding: 2px 4px;
       }
-      
-      .emoji-container {
-        min-width: 45px;
-        min-height: 45px;
-        padding: 6px;
-      }
-      
-      .hidden-emoji {
-        font-size: 2.2rem;
-      }
-      
-      .emoji-cover span {
-        font-size: 1.5rem;
-      }
-      
-      .word-box {
-        font-size: 0.65rem;
-        padding: 1px 3px;
-      }
-      
       .cover h1 {
-        font-size: 1.1rem;
+        font-size: 1.2rem;
       }
-      
       .page-title {
-        font-size: 1.1rem;
+        font-size: 1.2rem;
       }
     }
+
+    /* Landscape mode specific */
+    @media (orientation: landscape) {
+      .flipbook-wrapper {
+        max-height: 85vh;
+      }
+      .flipbook {
+        aspect-ratio: 4 / 3;
+        max-height: 85vh;
+      }
+    }
+
+    @media (orientation: landscape) and (max-height: 450px) {
+      .flipbook-wrapper {
+        max-height: 75vh;
+      }
+      .flipbook {
+        max-height: 75vh;
+      }
+      .page {
+        padding: 0.1rem 0.2rem;
+      }
+      .interactive-box {
+        min-height: 16px;
+        min-width: 30px;
+        padding: 1px 4px;
+      }
+      .emoji-container {
+        min-width: 28px;
+        min-height: 28px;
+        padding: 2px;
+      }
+      .hidden-emoji {
+        font-size: 1.3rem;
+      }
+      .emoji-cover span {
+        font-size: 0.9rem;
+      }
+      .word-box {
+        font-size: 0.55rem;
+        padding: 0px 2px;
+      }
+      .hidden-word {
+        font-size: 0.55rem;
+      }
+      .word-cover {
+        font-size: 0.55rem;
+        padding: 1px 2px;
+      }
+      .cover h1 {
+        font-size: 0.9rem;
+      }
+      .page-title {
+        font-size: 0.9rem;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -1140,7 +1101,7 @@
       </div>
       <div class="page page-right" data-page="3">
         <div class="page-title" id="titlePage">ខ្ញុំ អាច មើល ឃើញ</div>
-        <div style="font-size:clamp(1.5rem, 4vw, 2.8rem); margin-top:0.2rem;" id="titleEmoji">👁️</div>
+        <div style="font-size:clamp(1.2rem, 3.5vw, 2.5rem); margin-top:0.1rem;" id="titleEmoji">👁️</div>
       </div>
 
       <!-- SPREAD 2: FLOWER -->
@@ -1284,8 +1245,8 @@
         <span style="opacity:0.2;">·</span>
       </div>
       <div class="page page-right back-cover" data-page="17">
-        <div style="font-size: clamp(2.5rem, 6vw, 4.5rem); margin-bottom: 0.2rem;" id="backEmoji">📚</div>
-        <div id="backText" style="font-size: clamp(1.2rem, 2.5vw, 2rem);">ចប់ហើយ</div>
+        <div style="font-size: clamp(2rem, 5vw, 4rem); margin-bottom: 0.1rem;" id="backEmoji">📚</div>
+        <div id="backText" style="font-size: clamp(1rem, 2.2vw, 1.8rem);">ចប់ហើយ</div>
         <div class="sub" id="backSub">✦ អរគុណ ✦</div>
       </div>
 
@@ -1306,7 +1267,6 @@
       const closePanelBtn = document.getElementById('closePanelBtn');
       const saveAllBtn = document.getElementById('saveAllBtn');
       
-      // Function to open admin panel
       function openAdminPanel() {
         adminPanel.classList.add('open');
         adminOverlay.classList.add('active');
@@ -1314,7 +1274,6 @@
         document.body.style.overflow = 'hidden';
       }
       
-      // Function to close admin panel
       function closeAdminPanel() {
         adminPanel.classList.remove('open');
         adminOverlay.classList.remove('active');
@@ -1322,7 +1281,6 @@
         document.body.style.overflow = '';
       }
       
-      // Toggle admin panel
       adminToggle.addEventListener('click', () => {
         if (adminPanel.classList.contains('open')) {
           closeAdminPanel();
@@ -1331,30 +1289,24 @@
         }
       });
       
-      // Close panel with X button
       closePanelBtn.addEventListener('click', closeAdminPanel);
-      
-      // Close panel when clicking overlay
       adminOverlay.addEventListener('click', closeAdminPanel);
       
-      // Close panel with Escape key
       document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape' && adminPanel.classList.contains('open')) {
           closeAdminPanel();
         }
       });
 
-      // Word configurations for dynamic admin fields
       const wordConfigs = [
-        { id: 'flower', name: 'ពាក្យ១(Word1)', num: 1 },
-        { id: 'dog', name: 'ពាក្យ២(Word2)', num: 2 },
-        { id: 'cat', name: 'ពាក្យ៣(Word3)', num: 3 },
-        { id: 'car', name: ''ពាក្យ៤(Word4)', num: 4 },
-        { id: 'tree', name: 'ពាក្យ៥(Word5)', num: 5 },
-        { id: 'sun', name: 'ពាក្យ៦(Word6)', num: 6 }
+        { id: 'flower', name: 'ផ្កា (Flower)', num: 1 },
+        { id: 'dog', name: 'ឆ្កែ (Dog)', num: 2 },
+        { id: 'cat', name: 'ឆ្មា (Cat)', num: 3 },
+        { id: 'car', name: 'ឡាន (Car)', num: 4 },
+        { id: 'tree', name: 'ដើមឈើ (Tree)', num: 5 },
+        { id: 'sun', name: 'ព្រះអាទិត្យ (Sun)', num: 6 }
       ];
 
-      // Generate word editing fields
       const wordPagesContainer = document.getElementById('wordPagesContainer');
       wordConfigs.forEach(config => {
         const fieldDiv = document.createElement('div');
@@ -1362,35 +1314,28 @@
         fieldDiv.innerHTML = `
           <label>${config.name} - ពាក្យលាក់</label>
           <input type="text" id="edit_${config.id}Word" value="${document.getElementById('Text' + config.num).textContent}">
-          <label style="margin-top:8px;">${config.name} - អក្សរគម្រប</label>
+          <label style="margin-top:6px;">${config.name} - អក្សរគម្រប</label>
           <input type="text" id="edit_${config.id}Cover" value="${document.getElementById('Cover' + config.num).textContent}">
-          <label style="margin-top:8px;">${config.name} - រូបតំណាង</label>
+          <label style="margin-top:6px;">${config.name} - រូបតំណាង</label>
           <input type="text" id="edit_${config.id}Emoji" value="${document.getElementById('Emoji' + config.num).textContent}">
-          <label style="margin-top:8px;">${config.name} - គម្របរូបតំណាង</label>
+          <label style="margin-top:6px;">${config.name} - គម្របរូបតំណាង</label>
           <input type="text" id="edit_${config.id}EmojiCover" value="${document.getElementById('EmojiCover' + config.num).textContent}">
         `;
         wordPagesContainer.appendChild(fieldDiv);
       });
 
-      // Save all changes
       saveAllBtn.addEventListener('click', () => {
-        // Save cover
         document.getElementById('coverTitle').textContent = '📖 ' + document.getElementById('editCoverTitle').value;
         document.getElementById('coverSub').textContent = document.getElementById('editCoverSub').value;
-        
-        // Save title page
         document.getElementById('titlePage').textContent = document.getElementById('editTitlePage').value;
         document.getElementById('titleEmoji').textContent = document.getElementById('editTitleEmoji').value;
         
-        // Save pattern words
         const patternValues = [
           document.getElementById('editPattern1').value,
           document.getElementById('editPattern2').value,
           document.getElementById('editPattern3').value,
           document.getElementById('editPattern4').value
         ];
-        
-        // Update all pattern words on all pages
         document.querySelectorAll('.pattern-word').forEach(word => {
           const patternIndex = parseInt(word.getAttribute('data-pattern')) - 1;
           if (patternIndex >= 0 && patternIndex < patternValues.length) {
@@ -1398,7 +1343,6 @@
           }
         });
         
-        // Save word pages
         wordConfigs.forEach(config => {
           document.getElementById('Text' + config.num).textContent = document.getElementById('edit_' + config.id + 'Word').value;
           document.getElementById('Cover' + config.num).textContent = document.getElementById('edit_' + config.id + 'Cover').value;
@@ -1406,33 +1350,25 @@
           document.getElementById('EmojiCover' + config.num).innerHTML = '<span>' + document.getElementById('edit_' + config.id + 'EmojiCover').value + '</span>';
         });
         
-        // Save back cover
         document.getElementById('backText').textContent = document.getElementById('editBackText').value;
         document.getElementById('backSub').textContent = document.getElementById('editBackSub').value;
         document.getElementById('backEmoji').textContent = document.getElementById('editBackEmoji').value;
         
-        // Update spread labels
         spreadLabels[0] = document.getElementById('editCoverTitle').value;
         spreadLabels[1] = document.getElementById('editTitlePage').value;
         wordConfigs.forEach((config, index) => {
           spreadLabels[index + 2] = config.name;
         });
         
-        // Show success feedback
         saveAllBtn.textContent = '✅ បានរក្សាទុក!';
         saveAllBtn.style.background = '#4CAF50';
         saveAllBtn.style.borderColor = '#66BB6A';
-        
         setTimeout(() => {
           saveAllBtn.textContent = '💾 រក្សាទុកទាំងអស់';
           saveAllBtn.style.background = '#2b4a5c';
           saveAllBtn.style.borderColor = '#8ba0b0';
         }, 2000);
-        
-        // Update page indicator if on that spread
         updateFlip();
-        
-        // Close admin panel after saving
         setTimeout(() => {
           closeAdminPanel();
         }, 800);
@@ -1446,68 +1382,31 @@
       const hiddenEmojis = document.querySelectorAll('.hidden-emoji');
 
       function setMode(mode) {
-        // Remove active class from all buttons
         modeBtns.forEach(btn => btn.classList.remove('active'));
-        // Add active class to selected button
         document.querySelector(`.mode-btn[data-mode="${mode}"]`).classList.add('active');
 
-        // Hide all covers first
         wordCovers.forEach(cover => cover.style.display = 'none');
         emojiCovers.forEach(cover => cover.style.display = 'none');
-
-        // Reset all hidden items to be visible with opacity
-        hiddenWords.forEach(word => {
-          word.style.opacity = '1';
-        });
-        hiddenEmojis.forEach(emoji => {
-          emoji.style.opacity = '1';
-        });
+        hiddenWords.forEach(word => word.style.opacity = '1');
+        hiddenEmojis.forEach(emoji => emoji.style.opacity = '1');
 
         if (mode === 'word-cover') {
-          // Show word covers, hide emoji covers
           wordCovers.forEach(cover => cover.style.display = 'flex');
-          // Make hidden words transparent (behind cover)
-          hiddenWords.forEach(word => {
-            word.style.opacity = '0.3';
-          });
-          // Emojis visible
-          hiddenEmojis.forEach(emoji => {
-            emoji.style.opacity = '1';
-          });
+          hiddenWords.forEach(word => word.style.opacity = '0.3');
         } else if (mode === 'image-cover') {
-          // Show emoji covers, hide word covers
           emojiCovers.forEach(cover => cover.style.display = 'flex');
-          // Make hidden emojis transparent (behind cover)
-          hiddenEmojis.forEach(emoji => {
-            emoji.style.opacity = '0.3';
-          });
-          // Words visible
-          hiddenWords.forEach(word => {
-            word.style.opacity = '1';
-          });
-        } else if (mode === 'normal') {
-          // Show no covers, everything visible
-          hiddenWords.forEach(word => {
-            word.style.opacity = '1';
-          });
-          hiddenEmojis.forEach(emoji => {
-            emoji.style.opacity = '1';
-          });
+          hiddenEmojis.forEach(emoji => emoji.style.opacity = '0.3');
         }
       }
 
-      // Add click listeners to mode buttons
       modeBtns.forEach(btn => {
-        btn.addEventListener('click', function(e) {
-          const mode = this.dataset.mode;
-          setMode(mode);
+        btn.addEventListener('click', function() {
+          setMode(this.dataset.mode);
         });
       });
-
-      // Initialize with word-cover mode (default)
       setMode('word-cover');
 
-      // ============ ORIGINAL FLIPBOOK LOGIC ============
+      // ============ FLIPBOOK LOGIC ============
       const pageIndicator = document.getElementById('pageIndicator');
       const wrapper = document.getElementById('wrapper');
       const pages = document.querySelectorAll('.page');
@@ -1531,51 +1430,37 @@
         'គម្របខាងក្រោយ'
       ];
 
-      // ----- DRAG SYSTEM FOR ALL INTERACTIVE WORDS -----
+      // Drag system
       const dragInstances = [];
 
       function createDragInstance(coverId, textId, containerId, isEmoji = false) {
         const cover = document.getElementById(coverId);
         const text = document.getElementById(textId);
         const container = document.getElementById(containerId);
-        
         if (!cover || !text || !container) return null;
 
         let isDragging = false;
-        let dragStartX = 0;
-        let dragStartY = 0;
-        let currentX = 0;
-        let currentY = 0;
-        let elementStartX = 0;
-        let elementStartY = 0;
+        let dragStartX = 0, dragStartY = 0;
+        let currentX = 0, currentY = 0;
+        let elementStartX = 0, elementStartY = 0;
         let isRevealed = false;
-
         const SNAP_THRESHOLD = 30;
         const REVEAL_THRESHOLD = 50;
 
         function setPosition(x, y, animate = false) {
-          currentX = x;
-          currentY = y;
-          
+          currentX = x; currentY = y;
           if (animate) {
             cover.style.transition = 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
           } else {
             cover.style.transition = 'none';
           }
-          
           cover.style.transform = `translate(${x}px, ${y}px)`;
-          
           const distance = Math.sqrt(x * x + y * y);
-          
-          // For word-cover mode, reveal the word
-          // For image-cover mode, reveal the emoji
           if (distance > REVEAL_THRESHOLD && !isRevealed) {
             isRevealed = true;
-            // Reveal the hidden content by making it fully opaque
             text.style.opacity = '1';
           } else if (distance <= REVEAL_THRESHOLD && isRevealed) {
             isRevealed = false;
-            // Hide the content again based on current mode
             const currentMode = document.querySelector('.mode-btn.active')?.dataset.mode || 'word-cover';
             if (currentMode === 'word-cover' && !isEmoji) {
               text.style.opacity = '0.3';
@@ -1589,88 +1474,52 @@
 
         function snapToOrigin() {
           setPosition(0, 0, true);
-          setTimeout(() => {
-            cover.style.transition = '';
-          }, 500);
+          setTimeout(() => { cover.style.transition = ''; }, 500);
         }
 
         function onDragStart(e) {
           if (isFlipping) return;
-          
           const touch = e.touches ? e.touches[0] : e;
           isDragging = true;
-          
-          dragStartX = touch.clientX;
-          dragStartY = touch.clientY;
-          elementStartX = currentX;
-          elementStartY = currentY;
-          
+          dragStartX = touch.clientX; dragStartY = touch.clientY;
+          elementStartX = currentX; elementStartY = currentY;
           cover.classList.add('dragging');
           cover.style.transition = 'none';
-          
-          e.preventDefault();
-          e.stopPropagation();
+          e.preventDefault(); e.stopPropagation();
         }
 
         function onDragMove(e) {
           if (!isDragging) return;
-          
           const touch = e.touches ? e.touches[0] : e;
           const deltaX = touch.clientX - dragStartX;
           const deltaY = touch.clientY - dragStartY;
-          
-          let newX = elementStartX + deltaX;
-          let newY = elementStartY + deltaY;
-          
-          newX = Math.max(-200, Math.min(200, newX));
-          newY = Math.max(-200, Math.min(200, newY));
-          
+          let newX = Math.max(-200, Math.min(200, elementStartX + deltaX));
+          let newY = Math.max(-200, Math.min(200, elementStartY + deltaY));
           setPosition(newX, newY, false);
-          
-          e.preventDefault();
-          e.stopPropagation();
+          e.preventDefault(); e.stopPropagation();
         }
 
         function onDragEnd(e) {
           if (!isDragging) return;
           isDragging = false;
-          
           cover.classList.remove('dragging');
-          
           const distance = Math.sqrt(currentX * currentX + currentY * currentY);
-          if (distance < SNAP_THRESHOLD) {
-            snapToOrigin();
-          } else {
-            cover.style.transition = '';
-          }
-          
-          e.preventDefault();
-          e.stopPropagation();
+          if (distance < SNAP_THRESHOLD) snapToOrigin();
+          else cover.style.transition = '';
+          e.preventDefault(); e.stopPropagation();
         }
 
-        // Mouse events
         cover.addEventListener('mousedown', onDragStart);
         document.addEventListener('mousemove', onDragMove);
         document.addEventListener('mouseup', onDragEnd);
-
-        // Touch events
         cover.addEventListener('touchstart', onDragStart, { passive: false });
         document.addEventListener('touchmove', onDragMove, { passive: false });
         document.addEventListener('touchend', onDragEnd, { passive: false });
+        cover.addEventListener('click', e => e.stopPropagation());
 
-        // Prevent click from triggering page flip
-        cover.addEventListener('click', function(e) {
-          e.stopPropagation();
-        });
-
-        return {
-          setPosition,
-          snapToOrigin,
-          reset: () => setPosition(0, 0, false)
-        };
+        return { setPosition, snapToOrigin, reset: () => setPosition(0, 0, false) };
       }
 
-      // Initialize all interactive words - using numbered IDs consistently
       const dragWordConfigs = [
         { cover: 'Cover1', text: 'Text1', box: 'Box1', isEmoji: false },
         { cover: 'Cover2', text: 'Text2', box: 'Box2', isEmoji: false },
@@ -1679,16 +1528,11 @@
         { cover: 'Cover5', text: 'Text5', box: 'Box5', isEmoji: false },
         { cover: 'Cover6', text: 'Text6', box: 'Box6', isEmoji: false }
       ];
-
       dragWordConfigs.forEach(config => {
         const instance = createDragInstance(config.cover, config.text, config.box, config.isEmoji);
-        if (instance) {
-          dragInstances.push(instance);
-          instance.reset();
-        }
+        if (instance) { dragInstances.push(instance); instance.reset(); }
       });
 
-      // Initialize emoji covers
       const emojiConfigs = [
         { cover: 'EmojiCover1', text: 'Emoji1', container: 'EmojiContainer1' },
         { cover: 'EmojiCover2', text: 'Emoji2', container: 'EmojiContainer2' },
@@ -1697,16 +1541,12 @@
         { cover: 'EmojiCover5', text: 'Emoji5', container: 'EmojiContainer5' },
         { cover: 'EmojiCover6', text: 'Emoji6', container: 'EmojiContainer6' }
       ];
-
       emojiConfigs.forEach(config => {
         const instance = createDragInstance(config.cover, config.text, config.container, true);
-        if (instance) {
-          dragInstances.push(instance);
-          instance.reset();
-        }
+        if (instance) { dragInstances.push(instance); instance.reset(); }
       });
 
-      // ----- PAGE FLIP LOGIC -----
+      // Page flip
       function applyCurve(page, direction) {
         page.classList.add('turning');
         if (direction === 'left') {
@@ -1729,8 +1569,6 @@
           const isRight = page.classList.contains('page-right');
 
           page.classList.remove('flipping-left', 'flipping-right', 'turning');
-
-          // Reset display and width for all pages first
           page.style.display = 'flex';
           page.style.width = '50%';
           page.style.left = isLeft ? '0' : '50%';
@@ -1738,11 +1576,8 @@
           page.style.zIndex = '';
 
           if (pageSpread < currentSpread) {
-            if (isRight) {
-              page.style.transform = 'rotateY(-180deg)';
-            } else {
-              page.style.transform = 'rotateY(0deg)';
-            }
+            if (isRight) page.style.transform = 'rotateY(-180deg)';
+            else page.style.transform = 'rotateY(0deg)';
             page.style.zIndex = 10 + pageSpread;
             page.style.filter = 'brightness(0.92) drop-shadow(-2px 0 6px rgba(0,0,0,0.06))';
           } 
@@ -1752,11 +1587,8 @@
             page.style.filter = 'brightness(1) drop-shadow(0 0 6px rgba(0,0,0,0.02))';
           } 
           else {
-            if (isLeft) {
-              page.style.transform = 'rotateY(180deg)';
-            } else {
-              page.style.transform = 'rotateY(0deg)';
-            }
+            if (isLeft) page.style.transform = 'rotateY(180deg)';
+            else page.style.transform = 'rotateY(0deg)';
             page.style.zIndex = 10 + (TOTAL_PAGES - pageNum);
             page.style.filter = 'brightness(0.96) drop-shadow(2px 0 8px rgba(0,0,0,0.04))';
           }
@@ -1766,13 +1598,12 @@
           pageIndicator.textContent = spreadLabels[currentSpread];
         }
         
-        // Handle front cover and back cover special styling - but keep them visible
+        // Front cover special
         const frontCover = document.querySelector('.page[data-page="0"]');
         const frontEmpty = document.querySelector('.page[data-page="1"]');
         const backCover = document.querySelector('.page[data-page="17"]');
         const backEmpty = document.querySelector('.page[data-page="16"]');
         
-        // Front cover logic - hide empty page but keep cover visible
         if (currentSpread === 0) {
           if (frontEmpty) frontEmpty.style.display = 'none';
           if (frontCover) {
@@ -1791,7 +1622,6 @@
           }
         }
         
-        // Back cover logic - hide empty page but keep cover visible
         if (currentSpread === SPREADS - 1) {
           if (backEmpty) backEmpty.style.display = 'none';
           if (backCover) {
@@ -1814,7 +1644,6 @@
       function animateCurve(direction) {
         const leftPage = document.querySelector(`.page-left[data-page="${currentSpread * 2}"]`);
         const rightPage = document.querySelector(`.page-right[data-page="${currentSpread * 2 + 1}"]`);
-        
         if (direction === 1) {
           if (leftPage) applyCurve(leftPage, 'left');
           const prevRight = document.querySelector(`.page-right[data-page="${(currentSpread - 1) * 2 + 1}"]`);
@@ -1829,16 +1658,12 @@
       function goToSpread(spreadIndex) {
         if (isFlipping) return;
         if (spreadIndex < 0 || spreadIndex >= SPREADS || spreadIndex === currentSpread) return;
-        
         isFlipping = true;
         const dir = spreadIndex > currentSpread ? 1 : -1;
         animateCurve(dir);
         currentSpread = spreadIndex;
         updateFlip();
-        
-        setTimeout(() => {
-          isFlipping = false;
-        }, 750);
+        setTimeout(() => { isFlipping = false; }, 750);
       }
 
       touchLeft.addEventListener('click', function(e) {
@@ -1864,20 +1689,15 @@
 
       wrapper.addEventListener('contextmenu', (e) => e.preventDefault());
 
-      // Handle orientation and resize changes
       function handleResize() {
-        // Re-apply flip state to ensure proper rendering
         updateFlip();
       }
-
       window.addEventListener('resize', handleResize);
       window.addEventListener('orientationchange', function() {
         setTimeout(handleResize, 300);
       });
 
-      // Initialize
       updateFlip();
-
     })();
   </script>
 
