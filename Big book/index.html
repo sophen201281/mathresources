@@ -816,6 +816,28 @@
         font-size: 1rem;
       }
     }
+
+    /* Hide empty pages on front and back cover spreads */
+    .page[data-page="1"] {
+      display: none;
+    }
+    .page[data-page="16"] {
+      display: none;
+    }
+    
+    /* Make front cover and back cover take full width when they're the only page showing */
+    .page[data-page="0"] {
+      width: 100% !important;
+      border-radius: 8px !important;
+      left: 0 !important;
+      border-right: 1px solid #d0c0ac !important;
+    }
+    .page[data-page="17"] {
+      width: 100% !important;
+      border-radius: 8px !important;
+      left: 0 !important;
+      border-right: 1px solid #d0c0ac !important;
+    }
   </style>
 </head>
 <body>
@@ -918,7 +940,7 @@
   <div class="flipbook-wrapper" id="wrapper">
     <div class="flipbook" id="flipbook">
 
-      <!-- SPREAD 0: FRONT COVER -->
+      <!-- SPREAD 0: FRONT COVER (left) + empty (right) -->
       <div class="page page-left cover" data-page="0">
         <h1 id="coverTitle">📖 ខ្ញុំអាចមើលឃើញ</h1>
         <div class="sub" id="coverSub">✦ ចុចលើទំព័រ ✦</div>
@@ -1550,6 +1572,46 @@
 
         if (currentSpread < spreadLabels.length) {
           pageIndicator.textContent = spreadLabels[currentSpread];
+        }
+        
+        // Handle front cover and back cover special styling
+        const frontCover = document.querySelector('.page[data-page="0"]');
+        const frontEmpty = document.querySelector('.page[data-page="1"]');
+        const backCover = document.querySelector('.page[data-page="17"]');
+        const backEmpty = document.querySelector('.page[data-page="16"]');
+        
+        // Front cover logic
+        if (currentSpread === 0) {
+          if (frontEmpty) frontEmpty.style.display = 'none';
+          if (frontCover) {
+            frontCover.style.width = '100%';
+            frontCover.style.borderRadius = '8px';
+            frontCover.style.left = '0';
+          }
+        } else {
+          if (frontEmpty) frontEmpty.style.display = 'flex';
+          if (frontCover) {
+            frontCover.style.width = '50%';
+            frontCover.style.borderRadius = '8px 0 0 8px';
+            frontCover.style.left = '0';
+          }
+        }
+        
+        // Back cover logic
+        if (currentSpread === SPREADS - 1) {
+          if (backEmpty) backEmpty.style.display = 'none';
+          if (backCover) {
+            backCover.style.width = '100%';
+            backCover.style.borderRadius = '8px';
+            backCover.style.left = '0';
+          }
+        } else {
+          if (backEmpty) backEmpty.style.display = 'flex';
+          if (backCover) {
+            backCover.style.width = '50%';
+            backCover.style.borderRadius = '0 8px 8px 0';
+            backCover.style.left = '50%';
+          }
         }
       }
 
