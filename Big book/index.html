@@ -15,34 +15,42 @@
       -webkit-tap-highlight-color: transparent;
     }
 
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
     body {
       background: #d9c8b2;
-      min-height: 100vh;
-      min-height: 100dvh;
       display: flex;
       justify-content: center;
       align-items: center;
       font-family: 'Battambang', 'Segoe UI', Roboto, system-ui, sans-serif;
-      padding: 16px;
-      margin: 0;
+      padding: 10px;
       touch-action: pan-y;
-      overflow-x: hidden;
+      overflow: hidden;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
     }
 
     /* Admin Panel Styles - Responsive */
     .admin-toggle {
       position: fixed;
-      top: 16px;
-      left: 16px;
+      top: 12px;
+      left: 12px;
       background: rgba(30, 45, 55, 0.9);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       color: #f0ede5;
-      padding: 10px 20px;
+      padding: 8px 16px;
       border-radius: 50px;
-      font-size: clamp(0.85rem, 2.5vw, 1rem);
+      font-size: clamp(0.7rem, 1.8vw, 0.9rem);
       font-weight: 500;
-      letter-spacing: 1px;
+      letter-spacing: 0.5px;
       border: 1.5px solid #b6a692;
       box-shadow: 0 4px 15px rgba(0,0,0,0.25);
       z-index: 400;
@@ -81,7 +89,7 @@
       position: fixed;
       top: 0;
       left: -100%;
-      width: min(420px, 90vw);
+      width: min(400px, 92vw);
       height: 100vh;
       height: 100dvh;
       background: linear-gradient(135deg, #1f2e3a 0%, #2a3f4d 100%);
@@ -90,7 +98,7 @@
       transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       overflow-y: auto;
       overflow-x: hidden;
-      padding: 20px;
+      padding: 16px;
       box-shadow: 4px 0 30px rgba(0,0,0,0.4);
       border-right: 2px solid #8ba0b0;
       -webkit-overflow-scrolling: touch;
@@ -103,13 +111,13 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 24px;
+      margin-bottom: 16px;
       border-bottom: 2px solid #8ba0b0;
-      padding-bottom: 12px;
+      padding-bottom: 10px;
     }
     
     .admin-panel h2 {
-      font-size: clamp(1.3rem, 4vw, 1.8rem);
+      font-size: clamp(1.1rem, 3vw, 1.5rem);
       color: #f5e9da;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
       margin: 0;
@@ -119,10 +127,10 @@
       background: rgba(255,255,255,0.1);
       border: 1px solid rgba(255,255,255,0.2);
       color: #f0ede5;
-      width: 36px;
-      height: 36px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
-      font-size: 1.2rem;
+      font-size: 1rem;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -136,10 +144,10 @@
     }
 
     .admin-section {
-      margin-bottom: 20px;
-      padding: 14px;
+      margin-bottom: 14px;
+      padding: 12px;
       background: rgba(255,255,255,0.05);
-      border-radius: 14px;
+      border-radius: 12px;
       border: 1px solid rgba(255,255,255,0.1);
       transition: all 0.3s ease;
     }
@@ -148,20 +156,20 @@
     }
     
     .admin-section h3 {
-      font-size: clamp(0.95rem, 3vw, 1.2rem);
-      margin-bottom: 14px;
+      font-size: clamp(0.85rem, 2.5vw, 1rem);
+      margin-bottom: 10px;
       color: #d4c4b0;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
     
     .admin-field {
-      margin-bottom: 14px;
+      margin-bottom: 10px;
     }
     
     .admin-field label {
       display: block;
-      font-size: clamp(0.75rem, 2vw, 0.85rem);
-      margin-bottom: 5px;
+      font-size: clamp(0.65rem, 1.8vw, 0.8rem);
+      margin-bottom: 4px;
       opacity: 0.8;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
@@ -169,13 +177,13 @@
     .admin-field input, 
     .admin-field textarea {
       width: 100%;
-      padding: 10px 14px;
+      padding: 8px 12px;
       background: rgba(255,255,255,0.08);
       border: 1.5px solid rgba(255,255,255,0.15);
-      border-radius: 10px;
+      border-radius: 8px;
       color: #f0ede5;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
-      font-size: clamp(0.85rem, 2.5vw, 0.95rem);
+      font-size: clamp(0.8rem, 2vw, 0.9rem);
       transition: all 0.3s ease;
       outline: none;
     }
@@ -190,22 +198,22 @@
     
     .admin-field textarea {
       resize: vertical;
-      min-height: 50px;
+      min-height: 40px;
     }
     
     .save-btn {
       width: 100%;
-      padding: 12px;
+      padding: 10px;
       background: #c05c5c;
       color: white;
       border: none;
-      border-radius: 10px;
-      font-size: clamp(0.9rem, 2.5vw, 1rem);
+      border-radius: 8px;
+      font-size: clamp(0.8rem, 2vw, 0.9rem);
       font-weight: 700;
       cursor: pointer;
       transition: all 0.3s ease;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
-      margin-top: 8px;
+      margin-top: 6px;
       letter-spacing: 0.5px;
     }
     .save-btn:hover {
@@ -219,17 +227,17 @@
     
     .save-all-btn {
       width: 100%;
-      padding: 14px;
+      padding: 12px;
       background: #2b4a5c;
       color: #f5e9da;
       border: 2px solid #8ba0b0;
-      border-radius: 12px;
-      font-size: clamp(1rem, 3vw, 1.1rem);
+      border-radius: 10px;
+      font-size: clamp(0.9rem, 2.5vw, 1rem);
       font-weight: 700;
       cursor: pointer;
       transition: all 0.3s ease;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
-      margin-top: 12px;
+      margin-top: 10px;
       letter-spacing: 1px;
     }
     .save-all-btn:hover {
@@ -245,18 +253,18 @@
     .mode-buttons {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 12px;
+      gap: 8px;
+      margin-top: 10px;
     }
     .mode-btn {
       flex: 1 0 auto;
-      padding: 10px 14px;
+      padding: 8px 12px;
       background: rgba(255,255,255,0.08);
       border: 2px solid rgba(255,255,255,0.15);
-      border-radius: 10px;
+      border-radius: 8px;
       color: #f0ede5;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
-      font-size: clamp(0.85rem, 2vw, 1rem);
+      font-size: clamp(0.75rem, 1.8vw, 0.85rem);
       cursor: pointer;
       transition: all 0.3s ease;
       text-align: center;
@@ -274,12 +282,15 @@
     .flipbook-wrapper {
       perspective: 2500px;
       width: 100%;
-      max-width: 800px;
+      max-width: 900px;
+      height: 100%;
+      max-height: 90vh;
       aspect-ratio: 4 / 3;
       display: flex;
       justify-content: center;
       align-items: center;
       position: relative;
+      margin: 0 auto;
     }
 
     .flipbook {
@@ -287,6 +298,8 @@
       width: 100%;
       height: 100%;
       transform-style: preserve-3d;
+      max-width: 900px;
+      max-height: 90vh;
     }
 
     .page {
@@ -302,7 +315,7 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      padding: 1.2rem 1rem;
+      padding: clamp(0.5rem, 2vh, 1.5rem) clamp(0.5rem, 2vw, 1.5rem);
       text-align: center;
       box-sizing: border-box;
       border: 1px solid #e3d7c8;
@@ -335,18 +348,20 @@
       border: 2px solid #1d3442;
     }
     .cover h1 {
-      font-size: clamp(2rem, 8vw, 3.8rem);
+      font-size: clamp(1.5rem, 6vw, 3.5rem);
       font-weight: 700;
-      letter-spacing: 4px;
+      letter-spacing: 2px;
       text-shadow: 2px 2px 0 #14222b;
-      margin-bottom: 0.3rem;
+      margin-bottom: 0.2rem;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+      line-height: 1.2;
+      padding: 0 0.5rem;
     }
     .cover .sub {
-      font-size: clamp(0.9rem, 2.5vw, 1.3rem);
+      font-size: clamp(0.7rem, 2vw, 1.2rem);
       opacity: 0.7;
       border-top: 1px solid #8ba0b0;
-      padding-top: 0.6rem;
+      padding-top: 0.4rem;
       width: 70%;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
@@ -355,23 +370,24 @@
       background: #2b4a5c;
       color: #f5e9da;
       border: 2px solid #1d3442;
-      font-size: clamp(1.2rem, 3vw, 2rem);
+      font-size: clamp(1rem, 2.5vw, 1.8rem);
       letter-spacing: 2px;
     }
     .back-cover .sub {
       opacity: 0.5;
-      font-size: clamp(0.8rem, 2vw, 1.1rem);
-      margin-top: 0.5rem;
+      font-size: clamp(0.6rem, 1.5vw, 1rem);
+      margin-top: 0.3rem;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
 
     .page-title {
-      font-size: clamp(1.8rem, 6vw, 3.2rem);
+      font-size: clamp(1.5rem, 5vw, 3rem);
       font-weight: 700;
       color: #1f3a47;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.3rem;
       line-height: 1.2;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+      padding: 0 0.5rem;
     }
 
     .sentence-container {
@@ -381,15 +397,15 @@
       align-items: center;
       gap: 2px;
       width: 100%;
-      padding: 10px;
+      padding: clamp(4px, 1vh, 10px);
       position: relative;
     }
     
     .word-box {
-      font-size: clamp(1.3rem, 4vw, 2.2rem);
+      font-size: clamp(1rem, 3.5vw, 2rem);
       color: #1f2e3a;
       font-weight: 400;
-      padding: 6px 12px;
+      padding: clamp(3px, 0.8vh, 8px) clamp(6px, 1.5vw, 14px);
       background: transparent;
       border: none;
       display: flex;
@@ -403,12 +419,12 @@
       position: relative;
       pointer-events: auto;
       z-index: 20;
-      padding: 8px 20px;
+      padding: clamp(4px, 1vh, 10px) clamp(10px, 2vw, 20px);
       background: #f0e6da;
-      border-radius: 12px;
+      border-radius: clamp(6px, 1.5vw, 12px);
       box-shadow: inset 0 2px 5px rgba(0,0,0,0.06);
-      min-width: 100px;
-      min-height: 50px;
+      min-width: clamp(60px, 15vw, 120px);
+      min-height: clamp(30px, 8vh, 60px);
       align-items: center;
       border: 2px solid #cfc2b2;
       overflow: visible;
@@ -421,11 +437,11 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 40px;
+      min-height: clamp(25px, 6vh, 45px);
     }
 
     .hidden-word {
-      font-size: clamp(1.3rem, 4vw, 2.2rem);
+      font-size: clamp(1rem, 3.5vw, 2.2rem);
       font-weight: 400;
       color: #1f3a47;
       white-space: nowrap;
@@ -434,7 +450,7 @@
       letter-spacing: 0.5px;
       opacity: 0.3;
       transition: opacity 0.4s ease;
-      padding: 4px 8px;
+      padding: clamp(2px, 0.5vh, 6px) clamp(4px, 1vw, 10px);
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
     .hidden-word.revealed {
@@ -449,19 +465,19 @@
       height: 100%;
       background: #faf5eb;
       border: 2px solid #d4c4b0;
-      border-radius: 1px;
+      border-radius: clamp(2px, 0.5vw, 8px);
       box-shadow: 0 3px 8px rgba(0,0,0,0.12);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: clamp(1.3rem, 4vw, 2.2rem);
+      font-size: clamp(1rem, 3.5vw, 2.2rem);
       font-weight: 700;
       color: #c05c5c;
       cursor: grab;
       touch-action: none;
       z-index: 5;
       transition: box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
-      padding: 8px 16px;
+      padding: clamp(4px, 1vh, 10px) clamp(8px, 2vw, 18px);
       letter-spacing: 0.5px;
       text-transform: uppercase;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
@@ -483,10 +499,10 @@
 
     .drag-hint {
       position: absolute;
-      bottom: -22px;
+      bottom: clamp(-16px, -3vh, -22px);
       left: 50%;
       transform: translateX(-50%);
-      font-size: 0.55rem;
+      font-size: clamp(0.4rem, 1vw, 0.6rem);
       color: #b0a496;
       opacity: 0.8;
       white-space: nowrap;
@@ -499,13 +515,6 @@
       opacity: 0;
     }
 
-    .page-emoji {
-      font-size: clamp(4rem, 15vw, 8rem);
-      line-height: 1.2;
-      filter: drop-shadow(2px 6px 12px rgba(0,0,0,0.15));
-      margin: 0.2rem 0;
-    }
-
     .emoji-container {
       position: relative;
       display: inline-flex;
@@ -513,16 +522,16 @@
       justify-content: center;
       pointer-events: auto;
       z-index: 20;
-      padding: 20px;
-      min-width: 120px;
-      min-height: 120px;
+      padding: clamp(10px, 3vh, 25px);
+      min-width: clamp(70px, 20vw, 140px);
+      min-height: clamp(70px, 20vw, 140px);
     }
 
     .hidden-emoji {
-      font-size: clamp(4rem, 15vw, 8rem);
+      font-size: clamp(3rem, 12vw, 7rem);
       line-height: 1.2;
       filter: drop-shadow(2px 6px 12px rgba(0,0,0,0.15));
-      margin: 0.2rem 0;
+      margin: 0.1rem 0;
       opacity: 0.3;
       transition: opacity 0.4s ease;
       display: block;
@@ -541,26 +550,26 @@
       height: 100%;
       background: #faf5eb;
       border: 3px solid #d4c4b0;
-      border-radius: 16px;
+      border-radius: clamp(8px, 2vw, 16px);
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: clamp(2rem, 6vw, 3.5rem);
+      font-size: clamp(1.5rem, 5vw, 3.5rem);
       font-weight: 700;
       color: #c05c5c;
       cursor: grab;
       touch-action: none;
       z-index: 5;
       transition: box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
-      padding: 8px 16px;
+      padding: clamp(4px, 1vh, 10px) clamp(8px, 2vw, 18px);
       letter-spacing: 0.5px;
       text-transform: uppercase;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
       overflow: hidden;
     }
     .emoji-cover span {
-      font-size: clamp(2.5rem, 7vw, 4rem);
+      font-size: clamp(2rem, 6vw, 4rem);
       line-height: 1;
       display: block;
       text-align: center;
@@ -582,9 +591,9 @@
     }
 
     .word-label {
-      font-size: clamp(0.9rem, 2vw, 1.2rem);
+      font-size: clamp(0.7rem, 1.5vw, 1.1rem);
       opacity: 0.5;
-      margin-top: 0.3rem;
+      margin-top: 0.2rem;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
       font-weight: 400;
     }
@@ -597,7 +606,7 @@
       color: #b8aa98;
       font-style: italic;
       letter-spacing: 2px;
-      font-size: 1.2rem;
+      font-size: clamp(0.8rem, 2vw, 1.2rem);
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
 
@@ -623,17 +632,17 @@
 
     .page-indicator {
       position: fixed;
-      top: 16px;
-      right: 16px;
+      top: 12px;
+      right: 12px;
       background: rgba(30, 45, 55, 0.85);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       color: #f0ede5;
-      padding: 8px 18px;
+      padding: 6px 14px;
       border-radius: 50px;
-      font-size: clamp(0.8rem, 2.5vw, 1rem);
+      font-size: clamp(0.6rem, 1.5vw, 0.85rem);
       font-weight: 500;
-      letter-spacing: 1px;
+      letter-spacing: 0.5px;
       border: 1.5px solid #b6a692;
       box-shadow: 0 4px 15px rgba(0,0,0,0.25);
       z-index: 300;
@@ -657,164 +666,14 @@
     .flipbook-wrapper::after {
       content: '';
       position: absolute;
-      bottom: -10px;
+      bottom: -8px;
       left: 5%;
       width: 90%;
-      height: 20px;
-      background: radial-gradient(ellipse at center, rgba(0,0,0,0.15) 0%, transparent 70%);
+      height: 15px;
+      background: radial-gradient(ellipse at center, rgba(0,0,0,0.12) 0%, transparent 70%);
       border-radius: 50%;
-      filter: blur(8px);
+      filter: blur(6px);
       z-index: -1;
-    }
-
-    /* Tablet adjustments */
-    @media (max-width: 768px) {
-      body {
-        padding: 12px;
-      }
-      
-      .admin-panel {
-        width: min(380px, 85vw);
-        padding: 16px;
-      }
-      
-      .page {
-        padding: 0.8rem 0.5rem;
-      }
-      
-      .interactive-box {
-        padding: 6px 14px;
-        min-width: 70px;
-        min-height: 40px;
-      }
-
-      .emoji-container {
-        padding: 15px;
-        min-width: 90px;
-        min-height: 90px;
-      }
-    }
-
-    /* Mobile adjustments */
-    @media (max-width: 540px) {
-      body {
-        padding: 8px;
-      }
-      
-      .admin-toggle {
-        top: 10px;
-        left: 10px;
-        padding: 8px 16px;
-        font-size: 0.8rem;
-      }
-      
-      .admin-panel {
-        width: 100vw;
-        padding: 14px;
-        border-right: none;
-      }
-      
-      .page-indicator {
-        top: 10px;
-        right: 10px;
-        padding: 6px 14px;
-        font-size: 0.75rem;
-      }
-      
-      .page { 
-        padding: 0.5rem 0.3rem; 
-      }
-      
-      .interactive-box {
-        padding: 5px 10px;
-        min-width: 60px;
-        min-height: 35px;
-      }
-      
-      .hidden-word {
-        font-size: 1rem;
-        padding: 2px 4px;
-      }
-      
-      .word-cover {
-        font-size: 1rem;
-        padding: 4px 10px;
-        border-radius: 8px;
-      }
-
-      .emoji-container {
-        padding: 10px;
-        min-width: 70px;
-        min-height: 70px;
-      }
-
-      .emoji-cover {
-        font-size: 1.2rem;
-        border-radius: 10px;
-      }
-      
-      .drag-hint {
-        font-size: 0.5rem;
-        bottom: -18px;
-      }
-      
-      .sentence-container {
-        gap: 8px;
-      }
-      
-      .word-box {
-        font-size: 1rem;
-        padding: 4px 8px;
-      }
-      
-      .admin-section {
-        padding: 10px;
-        margin-bottom: 14px;
-      }
-      
-      .admin-field input,
-      .admin-field textarea {
-        padding: 8px 10px;
-        font-size: 0.85rem;
-      }
-    }
-
-    /* Small mobile devices */
-    @media (max-width: 360px) {
-      .admin-toggle {
-        padding: 6px 12px;
-        font-size: 0.75rem;
-        top: 8px;
-        left: 8px;
-      }
-      
-      .page-indicator {
-        top: 8px;
-        right: 8px;
-        padding: 5px 10px;
-        font-size: 0.7rem;
-      }
-      
-      .interactive-box {
-        padding: 4px 8px;
-        min-width: 50px;
-        min-height: 30px;
-      }
-      
-      .hidden-word,
-      .word-cover {
-        font-size: 0.85rem;
-      }
-
-      .emoji-container {
-        padding: 8px;
-        min-width: 60px;
-        min-height: 60px;
-      }
-
-      .emoji-cover {
-        font-size: 1rem;
-      }
     }
 
     /* Hide empty pages on front and back cover spreads */
@@ -837,6 +696,309 @@
       border-radius: 8px !important;
       left: 0 !important;
       border-right: 1px solid #d0c0ac !important;
+    }
+
+    /* Responsive breakpoints */
+    @media (max-width: 768px) {
+      body {
+        padding: 6px;
+      }
+      
+      .admin-panel {
+        width: min(360px, 90vw);
+        padding: 12px;
+      }
+      
+      .admin-toggle {
+        top: 8px;
+        left: 8px;
+        padding: 6px 12px;
+        font-size: 0.7rem;
+      }
+      
+      .page-indicator {
+        top: 8px;
+        right: 8px;
+        padding: 5px 12px;
+        font-size: 0.65rem;
+      }
+      
+      .page {
+        padding: 0.4rem 0.3rem;
+      }
+      
+      .interactive-box {
+        padding: 4px 8px;
+        min-width: 50px;
+        min-height: 28px;
+      }
+
+      .emoji-container {
+        padding: 8px;
+        min-width: 60px;
+        min-height: 60px;
+      }
+      
+      .drag-hint {
+        font-size: 0.4rem;
+        bottom: -14px;
+      }
+      
+      .sentence-container {
+        gap: 4px;
+        padding: 4px;
+      }
+      
+      .word-box {
+        font-size: 0.9rem;
+        padding: 3px 6px;
+      }
+      
+      .admin-section {
+        padding: 8px;
+        margin-bottom: 10px;
+      }
+      
+      .admin-field input,
+      .admin-field textarea {
+        padding: 6px 8px;
+        font-size: 0.8rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 4px;
+      }
+      
+      .admin-toggle {
+        top: 6px;
+        left: 6px;
+        padding: 4px 10px;
+        font-size: 0.6rem;
+      }
+      
+      .page-indicator {
+        top: 6px;
+        right: 6px;
+        padding: 4px 10px;
+        font-size: 0.55rem;
+      }
+      
+      .interactive-box {
+        padding: 3px 6px;
+        min-width: 40px;
+        min-height: 24px;
+        border-width: 1.5px;
+      }
+      
+      .hidden-word {
+        font-size: 0.8rem;
+      }
+      
+      .word-cover {
+        font-size: 0.8rem;
+        padding: 3px 6px;
+        border-width: 1.5px;
+      }
+
+      .emoji-container {
+        padding: 6px;
+        min-width: 50px;
+        min-height: 50px;
+      }
+
+      .emoji-cover {
+        font-size: 0.9rem;
+        border-width: 2px;
+      }
+      
+      .hidden-emoji {
+        font-size: 2.5rem;
+      }
+      
+      .drag-hint {
+        font-size: 0.35rem;
+        bottom: -12px;
+      }
+      
+      .word-box {
+        font-size: 0.75rem;
+        padding: 2px 4px;
+      }
+      
+      .page-title {
+        font-size: 1.2rem;
+      }
+      
+      .cover h1 {
+        font-size: 1.2rem;
+      }
+      
+      .admin-panel {
+        padding: 10px;
+      }
+    }
+
+    /* Landscape mode optimizations */
+    @media (orientation: landscape) and (max-height: 500px) {
+      .flipbook-wrapper {
+        max-height: 85vh;
+        aspect-ratio: 4 / 3;
+      }
+      
+      .page {
+        padding: 0.3rem 0.4rem;
+      }
+      
+      .interactive-box {
+        min-height: 24px;
+        min-width: 45px;
+        padding: 3px 8px;
+      }
+      
+      .emoji-container {
+        min-width: 50px;
+        min-height: 50px;
+        padding: 6px;
+      }
+      
+      .hidden-emoji {
+        font-size: 2.5rem;
+      }
+      
+      .emoji-cover span {
+        font-size: 1.8rem;
+      }
+      
+      .word-box {
+        font-size: 0.8rem;
+        padding: 2px 4px;
+      }
+      
+      .hidden-word {
+        font-size: 0.85rem;
+      }
+      
+      .word-cover {
+        font-size: 0.85rem;
+      }
+      
+      .cover h1 {
+        font-size: 1.2rem;
+      }
+      
+      .page-title {
+        font-size: 1.2rem;
+      }
+      
+      .sentence-container {
+        gap: 2px;
+        padding: 2px;
+      }
+      
+      .admin-toggle {
+        padding: 4px 10px;
+        font-size: 0.6rem;
+      }
+      
+      .page-indicator {
+        padding: 4px 10px;
+        font-size: 0.55rem;
+      }
+    }
+
+    @media (orientation: landscape) and (max-height: 400px) {
+      .interactive-box {
+        min-height: 20px;
+        min-width: 35px;
+        padding: 2px 6px;
+      }
+      
+      .emoji-container {
+        min-width: 40px;
+        min-height: 40px;
+        padding: 4px;
+      }
+      
+      .hidden-emoji {
+        font-size: 2rem;
+      }
+      
+      .emoji-cover span {
+        font-size: 1.5rem;
+      }
+      
+      .word-box {
+        font-size: 0.65rem;
+        padding: 1px 3px;
+      }
+      
+      .hidden-word {
+        font-size: 0.7rem;
+      }
+      
+      .word-cover {
+        font-size: 0.7rem;
+        padding: 2px 5px;
+      }
+      
+      .cover h1 {
+        font-size: 1rem;
+      }
+      
+      .page-title {
+        font-size: 1rem;
+      }
+      
+      .drag-hint {
+        display: none;
+      }
+    }
+
+    /* Very small screens */
+    @media (max-width: 360px) and (orientation: portrait) {
+      .interactive-box {
+        min-height: 20px;
+        min-width: 35px;
+        padding: 2px 5px;
+      }
+      
+      .hidden-word {
+        font-size: 0.7rem;
+      }
+      
+      .word-cover {
+        font-size: 0.7rem;
+        padding: 2px 5px;
+      }
+      
+      .emoji-container {
+        min-width: 40px;
+        min-height: 40px;
+        padding: 4px;
+      }
+      
+      .hidden-emoji {
+        font-size: 2rem;
+      }
+      
+      .emoji-cover span {
+        font-size: 1.5rem;
+      }
+      
+      .word-box {
+        font-size: 0.65rem;
+        padding: 1px 3px;
+      }
+      
+      .cover h1 {
+        font-size: 1rem;
+      }
+      
+      .page-title {
+        font-size: 1rem;
+      }
     }
   </style>
 </head>
@@ -955,7 +1117,7 @@
       </div>
       <div class="page page-right" data-page="3">
         <div class="page-title" id="titlePage">ខ្ញុំ អាច មើល ឃើញ</div>
-        <div style="font-size:1.5rem; margin-top:0.2rem;" id="titleEmoji">👁️</div>
+        <div style="font-size:clamp(1.2rem, 4vw, 2.5rem); margin-top:0.2rem;" id="titleEmoji">👁️</div>
       </div>
 
       <!-- SPREAD 2: FLOWER -->
@@ -1099,8 +1261,8 @@
         <span style="opacity:0.2;">·</span>
       </div>
       <div class="page page-right back-cover" data-page="17">
-        <div style="font-size: clamp(2.5rem, 8vw, 4rem); margin-bottom: 0.3rem;" id="backEmoji">📚</div>
-        <div id="backText">ចប់ហើយ</div>
+        <div style="font-size: clamp(2rem, 6vw, 4rem); margin-bottom: 0.2rem;" id="backEmoji">📚</div>
+        <div id="backText" style="font-size: clamp(1rem, 2.5vw, 1.8rem);">ចប់ហើយ</div>
         <div class="sub" id="backSub">✦ អរគុណ ✦</div>
       </div>
 
@@ -1667,6 +1829,17 @@
       });
 
       wrapper.addEventListener('contextmenu', (e) => e.preventDefault());
+
+      // Handle orientation and resize changes
+      function handleResize() {
+        // Re-apply flip state to ensure proper rendering
+        updateFlip();
+      }
+
+      window.addEventListener('resize', handleResize);
+      window.addEventListener('orientationchange', function() {
+        setTimeout(handleResize, 300);
+      });
 
       // Initialize
       updateFlip();
