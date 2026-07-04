@@ -1223,6 +1223,8 @@
       // ============ MODE SELECTION ============
       const wordCovers = document.querySelectorAll('.word-cover');
       const emojiCovers = document.querySelectorAll('.emoji-cover');
+      const hiddenWords = document.querySelectorAll('.hidden-word');
+      const hiddenEmojis = document.querySelectorAll('.hidden-emoji');
       const modeBtns = document.querySelectorAll('.mode-btn');
 
       function setMode(mode) {
@@ -1231,19 +1233,44 @@
         // Add active class to selected button
         document.querySelector(`.mode-btn[data-mode="${mode}"]`).classList.add('active');
 
-        // Hide all covers first
-        wordCovers.forEach(cover => cover.style.display = 'none');
-        emojiCovers.forEach(cover => cover.style.display = 'none');
+        // Reset all elements to visible and clear forced styles
+        wordCovers.forEach(cover => {
+          cover.style.display = '';
+          cover.style.opacity = '';
+          cover.style.pointerEvents = '';
+        });
+        emojiCovers.forEach(cover => {
+          cover.style.display = '';
+          cover.style.opacity = '';
+          cover.style.pointerEvents = '';
+        });
+        hiddenWords.forEach(word => {
+          word.style.opacity = '';
+          word.style.pointerEvents = '';
+        });
+        hiddenEmojis.forEach(emoji => {
+          emoji.style.opacity = '';
+          emoji.style.pointerEvents = '';
+        });
 
         if (mode === 'word-cover') {
-          // Show only word covers
-          wordCovers.forEach(cover => cover.style.display = 'flex');
+          // Show word covers, hide emoji covers, hide words, show emojis
+          wordCovers.forEach(cover => { cover.style.display = 'flex'; cover.style.pointerEvents = 'auto'; });
+          emojiCovers.forEach(cover => { cover.style.display = 'none'; cover.style.pointerEvents = 'none'; });
+          hiddenWords.forEach(word => { word.style.opacity = '0'; word.style.pointerEvents = 'none'; });
+          hiddenEmojis.forEach(emoji => { emoji.style.opacity = '1'; emoji.style.pointerEvents = 'none'; });
         } else if (mode === 'image-cover') {
-          // Show only emoji covers
-          emojiCovers.forEach(cover => cover.style.display = 'flex');
+          // Hide word covers, show emoji covers, show words, hide emojis
+          wordCovers.forEach(cover => { cover.style.display = 'none'; cover.style.pointerEvents = 'none'; });
+          emojiCovers.forEach(cover => { cover.style.display = 'flex'; cover.style.pointerEvents = 'auto'; });
+          hiddenWords.forEach(word => { word.style.opacity = '1'; word.style.pointerEvents = 'none'; });
+          hiddenEmojis.forEach(emoji => { emoji.style.opacity = '0'; emoji.style.pointerEvents = 'none'; });
         } else if (mode === 'normal') {
-          // Show no covers (all hidden)
-          // already hidden
+          // Show everything clearly, no covers
+          wordCovers.forEach(cover => { cover.style.display = 'none'; cover.style.pointerEvents = 'none'; });
+          emojiCovers.forEach(cover => { cover.style.display = 'none'; cover.style.pointerEvents = 'none'; });
+          hiddenWords.forEach(word => { word.style.opacity = '1'; word.style.pointerEvents = 'none'; });
+          hiddenEmojis.forEach(emoji => { emoji.style.opacity = '1'; emoji.style.pointerEvents = 'none'; });
         }
       }
 
