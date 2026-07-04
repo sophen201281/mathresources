@@ -982,7 +982,7 @@
           <span class="word-box pattern-word" data-pattern="2">អាច</span>
           <span class="word-box pattern-word" data-pattern="3">មើល</span>
           <span class="word-box pattern-word" data-pattern="4">ឃើញ</span>
-          <div class="interactive-box" id="treeBox">
+          <div class="interactive-box" id="Box5">
             <div class="interactive-content">
               <span class="hidden-word" id="Text5">ដើមឈើ</span>
               <div class="word-cover" id="Cover5">ដ</div>
@@ -1005,7 +1005,7 @@
           <span class="word-box pattern-word" data-pattern="2">អាច</span>
           <span class="word-box pattern-word" data-pattern="3">មើល</span>
           <span class="word-box pattern-word" data-pattern="4">ឃើញ</span>
-          <div class="interactive-box" id="Box5">
+          <div class="interactive-box" id="Box6">
             <div class="interactive-content">
               <span class="hidden-word" id="Text6">ព្រះអាទិត្យ</span>
               <div class="word-cover" id="Cover6">ព</div>
@@ -1088,12 +1088,12 @@
 
       // Word configurations for dynamic admin fields
       const wordConfigs = [
-        { id: 'flower', name: 'ផ្កា (Flower)' },
-        { id: 'dog', name: 'ឆ្កែ (Dog)' },
-        { id: 'cat', name: 'ឆ្មា (Cat)' },
-        { id: 'car', name: 'ឡាន (Car)' },
-        { id: 'tree', name: 'ដើមឈើ (Tree)' },
-        { id: 'sun', name: 'ព្រះអាទិត្យ (Sun)' }
+        { id: 'flower', name: 'ផ្កា (Flower)', num: 1 },
+        { id: 'dog', name: 'ឆ្កែ (Dog)', num: 2 },
+        { id: 'cat', name: 'ឆ្មា (Cat)', num: 3 },
+        { id: 'car', name: 'ឡាន (Car)', num: 4 },
+        { id: 'tree', name: 'ដើមឈើ (Tree)', num: 5 },
+        { id: 'sun', name: 'ព្រះអាទិត្យ (Sun)', num: 6 }
       ];
 
       // Generate word editing fields
@@ -1103,13 +1103,13 @@
         fieldDiv.className = 'admin-field';
         fieldDiv.innerHTML = `
           <label>${config.name} - ពាក្យលាក់</label>
-          <input type="text" id="edit_${config.id}Word" value="${document.getElementById(config.id + 'Text').textContent}">
+          <input type="text" id="edit_${config.id}Word" value="${document.getElementById('Text' + config.num).textContent}">
           <label style="margin-top:8px;">${config.name} - អក្សរគម្រប</label>
-          <input type="text" id="edit_${config.id}Cover" value="${document.getElementById(config.id + 'Cover').textContent}">
+          <input type="text" id="edit_${config.id}Cover" value="${document.getElementById('Cover' + config.num).textContent}">
           <label style="margin-top:8px;">${config.name} - រូបតំណាង</label>
-          <input type="text" id="edit_${config.id}Emoji" value="${document.getElementById(config.id + 'Emoji').textContent}">
+          <input type="text" id="edit_${config.id}Emoji" value="${document.getElementById('Emoji' + config.num).textContent}">
           <label style="margin-top:8px;">${config.name} - គម្របរូបតំណាង</label>
-          <input type="text" id="edit_${config.id}EmojiCover" value="${document.getElementById(config.id + 'EmojiCover').textContent}">
+          <input type="text" id="edit_${config.id}EmojiCover" value="${document.getElementById('EmojiCover' + config.num).textContent}">
         `;
         wordPagesContainer.appendChild(fieldDiv);
       });
@@ -1142,10 +1142,10 @@
         
         // Save word pages
         wordConfigs.forEach(config => {
-          document.getElementById(config.id + 'Text').textContent = document.getElementById('edit_' + config.id + 'Word').value;
-          document.getElementById(config.id + 'Cover').textContent = document.getElementById('edit_' + config.id + 'Cover').value;
-          document.getElementById(config.id + 'Emoji').textContent = document.getElementById('edit_' + config.id + 'Emoji').value;
-          document.getElementById(config.id + 'EmojiCover').textContent = document.getElementById('edit_' + config.id + 'EmojiCover').value;
+          document.getElementById('Text' + config.num).textContent = document.getElementById('edit_' + config.id + 'Word').value;
+          document.getElementById('Cover' + config.num).textContent = document.getElementById('edit_' + config.id + 'Cover').value;
+          document.getElementById('Emoji' + config.num).textContent = document.getElementById('edit_' + config.id + 'Emoji').value;
+          document.getElementById('EmojiCover' + config.num).textContent = document.getElementById('edit_' + config.id + 'EmojiCover').value;
         });
         
         // Save back cover
@@ -1332,7 +1332,7 @@
         };
       }
 
-      // Initialize all interactive words
+      // Initialize all interactive words - using numbered IDs consistently
       const dragWordConfigs = [
         { cover: 'Cover1', text: 'Text1', box: 'Box1', isEmoji: false },
         { cover: 'Cover2', text: 'Text2', box: 'Box2', isEmoji: false },
