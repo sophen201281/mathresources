@@ -666,16 +666,13 @@
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
 
-    /* Smooth flip animations */
     .page.flipping-left {
-      transform: rotateY(-15deg) scaleX(0.96);
-      filter: brightness(0.96) drop-shadow(4px 0 12px rgba(0,0,0,0.1));
-      transition: transform 0.7s cubic-bezier(0.15, 0.85, 0.35, 1), filter 0.5s ease;
+      transform: rotateY(-18deg) skewY(1.5deg) scaleX(0.96);
+      filter: brightness(0.96) drop-shadow(4px 0 12px rgba(0,0,0,0.08));
     }
     .page.flipping-right {
-      transform: rotateY(15deg) scaleX(0.96);
-      filter: brightness(0.96) drop-shadow(-4px 0 12px rgba(0,0,0,0.1));
-      transition: transform 0.7s cubic-bezier(0.15, 0.85, 0.35, 1), filter 0.5s ease;
+      transform: rotateY(18deg) skewY(-1.5deg) scaleX(0.96);
+      filter: brightness(0.96) drop-shadow(-4px 0 12px rgba(0,0,0,0.08));
     }
 
     .page.turning {
@@ -1406,9 +1403,8 @@
         if (instance) { dragInstances.push(instance); instance.reset(); }
       });
 
-      // Page flip - SMOOTH
+      // Page flip
       function applyCurve(page, direction) {
-        if (!page) return;
         page.classList.add('turning');
         if (direction === 'left') {
           page.classList.add('flipping-left');
@@ -1417,7 +1413,6 @@
           page.classList.add('flipping-right');
           page.classList.remove('flipping-left');
         }
-        // remove classes after transition completes
         setTimeout(() => {
           page.classList.remove('flipping-left', 'flipping-right', 'turning');
         }, 750);
@@ -1430,7 +1425,6 @@
           const isLeft = page.classList.contains('page-left');
           const isRight = page.classList.contains('page-right');
 
-          // Remove any leftover flip classes
           page.classList.remove('flipping-left', 'flipping-right', 'turning');
           page.style.display = 'flex';
           page.style.width = '50%';
@@ -1504,20 +1498,16 @@
         }
       }
 
-      // Smooth flipping with curve effect on both pages
-      function animateSmoothFlip(direction) {
+      function animateCurve(direction) {
         const leftPage = document.querySelector(`.page-left[data-page="${currentSpread * 2}"]`);
         const rightPage = document.querySelector(`.page-right[data-page="${currentSpread * 2 + 1}"]`);
-        
-        if (direction === 1) { // turning forward (to next spread)
-          // current left page curves left, next right page curves right
+        if (direction === 1) {
           if (leftPage) applyCurve(leftPage, 'left');
-          const nextRight = document.querySelector(`.page-right[data-page="${(currentSpread + 1) * 2 + 1}"]`);
-          if (nextRight) applyCurve(nextRight, 'right');
-        } else if (direction === -1) { // turning backward (to previous spread)
-          // current right page curves right, previous left page curves left
+          const prevRight = document.querySelector(`.page-right[data-page="${(currentSpread - 1) * 2 + 1}"]`);
+          if (prevRight) applyCurve(prevRight, 'right');
+        } else if (direction === -1) {
           if (rightPage) applyCurve(rightPage, 'right');
-          const prevLeft = document.querySelector(`.page-left[data-page="${(currentSpread - 1) * 2}"]`);
+          const prevLeft = document.querySelector(`.page-left[data-page="${(currentSpread + 1) * 2}"]`);
           if (prevLeft) applyCurve(prevLeft, 'left');
         }
       }
@@ -1527,15 +1517,9 @@
         if (spreadIndex < 0 || spreadIndex >= SPREADS || spreadIndex === currentSpread) return;
         isFlipping = true;
         const dir = spreadIndex > currentSpread ? 1 : -1;
-        
-        // Apply smooth curve animation
-        animateSmoothFlip(dir);
-        
-        // Update spread
+        animateCurve(dir);
         currentSpread = spreadIndex;
         updateFlip();
-        
-        // Unlock after animation
         setTimeout(() => { isFlipping = false; }, 750);
       }
 
@@ -1555,10 +1539,8 @@
         if (isFlipping) return;
         if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
           if (currentSpread > 0) goToSpread(currentSpread - 1);
-          e.preventDefault();
         } else if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
           if (currentSpread < SPREADS - 1) goToSpread(currentSpread + 1);
-          e.preventDefault();
         }
       });
 
