@@ -525,6 +525,9 @@
       margin: 0.2rem 0;
       opacity: 0.3;
       transition: opacity 0.4s ease;
+      display: block;
+      width: 100%;
+      text-align: center;
     }
     .hidden-emoji.revealed {
       opacity: 1;
@@ -554,6 +557,14 @@
       letter-spacing: 0.5px;
       text-transform: uppercase;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+      overflow: hidden;
+    }
+    .emoji-cover span {
+      font-size: clamp(2.5rem, 7vw, 4rem);
+      line-height: 1;
+      display: block;
+      text-align: center;
+      width: 100%;
     }
     .emoji-cover:hover {
       box-shadow: 0 6px 18px rgba(0,0,0,0.2);
@@ -842,7 +853,7 @@
       </div>
       <div class="admin-field">
         <label>រូបតំណាង (Emoji)</label>
-        <input type="text" id="editTitleEmoji" value="">
+        <input type="text" id="editTitleEmoji" value="👁️">
       </div>
     </div>
 
@@ -943,7 +954,7 @@
       <div class="page page-right" data-page="5">
         <div class="emoji-container" id="EmojiContainer1">
           <span class="hidden-emoji" id="Emoji1">🌸</span>
-          <div class="emoji-cover" id="EmojiCover1"></div>
+          <div class="emoji-cover" id="EmojiCover1"><span>🌸</span></div>
         </div>
         <div class="word-label"></div>
       </div>
@@ -966,7 +977,7 @@
       <div class="page page-right" data-page="7">
         <div class="emoji-container" id="EmojiContainer2">
           <span class="hidden-emoji" id="Emoji2">🐕</span>
-          <div class="emoji-cover" id="EmojiCover2"></div>
+          <div class="emoji-cover" id="EmojiCover2"><span>🐕</span></div>
         </div>
       </div>
 
@@ -988,7 +999,7 @@
       <div class="page page-right" data-page="9">
         <div class="emoji-container" id="EmojiContainer3">
           <span class="hidden-emoji" id="Emoji3">🐈</span>
-          <div class="emoji-cover" id="EmojiCover3"></div>
+          <div class="emoji-cover" id="EmojiCover3"><span>🐈</span></div>
         </div>
       </div>
 
@@ -1010,7 +1021,7 @@
       <div class="page page-right" data-page="11">
         <div class="emoji-container" id="EmojiContainer4">
           <span class="hidden-emoji" id="Emoji4">🚗</span>
-          <div class="emoji-cover" id="EmojiCover4"></div>
+          <div class="emoji-cover" id="EmojiCover4"><span>🚗</span></div>
         </div>
         <div class="word-label"></div>
       </div>
@@ -1033,7 +1044,7 @@
       <div class="page page-right" data-page="13">
         <div class="emoji-container" id="EmojiContainer5">
           <span class="hidden-emoji" id="Emoji5">🌳</span>
-          <div class="emoji-cover" id="EmojiCover5"></div>
+          <div class="emoji-cover" id="EmojiCover5"><span>🌳</span></div>
         </div>
         <div class="word-label"></div>
       </div>
@@ -1056,7 +1067,7 @@
       <div class="page page-right" data-page="15">
         <div class="emoji-container" id="EmojiContainer6">
           <span class="hidden-emoji" id="Emoji6">☀️</span>
-          <div class="emoji-cover" id="EmojiCover6"></div>
+          <div class="emoji-cover" id="EmojiCover6"><span>☀️</span></div>
         </div>
         <div class="word-label"></div>
       </div>
@@ -1185,7 +1196,7 @@
           document.getElementById('Text' + config.num).textContent = document.getElementById('edit_' + config.id + 'Word').value;
           document.getElementById('Cover' + config.num).textContent = document.getElementById('edit_' + config.id + 'Cover').value;
           document.getElementById('Emoji' + config.num).textContent = document.getElementById('edit_' + config.id + 'Emoji').value;
-          document.getElementById('EmojiCover' + config.num).textContent = document.getElementById('edit_' + config.id + 'EmojiCover').value;
+          document.getElementById('EmojiCover' + config.num).innerHTML = '<span>' + document.getElementById('edit_' + config.id + 'EmojiCover').value + '</span>';
         });
         
         // Save back cover
@@ -1224,6 +1235,8 @@
       const wordCovers = document.querySelectorAll('.word-cover');
       const emojiCovers = document.querySelectorAll('.emoji-cover');
       const modeBtns = document.querySelectorAll('.mode-btn');
+      const hiddenWords = document.querySelectorAll('.hidden-word');
+      const hiddenEmojis = document.querySelectorAll('.hidden-emoji');
 
       function setMode(mode) {
         // Remove active class from all buttons
@@ -1235,15 +1248,44 @@
         wordCovers.forEach(cover => cover.style.display = 'none');
         emojiCovers.forEach(cover => cover.style.display = 'none');
 
+        // Reset all hidden items to be visible with opacity
+        hiddenWords.forEach(word => {
+          word.style.opacity = '1';
+        });
+        hiddenEmojis.forEach(emoji => {
+          emoji.style.opacity = '1';
+        });
+
         if (mode === 'word-cover') {
-          // Show only word covers
+          // Show word covers, hide emoji covers
           wordCovers.forEach(cover => cover.style.display = 'flex');
+          // Make hidden words transparent (behind cover)
+          hiddenWords.forEach(word => {
+            word.style.opacity = '0.3';
+          });
+          // Emojis visible
+          hiddenEmojis.forEach(emoji => {
+            emoji.style.opacity = '1';
+          });
         } else if (mode === 'image-cover') {
-          // Show only emoji covers
+          // Show emoji covers, hide word covers
           emojiCovers.forEach(cover => cover.style.display = 'flex');
+          // Make hidden emojis transparent (behind cover)
+          hiddenEmojis.forEach(emoji => {
+            emoji.style.opacity = '0.3';
+          });
+          // Words visible
+          hiddenWords.forEach(word => {
+            word.style.opacity = '1';
+          });
         } else if (mode === 'normal') {
-          // Show no covers (all hidden)
-          // already hidden
+          // Show no covers, everything visible
+          hiddenWords.forEach(word => {
+            word.style.opacity = '1';
+          });
+          hiddenEmojis.forEach(emoji => {
+            emoji.style.opacity = '1';
+          });
         }
       }
 
@@ -1318,12 +1360,23 @@
           
           const distance = Math.sqrt(x * x + y * y);
           
+          // For word-cover mode, reveal the word
+          // For image-cover mode, reveal the emoji
           if (distance > REVEAL_THRESHOLD && !isRevealed) {
             isRevealed = true;
-            text.classList.add('revealed');
+            // Reveal the hidden content by making it fully opaque
+            text.style.opacity = '1';
           } else if (distance <= REVEAL_THRESHOLD && isRevealed) {
             isRevealed = false;
-            text.classList.remove('revealed');
+            // Hide the content again based on current mode
+            const currentMode = document.querySelector('.mode-btn.active')?.dataset.mode || 'word-cover';
+            if (currentMode === 'word-cover' && !isEmoji) {
+              text.style.opacity = '0.3';
+            } else if (currentMode === 'image-cover' && isEmoji) {
+              text.style.opacity = '0.3';
+            } else {
+              text.style.opacity = '1';
+            }
           }
         }
 
