@@ -2,457 +2,852 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
-  <title>Balance Scale · attached trays</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>3D flip book · Reveal Words</title>
+  <!-- Google Font: Khmer Battambang -->
+  <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@100;300;400;700;900&display=swap" rel="stylesheet">
   <style>
-    * {
-      box-sizing: border-box;
-      user-select: none;
-      -webkit-tap-highlight-color: transparent;
-    }
+    * { margin:0; padding:0; box-sizing:border-box; user-select:none; -webkit-tap-highlight-color:transparent; }
+    html, body { width:100%; height:100%; overflow:hidden; }
     body {
-      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-      margin: 0;
-      min-height: 100vh;
-      background: linear-gradient(145deg, #e2e8f0 0%, #f1f5f9 100%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      padding: 12px 8px 20px;
+      background: #d9c8b2;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      font-family: 'Battambang', 'Segoe UI', Roboto, system-ui, sans-serif;
+      padding:8px; touch-action:pan-y; overflow:hidden; position:fixed; top:0; left:0; right:0; bottom:0;
     }
-    h2 {
-      font-weight: 500;
-      font-size: clamp(1.4rem, 6vw, 2.2rem);
-      margin: 6px 0 12px;
-      color: #1e293b;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      letter-spacing: 1px;
+    .home-btn {
+      position:fixed; top:16px; left:16px; background:rgba(30,45,55,0.9); backdrop-filter:blur(6px);
+      color:#f0ede5; padding:8px 18px; border-radius:40px; font-size:clamp(0.9rem,2vw,1.1rem);
+      font-weight:500; border:1.5px solid #b6a692; box-shadow:0 4px 14px rgba(0,0,0,0.25);
+      z-index:600; cursor:pointer; transition:all 0.25s ease; text-decoration:none;
+      font-family:'Battambang','Segoe UI',system-ui,sans-serif; letter-spacing:0.3px;
+      display:inline-flex; align-items:center; gap:6px;
     }
-    #palette {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      padding: 14px 16px;
-      justify-content: center;
-      background: rgba(255,255,255,0.6);
-      backdrop-filter: blur(4px);
-      border-radius: 60px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-      margin-bottom: 12px;
-      min-height: 80px;
-      width: 100%;
-      max-width: 700px;
-      border: 1px solid rgba(255,255,255,0.5);
-    }
-    .item {
-      width: 58px;
-      height: 58px;
-      border-radius: 30px;
-      background: white;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.02);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 32px;
-      transition: box-shadow 0.15s, transform 0.1s;
-      touch-action: none;
-      cursor: grab;
-      will-change: transform;
-      position: relative;
-      border: 1px solid #d1d9e6;
-    }
-    .item:active {
-      cursor: grabbing;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-      transform: scale(0.96);
-    }
-    #scene {
-      position: relative;
-      width: min(700px, 96vw);
-      max-width: 700px;
-      height: 420px;
-      margin: 8px auto 0;
-      touch-action: none;
-    }
-    /* beam group: everything rotates together */
-    #beamGroup {
-      position: absolute;
-      left: 50%;
-      top: 170px;
-      width: 500px;
-      max-width: 78vw;
-      height: 8px;
-      transform: translateX(-50%) rotate(0deg);
-      transform-origin: center center;
-      transition: transform 0.25s cubic-bezier(0.34, 1.2, 0.64, 1);
-      will-change: transform;
-      pointer-events: none; /* allow clicks to pass to items */
-    }
-    #beam {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 8px;
-      background: #5a3e2b;
-      border-radius: 12px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-    #pivot {
-      position: absolute;
-      left: 50%;
-      top: -28px;
-      width: 0;
-      height: 0;
-      border-left: 18px solid transparent;
-      border-right: 18px solid transparent;
-      border-bottom: 110px solid #4a3a2a;
-      transform: translateX(-50%);
-      filter: drop-shadow(0 6px 8px rgba(0,0,0,0.15));
-      z-index: 5;
-      pointer-events: none;
-    }
-    .tray {
-      position: absolute;
-      width: 180px;
-      max-width: 38vw;
-      height: 22px;
-      background: #b8a99a;
-      border-radius: 0 0 100px 100px;
-      border: 2px solid #5a4a3a;
-      border-top: 1px solid #7a6a5a;
-      box-shadow: inset 0 -4px 6px rgba(0,0,0,0.08), 0 6px 12px rgba(0,0,0,0.1);
-      display: flex;
-      align-items: flex-start;
-      justify-content: flex-start;
-      padding: 0 6px;
-      flex-wrap: wrap;
-      gap: 2px;
-      min-height: 50px;
-      touch-action: none;
-      background: #cfc1b0;
-      pointer-events: auto; /* items inside can be grabbed */
-    }
-    #leftTray {
-      left: -120px;  /* relative to beamGroup center */
-      top: 30px;
-    }
-    #rightTray {
-      right: -120px;
-      top: 30px;
-    }
-    .tray .item {
-      width: 42px;
-      height: 42px;
-      font-size: 24px;
-      border-radius: 24px;
-      position: absolute;
-      top: -38px;
-      left: 4px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      border: 1px solid #b0a090;
-      transition: none;
-      background: #fefefe;
-      pointer-events: auto;
-      cursor: grab;
-    }
-    .tray .item:active {
-      cursor: grabbing;
-    }
-    /* dynamic layout for tray items */
-    .tray .item:nth-child(2) { left: 50px; }
-    .tray .item:nth-child(3) { left: 96px; }
-    .tray .item:nth-child(4) { left: 142px; }
-    .tray .item:nth-child(5) { left: 188px; }
-    .tray .item:nth-child(6) { left: 234px; }
+    .home-btn:hover { background:rgba(50,70,85,0.95); transform:scale(1.04); border-color:#d4c4b0; }
+    .home-btn:active { transform:scale(0.94); }
 
-    @media (max-width: 550px) {
-      .tray { width: 140px; max-width: 40vw; }
-      .tray .item { width: 34px; height: 34px; font-size: 20px; top: -32px; }
-      .tray .item:nth-child(2) { left: 38px; }
-      .tray .item:nth-child(3) { left: 72px; }
-      .tray .item:nth-child(4) { left: 106px; }
-      #leftTray { left: -90px; }
-      #rightTray { right: -90px; }
-      #beamGroup { width: 70vw; max-width: 70vw; top: 160px; }
-      #pivot { border-bottom-width: 90px; top: -24px; }
+    .admin-toggle {
+      position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+      background:rgba(30,45,55,0.95); backdrop-filter:blur(10px);
+      color:#f0ede5; padding:10px 24px; border-radius:50px;
+      font-size:clamp(0.9rem,2vw,1.1rem); font-weight:500; letter-spacing:0.5px;
+      border:1.5px solid #b6a692; box-shadow:0 4px 20px rgba(0,0,0,0.3);
+      z-index:400; cursor:pointer; transition:all 0.3s ease;
+      font-family:'Battambang','Segoe UI',system-ui,sans-serif; white-space:nowrap;
     }
-    @media (max-width: 400px) {
-      .tray .item { width: 28px; height: 28px; font-size: 16px; top: -26px; }
-      .tray .item:nth-child(2) { left: 30px; }
-      .tray .item:nth-child(3) { left: 56px; }
-      .tray .item:nth-child(4) { left: 82px; }
-      #leftTray { left: -70px; }
-      #rightTray { right: -70px; }
+    .admin-toggle:hover { background:rgba(50,70,85,0.95); transform:translateX(-50%) scale(1.05); }
+    .admin-toggle:active { transform:translateX(-50%) scale(0.95); }
+
+    .admin-overlay {
+      position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5);
+      z-index:450; display:none; opacity:0; transition:opacity 0.3s ease;
     }
-    #status {
-      margin: 12px 0 4px;
-      font-size: clamp(1rem, 3vw, 1.4rem);
-      color: #1e293b;
-      background: rgba(255,255,240,0.7);
-      padding: 8px 24px;
-      border-radius: 40px;
-      backdrop-filter: blur(4px);
-      font-weight: 450;
-      border: 1px solid #d4c9b8;
-      min-height: 3.2rem;
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    .admin-overlay.active { display:block; opacity:1; }
+
+    .admin-panel {
+      position:fixed; bottom:-100%; left:0; width:100%; max-height:70vh;
+      background:linear-gradient(135deg,#1f2e3a 0%,#2a3f4d 100%);
+      color:#f0ede5; z-index:500; transition:bottom 0.4s cubic-bezier(0.4,0,0.2,1);
+      overflow-y:auto; overflow-x:hidden; padding:16px 20px 20px;
+      box-shadow:0 -4px 30px rgba(0,0,0,0.4); border-top:2px solid #8ba0b0;
+      border-radius:20px 20px 0 0; -webkit-overflow-scrolling:touch;
     }
-    .reset-btn {
-      background: #d4c9b8;
-      border: none;
-      padding: 8px 20px;
-      border-radius: 40px;
-      font-size: 1rem;
-      font-weight: 500;
-      color: #1e293b;
-      cursor: pointer;
-      transition: 0.1s;
-      border: 1px solid #b8a99a;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-      touch-action: manipulation;
+    .admin-panel.open { bottom:0; }
+    .admin-panel-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; border-bottom:2px solid #8ba0b0; padding-bottom:8px; }
+    .admin-panel h2 { font-size:clamp(1.2rem,3vw,1.6rem); color:#f5e9da; font-family:'Battambang','Segoe UI',system-ui,sans-serif; margin:0; }
+    .close-panel-btn {
+      background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#f0ede5;
+      width:30px; height:30px; border-radius:50%; font-size:0.9rem; cursor:pointer;
+      display:flex; align-items:center; justify-content:center; transition:all 0.3s ease; padding:0;
     }
-    .reset-btn:active { background: #c0b09a; transform: scale(0.96); }
-    .footer { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: center; }
+    .close-panel-btn:hover { background:rgba(255,255,255,0.2); transform:rotate(90deg); }
+    .admin-section { margin-bottom:12px; padding:10px; background:rgba(255,255,255,0.05); border-radius:12px; border:1px solid rgba(255,255,255,0.1); transition:all 0.3s ease; }
+    .admin-section:hover { background:rgba(255,255,255,0.08); }
+    .admin-section h3 { font-size:clamp(1rem,2.5vw,1.1rem); margin-bottom:8px; color:#d4c4b0; font-family:'Battambang','Segoe UI',system-ui,sans-serif; }
+    .admin-field { margin-bottom:8px; }
+    .admin-field label { display:block; font-size:clamp(0.7rem,1.8vw,0.85rem); margin-bottom:3px; opacity:0.8; font-family:'Battambang','Segoe UI',system-ui,sans-serif; }
+    .admin-field input, .admin-field textarea {
+      width:100%; padding:6px 10px; background:rgba(255,255,255,0.08);
+      border:1.5px solid rgba(255,255,255,0.15); border-radius:8px; color:#f0ede5;
+      font-family:'Battambang','Segoe UI',system-ui,sans-serif; font-size:clamp(0.85rem,2vw,1rem);
+      transition:all 0.3s ease; outline:none;
+    }
+    .admin-field input:focus, .admin-field textarea:focus {
+      border-color:#d4c4b0; background:rgba(255,255,255,0.15); box-shadow:0 0 0 3px rgba(212,196,176,0.1);
+    }
+    .admin-field textarea { resize:vertical; min-height:36px; }
+    .save-all-btn {
+      width:100%; padding:10px; background:#2b4a5c; color:#f5e9da; border:2px solid #8ba0b0;
+      border-radius:10px; font-size:clamp(1rem,2.5vw,1.1rem); font-weight:700;
+      cursor:pointer; transition:all 0.3s ease; font-family:'Battambang','Segoe UI',system-ui,sans-serif;
+      margin-top:8px; letter-spacing:1px;
+    }
+    .save-all-btn:hover { background:#3a5f73; transform:translateY(-2px); box-shadow:0 6px 20px rgba(43,74,92,0.3); }
+    .save-all-btn:active { transform:translateY(0); }
+
+    .mode-buttons { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+    .mode-btn {
+      flex:1 0 auto; padding:6px 10px; background:rgba(255,255,255,0.08); border:2px solid rgba(255,255,255,0.15);
+      border-radius:8px; color:#f0ede5; font-family:'Battambang','Segoe UI',system-ui,sans-serif;
+      font-size:clamp(0.8rem,1.8vw,0.9rem); cursor:pointer; transition:all 0.3s ease; text-align:center;
+    }
+    .mode-btn:hover { background:rgba(255,255,255,0.15); border-color:#8ba0b0; }
+    .mode-btn.active { background:#2b4a5c; border-color:#d4c4b0; box-shadow:0 0 0 2px #8ba0b0; }
+
+    .flipbook-wrapper {
+      perspective:2000px; width:100%; max-width:800px; height:50vh; max-height:50vh;
+      display:flex; justify-content:center; align-items:center; position:relative;
+      margin:0 auto; padding:6px 0; flex-shrink:0;
+    }
+    .flipbook {
+      position:relative; width:100%; height:100%; transform-style:preserve-3d;
+      max-width:800px; max-height:50vh; aspect-ratio:3/4; min-height:0;
+    }
+    .page {
+      position:absolute; width:50%; height:100%; top:0; backface-visibility:hidden; -webkit-backface-visibility:hidden;
+      background:#fcf8f0; box-shadow:inset 0 0 0 1px rgba(0,0,0,0.02);
+      display:flex; flex-direction:column; justify-content:center; align-items:center;
+      padding:clamp(0.4rem,2vh,1.5rem) clamp(0.4rem,1.5vw,1.5rem); text-align:center;
+      box-sizing:border-box; border:1px solid #e3d7c8; pointer-events:none;
+      transform-style:preserve-3d; transition:transform 0.7s cubic-bezier(0.23,1,0.32,1), filter 0.3s ease;
+      will-change:transform; background-image:radial-gradient(circle at 20% 30%, rgba(255,245,235,0.3) 0%, transparent 60%);
+    }
+    .page-left { left:0; border-radius:8px 0 0 8px; border-right:1px solid #d0c0ac; transform-origin:right center; background:#faf5eb; }
+    .page-right { left:50%; border-radius:0 8px 8px 0; border-left:1px solid #d0c0ac; transform-origin:left center; background:#fcf8f0; }
+    .cover { background:#2b4a5c; color:#f5e9da; border:2px solid #1d3442; }
+    .cover h1 { font-size:clamp(1.4rem,3.5vw,2.8rem); font-weight:700; letter-spacing:1px; text-shadow:2px 2px 0 #14222b; margin-bottom:0.2rem; font-family:'Battambang','Segoe UI',system-ui,sans-serif; line-height:1.2; padding:0 0.3rem; }
+    .cover .sub { font-size:clamp(0.8rem,1.8vw,1.2rem); opacity:0.7; border-top:1px solid #8ba0b0; padding-top:0.3rem; width:70%; font-family:'Battambang','Segoe UI',system-ui,sans-serif; }
+    .back-cover { background:#2b4a5c; color:#f5e9da; border:2px solid #1d3442; font-size:clamp(1.2rem,2.5vw,2rem); letter-spacing:1px; }
+    .back-cover .sub { opacity:0.5; font-size:clamp(0.7rem,1.5vw,1rem); margin-top:0.3rem; font-family:'Battambang','Segoe UI',system-ui,sans-serif; }
+    .page-title { font-size:clamp(1.4rem,3.5vw,2.8rem); font-weight:700; color:#1f3a47; margin-bottom:0.2rem; line-height:1.2; font-family:'Battambang','Segoe UI',system-ui,sans-serif; padding:0 0.3rem; }
+    .sentence-container { display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:4px; width:100%; padding:clamp(4px,1vh,10px); position:relative; }
+    .word-box { font-size:clamp(1rem,2.5vw,1.8rem); color:#1f2e3a; font-weight:400; padding:clamp(2px,0.5vh,6px) clamp(4px,1.2vw,12px); background:transparent; border:none; display:flex; align-items:center; justify-content:center; font-family:'Battambang','Segoe UI',system-ui,sans-serif; }
+    .interactive-box { display:inline-flex; position:relative; pointer-events:auto; z-index:20; padding:clamp(4px,1vh,12px) clamp(8px,1.5vw,20px); background:#f0e6da; border-radius:clamp(6px,1vw,12px); box-shadow:inset 0 2px 5px rgba(0,0,0,0.06); min-width:clamp(60px,12vw,120px); min-height:clamp(30px,5vh,60px); align-items:center; border:2px solid #cfc2b2; overflow:visible; }
+    .interactive-content { position:relative; width:100%; height:100%; display:flex; align-items:center; justify-content:center; min-height:clamp(28px,4vh,50px); }
+    .hidden-word { font-size:clamp(1.2rem,3vw,2.5rem); font-weight:500; color:#1f3a47; white-space:nowrap; position:relative; z-index:1; letter-spacing:0.3px; opacity:0.3; transition:opacity 0.4s ease; padding:clamp(2px,0.4vh,6px) clamp(4px,0.8vw,12px); font-family:'Battambang','Segoe UI',system-ui,sans-serif; }
+    .hidden-word.revealed { opacity:1; }
+    .word-cover {
+      position:absolute; top:0; left:0; width:100%; height:100%; background:#faf5eb; border:3px solid #d4c4b0;
+      border-radius:clamp(4px,0.6vw,8px); box-shadow:0 3px 8px rgba(0,0,0,0.12);
+      display:flex; align-items:center; justify-content:center; font-size:clamp(1.4rem,3.5vw,2.8rem);
+      font-weight:700; color:#c05c5c; cursor:grab; touch-action:none; z-index:5;
+      transition:box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+      padding:clamp(2px,0.6vh,8px) clamp(4px,1.2vw,14px); letter-spacing:0.3px; text-transform:uppercase;
+      font-family:'Battambang','Segoe UI',system-ui,sans-serif;
+    }
+    .word-cover:hover { box-shadow:0 4px 14px rgba(0,0,0,0.18); border-color:#bfae99; }
+    .word-cover:active { cursor:grabbing; }
+    .word-cover.dragging { box-shadow:0 8px 28px rgba(0,0,0,0.3); background:#fcfbf7; border-color:#a8907a; z-index:10; cursor:grabbing; }
+    .drag-hint { position:absolute; bottom:clamp(-16px,-2vh,-22px); left:50%; transform:translateX(-50%); font-size:clamp(0.4rem,0.8vw,0.6rem); color:#b0a496; opacity:0.8; white-space:nowrap; pointer-events:none; transition:opacity 0.2s ease; letter-spacing:0.3px; font-family:'Battambang','Segoe UI',system-ui,sans-serif; }
+    .word-cover.dragging ~ .drag-hint { opacity:0; }
+    .emoji-container { position:relative; display:inline-flex; align-items:center; justify-content:center; pointer-events:auto; z-index:20; padding:clamp(8px,2vh,20px); min-width:clamp(60px,15vw,120px); min-height:clamp(60px,15vw,120px); }
+    .hidden-emoji { font-size:clamp(2.8rem,8vw,5.5rem); line-height:1.2; filter:drop-shadow(2px 6px 12px rgba(0,0,0,0.15)); margin:0.1rem 0; opacity:0.3; transition:opacity 0.4s ease; display:block; width:100%; text-align:center; }
+    .hidden-emoji.revealed { opacity:1; }
+    .emoji-cover {
+      position:absolute; top:0; left:0; width:100%; height:100%; background:#faf5eb; border:4px solid #d4c4b0;
+      border-radius:clamp(8px,1.5vw,16px); box-shadow:0 4px 12px rgba(0,0,0,0.15);
+      display:flex; align-items:center; justify-content:center; font-size:clamp(2rem,5vw,4rem);
+      font-weight:700; color:#c05c5c; cursor:grab; touch-action:none; z-index:5;
+      transition:box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+      padding:clamp(2px,0.6vh,8px) clamp(4px,1.2vw,14px); letter-spacing:0.3px; text-transform:uppercase;
+      font-family:'Battambang','Segoe UI',system-ui,sans-serif; overflow:hidden;
+    }
+    .emoji-cover span { font-size:clamp(2rem,5vw,4rem); line-height:1; display:block; text-align:center; width:100%; }
+    .emoji-cover:hover { box-shadow:0 6px 18px rgba(0,0,0,0.2); border-color:#bfae99; }
+    .emoji-cover:active { cursor:grabbing; }
+    .emoji-cover.dragging { box-shadow:0 8px 28px rgba(0,0,0,0.3); background:#fcfbf7; border-color:#a8907a; z-index:10; cursor:grabbing; }
+    .word-label { font-size:clamp(0.7rem,1.2vw,1rem); opacity:0.5; margin-top:0.2rem; font-family:'Battambang','Segoe UI',system-ui,sans-serif; font-weight:400; }
+    .empty-page { background:#f4ede3; display:flex; align-items:center; justify-content:center; color:#b8aa98; font-style:italic; letter-spacing:2px; font-size:clamp(0.7rem,1.5vw,1.2rem); font-family:'Battambang','Segoe UI',system-ui,sans-serif; }
+    .touch-zones-container { position:absolute; top:0; left:0; width:100%; height:100%; z-index:5; pointer-events:none; }
+    .touch-zone { position:absolute; top:0; height:100%; width:50%; pointer-events:auto; cursor:pointer; }
+    .touch-left { left:0; }
+    .touch-right { right:0; }
+    .page-indicator { position:fixed; top:10px; right:10px; background:rgba(30,45,55,0.85); backdrop-filter:blur(10px); color:#f0ede5; padding:4px 12px; border-radius:50px; font-size:clamp(0.6rem,1.2vw,0.8rem); font-weight:500; letter-spacing:0.3px; border:1.5px solid #b6a692; box-shadow:0 4px 15px rgba(0,0,0,0.25); z-index:300; pointer-events:none; font-family:'Battambang','Segoe UI',system-ui,sans-serif; }
+    .page.flipping-left { transform:rotateY(-18deg) skewY(1.5deg) scaleX(0.96); filter:brightness(0.96) drop-shadow(4px 0 12px rgba(0,0,0,0.08)); }
+    .page.flipping-right { transform:rotateY(18deg) skewY(-1.5deg) scaleX(0.96); filter:brightness(0.96) drop-shadow(-4px 0 12px rgba(0,0,0,0.08)); }
+    .page.turning { transition:transform 0.7s cubic-bezier(0.15,0.85,0.35,1), filter 0.4s ease; }
+    .flipbook-wrapper::after { content:''; position:absolute; bottom:-8px; left:5%; width:90%; height:12px; background:radial-gradient(ellipse at center, rgba(0,0,0,0.1) 0%, transparent 70%); border-radius:50%; filter:blur(6px); z-index:-1; }
+    .flipbook::before { content:''; position:absolute; left:50%; top:0; width:3px; height:100%; background:linear-gradient(to right, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 70%, rgba(0,0,0,0.15) 100%); z-index:200; pointer-events:none; transform:translateX(-50%); }
+    @media (max-height:700px) { .flipbook-wrapper { height:45vh; max-height:45vh; } .flipbook { max-height:45vh; } }
+    @media (max-height:600px) { .flipbook-wrapper { height:42vh; max-height:42vh; } .flipbook { max-height:42vh; aspect-ratio:4/3; } }
+    @media (max-height:500px) { .flipbook-wrapper { height:38vh; max-height:38vh; } .flipbook { max-height:38vh; aspect-ratio:4/3; } }
+    @media (max-width:420px) { body { padding:4px; } .flipbook-wrapper { padding:4px 0; } }
+    @media (orientation:landscape) {
+      .flipbook-wrapper { height:75vh; max-height:75vh; }
+      .flipbook { aspect-ratio:4/3; max-height:75vh; }
+      .hidden-word { font-size:clamp(2rem,4vw,3.5rem) !important; }
+      .word-cover { font-size:clamp(2.2rem,4.5vw,4rem) !important; }
+      .hidden-emoji { font-size:clamp(4rem,12vw,8rem) !important; }
+      .emoji-cover span { font-size:clamp(3rem,8vw,5.5rem) !important; }
+      .word-box { font-size:clamp(1.4rem,3vw,2.4rem) !important; }
+      .page-title { font-size:clamp(2rem,4.5vw,3.5rem) !important; }
+      .cover h1 { font-size:clamp(2rem,4.5vw,3.5rem) !important; }
+      .interactive-box { min-height:45px !important; min-width:85px !important; padding:6px 14px !important; }
+      .emoji-container { min-width:85px !important; min-height:85px !important; padding:8px !important; }
+    }
+    @media (orientation:landscape) and (max-height:450px) {
+      .flipbook-wrapper { height:70vh; max-height:70vh; }
+      .flipbook { max-height:70vh; }
+      .interactive-box { min-height:30px !important; min-width:55px !important; padding:4px 10px !important; }
+      .emoji-container { min-width:55px !important; min-height:55px !important; padding:5px !important; }
+      .hidden-emoji { font-size:clamp(2.8rem,9vw,5rem) !important; }
+      .emoji-cover span { font-size:clamp(2rem,5vw,3.5rem) !important; }
+      .word-box { font-size:clamp(1rem,2.5vw,1.8rem) !important; }
+      .hidden-word { font-size:clamp(1.4rem,3.5vw,2.8rem) !important; }
+      .word-cover { font-size:clamp(1.6rem,4vw,3rem) !important; }
+      .cover h1 { font-size:clamp(1.4rem,3.5vw,2.5rem) !important; }
+      .page-title { font-size:clamp(1.4rem,3.5vw,2.5rem) !important; }
+    }
   </style>
 </head>
 <body>
-<h2>⚖️ attached balance</h2>
-<div id="palette"></div>
-<div id="scene">
-  <div id="beamGroup">
-    <div id="beam"></div>
-    <div id="pivot"></div>
-    <div id="leftTray" class="tray"></div>
-    <div id="rightTray" class="tray"></div>
+
+  <a href="../index.html" class="home-btn">🏠 Home</a>
+
+  <div class="admin-overlay" id="adminOverlay"></div>
+  <button class="admin-toggle" id="adminToggle">⚙️ កែសម្រួល</button>
+
+  <div class="admin-panel" id="adminPanel">
+    <div class="admin-panel-header">
+      <h2>📝 កែសម្រួលមាតិកា</h2>
+      <button class="close-panel-btn" id="closePanelBtn">✕</button>
+    </div>
+    
+    <div class="admin-section">
+      <h3>📖 គម្របខាងមុខ</h3>
+      <div class="admin-field"><label>ចំណងជើង</label><input type="text" id="editCoverTitle" value="ខ្ញុំអាចមើលឃើញ"></div>
+      <div class="admin-field"><label>អត្ថបទរង</label><input type="text" id="editCoverSub" value="✦ ចុចលើទំព័រ ✦"></div>
+    </div>
+
+    <div class="admin-section">
+      <h3>📄 ទំព័រចំណងជើង</h3>
+      <div class="admin-field"><label>ចំណងជើង</label><input type="text" id="editTitlePage" value="ខ្ញុំ អាច មើល ឃើញ"></div>
+      <div class="admin-field"><label>រូបតំណាង (Emoji)</label><input type="text" id="editTitleEmoji" value="👁️"></div>
+    </div>
+
+    <!-- Pattern Sentence Section: dropdown list for word1-word4 -->
+    <div class="admin-section">
+      <h3>📝 ប្រយោគគំរូ (Pattern Sentence)</h3>
+      <div class="admin-field">
+        <label>ពាក្យទី 1</label>
+        <select id="editPattern1">
+          <option value="ខ្ញុំ">ខ្ញុំ</option>
+          <option value="អ្នក">អ្នក</option>
+          <option value="គាត់">គាត់</option>
+          <option value="យើង">យើង</option>
+        </select>
+      </div>
+      <div class="admin-field">
+        <label>ពាក្យទី 2</label>
+        <select id="editPattern2">
+          <option value="អាច">អាច</option>
+          <option value="ចង់">ចង់</option>
+          <option value="កំពុង">កំពុង</option>
+          <option value="បាន">បាន</option>
+        </select>
+      </div>
+      <div class="admin-field">
+        <label>ពាក្យទី 3</label>
+        <select id="editPattern3">
+          <option value="មើល">មើល</option>
+          <option value="ឃើញ">ឃើញ</option>
+          <option value="ធ្វើ">ធ្វើ</option>
+          <option value="និយាយ">និយាយ</option>
+        </select>
+      </div>
+      <div class="admin-field">
+        <label>ពាក្យទី 4</label>
+        <select id="editPattern4">
+          <option value="ឃើញ">ឃើញ</option>
+          <option value="បាន">បាន</option>
+          <option value="ដឹង">ដឹង</option>
+          <option value="យល់">យល់</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Word Pages -->
+    <div class="admin-section" id="wordPagesSection">
+      <h3>📝 ទំព័រពាក្យ</h3>
+      <div id="wordPagesContainer"></div>
+    </div>
+
+    <div class="admin-section">
+      <h3>📚 គម្របខាងក្រោយ</h3>
+      <div class="admin-field"><label>អត្ថបទ</label><input type="text" id="editBackText" value="ចប់"></div>
+      <div class="admin-field"><label>អត្ថបទរង</label><input type="text" id="editBackSub" value="✦ អរគុណ ✦"></div>
+      <div class="admin-field"><label>រូបតំណាង</label><input type="text" id="editBackEmoji" value="📚"></div>
+    </div>
+
+    <div class="admin-section">
+      <h3>🎯 របៀបបង្ហាញ</h3>
+      <div class="mode-buttons">
+        <button class="mode-btn active" data-mode="word-cover">📝 បិទបាំងពាក្យ</button>
+        <button class="mode-btn" data-mode="image-cover">🖼️ បិទបាំងរូប</button>
+        <button class="mode-btn" data-mode="normal">👁️ ធម្មតា</button>
+      </div>
+    </div>
+
+    <button class="save-all-btn" id="saveAllBtn">💾 រក្សាទុកទាំងអស់</button>
   </div>
-</div>
-<div class="footer">
-  <div id="status">⚖️ drag & drop items</div>
-  <button class="reset-btn" id="resetBtn">⟳ reset</button>
-</div>
-<script>
-  (function() {
-    const defs = [
-      ["🍎", 1], ["🍌", 1], ["🧱", 5], ["⚽", 2], 
-      ["📚", 4], ["🪨", 6], ["🐘", 9], ["🪶", 0.5],
-      ["🥥", 3], ["🎁", 2]
-    ];
 
-    const palette = document.getElementById('palette');
-    const leftTray = document.getElementById('leftTray');
-    const rightTray = document.getElementById('rightTray');
-    const beamGroup = document.getElementById('beamGroup');
-    const statusDiv = document.getElementById('status');
+  <div class="page-indicator" id="pageIndicator">គម្របខាងមុខ</div>
 
-    // ----- helper: arrange items in a tray (fixed horizontal) -----
-    function arrangeTray(tray) {
-      const children = [...tray.children];
-      const count = children.length;
-      if (count === 0) return;
-      const containerWidth = tray.offsetWidth || 140;
-      const maxItemWidth = Math.min(44, (containerWidth - 16) / Math.max(1, count));
-      const gap = Math.min(30, (containerWidth - 16) / Math.max(1, count + 1));
-      const baseLeft = 6;
-      children.forEach((el, i) => {
-        el.style.position = 'absolute';
-        el.style.left = (baseLeft + i * gap) + 'px';
-        el.style.top = '-38px';
-        const size = Math.min(42, maxItemWidth);
-        el.style.width = size + 'px';
-        el.style.height = size + 'px';
-        el.style.fontSize = Math.min(26, size * 0.65) + 'px';
+  <div class="flipbook-wrapper" id="wrapper">
+    <div class="flipbook" id="flipbook">
+
+      <!-- SPREAD 0: FRONT COVER (left) + empty (right) -->
+      <div class="page page-left cover" data-page="0">
+        <h1 id="coverTitle">📖 ខ្ញុំអាចមើលឃើញ</h1>
+        <div class="sub" id="coverSub">✦ ចុចលើទំព័រ ✦</div>
+      </div>
+      <div class="page page-right empty-page" data-page="1"><span style="opacity:0.2;">·</span></div>
+
+      <!-- SPREAD 1: empty + title page -->
+      <div class="page page-left empty-page" data-page="2"><span style="opacity:0.3;">⋆</span></div>
+      <div class="page page-right" data-page="3">
+        <div class="page-title" id="titlePage">ខ្ញុំ អាច មើល ឃើញ</div>
+        <div style="font-size:clamp(1.6rem, 4vw, 2.8rem); margin-top:0.1rem;" id="titleEmoji">👁️</div>
+      </div>
+
+      <!-- SPREAD 2: FLOWER -->
+      <div class="page page-left" data-page="4">
+        <div class="sentence-container">
+          <span class="word-box pattern-word" data-pattern="1">ខ្ញុំ</span>
+          <span class="word-box pattern-word" data-pattern="2">អាច</span>
+          <span class="word-box pattern-word" data-pattern="3">មើល</span>
+          <span class="word-box pattern-word" data-pattern="4">ឃើញ</span>
+          <div class="interactive-box" id="Box1">
+            <div class="interactive-content">
+              <span class="hidden-word" id="Text1">ផ្កា</span>
+              <div class="word-cover" id="Cover1">ផ</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="page page-right" data-page="5">
+        <div class="emoji-container" id="EmojiContainer1">
+          <span class="hidden-emoji" id="Emoji1">🌸</span>
+          <div class="emoji-cover" id="EmojiCover1"><span></span></div>
+        </div>
+      </div>
+
+      <!-- SPREAD 3: DOG -->
+      <div class="page page-left" data-page="6">
+        <div class="sentence-container">
+          <span class="word-box pattern-word" data-pattern="1">ខ្ញុំ</span>
+          <span class="word-box pattern-word" data-pattern="2">អាច</span>
+          <span class="word-box pattern-word" data-pattern="3">មើល</span>
+          <span class="word-box pattern-word" data-pattern="4">ឃើញ</span>
+          <div class="interactive-box" id="Box2">
+            <div class="interactive-content">
+              <span class="hidden-word" id="Text2">ឆ្កែ</span>
+              <div class="word-cover" id="Cover2">ឆ</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="page page-right" data-page="7">
+        <div class="emoji-container" id="EmojiContainer2">
+          <span class="hidden-emoji" id="Emoji2">🐕</span>
+          <div class="emoji-cover" id="EmojiCover2"><span></span></div>
+        </div>
+      </div>
+
+      <!-- SPREAD 4: CAT -->
+      <div class="page page-left" data-page="8">
+        <div class="sentence-container">
+          <span class="word-box pattern-word" data-pattern="1">ខ្ញុំ</span>
+          <span class="word-box pattern-word" data-pattern="2">អាច</span>
+          <span class="word-box pattern-word" data-pattern="3">មើល</span>
+          <span class="word-box pattern-word" data-pattern="4">ឃើញ</span>
+          <div class="interactive-box" id="Box3">
+            <div class="interactive-content">
+              <span class="hidden-word" id="Text3">ឆ្មា</span>
+              <div class="word-cover" id="Cover3">ឆ</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="page page-right" data-page="9">
+        <div class="emoji-container" id="EmojiContainer3">
+          <span class="hidden-emoji" id="Emoji3">🐈</span>
+          <div class="emoji-cover" id="EmojiCover3"><span></span></div>
+        </div>
+      </div>
+
+      <!-- SPREAD 5: CAR -->
+      <div class="page page-left" data-page="10">
+        <div class="sentence-container">
+          <span class="word-box pattern-word" data-pattern="1">ខ្ញុំ</span>
+          <span class="word-box pattern-word" data-pattern="2">អាច</span>
+          <span class="word-box pattern-word" data-pattern="3">មើល</span>
+          <span class="word-box pattern-word" data-pattern="4">ឃើញ</span>
+          <div class="interactive-box" id="Box4">
+            <div class="interactive-content">
+              <span class="hidden-word" id="Text4">ឡាន</span>
+              <div class="word-cover" id="Cover4">ឡ</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="page page-right" data-page="11">
+        <div class="emoji-container" id="EmojiContainer4">
+          <span class="hidden-emoji" id="Emoji4">🚗</span>
+          <div class="emoji-cover" id="EmojiCover4"><span></span></div>
+        </div>
+      </div>
+
+      <!-- SPREAD 6: TREE -->
+      <div class="page page-left" data-page="12">
+        <div class="sentence-container">
+          <span class="word-box pattern-word" data-pattern="1">ខ្ញុំ</span>
+          <span class="word-box pattern-word" data-pattern="2">អាច</span>
+          <span class="word-box pattern-word" data-pattern="3">មើល</span>
+          <span class="word-box pattern-word" data-pattern="4">ឃើញ</span>
+          <div class="interactive-box" id="Box5">
+            <div class="interactive-content">
+              <span class="hidden-word" id="Text5">ដើមឈើ</span>
+              <div class="word-cover" id="Cover5">ដ</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="page page-right" data-page="13">
+        <div class="emoji-container" id="EmojiContainer5">
+          <span class="hidden-emoji" id="Emoji5">🌳</span>
+          <div class="emoji-cover" id="EmojiCover5"><span></span></div>
+        </div>
+      </div>
+
+      <!-- SPREAD 7: SUN -->
+      <div class="page page-left" data-page="14">
+        <div class="sentence-container">
+          <span class="word-box pattern-word" data-pattern="1">ខ្ញុំ</span>
+          <span class="word-box pattern-word" data-pattern="2">អាច</span>
+          <span class="word-box pattern-word" data-pattern="3">មើល</span>
+          <span class="word-box pattern-word" data-pattern="4">ឃើញ</span>
+          <div class="interactive-box" id="Box6">
+            <div class="interactive-content">
+              <span class="hidden-word" id="Text6">ព្រះអាទិត្យ</span>
+              <div class="word-cover" id="Cover6">ព</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="page page-right" data-page="15">
+        <div class="emoji-container" id="EmojiContainer6">
+          <span class="hidden-emoji" id="Emoji6">☀️</span>
+          <div class="emoji-cover" id="EmojiCover6"><span></span></div>
+        </div>
+      </div>
+
+      <!-- SPREAD 8: BACK COVER -->
+      <div class="page page-left empty-page" data-page="16"><span style="opacity:0.2;">·</span></div>
+      <div class="page page-right back-cover" data-page="17">
+        <div style="font-size: clamp(2rem, 5vw, 3.5rem); margin-bottom: 0.1rem;" id="backEmoji">📚</div>
+        <div id="backText" style="font-size: clamp(1.2rem, 2.5vw, 2rem);">ចប់ហើយ</div>
+        <div class="sub" id="backSub">✦ អរគុណ ✦</div>
+      </div>
+
+      <div class="touch-zones-container">
+        <div class="touch-zone touch-left" id="touchLeft"></div>
+        <div class="touch-zone touch-right" id="touchRight"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      // ============ ADMIN PANEL LOGIC ============
+      const adminToggle = document.getElementById('adminToggle');
+      const adminPanel = document.getElementById('adminPanel');
+      const adminOverlay = document.getElementById('adminOverlay');
+      const closePanelBtn = document.getElementById('closePanelBtn');
+      const saveAllBtn = document.getElementById('saveAllBtn');
+      
+      function openAdminPanel() {
+        adminPanel.classList.add('open');
+        adminOverlay.classList.add('active');
+        adminToggle.textContent = '✕ បិទ';
+        document.body.style.overflow = 'hidden';
+      }
+      
+      function closeAdminPanel() {
+        adminPanel.classList.remove('open');
+        adminOverlay.classList.remove('active');
+        adminToggle.textContent = '⚙️ កែសម្រួល';
+        document.body.style.overflow = '';
+      }
+      
+      adminToggle.addEventListener('click', () => {
+        if (adminPanel.classList.contains('open')) closeAdminPanel();
+        else openAdminPanel();
       });
-    }
+      
+      closePanelBtn.addEventListener('click', closeAdminPanel);
+      adminOverlay.addEventListener('click', closeAdminPanel);
+      
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && adminPanel.classList.contains('open')) closeAdminPanel();
+      });
 
-    // ----- update beam tilt + move trays together (attached) -----
-    function updateScale() {
-      const leftItems = [...leftTray.children];
-      const rightItems = [...rightTray.children];
-      let leftWeight = leftItems.reduce((sum, el) => sum + parseFloat(el.dataset.w || 0), 0);
-      let rightWeight = rightItems.reduce((sum, el) => sum + parseFloat(el.dataset.w || 0), 0);
-      
-      let diff = rightWeight - leftWeight; 
-      let angle = Math.max(-15, Math.min(15, diff * 2.2)); 
-      
-      // rotate the whole beamGroup (trays are children → move together)
-      beamGroup.style.transform = `translateX(-50%) rotate(${angle}deg)`;
-      
-      // update status
-      let statusText = '';
-      if (Math.abs(diff) < 0.3) statusText = '⚖️ balanced';
-      else if (diff > 0) statusText = '⬅️ right side heavier';
-      else statusText = '➡️ left side heavier';
-      statusDiv.innerHTML = `${statusText}  ·  (L: ${leftWeight.toFixed(1)}  R: ${rightWeight.toFixed(1)})`;
-      
-      // rearrange items in trays (keep them tidy)
-      arrangeTray(leftTray);
-      arrangeTray(rightTray);
-    }
+      const wordConfigs = [
+        { id: 'flower', name: 'ពាក្យ១ (Word1)', num: 1 },
+        { id: 'dog', name: 'ពាក្យ២ (Word2)', num: 2 },
+        { id: 'cat', name: 'ពាក្យ៣ (Word3)', num: 3 },
+        { id: 'car', name: 'ពាក្យ៤ (Word4)', num: 4 },
+        { id: 'tree', name: 'ពាក្យ៥ (Word5)', num: 5 },
+        { id: 'sun', name: 'ពាក្យ៦ (Word6)', num: 6 }
+      ];
 
-    // ----- drag & drop (pointer events) -----
-    function makeDraggable(el) {
-      let isDragging = false;
-      let startX, startY, origX, origY;
-      
-      el.addEventListener('pointerdown', function(e) {
-        e.preventDefault();
-        const rect = el.getBoundingClientRect();
-        startX = e.clientX;
-        startY = e.clientY;
-        origX = rect.left;
-        origY = rect.top;
+      const wordPagesContainer = document.getElementById('wordPagesContainer');
+      wordConfigs.forEach(config => {
+        const fieldDiv = document.createElement('div');
+        fieldDiv.className = 'admin-field';
+        fieldDiv.innerHTML = `
+          <label>${config.name} - ពាក្យលាក់</label>
+          <input type="text" id="edit_${config.id}Word" value="${document.getElementById('Text' + config.num).textContent}">
+          <label style="margin-top:6px;">${config.name} - អក្សរគម្រប</label>
+          <input type="text" id="edit_${config.id}Cover" value="${document.getElementById('Cover' + config.num).textContent}">
+          <label style="margin-top:6px;">${config.name} - រូបតំណាង</label>
+          <input type="text" id="edit_${config.id}Emoji" value="${document.getElementById('Emoji' + config.num).textContent}">
+          <label style="margin-top:6px;">${config.name} - គម្របរូបតំណាង</label>
+          <input type="text" id="edit_${config.id}EmojiCover" value="${document.getElementById('EmojiCover' + config.num).textContent}">
+        `;
+        wordPagesContainer.appendChild(fieldDiv);
+      });
+
+      // Populate pattern dropdowns with current values
+      const patternSelects = ['editPattern1','editPattern2','editPattern3','editPattern4'];
+      const patternValues = ['ខ្ញុំ','អាច','មើល','ឃើញ'];
+      patternSelects.forEach((id, idx) => {
+        const sel = document.getElementById(id);
+        if (sel) {
+          // set value if exists in options
+          const current = document.querySelector(`.pattern-word[data-pattern="${idx+1}"]`);
+          if (current) {
+            const val = current.textContent.trim();
+            for (let opt of sel.options) {
+              if (opt.value === val) { sel.value = val; break; }
+            }
+          }
+        }
+      });
+
+      saveAllBtn.addEventListener('click', () => {
+        // Cover
+        document.getElementById('coverTitle').textContent = '📖 ' + document.getElementById('editCoverTitle').value;
+        document.getElementById('coverSub').textContent = document.getElementById('editCoverSub').value;
+        document.getElementById('titlePage').textContent = document.getElementById('editTitlePage').value;
+        document.getElementById('titleEmoji').textContent = document.getElementById('editTitleEmoji').value;
         
-        // detach from current parent, attach to body for free movement
-        const parent = el.parentNode;
-        if (parent) {
-          // store original parent for later
-          el._origParent = parent;
-          el._origNextSibling = el.nextSibling;
-          parent.removeChild(el);
-        }
-        document.body.appendChild(el);
-        el.style.position = 'fixed';
-        el.style.left = origX + 'px';
-        el.style.top = origY + 'px';
-        el.style.width = rect.width + 'px';
-        el.style.height = rect.height + 'px';
-        el.style.zIndex = 1000;
-        el.style.pointerEvents = 'none';
-        el.setPointerCapture(e.pointerId);
-        isDragging = true;
+        // Pattern words from selects
+        const patternVals = [
+          document.getElementById('editPattern1').value,
+          document.getElementById('editPattern2').value,
+          document.getElementById('editPattern3').value,
+          document.getElementById('editPattern4').value
+        ];
+        document.querySelectorAll('.pattern-word').forEach(word => {
+          const patternIndex = parseInt(word.getAttribute('data-pattern')) - 1;
+          if (patternIndex >= 0 && patternIndex < patternVals.length) {
+            word.textContent = patternVals[patternIndex];
+          }
+        });
+        
+        wordConfigs.forEach(config => {
+          document.getElementById('Text' + config.num).textContent = document.getElementById('edit_' + config.id + 'Word').value;
+          document.getElementById('Cover' + config.num).textContent = document.getElementById('edit_' + config.id + 'Cover').value;
+          document.getElementById('Emoji' + config.num).textContent = document.getElementById('edit_' + config.id + 'Emoji').value;
+          document.getElementById('EmojiCover' + config.num).innerHTML = '<span>' + document.getElementById('edit_' + config.id + 'EmojiCover').value + '</span>';
+        });
+        
+        document.getElementById('backText').textContent = document.getElementById('editBackText').value;
+        document.getElementById('backSub').textContent = document.getElementById('editBackSub').value;
+        document.getElementById('backEmoji').textContent = document.getElementById('editBackEmoji').value;
+        
+        spreadLabels[0] = document.getElementById('editCoverTitle').value;
+        spreadLabels[1] = document.getElementById('editTitlePage').value;
+        wordConfigs.forEach((config, index) => {
+          spreadLabels[index + 2] = config.name;
+        });
+        
+        saveAllBtn.textContent = '✅ បានរក្សាទុក!';
+        saveAllBtn.style.background = '#4CAF50';
+        saveAllBtn.style.borderColor = '#66BB6A';
+        setTimeout(() => {
+          saveAllBtn.textContent = '💾 រក្សាទុកទាំងអស់';
+          saveAllBtn.style.background = '#2b4a5c';
+          saveAllBtn.style.borderColor = '#8ba0b0';
+        }, 2000);
+        updateFlip();
+        setTimeout(() => { closeAdminPanel(); }, 800);
       });
 
-      el.addEventListener('pointermove', function(e) {
-        if (!isDragging) return;
-        e.preventDefault();
-        const dx = e.clientX - startX;
-        const dy = e.clientY - startY;
-        el.style.left = (origX + dx) + 'px';
-        el.style.top = (origY + dy) + 'px';
+      // ============ MODE SELECTION ============
+      const wordCovers = document.querySelectorAll('.word-cover');
+      const emojiCovers = document.querySelectorAll('.emoji-cover');
+      const modeBtns = document.querySelectorAll('.mode-btn');
+      const hiddenWords = document.querySelectorAll('.hidden-word');
+      const hiddenEmojis = document.querySelectorAll('.hidden-emoji');
+
+      function setMode(mode) {
+        modeBtns.forEach(btn => btn.classList.remove('active'));
+        document.querySelector(`.mode-btn[data-mode="${mode}"]`).classList.add('active');
+        wordCovers.forEach(cover => cover.style.display = 'none');
+        emojiCovers.forEach(cover => cover.style.display = 'none');
+        hiddenWords.forEach(word => word.style.opacity = '1');
+        hiddenEmojis.forEach(emoji => emoji.style.opacity = '1');
+
+        if (mode === 'word-cover') {
+          wordCovers.forEach(cover => cover.style.display = 'flex');
+          hiddenWords.forEach(word => word.style.opacity = '0.3');
+        } else if (mode === 'image-cover') {
+          emojiCovers.forEach(cover => cover.style.display = 'flex');
+          hiddenEmojis.forEach(emoji => emoji.style.opacity = '0.3');
+        }
+      }
+
+      modeBtns.forEach(btn => {
+        btn.addEventListener('click', function() { setMode(this.dataset.mode); });
+      });
+      setMode('word-cover');
+
+      // ============ FLIPBOOK LOGIC ============
+      const pageIndicator = document.getElementById('pageIndicator');
+      const wrapper = document.getElementById('wrapper');
+      const pages = document.querySelectorAll('.page');
+      const touchLeft = document.getElementById('touchLeft');
+      const touchRight = document.getElementById('touchRight');
+
+      const TOTAL_PAGES = pages.length;
+      const SPREADS = TOTAL_PAGES / 2; 
+      let currentSpread = 0;
+      let isFlipping = false;
+
+      const spreadLabels = [
+        'គម្របខាងមុខ','ទំព័រចំណងជើង','ផ្កា','ឆ្កែ','ឆ្មា','ឡាន','ដើមឈើ','ព្រះអាទិត្យ','គម្របខាងក្រោយ'
+      ];
+
+      // Drag system
+      const dragInstances = [];
+
+      function createDragInstance(coverId, textId, containerId, isEmoji = false) {
+        const cover = document.getElementById(coverId);
+        const text = document.getElementById(textId);
+        const container = document.getElementById(containerId);
+        if (!cover || !text || !container) return null;
+
+        let isDragging = false;
+        let dragStartX = 0, dragStartY = 0;
+        let currentX = 0, currentY = 0;
+        let elementStartX = 0, elementStartY = 0;
+        let isRevealed = false;
+        const SNAP_THRESHOLD = 35;
+        const REVEAL_THRESHOLD = 60;
+
+        function setPosition(x, y, animate = false) {
+          currentX = x; currentY = y;
+          if (animate) cover.style.transition = 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+          else cover.style.transition = 'none';
+          cover.style.transform = `translate(${x}px, ${y}px)`;
+          const distance = Math.sqrt(x*x + y*y);
+          if (distance > REVEAL_THRESHOLD && !isRevealed) {
+            isRevealed = true; text.style.opacity = '1';
+          } else if (distance <= REVEAL_THRESHOLD && isRevealed) {
+            isRevealed = false;
+            const currentMode = document.querySelector('.mode-btn.active')?.dataset.mode || 'word-cover';
+            if (currentMode === 'word-cover' && !isEmoji) text.style.opacity = '0.3';
+            else if (currentMode === 'image-cover' && isEmoji) text.style.opacity = '0.3';
+            else text.style.opacity = '1';
+          }
+        }
+
+        function snapToOrigin() { setPosition(0,0,true); setTimeout(()=>{ cover.style.transition=''; },500); }
+
+        function onDragStart(e) {
+          if (isFlipping) return;
+          const touch = e.touches ? e.touches[0] : e;
+          isDragging = true;
+          dragStartX = touch.clientX; dragStartY = touch.clientY;
+          elementStartX = currentX; elementStartY = currentY;
+          cover.classList.add('dragging');
+          cover.style.transition = 'none';
+          e.preventDefault(); e.stopPropagation();
+        }
+
+        function onDragMove(e) {
+          if (!isDragging) return;
+          const touch = e.touches ? e.touches[0] : e;
+          const deltaX = touch.clientX - dragStartX;
+          const deltaY = touch.clientY - dragStartY;
+          let newX = Math.max(-200, Math.min(200, elementStartX + deltaX));
+          let newY = Math.max(-200, Math.min(200, elementStartY + deltaY));
+          setPosition(newX, newY, false);
+          e.preventDefault(); e.stopPropagation();
+        }
+
+        function onDragEnd(e) {
+          if (!isDragging) return;
+          isDragging = false;
+          cover.classList.remove('dragging');
+          const distance = Math.sqrt(currentX*currentX + currentY*currentY);
+          if (distance < SNAP_THRESHOLD) snapToOrigin();
+          else cover.style.transition = '';
+          e.preventDefault(); e.stopPropagation();
+        }
+
+        cover.addEventListener('mousedown', onDragStart);
+        document.addEventListener('mousemove', onDragMove);
+        document.addEventListener('mouseup', onDragEnd);
+        cover.addEventListener('touchstart', onDragStart, { passive: false });
+        document.addEventListener('touchmove', onDragMove, { passive: false });
+        document.addEventListener('touchend', onDragEnd, { passive: false });
+        cover.addEventListener('click', e => e.stopPropagation());
+
+        return { setPosition, snapToOrigin, reset: () => setPosition(0,0,false) };
+      }
+
+      const dragWordConfigs = [
+        { cover:'Cover1', text:'Text1', box:'Box1' },
+        { cover:'Cover2', text:'Text2', box:'Box2' },
+        { cover:'Cover3', text:'Text3', box:'Box3' },
+        { cover:'Cover4', text:'Text4', box:'Box4' },
+        { cover:'Cover5', text:'Text5', box:'Box5' },
+        { cover:'Cover6', text:'Text6', box:'Box6' }
+      ];
+      dragWordConfigs.forEach(config => {
+        const instance = createDragInstance(config.cover, config.text, config.box, false);
+        if (instance) { dragInstances.push(instance); instance.reset(); }
       });
 
-      el.addEventListener('pointerup', function(e) {
-        if (!isDragging) return;
-        isDragging = false;
-        el.style.pointerEvents = 'auto';
-        el.releasePointerCapture(e.pointerId);
+      const emojiConfigs = [
+        { cover:'EmojiCover1', text:'Emoji1', container:'EmojiContainer1' },
+        { cover:'EmojiCover2', text:'Emoji2', container:'EmojiContainer2' },
+        { cover:'EmojiCover3', text:'Emoji3', container:'EmojiContainer3' },
+        { cover:'EmojiCover4', text:'Emoji4', container:'EmojiContainer4' },
+        { cover:'EmojiCover5', text:'Emoji5', container:'EmojiContainer5' },
+        { cover:'EmojiCover6', text:'Emoji6', container:'EmojiContainer6' }
+      ];
+      emojiConfigs.forEach(config => {
+        const instance = createDragInstance(config.cover, config.text, config.container, true);
+        if (instance) { dragInstances.push(instance); instance.reset(); }
+      });
 
-        const dropX = e.clientX;
-        const dropY = e.clientY;
-        const elRect = el.getBoundingClientRect();
+      function applyCurve(page, direction) {
+        page.classList.add('turning');
+        if (direction === 'left') { page.classList.add('flipping-left'); page.classList.remove('flipping-right'); }
+        else { page.classList.add('flipping-right'); page.classList.remove('flipping-left'); }
+        setTimeout(() => { page.classList.remove('flipping-left','flipping-right','turning'); }, 750);
+      }
 
-        // check collision with trays (using getBoundingClientRect)
-        const leftRect = leftTray.getBoundingClientRect();
-        const rightRect = rightTray.getBoundingClientRect();
+      function updateFlip() {
+        pages.forEach(page => {
+          const pageNum = parseInt(page.getAttribute('data-page'), 10);
+          const pageSpread = Math.floor(pageNum/2);
+          const isLeft = page.classList.contains('page-left');
+          const isRight = page.classList.contains('page-right');
+          page.classList.remove('flipping-left','flipping-right','turning');
+          page.style.display = 'flex';
+          page.style.width = '50%';
+          page.style.left = isLeft ? '0' : '50%';
+          page.style.borderRadius = isLeft ? '8px 0 0 8px' : '0 8px 8px 0';
+          page.style.zIndex = '';
 
-        function isOver(rect) {
-          return elRect.left < rect.right - 6 && elRect.right > rect.left + 6 &&
-                 elRect.top < rect.bottom - 6 && elRect.bottom > rect.top + 6;
-        }
+          if (pageSpread < currentSpread) {
+            if (isRight) page.style.transform = 'rotateY(-180deg)';
+            else page.style.transform = 'rotateY(0deg)';
+            page.style.zIndex = 10 + pageSpread;
+            page.style.filter = 'brightness(0.92) drop-shadow(-2px 0 6px rgba(0,0,0,0.06))';
+          } else if (pageSpread === currentSpread) {
+            page.style.transform = 'rotateY(0deg)';
+            page.style.zIndex = 150;
+            page.style.filter = 'brightness(1) drop-shadow(0 0 6px rgba(0,0,0,0.02))';
+          } else {
+            if (isLeft) page.style.transform = 'rotateY(180deg)';
+            else page.style.transform = 'rotateY(0deg)';
+            page.style.zIndex = 10 + (TOTAL_PAGES - pageNum);
+            page.style.filter = 'brightness(0.96) drop-shadow(2px 0 8px rgba(0,0,0,0.04))';
+          }
+        });
 
-        let targetTray = null;
-        if (isOver(leftRect)) targetTray = leftTray;
-        else if (isOver(rightRect)) targetTray = rightTray;
-
-        // remove from body
-        if (el.parentNode === document.body) {
-          document.body.removeChild(el);
-        } else if (el.parentNode) {
-          el.parentNode.removeChild(el);
-        }
-        // reset styles
-        el.style.position = '';
-        el.style.left = '';
-        el.style.top = '';
-        el.style.width = '';
-        el.style.height = '';
-        el.style.zIndex = '';
-        el.style.pointerEvents = '';
-
-        if (targetTray) {
-          targetTray.appendChild(el);
-          el.style.position = 'absolute';
-          el.style.top = '-38px';
-          el.style.left = '4px';
-          arrangeTray(targetTray);
+        if (currentSpread < spreadLabels.length) pageIndicator.textContent = spreadLabels[currentSpread];
+        
+        const frontCover = document.querySelector('.page[data-page="0"]');
+        const frontEmpty = document.querySelector('.page[data-page="1"]');
+        const backCover = document.querySelector('.page[data-page="17"]');
+        const backEmpty = document.querySelector('.page[data-page="16"]');
+        
+        if (currentSpread === 0) {
+          if (frontEmpty) frontEmpty.style.display = 'none';
+          if (frontCover) { frontCover.style.display='flex'; frontCover.style.width='100%'; frontCover.style.borderRadius='8px'; frontCover.style.left='0'; frontCover.style.zIndex='150'; }
         } else {
-          // return to palette
-          palette.appendChild(el);
-          el.style.position = 'relative';
-          el.style.left = '0';
-          el.style.top = '0';
-          el.style.width = '';
-          el.style.height = '';
-          el.style.fontSize = '';
+          if (frontEmpty) frontEmpty.style.display = 'flex';
+          if (frontCover) { frontCover.style.width='50%'; frontCover.style.borderRadius='8px 0 0 8px'; frontCover.style.left='0'; }
         }
-        updateScale();
+        if (currentSpread === SPREADS - 1) {
+          if (backEmpty) backEmpty.style.display = 'none';
+          if (backCover) { backCover.style.display='flex'; backCover.style.width='100%'; backCover.style.borderRadius='8px'; backCover.style.left='0'; backCover.style.zIndex='150'; }
+        } else {
+          if (backEmpty) backEmpty.style.display = 'flex';
+          if (backCover) { backCover.style.width='50%'; backCover.style.borderRadius='0 8px 8px 0'; backCover.style.left='50%'; }
+        }
+      }
+
+      function animateCurve(direction) {
+        const leftPage = document.querySelector(`.page-left[data-page="${currentSpread*2}"]`);
+        const rightPage = document.querySelector(`.page-right[data-page="${currentSpread*2+1}"]`);
+        if (direction === 1) {
+          if (leftPage) applyCurve(leftPage, 'left');
+          const prevRight = document.querySelector(`.page-right[data-page="${(currentSpread-1)*2+1}"]`);
+          if (prevRight) applyCurve(prevRight, 'right');
+        } else if (direction === -1) {
+          if (rightPage) applyCurve(rightPage, 'right');
+          const prevLeft = document.querySelector(`.page-left[data-page="${(currentSpread+1)*2}"]`);
+          if (prevLeft) applyCurve(prevLeft, 'left');
+        }
+      }
+
+      function goToSpread(spreadIndex) {
+        if (isFlipping) return;
+        if (spreadIndex < 0 || spreadIndex >= SPREADS || spreadIndex === currentSpread) return;
+        isFlipping = true;
+        const dir = spreadIndex > currentSpread ? 1 : -1;
+        animateCurve(dir);
+        currentSpread = spreadIndex;
+        updateFlip();
+        setTimeout(() => { isFlipping = false; }, 750);
+      }
+
+      touchLeft.addEventListener('click', function(e) {
+        if (isFlipping) return;
+        if (currentSpread > 0) goToSpread(currentSpread - 1);
+        e.stopPropagation();
       });
-    }
 
-    // ----- build palette items -----
-    defs.forEach(([emoji, weight]) => {
-      const item = document.createElement('div');
-      item.className = 'item';
-      item.textContent = emoji;
-      item.dataset.w = weight;
-      item.setAttribute('draggable', 'false');
-      palette.appendChild(item);
-      makeDraggable(item);
-    });
-
-    // ----- reset -----
-    document.getElementById('resetBtn').addEventListener('click', function() {
-      const allItems = [...leftTray.children, ...rightTray.children];
-      allItems.forEach(el => {
-        el.parentNode.removeChild(el);
-        el.style.position = 'relative';
-        el.style.left = '0';
-        el.style.top = '0';
-        el.style.width = '';
-        el.style.height = '';
-        el.style.fontSize = '';
-        palette.appendChild(el);
+      touchRight.addEventListener('click', function(e) {
+        if (isFlipping) return;
+        if (currentSpread < SPREADS - 1) goToSpread(currentSpread + 1);
+        e.stopPropagation();
       });
-      beamGroup.style.transform = 'translateX(-50%) rotate(0deg)';
-      statusDiv.innerHTML = '⚖️ reset · drag items to trays';
-      arrangeTray(leftTray);
-      arrangeTray(rightTray);
-    });
 
-    // ----- arrange on resize -----
-    let resizeTimer;
-    window.addEventListener('resize', function() {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(() => {
-        arrangeTray(leftTray);
-        arrangeTray(rightTray);
-        updateScale();
-      }, 80);
-    });
+      document.addEventListener('keydown', function(e) {
+        if (isFlipping) return;
+        if (e.key === 'ArrowLeft' || e.key === 'PageUp') { if (currentSpread > 0) goToSpread(currentSpread - 1); }
+        else if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { if (currentSpread < SPREADS - 1) goToSpread(currentSpread + 1); }
+      });
 
-    // initial setup
-    setTimeout(() => {
-      arrangeTray(leftTray);
-      arrangeTray(rightTray);
-      updateScale();
-    }, 20);
+      wrapper.addEventListener('contextmenu', (e) => e.preventDefault());
 
-    // mutation observer for tray children
-    const observer = new MutationObserver(() => {
-      arrangeTray(leftTray);
-      arrangeTray(rightTray);
-    });
-    observer.observe(leftTray, { childList: true, subtree: false });
-    observer.observe(rightTray, { childList: true, subtree: false });
+      function handleResize() { updateFlip(); }
+      window.addEventListener('resize', handleResize);
+      window.addEventListener('orientationchange', function() { setTimeout(handleResize, 300); });
 
-    window.updateScale = updateScale;
-  })();
-</script>
+      updateFlip();
+    })();
+  </script>
+
 </body>
 </html>
