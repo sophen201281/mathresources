@@ -711,10 +711,10 @@
         padding: 2px 6px;
       }
       .hidden-word {
-        font-size: 1.4rem;
+        font-size: 1.6rem;
       }
       .word-cover {
-        font-size: 1.4rem;
+        font-size: 1.6rem;
         padding: 2px 6px;
       }
       .admin-toggle {
@@ -770,10 +770,10 @@
         padding: 1px 4px;
       }
       .hidden-word {
-        font-size: 1.1rem;
+        font-size: 1.3rem;
       }
       .word-cover {
-        font-size: 1.1rem;
+        font-size: 1.3rem;
         padding: 2px 5px;
         border-width: 1.5px;
       }
@@ -848,10 +848,10 @@
         padding: 0px 3px;
       }
       .hidden-word {
-        font-size: 0.9rem;
+        font-size: 1.0rem;
       }
       .word-cover {
-        font-size: 0.9rem;
+        font-size: 1.0rem;
         padding: 1px 4px;
         border-width: 1px;
         border-radius: 3px;
@@ -914,10 +914,10 @@
         padding: 1px 4px;
       }
       .hidden-word {
-        font-size: 1.3rem;
+        font-size: 1.5rem;
       }
       .word-cover {
-        font-size: 1.3rem;
+        font-size: 1.5rem;
         padding: 2px 5px;
       }
       .cover h1 {
@@ -928,7 +928,7 @@
       }
     }
 
-    /* Landscape mode specific */
+    /* Landscape mode specific - FIXED: larger font sizes */
     @media (orientation: landscape) {
       .flipbook-wrapper {
         max-height: 85vh;
@@ -936,6 +936,39 @@
       .flipbook {
         aspect-ratio: 4 / 3;
         max-height: 85vh;
+      }
+      
+      /* Larger text in landscape */
+      .hidden-word {
+        font-size: clamp(2.2rem, 5vw, 4rem) !important;
+      }
+      .word-cover {
+        font-size: clamp(2.4rem, 5.5vw, 4.2rem) !important;
+      }
+      .hidden-emoji {
+        font-size: clamp(5rem, 14vw, 9rem) !important;
+      }
+      .emoji-cover span {
+        font-size: clamp(3.8rem, 10vw, 6.5rem) !important;
+      }
+      .word-box {
+        font-size: clamp(1.6rem, 3.8vw, 2.8rem) !important;
+      }
+      .page-title {
+        font-size: clamp(2.2rem, 5vw, 4rem) !important;
+      }
+      .cover h1 {
+        font-size: clamp(2.2rem, 5vw, 4rem) !important;
+      }
+      .interactive-box {
+        min-height: 50px !important;
+        min-width: 100px !important;
+        padding: 8px 16px !important;
+      }
+      .emoji-container {
+        min-width: 100px !important;
+        min-height: 100px !important;
+        padding: 10px !important;
       }
     }
 
@@ -950,37 +983,46 @@
         padding: 0.1rem 0.2rem;
       }
       .interactive-box {
-        min-height: 18px;
-        min-width: 34px;
-        padding: 1px 5px;
+        min-height: 30px !important;
+        min-width: 60px !important;
+        padding: 4px 10px !important;
       }
       .emoji-container {
-        min-width: 30px;
-        min-height: 30px;
-        padding: 2px;
+        min-width: 60px !important;
+        min-height: 60px !important;
+        padding: 5px !important;
       }
       .hidden-emoji {
-        font-size: 1.5rem;
+        font-size: clamp(3rem, 10vw, 6rem) !important;
       }
       .emoji-cover span {
-        font-size: 1rem;
+        font-size: clamp(2.2rem, 6vw, 4rem) !important;
       }
       .word-box {
-        font-size: 0.6rem;
-        padding: 0px 2px;
+        font-size: clamp(1.2rem, 3vw, 2rem) !important;
+        padding: 1px 4px !important;
       }
       .hidden-word {
-        font-size: 0.8rem;
+        font-size: clamp(1.6rem, 4vw, 3rem) !important;
       }
       .word-cover {
-        font-size: 0.8rem;
-        padding: 1px 3px;
+        font-size: clamp(1.8rem, 4.5vw, 3.2rem) !important;
+        padding: 2px 6px !important;
       }
       .cover h1 {
-        font-size: 1rem;
+        font-size: clamp(1.4rem, 3.5vw, 2.2rem) !important;
       }
       .page-title {
-        font-size: 1rem;
+        font-size: clamp(1.4rem, 3.5vw, 2.2rem) !important;
+      }
+      .cover .sub {
+        font-size: 0.8rem !important;
+      }
+      .back-cover {
+        font-size: 1.2rem !important;
+      }
+      .back-cover .sub {
+        font-size: 0.7rem !important;
       }
     }
 
