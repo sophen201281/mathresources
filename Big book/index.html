@@ -241,6 +241,36 @@
       transform: translateY(0);
     }
 
+    /* Mode selection buttons */
+    .mode-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .mode-btn {
+      flex: 1 0 auto;
+      padding: 10px 14px;
+      background: rgba(255,255,255,0.08);
+      border: 2px solid rgba(255,255,255,0.15);
+      border-radius: 10px;
+      color: #f0ede5;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+      font-size: clamp(0.85rem, 2vw, 1rem);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+    .mode-btn:hover {
+      background: rgba(255,255,255,0.15);
+      border-color: #8ba0b0;
+    }
+    .mode-btn.active {
+      background: #2b4a5c;
+      border-color: #d4c4b0;
+      box-shadow: 0 0 0 2px #8ba0b0;
+    }
+
     .flipbook-wrapper {
       perspective: 2500px;
       width: 100%;
@@ -837,7 +867,7 @@
       </div>
     </div>
 
-    <!-- Word Pages - now with generic labels -->
+    <!-- Word Pages -->
     <div class="admin-section" id="wordPagesSection">
       <h3>📝 ទំព័រពាក្យ</h3>
       <div id="wordPagesContainer"></div>
@@ -856,6 +886,16 @@
       <div class="admin-field">
         <label>រូបតំណាង</label>
         <input type="text" id="editBackEmoji" value="📚">
+      </div>
+    </div>
+
+    <!-- Mode Selection -->
+    <div class="admin-section">
+      <h3>🎯 របៀបបង្ហាញ</h3>
+      <div class="mode-buttons">
+        <button class="mode-btn active" data-mode="word-cover">📝 បិទបាំងពាក្យ</button>
+        <button class="mode-btn" data-mode="image-cover">🖼️ បិទបាំងរូប</button>
+        <button class="mode-btn" data-mode="normal">👁️ ធម្មតា</button>
       </div>
     </div>
 
@@ -1086,29 +1126,29 @@
         }
       });
 
-      // Word configurations for dynamic admin fields - using general labels
+      // Word configurations for dynamic admin fields
       const wordConfigs = [
-        { id: 'flower', label: 'ពាក្យទី 1 (ផ្កា)', num: 1 },
-        { id: 'dog', label: 'ពាក្យទី 2 (ឆ្កែ)', num: 2 },
-        { id: 'cat', label: 'ពាក្យទី 3 (ឆ្មា)', num: 3 },
-        { id: 'car', label: 'ពាក្យទី 4 (ឡាន)', num: 4 },
-        { id: 'tree', label: 'ពាក្យទី 5 (ដើមឈើ)', num: 5 },
-        { id: 'sun', label: 'ពាក្យទី 6 (ព្រះអាទិត្យ)', num: 6 }
+        { id: 'flower', name: 'ផ្កា (Flower)', num: 1 },
+        { id: 'dog', name: 'ឆ្កែ (Dog)', num: 2 },
+        { id: 'cat', name: 'ឆ្មា (Cat)', num: 3 },
+        { id: 'car', name: 'ឡាន (Car)', num: 4 },
+        { id: 'tree', name: 'ដើមឈើ (Tree)', num: 5 },
+        { id: 'sun', name: 'ព្រះអាទិត្យ (Sun)', num: 6 }
       ];
 
-      // Generate word editing fields with generic labels
+      // Generate word editing fields
       const wordPagesContainer = document.getElementById('wordPagesContainer');
       wordConfigs.forEach(config => {
         const fieldDiv = document.createElement('div');
         fieldDiv.className = 'admin-field';
         fieldDiv.innerHTML = `
-          <label>${config.label} - ពាក្យលាក់</label>
+          <label>${config.name} - ពាក្យលាក់</label>
           <input type="text" id="edit_${config.id}Word" value="${document.getElementById('Text' + config.num).textContent}">
-          <label style="margin-top:8px;">${config.label} - អក្សរគម្រប</label>
+          <label style="margin-top:8px;">${config.name} - អក្សរគម្រប</label>
           <input type="text" id="edit_${config.id}Cover" value="${document.getElementById('Cover' + config.num).textContent}">
-          <label style="margin-top:8px;">${config.label} - រូបតំណាង</label>
+          <label style="margin-top:8px;">${config.name} - រូបតំណាង</label>
           <input type="text" id="edit_${config.id}Emoji" value="${document.getElementById('Emoji' + config.num).textContent}">
-          <label style="margin-top:8px;">${config.label} - គម្របរូបតំណាង</label>
+          <label style="margin-top:8px;">${config.name} - គម្របរូបតំណាង</label>
           <input type="text" id="edit_${config.id}EmojiCover" value="${document.getElementById('EmojiCover' + config.num).textContent}">
         `;
         wordPagesContainer.appendChild(fieldDiv);
@@ -1157,7 +1197,7 @@
         spreadLabels[0] = document.getElementById('editCoverTitle').value;
         spreadLabels[1] = document.getElementById('editTitlePage').value;
         wordConfigs.forEach((config, index) => {
-          spreadLabels[index + 2] = config.label;
+          spreadLabels[index + 2] = config.name;
         });
         
         // Show success feedback
@@ -1179,6 +1219,44 @@
           closeAdminPanel();
         }, 800);
       });
+
+      // ============ MODE SELECTION ============
+      const wordCovers = document.querySelectorAll('.word-cover');
+      const emojiCovers = document.querySelectorAll('.emoji-cover');
+      const modeBtns = document.querySelectorAll('.mode-btn');
+
+      function setMode(mode) {
+        // Remove active class from all buttons
+        modeBtns.forEach(btn => btn.classList.remove('active'));
+        // Add active class to selected button
+        document.querySelector(`.mode-btn[data-mode="${mode}"]`).classList.add('active');
+
+        // Hide all covers first
+        wordCovers.forEach(cover => cover.style.display = 'none');
+        emojiCovers.forEach(cover => cover.style.display = 'none');
+
+        if (mode === 'word-cover') {
+          // Show only word covers
+          wordCovers.forEach(cover => cover.style.display = 'flex');
+        } else if (mode === 'image-cover') {
+          // Show only emoji covers
+          emojiCovers.forEach(cover => cover.style.display = 'flex');
+        } else if (mode === 'normal') {
+          // Show no covers (all hidden)
+          // already hidden
+        }
+      }
+
+      // Add click listeners to mode buttons
+      modeBtns.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          const mode = this.dataset.mode;
+          setMode(mode);
+        });
+      });
+
+      // Initialize with word-cover mode (default)
+      setMode('word-cover');
 
       // ============ ORIGINAL FLIPBOOK LOGIC ============
       const pageIndicator = document.getElementById('pageIndicator');
