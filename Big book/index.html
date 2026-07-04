@@ -24,6 +24,7 @@
     body {
       background: #d9c8b2;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       font-family: 'Battambang', 'Segoe UI', Roboto, system-ui, sans-serif;
@@ -37,22 +38,23 @@
       bottom: 0;
     }
 
-    /* Admin Panel Styles - Responsive */
+    /* Admin Panel Styles - Bottom Sheet */
     .admin-toggle {
       position: fixed;
-      top: 10px;
-      left: 10px;
-      background: rgba(30, 45, 55, 0.9);
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(30, 45, 55, 0.95);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       color: #f0ede5;
-      padding: 6px 14px;
+      padding: 10px 24px;
       border-radius: 50px;
-      font-size: clamp(0.8rem, 2vw, 1rem);
+      font-size: clamp(0.9rem, 2vw, 1.1rem);
       font-weight: 500;
       letter-spacing: 0.5px;
       border: 1.5px solid #b6a692;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
       z-index: 400;
       cursor: pointer;
       transition: all 0.3s ease;
@@ -61,10 +63,10 @@
     }
     .admin-toggle:hover {
       background: rgba(50, 70, 85, 0.95);
-      transform: scale(1.05);
+      transform: translateX(-50%) scale(1.05);
     }
     .admin-toggle:active {
-      transform: scale(0.95);
+      transform: translateX(-50%) scale(0.95);
     }
 
     /* Overlay for mobile */
@@ -87,24 +89,24 @@
 
     .admin-panel {
       position: fixed;
-      top: 0;
-      left: -100%;
-      width: min(380px, 90vw);
-      height: 100vh;
-      height: 100dvh;
+      bottom: -100%;
+      left: 0;
+      width: 100%;
+      max-height: 70vh;
       background: linear-gradient(135deg, #1f2e3a 0%, #2a3f4d 100%);
       color: #f0ede5;
       z-index: 500;
-      transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       overflow-y: auto;
       overflow-x: hidden;
-      padding: 14px;
-      box-shadow: 4px 0 30px rgba(0,0,0,0.4);
-      border-right: 2px solid #8ba0b0;
+      padding: 16px 20px 20px;
+      box-shadow: 0 -4px 30px rgba(0,0,0,0.4);
+      border-top: 2px solid #8ba0b0;
+      border-radius: 20px 20px 0 0;
       -webkit-overflow-scrolling: touch;
     }
     .admin-panel.open {
-      left: 0;
+      bottom: 0;
     }
     
     .admin-panel-header {
@@ -255,18 +257,20 @@
       box-shadow: 0 0 0 2px #8ba0b0;
     }
 
+    /* Flipbook - Half screen in vertical mode */
     .flipbook-wrapper {
       perspective: 2000px;
       width: 100%;
       max-width: 800px;
-      height: 100%;
-      max-height: 85vh;
+      height: 50vh;
+      max-height: 50vh;
       display: flex;
       justify-content: center;
       align-items: center;
       position: relative;
       margin: 0 auto;
       padding: 6px 0;
+      flex-shrink: 0;
     }
 
     .flipbook {
@@ -275,7 +279,7 @@
       height: 100%;
       transform-style: preserve-3d;
       max-width: 800px;
-      max-height: 85vh;
+      max-height: 50vh;
       aspect-ratio: 3 / 4;
       min-height: 0;
     }
@@ -293,7 +297,7 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      padding: clamp(0.6rem, 3vh, 2rem) clamp(0.6rem, 2vw, 2rem);
+      padding: clamp(0.4rem, 2vh, 1.5rem) clamp(0.4rem, 1.5vw, 1.5rem);
       text-align: center;
       box-sizing: border-box;
       border: 1px solid #e3d7c8;
@@ -326,7 +330,7 @@
       border: 2px solid #1d3442;
     }
     .cover h1 {
-      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-size: clamp(1.4rem, 3.5vw, 2.8rem);
       font-weight: 700;
       letter-spacing: 1px;
       text-shadow: 2px 2px 0 #14222b;
@@ -336,7 +340,7 @@
       padding: 0 0.3rem;
     }
     .cover .sub {
-      font-size: clamp(1rem, 2vw, 1.4rem);
+      font-size: clamp(0.8rem, 1.8vw, 1.2rem);
       opacity: 0.7;
       border-top: 1px solid #8ba0b0;
       padding-top: 0.3rem;
@@ -348,18 +352,18 @@
       background: #2b4a5c;
       color: #f5e9da;
       border: 2px solid #1d3442;
-      font-size: clamp(1.6rem, 3vw, 2.5rem);
+      font-size: clamp(1.2rem, 2.5vw, 2rem);
       letter-spacing: 1px;
     }
     .back-cover .sub {
       opacity: 0.5;
-      font-size: clamp(0.9rem, 1.8vw, 1.2rem);
+      font-size: clamp(0.7rem, 1.5vw, 1rem);
       margin-top: 0.3rem;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
 
     .page-title {
-      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-size: clamp(1.4rem, 3.5vw, 2.8rem);
       font-weight: 700;
       color: #1f3a47;
       margin-bottom: 0.2rem;
@@ -373,17 +377,17 @@
       flex-wrap: wrap;
       justify-content: center;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
       width: 100%;
-      padding: clamp(6px, 1.5vh, 14px);
+      padding: clamp(4px, 1vh, 10px);
       position: relative;
     }
     
     .word-box {
-      font-size: clamp(1.4rem, 3.5vw, 2.4rem);
+      font-size: clamp(1rem, 2.5vw, 1.8rem);
       color: #1f2e3a;
       font-weight: 400;
-      padding: clamp(4px, 0.8vh, 10px) clamp(8px, 1.8vw, 18px);
+      padding: clamp(2px, 0.5vh, 6px) clamp(4px, 1.2vw, 12px);
       background: transparent;
       border: none;
       display: flex;
@@ -397,12 +401,12 @@
       position: relative;
       pointer-events: auto;
       z-index: 20;
-      padding: clamp(8px, 1.5vh, 18px) clamp(12px, 2vw, 28px);
+      padding: clamp(4px, 1vh, 12px) clamp(8px, 1.5vw, 20px);
       background: #f0e6da;
-      border-radius: clamp(8px, 1.5vw, 14px);
+      border-radius: clamp(6px, 1vw, 12px);
       box-shadow: inset 0 2px 5px rgba(0,0,0,0.06);
-      min-width: clamp(80px, 16vw, 160px);
-      min-height: clamp(40px, 8vh, 80px);
+      min-width: clamp(60px, 12vw, 120px);
+      min-height: clamp(30px, 5vh, 60px);
       align-items: center;
       border: 2px solid #cfc2b2;
       overflow: visible;
@@ -415,11 +419,11 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: clamp(36px, 6vh, 60px);
+      min-height: clamp(28px, 4vh, 50px);
     }
 
     .hidden-word {
-      font-size: clamp(1.8rem, 4.5vw, 3.5rem);
+      font-size: clamp(1.2rem, 3vw, 2.5rem);
       font-weight: 500;
       color: #1f3a47;
       white-space: nowrap;
@@ -428,7 +432,7 @@
       letter-spacing: 0.3px;
       opacity: 0.3;
       transition: opacity 0.4s ease;
-      padding: clamp(4px, 0.6vh, 8px) clamp(8px, 1.2vw, 16px);
+      padding: clamp(2px, 0.4vh, 6px) clamp(4px, 0.8vw, 12px);
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
     .hidden-word.revealed {
@@ -443,19 +447,19 @@
       height: 100%;
       background: #faf5eb;
       border: 3px solid #d4c4b0;
-      border-radius: clamp(6px, 0.8vw, 10px);
+      border-radius: clamp(4px, 0.6vw, 8px);
       box-shadow: 0 3px 8px rgba(0,0,0,0.12);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: clamp(2rem, 5vw, 3.8rem);
+      font-size: clamp(1.4rem, 3.5vw, 2.8rem);
       font-weight: 700;
       color: #c05c5c;
       cursor: grab;
       touch-action: none;
       z-index: 5;
       transition: box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
-      padding: clamp(4px, 1vh, 12px) clamp(8px, 2vw, 20px);
+      padding: clamp(2px, 0.6vh, 8px) clamp(4px, 1.2vw, 14px);
       letter-spacing: 0.3px;
       text-transform: uppercase;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
@@ -477,10 +481,10 @@
 
     .drag-hint {
       position: absolute;
-      bottom: clamp(-20px, -3vh, -28px);
+      bottom: clamp(-16px, -2vh, -22px);
       left: 50%;
       transform: translateX(-50%);
-      font-size: clamp(0.5rem, 1vw, 0.7rem);
+      font-size: clamp(0.4rem, 0.8vw, 0.6rem);
       color: #b0a496;
       opacity: 0.8;
       white-space: nowrap;
@@ -500,13 +504,13 @@
       justify-content: center;
       pointer-events: auto;
       z-index: 20;
-      padding: clamp(12px, 3vh, 30px);
-      min-width: clamp(80px, 20vw, 160px);
-      min-height: clamp(80px, 20vw, 160px);
+      padding: clamp(8px, 2vh, 20px);
+      min-width: clamp(60px, 15vw, 120px);
+      min-height: clamp(60px, 15vw, 120px);
     }
 
     .hidden-emoji {
-      font-size: clamp(4rem, 12vw, 8rem);
+      font-size: clamp(2.8rem, 8vw, 5.5rem);
       line-height: 1.2;
       filter: drop-shadow(2px 6px 12px rgba(0,0,0,0.15));
       margin: 0.1rem 0;
@@ -528,26 +532,26 @@
       height: 100%;
       background: #faf5eb;
       border: 4px solid #d4c4b0;
-      border-radius: clamp(12px, 2vw, 20px);
+      border-radius: clamp(8px, 1.5vw, 16px);
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: clamp(3rem, 8vw, 5.5rem);
+      font-size: clamp(2rem, 5vw, 4rem);
       font-weight: 700;
       color: #c05c5c;
       cursor: grab;
       touch-action: none;
       z-index: 5;
       transition: box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
-      padding: clamp(4px, 1vh, 12px) clamp(8px, 2vw, 20px);
+      padding: clamp(2px, 0.6vh, 8px) clamp(4px, 1.2vw, 14px);
       letter-spacing: 0.3px;
       text-transform: uppercase;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
       overflow: hidden;
     }
     .emoji-cover span {
-      font-size: clamp(3rem, 8vw, 5.5rem);
+      font-size: clamp(2rem, 5vw, 4rem);
       line-height: 1;
       display: block;
       text-align: center;
@@ -569,7 +573,7 @@
     }
 
     .word-label {
-      font-size: clamp(1rem, 1.8vw, 1.4rem);
+      font-size: clamp(0.7rem, 1.2vw, 1rem);
       opacity: 0.5;
       margin-top: 0.2rem;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
@@ -584,7 +588,7 @@
       color: #b8aa98;
       font-style: italic;
       letter-spacing: 2px;
-      font-size: clamp(1rem, 2.2vw, 1.5rem);
+      font-size: clamp(0.7rem, 1.5vw, 1.2rem);
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
 
@@ -616,9 +620,9 @@
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       color: #f0ede5;
-      padding: 6px 16px;
+      padding: 4px 12px;
       border-radius: 50px;
-      font-size: clamp(0.8rem, 1.6vw, 1rem);
+      font-size: clamp(0.6rem, 1.2vw, 0.8rem);
       font-weight: 500;
       letter-spacing: 0.3px;
       border: 1.5px solid #b6a692;
@@ -647,10 +651,10 @@
       bottom: -8px;
       left: 5%;
       width: 90%;
-      height: 16px;
-      background: radial-gradient(ellipse at center, rgba(0,0,0,0.12) 0%, transparent 70%);
+      height: 12px;
+      background: radial-gradient(ellipse at center, rgba(0,0,0,0.1) 0%, transparent 70%);
       border-radius: 50%;
-      filter: blur(8px);
+      filter: blur(6px);
       z-index: -1;
     }
 
@@ -673,219 +677,39 @@
       transform: translateX(-50%);
     }
 
-    /* Responsive breakpoints - height focused */
+    /* Responsive adjustments */
     @media (max-height: 700px) {
       .flipbook-wrapper {
-        max-height: 75vh;
+        height: 45vh;
+        max-height: 45vh;
       }
       .flipbook {
-        max-height: 75vh;
-      }
-      .page {
-        padding: 0.4rem 0.5rem;
-      }
-      .cover h1 {
-        font-size: clamp(1.6rem, 4vw, 2.5rem);
-      }
-      .page-title {
-        font-size: clamp(1.6rem, 4vw, 2.5rem);
-      }
-      .interactive-box {
-        min-height: 32px;
-        min-width: 64px;
-        padding: 4px 10px;
-      }
-      .emoji-container {
-        min-width: 60px;
-        min-height: 60px;
-        padding: 8px;
-      }
-      .hidden-emoji {
-        font-size: 3rem;
-      }
-      .emoji-cover span {
-        font-size: 2rem;
-      }
-      .word-box {
-        font-size: 1rem;
-        padding: 2px 6px;
-      }
-      .hidden-word {
-        font-size: 1.6rem;
-      }
-      .word-cover {
-        font-size: 1.6rem;
-        padding: 2px 6px;
-      }
-      .admin-toggle {
-        padding: 4px 10px;
-        font-size: 0.7rem;
-        top: 6px;
-        left: 6px;
-      }
-      .page-indicator {
-        padding: 4px 12px;
-        font-size: 0.7rem;
-        top: 6px;
-        right: 6px;
+        max-height: 45vh;
       }
     }
 
     @media (max-height: 600px) {
       .flipbook-wrapper {
-        max-height: 70vh;
+        height: 42vh;
+        max-height: 42vh;
       }
       .flipbook {
-        max-height: 70vh;
+        max-height: 42vh;
         aspect-ratio: 4 / 3;
-      }
-      .page {
-        padding: 0.25rem 0.35rem;
-      }
-      .cover h1 {
-        font-size: clamp(1.2rem, 3.5vw, 1.8rem);
-      }
-      .page-title {
-        font-size: clamp(1.2rem, 3.5vw, 1.8rem);
-      }
-      .interactive-box {
-        min-height: 26px;
-        min-width: 52px;
-        padding: 3px 8px;
-        border-width: 1.5px;
-      }
-      .emoji-container {
-        min-width: 48px;
-        min-height: 48px;
-        padding: 5px;
-      }
-      .hidden-emoji {
-        font-size: 2.4rem;
-      }
-      .emoji-cover span {
-        font-size: 1.6rem;
-      }
-      .word-box {
-        font-size: 0.85rem;
-        padding: 1px 4px;
-      }
-      .hidden-word {
-        font-size: 1.3rem;
-      }
-      .word-cover {
-        font-size: 1.3rem;
-        padding: 2px 5px;
-        border-width: 1.5px;
-      }
-      .sentence-container {
-        gap: 3px;
-        padding: 3px;
-      }
-      .drag-hint {
-        display: none;
-      }
-      .admin-toggle {
-        padding: 3px 8px;
-        font-size: 0.6rem;
-        top: 4px;
-        left: 4px;
-      }
-      .page-indicator {
-        padding: 3px 10px;
-        font-size: 0.6rem;
-        top: 4px;
-        right: 4px;
       }
     }
 
     @media (max-height: 500px) {
       .flipbook-wrapper {
-        max-height: 65vh;
+        height: 38vh;
+        max-height: 38vh;
       }
       .flipbook {
-        max-height: 65vh;
+        max-height: 38vh;
         aspect-ratio: 4 / 3;
-      }
-      .page {
-        padding: 0.15rem 0.25rem;
-      }
-      .cover h1 {
-        font-size: clamp(0.9rem, 2.8vw, 1.3rem);
-        margin-bottom: 0.1rem;
-      }
-      .cover .sub {
-        font-size: 0.6rem;
-        padding-top: 0.15rem;
-        width: 80%;
-      }
-      .page-title {
-        font-size: clamp(0.9rem, 2.8vw, 1.3rem);
-        margin-bottom: 0.1rem;
-      }
-      .interactive-box {
-        min-height: 20px;
-        min-width: 40px;
-        padding: 2px 6px;
-        border-width: 1px;
-        border-radius: 4px;
-      }
-      .emoji-container {
-        min-width: 36px;
-        min-height: 36px;
-        padding: 3px;
-      }
-      .hidden-emoji {
-        font-size: 1.8rem;
-      }
-      .emoji-cover {
-        border-width: 2px;
-      }
-      .emoji-cover span {
-        font-size: 1.2rem;
-      }
-      .word-box {
-        font-size: 0.7rem;
-        padding: 0px 3px;
-      }
-      .hidden-word {
-        font-size: 1.0rem;
-      }
-      .word-cover {
-        font-size: 1.0rem;
-        padding: 1px 4px;
-        border-width: 1px;
-        border-radius: 3px;
-      }
-      .sentence-container {
-        gap: 2px;
-        padding: 1px;
-      }
-      .admin-toggle {
-        padding: 2px 6px;
-        font-size: 0.5rem;
-        top: 3px;
-        left: 3px;
-        border-width: 1px;
-      }
-      .page-indicator {
-        padding: 2px 8px;
-        font-size: 0.5rem;
-        top: 3px;
-        right: 3px;
-        border-width: 1px;
-      }
-      .back-cover {
-        font-size: 0.9rem;
-      }
-      .back-cover .sub {
-        font-size: 0.6rem;
-      }
-      .flipbook-wrapper::after {
-        display: none;
       }
     }
 
-    /* Small width screens */
     @media (max-width: 420px) {
       body {
         padding: 4px;
@@ -893,136 +717,90 @@
       .flipbook-wrapper {
         padding: 4px 0;
       }
-      .page {
-        padding: 0.25rem 0.35rem;
-      }
-      .interactive-box {
-        min-height: 28px;
-        min-width: 50px;
-        padding: 3px 8px;
-      }
-      .emoji-container {
-        min-width: 50px;
-        min-height: 50px;
-        padding: 5px;
-      }
-      .hidden-emoji {
-        font-size: 2.5rem;
-      }
-      .word-box {
-        font-size: 0.85rem;
-        padding: 1px 4px;
-      }
-      .hidden-word {
-        font-size: 1.5rem;
-      }
-      .word-cover {
-        font-size: 1.5rem;
-        padding: 2px 5px;
-      }
-      .cover h1 {
-        font-size: 1.5rem;
-      }
-      .page-title {
-        font-size: 1.5rem;
-      }
     }
 
-    /* Landscape mode specific - FIXED: larger font sizes */
+    /* Landscape mode */
     @media (orientation: landscape) {
       .flipbook-wrapper {
-        max-height: 85vh;
+        height: 75vh;
+        max-height: 75vh;
       }
       .flipbook {
         aspect-ratio: 4 / 3;
-        max-height: 85vh;
+        max-height: 75vh;
       }
       
-      /* Larger text in landscape */
       .hidden-word {
-        font-size: clamp(2.2rem, 5vw, 4rem) !important;
+        font-size: clamp(2rem, 4vw, 3.5rem) !important;
       }
       .word-cover {
-        font-size: clamp(2.4rem, 5.5vw, 4.2rem) !important;
+        font-size: clamp(2.2rem, 4.5vw, 4rem) !important;
       }
       .hidden-emoji {
-        font-size: clamp(5rem, 14vw, 9rem) !important;
+        font-size: clamp(4rem, 12vw, 8rem) !important;
       }
       .emoji-cover span {
-        font-size: clamp(3.8rem, 10vw, 6.5rem) !important;
+        font-size: clamp(3rem, 8vw, 5.5rem) !important;
       }
       .word-box {
-        font-size: clamp(1.6rem, 3.8vw, 2.8rem) !important;
+        font-size: clamp(1.4rem, 3vw, 2.4rem) !important;
       }
       .page-title {
-        font-size: clamp(2.2rem, 5vw, 4rem) !important;
+        font-size: clamp(2rem, 4.5vw, 3.5rem) !important;
       }
       .cover h1 {
-        font-size: clamp(2.2rem, 5vw, 4rem) !important;
+        font-size: clamp(2rem, 4.5vw, 3.5rem) !important;
       }
       .interactive-box {
-        min-height: 50px !important;
-        min-width: 100px !important;
-        padding: 8px 16px !important;
+        min-height: 45px !important;
+        min-width: 85px !important;
+        padding: 6px 14px !important;
       }
       .emoji-container {
-        min-width: 100px !important;
-        min-height: 100px !important;
-        padding: 10px !important;
+        min-width: 85px !important;
+        min-height: 85px !important;
+        padding: 8px !important;
       }
     }
 
     @media (orientation: landscape) and (max-height: 450px) {
       .flipbook-wrapper {
-        max-height: 75vh;
+        height: 70vh;
+        max-height: 70vh;
       }
       .flipbook {
-        max-height: 75vh;
-      }
-      .page {
-        padding: 0.1rem 0.2rem;
+        max-height: 70vh;
       }
       .interactive-box {
         min-height: 30px !important;
-        min-width: 60px !important;
+        min-width: 55px !important;
         padding: 4px 10px !important;
       }
       .emoji-container {
-        min-width: 60px !important;
-        min-height: 60px !important;
+        min-width: 55px !important;
+        min-height: 55px !important;
         padding: 5px !important;
       }
       .hidden-emoji {
-        font-size: clamp(3rem, 10vw, 6rem) !important;
+        font-size: clamp(2.8rem, 9vw, 5rem) !important;
       }
       .emoji-cover span {
-        font-size: clamp(2.2rem, 6vw, 4rem) !important;
+        font-size: clamp(2rem, 5vw, 3.5rem) !important;
       }
       .word-box {
-        font-size: clamp(1.2rem, 3vw, 2rem) !important;
-        padding: 1px 4px !important;
+        font-size: clamp(1rem, 2.5vw, 1.8rem) !important;
       }
       .hidden-word {
-        font-size: clamp(1.6rem, 4vw, 3rem) !important;
+        font-size: clamp(1.4rem, 3.5vw, 2.8rem) !important;
       }
       .word-cover {
-        font-size: clamp(1.8rem, 4.5vw, 3.2rem) !important;
-        padding: 2px 6px !important;
+        font-size: clamp(1.6rem, 4vw, 3rem) !important;
       }
       .cover h1 {
-        font-size: clamp(1.4rem, 3.5vw, 2.2rem) !important;
+        font-size: clamp(1.4rem, 3.5vw, 2.5rem) !important;
       }
       .page-title {
-        font-size: clamp(1.4rem, 3.5vw, 2.2rem) !important;
-      }
-      .cover .sub {
-        font-size: 0.8rem !important;
-      }
-      .back-cover {
-        font-size: 1.2rem !important;
-      }
-      .back-cover .sub {
-        font-size: 0.7rem !important;
+        font-size: clamp(1.4rem, 3.5vw, 2.5rem) !important;
       }
     }
 
@@ -1033,10 +811,10 @@
   <!-- Admin Overlay for mobile -->
   <div class="admin-overlay" id="adminOverlay"></div>
 
-  <!-- Admin Toggle Button -->
+  <!-- Admin Toggle Button - Bottom Center -->
   <button class="admin-toggle" id="adminToggle">⚙️ កែសម្រួល</button>
 
-  <!-- Admin Panel -->
+  <!-- Admin Panel - Bottom Sheet -->
   <div class="admin-panel" id="adminPanel">
     <div class="admin-panel-header">
       <h2>📝 កែសម្រួលមាតិកា</h2>
@@ -1143,7 +921,7 @@
       </div>
       <div class="page page-right" data-page="3">
         <div class="page-title" id="titlePage">ខ្ញុំ អាច មើល ឃើញ</div>
-        <div style="font-size:clamp(2rem, 5vw, 3.5rem); margin-top:0.1rem;" id="titleEmoji">👁️</div>
+        <div style="font-size:clamp(1.6rem, 4vw, 2.8rem); margin-top:0.1rem;" id="titleEmoji">👁️</div>
       </div>
 
       <!-- SPREAD 2: FLOWER -->
@@ -1287,8 +1065,8 @@
         <span style="opacity:0.2;">·</span>
       </div>
       <div class="page page-right back-cover" data-page="17">
-        <div style="font-size: clamp(3rem, 7vw, 5rem); margin-bottom: 0.1rem;" id="backEmoji">📚</div>
-        <div id="backText" style="font-size: clamp(1.6rem, 3.5vw, 2.5rem);">ចប់ហើយ</div>
+        <div style="font-size: clamp(2rem, 5vw, 3.5rem); margin-bottom: 0.1rem;" id="backEmoji">📚</div>
+        <div id="backText" style="font-size: clamp(1.2rem, 2.5vw, 2rem);">ចប់ហើយ</div>
         <div class="sub" id="backSub">✦ អរគុណ ✦</div>
       </div>
 
@@ -1486,8 +1264,8 @@
         let currentX = 0, currentY = 0;
         let elementStartX = 0, elementStartY = 0;
         let isRevealed = false;
-        const SNAP_THRESHOLD = 40;
-        const REVEAL_THRESHOLD = 70;
+        const SNAP_THRESHOLD = 35;
+        const REVEAL_THRESHOLD = 60;
 
         function setPosition(x, y, animate = false) {
           currentX = x; currentY = y;
@@ -1535,8 +1313,8 @@
           const touch = e.touches ? e.touches[0] : e;
           const deltaX = touch.clientX - dragStartX;
           const deltaY = touch.clientY - dragStartY;
-          let newX = Math.max(-250, Math.min(250, elementStartX + deltaX));
-          let newY = Math.max(-250, Math.min(250, elementStartY + deltaY));
+          let newX = Math.max(-200, Math.min(200, elementStartX + deltaX));
+          let newY = Math.max(-200, Math.min(200, elementStartY + deltaY));
           setPosition(newX, newY, false);
           e.preventDefault(); e.stopPropagation();
         }
