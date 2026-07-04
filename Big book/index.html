@@ -837,7 +837,7 @@
       </div>
     </div>
 
-    <!-- Word Pages -->
+    <!-- Word Pages - now with generic labels -->
     <div class="admin-section" id="wordPagesSection">
       <h3>📝 ទំព័រពាក្យ</h3>
       <div id="wordPagesContainer"></div>
@@ -847,7 +847,7 @@
       <h3>📚 គម្របខាងក្រោយ</h3>
       <div class="admin-field">
         <label>អត្ថបទ</label>
-        <input type="text" id="editBackText" value="ចប់ហើយ">
+        <input type="text" id="editBackText" value="ចប់">
       </div>
       <div class="admin-field">
         <label>អត្ថបទរង</label>
@@ -1086,29 +1086,29 @@
         }
       });
 
-      // Word configurations for dynamic admin fields
+      // Word configurations for dynamic admin fields - using general labels
       const wordConfigs = [
-        { id: 'flower', name: 'ផ្កា (Flower)', num: 1 },
-        { id: 'dog', name: 'ឆ្កែ (Dog)', num: 2 },
-        { id: 'cat', name: 'ឆ្មា (Cat)', num: 3 },
-        { id: 'car', name: 'ឡាន (Car)', num: 4 },
-        { id: 'tree', name: 'ដើមឈើ (Tree)', num: 5 },
-        { id: 'sun', name: 'ព្រះអាទិត្យ (Sun)', num: 6 }
+        { id: 'flower', label: 'ពាក្យទី 1 (ផ្កា)', num: 1 },
+        { id: 'dog', label: 'ពាក្យទី 2 (ឆ្កែ)', num: 2 },
+        { id: 'cat', label: 'ពាក្យទី 3 (ឆ្មា)', num: 3 },
+        { id: 'car', label: 'ពាក្យទី 4 (ឡាន)', num: 4 },
+        { id: 'tree', label: 'ពាក្យទី 5 (ដើមឈើ)', num: 5 },
+        { id: 'sun', label: 'ពាក្យទី 6 (ព្រះអាទិត្យ)', num: 6 }
       ];
 
-      // Generate word editing fields
+      // Generate word editing fields with generic labels
       const wordPagesContainer = document.getElementById('wordPagesContainer');
       wordConfigs.forEach(config => {
         const fieldDiv = document.createElement('div');
         fieldDiv.className = 'admin-field';
         fieldDiv.innerHTML = `
-          <label>${config.name} - ពាក្យលាក់</label>
+          <label>${config.label} - ពាក្យលាក់</label>
           <input type="text" id="edit_${config.id}Word" value="${document.getElementById('Text' + config.num).textContent}">
-          <label style="margin-top:8px;">${config.name} - អក្សរគម្រប</label>
+          <label style="margin-top:8px;">${config.label} - អក្សរគម្រប</label>
           <input type="text" id="edit_${config.id}Cover" value="${document.getElementById('Cover' + config.num).textContent}">
-          <label style="margin-top:8px;">${config.name} - រូបតំណាង</label>
+          <label style="margin-top:8px;">${config.label} - រូបតំណាង</label>
           <input type="text" id="edit_${config.id}Emoji" value="${document.getElementById('Emoji' + config.num).textContent}">
-          <label style="margin-top:8px;">${config.name} - គម្របរូបតំណាង</label>
+          <label style="margin-top:8px;">${config.label} - គម្របរូបតំណាង</label>
           <input type="text" id="edit_${config.id}EmojiCover" value="${document.getElementById('EmojiCover' + config.num).textContent}">
         `;
         wordPagesContainer.appendChild(fieldDiv);
@@ -1157,7 +1157,7 @@
         spreadLabels[0] = document.getElementById('editCoverTitle').value;
         spreadLabels[1] = document.getElementById('editTitlePage').value;
         wordConfigs.forEach((config, index) => {
-          spreadLabels[index + 2] = config.name;
+          spreadLabels[index + 2] = config.label;
         });
         
         // Show success feedback
