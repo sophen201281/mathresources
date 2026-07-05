@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Flashcard Stack · Admin Panel</title>
+  <title>Weekly Flashcards · 37 Weeks</title>
   <style>
     :root{
       --card-font-size: 28px;
@@ -23,10 +23,47 @@
       min-height:100vh;
     }
     h2{
-      margin-bottom:12px;
+      margin-bottom:6px;
       font-weight:400;
       color:#1f2e3a;
       letter-spacing:1px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:center;
+    }
+    .week-selector{
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+      justify-content:center;
+      margin-bottom:12px;
+      width:min(340px,90vw);
+    }
+    .week-selector button{
+      padding:6px 12px;
+      border:1px solid #ccd7e6;
+      background:white;
+      border-radius:30px;
+      cursor:pointer;
+      font-size:13px;
+      font-weight:500;
+      transition:all .2s;
+      color:#1f2e3a;
+    }
+    .week-selector button.active{
+      background:var(--accent);
+      color:white;
+      border-color:var(--accent);
+      box-shadow:0 2px 8px rgba(74,108,247,0.25);
+    }
+    .week-selector button:hover{
+      background:#f0f4ff;
+      border-color:#a0b8d0;
+    }
+    .week-selector button.active:hover{
+      background:#3a57d6;
     }
     .stack{
       position:relative;
@@ -221,7 +258,7 @@
       bottom:-100%;
       left:0;
       width:100%;
-      max-height:75vh;
+      max-height:80vh;
       background:linear-gradient(145deg, #1f2e3a, #2a3f4d);
       color:var(--panel-text);
       z-index:500;
@@ -237,9 +274,11 @@
       display:flex;
       justify-content:space-between;
       align-items:center;
-      margin-bottom:16px;
+      margin-bottom:12px;
       border-bottom:2px solid #6a7f8f;
       padding-bottom:10px;
+      flex-wrap:wrap;
+      gap:8px;
     }
     .admin-header h3{
       font-size:20px;
@@ -278,16 +317,43 @@
       color:#c8d6e0;
       margin-bottom:8px;
       letter-spacing:0.3px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    .week-tabs{
+      display:flex;
+      gap:4px;
+      flex-wrap:wrap;
+      margin-bottom:10px;
+    }
+    .week-tabs button{
+      padding:4px 10px;
+      border:1px solid rgba(255,255,255,0.15);
+      background:rgba(255,255,255,0.05);
+      color:#c8d6e0;
+      border-radius:20px;
+      cursor:pointer;
+      font-size:12px;
+      transition:all .2s;
+    }
+    .week-tabs button.active{
+      background:var(--accent);
+      border-color:var(--accent);
+      color:white;
+    }
+    .week-tabs button:hover{
+      background:rgba(255,255,255,0.12);
     }
     .word-entry{
       display:flex;
       gap:10px;
       align-items:center;
-      margin-bottom:8px;
+      margin-bottom:6px;
     }
     .word-entry input{
       flex:1;
-      padding:8px 12px;
+      padding:6px 12px;
       border-radius:8px;
       border:1.5px solid rgba(255,255,255,0.12);
       background:rgba(255,255,255,0.06);
@@ -307,11 +373,11 @@
       background:rgba(255,80,80,0.15);
       border:1px solid rgba(255,80,80,0.2);
       color:#ff8a8a;
-      width:30px;
-      height:30px;
+      width:28px;
+      height:28px;
       border-radius:50%;
       cursor:pointer;
-      font-size:16px;
+      font-size:14px;
       display:flex;
       align-items:center;
       justify-content:center;
@@ -378,15 +444,25 @@
       text-align:right;
       margin-top:4px;
     }
-    /* scrollbar styling */
     .admin-panel::-webkit-scrollbar{ width:4px; }
     .admin-panel::-webkit-scrollbar-track{ background:transparent; }
     .admin-panel::-webkit-scrollbar-thumb{ background:#6a7f8f; border-radius:10px; }
+
+    .week-label{
+      font-size:14px;
+      color:rgba(255,255,255,0.6);
+      margin-right:8px;
+    }
   </style>
 </head>
 <body>
 
-<h2>📇 បណ្ណពាក្យ</h2>
+<h2>
+  <span>📚 បណ្ណពាក្យ</span>
+  <span style="font-size:16px;font-weight:300;color:#667;" id="weekDisplay">សប្តាហ៍ទី 1</span>
+</h2>
+
+<div class="week-selector" id="weekSelector"></div>
 
 <div class="stack" id="stack"></div>
 
@@ -418,12 +494,16 @@
 <!-- Admin Panel -->
 <div class="admin-panel" id="adminPanel">
   <div class="admin-header">
-    <h3>📝 កែសម្រួលបណ្ណទាំងអស់</h3>
+    <h3>📝 កែសម្រួលបណ្ណតាមសប្តាហ៍</h3>
     <button class="close-panel" id="closePanelBtn">✕</button>
   </div>
 
   <div class="admin-section">
-    <h4>📋 បញ្ជីពាក្យ</h4>
+    <h4>
+      <span>📋 បញ្ជីពាក្យ</span>
+      <span class="week-label" id="adminWeekLabel">សប្តាហ៍ទី 1</span>
+    </h4>
+    <div class="week-tabs" id="weekTabs"></div>
     <div id="wordListContainer"></div>
     <div class="add-word-row">
       <input id="adminNewWord" placeholder="បញ្ចូលពាក្យថ្មី..." >
@@ -437,8 +517,63 @@
 
 <script>
   // ============ DATA ============
+  // 37 weeks, each week has 7 words (except maybe last, but we keep 7)
+  const WEEK_COUNT = 37;
+  const WORDS_PER_WEEK = 7;
+
+  // Generate sample words for all weeks (English + Khmer mix for demo)
+  // You can replace these with your own word lists.
+  function generateSampleWords() {
+    const sampleWords = [
+      // Week 1
+      ['ផ្កា', 'ឆ្កែ', 'ឆ្មា', 'ឡាន', 'ដើមឈើ', 'ព្រះអាទិត្យ', 'ទឹក'],
+      // Week 2
+      ['ភ្នំ', 'សមុទ្រ', 'ផ្កាយ', 'ព្រះច័ន្ទ', 'មេឃ', 'ដី', 'ភ្លើង'],
+      // Week 3
+      ['បក្សី', 'ត្រី', 'ដំរី', 'សេះ', 'ក្របី', 'គោ', 'ជ្រូក'],
+      // Week 4
+      ['ផ្ទះ', 'សាលា', 'វត្ត', 'ផ្សារ', 'មន្ទីរពេទ្យ', 'ធនាគារ', 'ភោជនីយដ្ឋាន'],
+      // Week 5
+      ['កូន', 'ឪពុក', 'ម្តាយ', 'បង', 'ប្អូន', 'ជីដូន', 'ជីតា'],
+      // Week 6-37: generate with pattern
+    ];
+    // Fill remaining weeks with patterned words
+    for (let w = 6; w <= WEEK_COUNT; w++) {
+      const weekWords = [];
+      for (let i = 1; i <= WORDS_PER_WEEK; i++) {
+        weekWords.push(`ពាក្យ${w}-${i}`);
+      }
+      sampleWords.push(weekWords);
+    }
+    return sampleWords;
+  }
+
+  // Main data structure: weeksData[weekIndex] = array of words
+  let weeksData = generateSampleWords();
+  let currentWeek = 0; // 0-based index
   let cards = [];
   let current = 0;
+
+  // ============ LOAD WEEK ============
+  function loadWeek(weekIndex) {
+    currentWeek = weekIndex;
+    const words = weeksData[weekIndex] || [];
+    cards = words.map(text => ({ text }));
+    current = 0;
+    renderCards();
+    updateWeekUI();
+    syncAdminList();
+    // update week display
+    document.getElementById('weekDisplay').textContent = `សប្តាហ៍ទី ${weekIndex+1}`;
+    document.getElementById('adminWeekLabel').textContent = `សប្តាហ៍ទី ${weekIndex+1}`;
+    // highlight week tabs
+    document.querySelectorAll('.week-tabs button').forEach((btn, idx) => {
+      btn.classList.toggle('active', idx === weekIndex);
+    });
+    document.querySelectorAll('.week-selector button').forEach((btn, idx) => {
+      btn.classList.toggle('active', idx === weekIndex);
+    });
+  }
 
   // ============ RENDER ============
   function renderCards(){
@@ -457,7 +592,6 @@
         <div class="text">${c.text}</div>
       </div>
     `;
-    // touch / click navigation
     let startX = 0;
     card.addEventListener("touchstart",(e)=>{
       startX = e.touches[0].clientX;
@@ -494,6 +628,8 @@
     cards.push({ text:t });
     current = cards.length - 1;
     document.getElementById("frontInput").value = "";
+    // also save to weeksData
+    weeksData[currentWeek] = cards.map(c => c.text);
     renderCards();
     syncAdminList();
   }
@@ -503,6 +639,7 @@
     cards.splice(current,1);
     if(current >= cards.length) current = cards.length-1;
     if(current < 0) current = 0;
+    weeksData[currentWeek] = cards.map(c => c.text);
     renderCards();
     syncAdminList();
   }
@@ -527,6 +664,22 @@
     document.getElementById("fontSizeLabel").textContent = v;
   }
 
+  // ============ WEEK UI ============
+  function updateWeekUI() {
+    const selector = document.getElementById('weekSelector');
+    selector.innerHTML = '';
+    for (let i = 0; i < WEEK_COUNT; i++) {
+      const btn = document.createElement('button');
+      btn.textContent = `សប្តាហ៍ ${i+1}`;
+      btn.dataset.week = i;
+      if (i === currentWeek) btn.classList.add('active');
+      btn.addEventListener('click', function() {
+        loadWeek(parseInt(this.dataset.week));
+      });
+      selector.appendChild(btn);
+    }
+  }
+
   // ============ ADMIN PANEL ============
   const adminToggle = document.getElementById('adminToggle');
   const adminPanel = document.getElementById('adminPanel');
@@ -540,6 +693,8 @@
     adminToggle.textContent = '✕ បិទ';
     document.body.style.overflow = 'hidden';
     syncAdminList();
+    // build week tabs in admin
+    buildAdminWeekTabs();
   }
   function closeAdmin() {
     adminPanel.classList.remove('open');
@@ -553,7 +708,26 @@
   closePanelBtn.addEventListener('click', closeAdmin);
   adminOverlay.addEventListener('click', closeAdmin);
 
-  // ---- Admin word list ----
+  function buildAdminWeekTabs() {
+    const container = document.getElementById('weekTabs');
+    container.innerHTML = '';
+    for (let i = 0; i < WEEK_COUNT; i++) {
+      const btn = document.createElement('button');
+      btn.textContent = `សប្តាហ៍ ${i+1}`;
+      btn.dataset.week = i;
+      if (i === currentWeek) btn.classList.add('active');
+      btn.addEventListener('click', function() {
+        const w = parseInt(this.dataset.week);
+        loadWeek(w);
+        // update tabs
+        document.querySelectorAll('#weekTabs button').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        syncAdminList();
+      });
+      container.appendChild(btn);
+    }
+  }
+
   function syncAdminList() {
     const container = document.getElementById('wordListContainer');
     container.innerHTML = '';
@@ -566,7 +740,6 @@
       `;
       container.appendChild(row);
     });
-    // event listeners for delete
     container.querySelectorAll('.del-word').forEach(btn => {
       btn.addEventListener('click', function(e) {
         const idx = parseInt(this.dataset.index, 10);
@@ -574,20 +747,21 @@
           cards.splice(idx, 1);
           if (current >= cards.length) current = cards.length - 1;
           if (current < 0) current = 0;
+          weeksData[currentWeek] = cards.map(c => c.text);
           renderCards();
           syncAdminList();
         }
         e.stopPropagation();
       });
     });
-    // input change -> update card data
     container.querySelectorAll('.admin-word-input').forEach(inp => {
       inp.addEventListener('change', function(e) {
         const idx = parseInt(this.dataset.index, 10);
         const val = this.value.trim();
         if (idx >= 0 && idx < cards.length && val) {
           cards[idx].text = val;
-          renderCards(); // reflect on main view
+          weeksData[currentWeek] = cards.map(c => c.text);
+          renderCards();
         }
       });
       inp.addEventListener('keydown', function(e) {
@@ -603,6 +777,7 @@
     if (!val) return;
     cards.push({ text: val });
     current = cards.length - 1;
+    weeksData[currentWeek] = cards.map(c => c.text);
     input.value = '';
     renderCards();
     syncAdminList();
@@ -614,7 +789,6 @@
 
   // Save & close
   saveAllBtn.addEventListener('click', () => {
-    // sync all inputs again (just in case)
     document.querySelectorAll('.admin-word-input').forEach(inp => {
       const idx = parseInt(inp.dataset.index, 10);
       const val = inp.value.trim();
@@ -622,9 +796,9 @@
         cards[idx].text = val;
       }
     });
+    weeksData[currentWeek] = cards.map(c => c.text);
     renderCards();
     closeAdmin();
-    // feedback
     saveAllBtn.textContent = '✅ បានរក្សាទុក!';
     saveAllBtn.style.background = '#4CAF50';
     setTimeout(() => {
@@ -637,26 +811,15 @@
   document.getElementById('frontInput').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') addCard();
   });
-  // Enter key on admin new word
   document.getElementById('adminNewWord').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') adminAddWord();
   });
 
   // ============ INIT ============
-  // initial demo cards
-  cards = [
-    { text: 'ផ្កា' },
-    { text: 'ឆ្កែ' },
-    { text: 'ឆ្មា' },
-    { text: 'ឡាន' },
-    { text: 'ដើមឈើ' },
-    { text: 'ព្រះអាទិត្យ' }
-  ];
-  current = 0;
-  renderCards();
-  syncAdminList();
+  loadWeek(0);
+  updateWeekUI();
 
-  // expose to global for onclick
+  // expose globals
   window.addCard = addCard;
   window.deleteCard = deleteCard;
   window.randomCard = randomCard;
@@ -664,6 +827,7 @@
   window.prev = prev;
   window.changeFontSize = changeFontSize;
   window.adminAddWord = adminAddWord;
+  window.loadWeek = loadWeek;
 </script>
 
 </body>
