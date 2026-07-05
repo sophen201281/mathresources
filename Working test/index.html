@@ -35,35 +35,40 @@
     }
     .week-selector{
       display:flex;
-      gap:6px;
-      flex-wrap:wrap;
-      justify-content:center;
-      margin-bottom:12px;
+      gap:8px;
+      align-items:center;
+      margin-bottom:14px;
       width:min(340px,90vw);
-    }
-    .week-selector button{
-      padding:6px 12px;
-      border:1px solid #ccd7e6;
+      justify-content:center;
       background:white;
-      border-radius:30px;
-      cursor:pointer;
-      font-size:13px;
+      padding:6px 14px;
+      border-radius:40px;
+      box-shadow:0 2px 8px rgba(0,0,0,0.04);
+    }
+    .week-selector label{
+      font-size:14px;
+      color:#445566;
       font-weight:500;
-      transition:all .2s;
+      white-space:nowrap;
+    }
+    .week-selector select{
+      padding:8px 14px;
+      border:1px solid #ccd7e6;
+      border-radius:30px;
+      background:white;
+      font-size:15px;
+      font-weight:500;
       color:#1f2e3a;
+      cursor:pointer;
+      outline:none;
+      transition:border .2s;
+      flex:1;
+      max-width:220px;
+      appearance:auto;
     }
-    .week-selector button.active{
-      background:var(--accent);
-      color:white;
+    .week-selector select:focus{
       border-color:var(--accent);
-      box-shadow:0 2px 8px rgba(74,108,247,0.25);
-    }
-    .week-selector button:hover{
-      background:#f0f4ff;
-      border-color:#a0b8d0;
-    }
-    .week-selector button.active:hover{
-      background:#3a57d6;
+      box-shadow:0 0 0 3px rgba(74,108,247,0.12);
     }
     .stack{
       position:relative;
@@ -320,30 +325,34 @@
       display:flex;
       justify-content:space-between;
       align-items:center;
-    }
-    .week-tabs{
-      display:flex;
-      gap:4px;
       flex-wrap:wrap;
-      margin-bottom:10px;
+      gap:6px;
     }
-    .week-tabs button{
+    .admin-week-selector{
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+    .admin-week-selector label{
+      font-size:13px;
+      color:rgba(255,255,255,0.6);
+    }
+    .admin-week-selector select{
       padding:4px 10px;
+      border-radius:20px;
       border:1px solid rgba(255,255,255,0.15);
       background:rgba(255,255,255,0.05);
-      color:#c8d6e0;
-      border-radius:20px;
-      cursor:pointer;
-      font-size:12px;
-      transition:all .2s;
-    }
-    .week-tabs button.active{
-      background:var(--accent);
-      border-color:var(--accent);
       color:white;
+      font-size:13px;
+      cursor:pointer;
+      outline:none;
     }
-    .week-tabs button:hover{
-      background:rgba(255,255,255,0.12);
+    .admin-week-selector select:focus{
+      border-color:#8ba0b0;
+    }
+    .admin-week-selector select option{
+      background:#1f2e3a;
+      color:white;
     }
     .word-entry{
       display:flex;
@@ -462,7 +471,10 @@
   <span style="font-size:16px;font-weight:300;color:#667;" id="weekDisplay">សប្តាហ៍ទី 1</span>
 </h2>
 
-<div class="week-selector" id="weekSelector"></div>
+<div class="week-selector">
+  <label for="weekDropdown">📅 សប្តាហ៍:</label>
+  <select id="weekDropdown"></select>
+</div>
 
 <div class="stack" id="stack"></div>
 
@@ -501,9 +513,11 @@
   <div class="admin-section">
     <h4>
       <span>📋 បញ្ជីពាក្យ</span>
-      <span class="week-label" id="adminWeekLabel">សប្តាហ៍ទី 1</span>
+      <div class="admin-week-selector">
+        <label for="adminWeekDropdown">សប្តាហ៍:</label>
+        <select id="adminWeekDropdown"></select>
+      </div>
     </h4>
-    <div class="week-tabs" id="weekTabs"></div>
     <div id="wordListContainer"></div>
     <div class="add-word-row">
       <input id="adminNewWord" placeholder="បញ្ចូលពាក្យថ្មី..." >
@@ -517,12 +531,10 @@
 
 <script>
   // ============ DATA ============
-  // 37 weeks, each week has 7 words (except maybe last, but we keep 7)
   const WEEK_COUNT = 37;
   const WORDS_PER_WEEK = 7;
 
-  // Generate sample words for all weeks (English + Khmer mix for demo)
-  // You can replace these with your own word lists.
+  // Generate sample words for all weeks
   function generateSampleWords() {
     const sampleWords = [
       // Week 1
@@ -535,7 +547,6 @@
       ['ផ្ទះ', 'សាលា', 'វត្ត', 'ផ្សារ', 'មន្ទីរពេទ្យ', 'ធនាគារ', 'ភោជនីយដ្ឋាន'],
       // Week 5
       ['កូន', 'ឪពុក', 'ម្តាយ', 'បង', 'ប្អូន', 'ជីដូន', 'ជីតា'],
-      // Week 6-37: generate with pattern
     ];
     // Fill remaining weeks with patterned words
     for (let w = 6; w <= WEEK_COUNT; w++) {
@@ -548,9 +559,8 @@
     return sampleWords;
   }
 
-  // Main data structure: weeksData[weekIndex] = array of words
   let weeksData = generateSampleWords();
-  let currentWeek = 0; // 0-based index
+  let currentWeek = 0;
   let cards = [];
   let current = 0;
 
@@ -563,16 +573,10 @@
     renderCards();
     updateWeekUI();
     syncAdminList();
-    // update week display
     document.getElementById('weekDisplay').textContent = `សប្តាហ៍ទី ${weekIndex+1}`;
-    document.getElementById('adminWeekLabel').textContent = `សប្តាហ៍ទី ${weekIndex+1}`;
-    // highlight week tabs
-    document.querySelectorAll('.week-tabs button').forEach((btn, idx) => {
-      btn.classList.toggle('active', idx === weekIndex);
-    });
-    document.querySelectorAll('.week-selector button').forEach((btn, idx) => {
-      btn.classList.toggle('active', idx === weekIndex);
-    });
+    // update dropdowns
+    document.getElementById('weekDropdown').value = weekIndex;
+    document.getElementById('adminWeekDropdown').value = weekIndex;
   }
 
   // ============ RENDER ============
@@ -628,7 +632,6 @@
     cards.push({ text:t });
     current = cards.length - 1;
     document.getElementById("frontInput").value = "";
-    // also save to weeksData
     weeksData[currentWeek] = cards.map(c => c.text);
     renderCards();
     syncAdminList();
@@ -666,18 +669,34 @@
 
   // ============ WEEK UI ============
   function updateWeekUI() {
-    const selector = document.getElementById('weekSelector');
-    selector.innerHTML = '';
+    const dropdown = document.getElementById('weekDropdown');
+    dropdown.innerHTML = '';
     for (let i = 0; i < WEEK_COUNT; i++) {
-      const btn = document.createElement('button');
-      btn.textContent = `សប្តាហ៍ ${i+1}`;
-      btn.dataset.week = i;
-      if (i === currentWeek) btn.classList.add('active');
-      btn.addEventListener('click', function() {
-        loadWeek(parseInt(this.dataset.week));
-      });
-      selector.appendChild(btn);
+      const option = document.createElement('option');
+      option.value = i;
+      option.textContent = `សប្តាហ៍ ${i+1}`;
+      dropdown.appendChild(option);
     }
+    dropdown.value = currentWeek;
+    dropdown.addEventListener('change', function() {
+      loadWeek(parseInt(this.value));
+    });
+
+    // Admin dropdown
+    const adminDropdown = document.getElementById('adminWeekDropdown');
+    adminDropdown.innerHTML = '';
+    for (let i = 0; i < WEEK_COUNT; i++) {
+      const option = document.createElement('option');
+      option.value = i;
+      option.textContent = `សប្តាហ៍ ${i+1}`;
+      adminDropdown.appendChild(option);
+    }
+    adminDropdown.value = currentWeek;
+    adminDropdown.addEventListener('change', function() {
+      const w = parseInt(this.value);
+      loadWeek(w);
+      syncAdminList();
+    });
   }
 
   // ============ ADMIN PANEL ============
@@ -693,8 +712,8 @@
     adminToggle.textContent = '✕ បិទ';
     document.body.style.overflow = 'hidden';
     syncAdminList();
-    // build week tabs in admin
-    buildAdminWeekTabs();
+    // sync admin dropdown
+    document.getElementById('adminWeekDropdown').value = currentWeek;
   }
   function closeAdmin() {
     adminPanel.classList.remove('open');
@@ -707,26 +726,6 @@
   });
   closePanelBtn.addEventListener('click', closeAdmin);
   adminOverlay.addEventListener('click', closeAdmin);
-
-  function buildAdminWeekTabs() {
-    const container = document.getElementById('weekTabs');
-    container.innerHTML = '';
-    for (let i = 0; i < WEEK_COUNT; i++) {
-      const btn = document.createElement('button');
-      btn.textContent = `សប្តាហ៍ ${i+1}`;
-      btn.dataset.week = i;
-      if (i === currentWeek) btn.classList.add('active');
-      btn.addEventListener('click', function() {
-        const w = parseInt(this.dataset.week);
-        loadWeek(w);
-        // update tabs
-        document.querySelectorAll('#weekTabs button').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
-        syncAdminList();
-      });
-      container.appendChild(btn);
-    }
-  }
 
   function syncAdminList() {
     const container = document.getElementById('wordListContainer');
@@ -787,7 +786,6 @@
     document.getElementById('wordCounter').textContent = `សរុប: ${cards.length} ពាក្យ`;
   }
 
-  // Save & close
   saveAllBtn.addEventListener('click', () => {
     document.querySelectorAll('.admin-word-input').forEach(inp => {
       const idx = parseInt(inp.dataset.index, 10);
@@ -807,7 +805,6 @@
     }, 1400);
   });
 
-  // Enter key on main input
   document.getElementById('frontInput').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') addCard();
   });
@@ -819,7 +816,6 @@
   loadWeek(0);
   updateWeekUI();
 
-  // expose globals
   window.addCard = addCard;
   window.deleteCard = deleteCard;
   window.randomCard = randomCard;
