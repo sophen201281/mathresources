@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Weekly Flashcards · 37 Weeks</title>
+  <title>Consonants · 2 weeks</title>
   <!-- Google Font: Battambang (Khmer) -->
   <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@100;300;400;700;900&display=swap" rel="stylesheet">
   <style>
     :root{
-      --card-font-size: 28px;
+      --card-font-size: 32px;
       --panel-bg: #1f2e3a;
       --panel-text: #f0ede5;
       --accent: #4a6cf7;
@@ -78,8 +78,8 @@
     }
     .stack{
       position:relative;
-      width:min(340px,90vw);
-      height:240px;
+      width:min(360px,90vw);
+      height:260px;
       perspective:1400px;
       margin-bottom:10px;
     }
@@ -134,7 +134,7 @@
     .card::after{ content:"▶"; right:0; }
 
     .bottom-controls{
-      width:min(340px,90vw);
+      width:min(360px,90vw);
       margin-top:4px;
     }
     .controls{
@@ -143,36 +143,6 @@
       gap:8px;
       margin-bottom:12px;
     }
-    .controls input{
-      width:100%;
-      padding:12px 14px;
-      border:1px solid #ccd7e6;
-      border-radius:10px;
-      font-size:16px;
-      background:white;
-      transition:border .2s;
-      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
-    }
-    .controls input:focus{
-      outline:none;
-      border-color:var(--accent);
-      box-shadow:0 0 0 3px rgba(74,108,247,0.15);
-    }
-    .add-btn{
-      width:100%;
-      padding:12px;
-      border:none;
-      background:var(--accent);
-      color:white;
-      border-radius:10px;
-      font-weight:600;
-      font-size:16px;
-      cursor:pointer;
-      transition:background .2s;
-      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
-    }
-    .add-btn:hover{ background:#3a57d6; }
-    .add-btn:active{ transform:scale(0.98); }
 
     .font-control{
       display:flex;
@@ -493,7 +463,7 @@
 <body>
 
 <h2>
-  <span>📚 បណ្ណពាក្យ</span>
+  <span>🔤 ព្យញ្ជនៈ</span>
   <span style="font-size:16px;font-weight:300;color:#667;font-family:'Battambang','Segoe UI',system-ui,sans-serif;" id="weekDisplay">សប្តាហ៍ទី 1</span>
 </h2>
 
@@ -505,15 +475,10 @@
 <div class="stack" id="stack"></div>
 
 <div class="bottom-controls">
-  <div class="controls">
-    <input id="frontInput" placeholder="វាយជាអក្សរ/ពាក្យ (e.g. ផ្កា)" autofocus>
-    <button class="add-btn" onclick="addCard()">➕ បញ្ចូលពាក្យ</button>
-  </div>
-
   <div class="font-control">
     <label>🔤 ទំហំ</label>
-    <input type="range" min="16" max="100" value="28" oninput="changeFontSize(this.value)">
-    <span id="fontSizeLabel" style="min-width:32px;font-size:14px;font-family:'Battambang','Segoe UI',system-ui,sans-serif;">28</span>
+    <input type="range" min="16" max="100" value="32" oninput="changeFontSize(this.value)">
+    <span id="fontSizeLabel" style="min-width:32px;font-size:14px;font-family:'Battambang','Segoe UI',system-ui,sans-serif;">32</span>
   </div>
 
   <div class="nav">
@@ -538,7 +503,7 @@
 
   <div class="admin-section">
     <h4>
-      <span>📋 បញ្ជីពាក្យ</span>
+      <span>📋 បញ្ជីព្យញ្ជនៈ</span>
       <div class="admin-week-selector">
         <label for="adminWeekDropdown">សប្តាហ៍:</label>
         <select id="adminWeekDropdown"></select>
@@ -546,10 +511,10 @@
     </h4>
     <div id="wordListContainer"></div>
     <div class="add-word-row">
-      <input id="adminNewWord" placeholder="បញ្ចូលពាក្យថ្មី..." >
+      <input id="adminNewWord" placeholder="បញ្ចូលព្យញ្ជនៈថ្មី..." >
       <button onclick="adminAddWord()">បញ្ចូល</button>
     </div>
-    <div class="word-counter" id="wordCounter">សរុប: 0 ពាក្យ</div>
+    <div class="word-counter" id="wordCounter">សរុប: 0</div>
   </div>
 
   <button class="save-all-btn" id="saveAllBtn">💾 រក្សាទុក &amp; បិទ</button>
@@ -557,122 +522,26 @@
 
 <script>
   // ============ DATA ============
-  const WEEK_COUNT = 37;
-  const WORDS_PER_WEEK = 7;
+  const WEEK_COUNT = 2;
 
-  // Generate sample words for all weeks
-  function generateSampleWords() {
-    const sampleWords = [
-      // Week 1
-      ['ផ្កា', 'ឆ្កែ', 'ឆ្មា', 'ឡាន', 'ដើមឈើ', 'ព្រះអាទិត្យ', 'ទឹក'],
-      // Week 2
-      ['ភ្នំ', 'សមុទ្រ', 'ផ្កាយ', 'ព្រះច័ន្ទ', 'មេឃ', 'ដី', 'ភ្លើង'],
-      // Week 3
-      ['បក្សី', 'ត្រី', 'ដំរី', 'សេះ', 'ក្របី', 'គោ', 'ជ្រូក'],
-      // Week 4
-      ['ផ្ទះ', 'សាលា', 'វត្ត', 'ផ្សារ', 'មន្ទីរពេទ្យ', 'ធនាគារ', 'ភោជនីយដ្ឋាន'],
-      // Week 5
-      ['កូន', 'ឪពុក', 'ម្តាយ', 'បង', 'ប្អូន', 'ជីដូន', 'ជីតា'],
-      // Week 6
-      ['បក្សី', 'ត្រី', 'ដំរី', 'សេះ', 'ក្របី', 'គោ', 'ជ្រូក'],
-      
-      // Week 7
-      ['បក្សី', 'ត្រី', 'ដំរី', 'សេះ', 'ក្របី', 'គោ', 'ជ្រូក'],
-      
-      // Week 8
-      ['បក្សី', 'ត្រី', 'ដំរី', 'សេះ', 'ក្របី', 'គោ', 'ជ្រូក'],
-      
-      // Week 9
-      ['បក្សី', 'ត្រី', 'ដំរី', 'សេះ', 'ក្របី', 'គោ', 'ជ្រូក'],
-      
-      // Week 10
-      ['បក្សី', 'ត្រី', 'ដំរី', 'សេះ', 'ក្របី', 'គោ', 'ជ្រូក'],
-      
-      // Week 11
-      ['បក្សី', 'ត្រី', 'ដំរី', 'សេះ', 'ក្របី', 'គោ', 'ជ្រូក'],
-      // Week 1
-      ['ផ្កា', 'ឆ្កែ', 'ឆ្មា', 'ឡាន', 'ដើមឈើ', 'ព្រះអាទិត្យ', 'ទឹក'],
-      // Week 12
-      ['ភ្នំ', 'សមុទ្រ', 'ផ្កាយ', 'ព្រះច័ន្ទ', 'មេឃ', 'ដី', 'ភ្លើង'],
-      // Week 13
-      ['បក្សី', 'ត្រី', 'ដំរី', 'សេះ', 'ក្របី', 'គោ', 'ជ្រូក'],
-      // Week 14
-      ['ផ្ទះ', 'សាលា', 'វត្ត', 'ផ្សារ', 'មន្ទីរពេទ្យ', 'ធនាគារ', 'ភោជនីយដ្ឋាន'],
-      // Week 15
-      ['កូន', 'ឪពុក', 'ម្តាយ', 'បង', 'ប្អូន', 'ជីដូន', 'ជីតា'],
-      // Week 16
-      ['បក្សី', 'ត្រី', 'ដំរី', 'សេះ', 'ក្របី', 'គោ', 'ជ្រូក'],
-      
-      // Week 17
-      ['បក្សី', 'ត្រី', 'ដំរី', 'សេះ', 'ក្របី', 'គោ', 'ជ្រូក'],
-      
-      // Week 18
-      ['បក្សី', 'ត្រី', 'ដំរី', 'សេះ', 'ក្របី', 'គោ', 'ជ្រូក'],
-      
-      // Week 19
-      ['បក្សី', 'ត្រី', 'ដំរី', 'សេះ', 'ក្របី', 'គោ', 'ជ្រូក'],
-      
-      // Week 20
-      ['បក្សី', 'ត្រី', 'ដំរី', 'សេះ', 'ក្របី', 'គោ', 'ជ្រូក'],
-      
-      // Week 21
-      ['បក្សី', 'ត្រី', 'ដំរី', 'សេះ', 'ក្របី', 'គោ', 'ជ្រូក'],
-      // Week 22
-      ['ផ្កា', 'ឆ្កែ', 'ឆ្មា', 'ឡាន', 'ដើមឈើ', 'ព្រះអាទិត្យ', 'ទឹក'],
-      // Week 23
-      ['ភ្នំ', 'សមុទ្រ', 'ផ្កាយ', 'ព្រះច័ន្ទ', 'មេឃ', 'ដី', 'ភ្លើង'],
-      // Week 24
-      ['បក្សី', 'ត្រី', 'ដំរី', 'សេះ', 'ក្របី', 'គោ', 'ជ្រូក'],
-      // Week 25
-      ['ផ្ទះ', 'សាលា', 'វត្ត', 'ផ្សារ', 'មន្ទីរពេទ្យ', 'ធនាគារ', 'ភោជនីយដ្ឋាន'],
-      // Week 26
-      ['កូន', 'ឪពុក', 'ម្តាយ', 'បង', 'ប្អូន', 'ជីដូន', 'ជីតា'],
-      // Week 27
-      ['បក្សី', 'ត្រី', 'ដំរី', 'សេះ', 'ក្របី', 'គោ', 'ជ្រូក'],
-      
-      // Week 28
-      ['បក្សី', 'ត្រី', 'ដំរី', 'សេះ', 'ក្របី', 'គោ', 'ជ្រូក'],
-      
-      // Week 29
-      ['បក្សី', 'ត្រី', 'ដំរី', 'សេះ', 'ក្របី', 'គោ', 'ជ្រូក'],
-      
-      // Week 30
-      ['បក្សី', 'ត្រី', 'ដំរី', 'សេះ', 'ក្របី', 'គោ', 'ជ្រូក'],
-      
-      // Week 31
-      ['បក្សី', 'ត្រី', 'ដំរី', 'សេះ', 'ក្របី', 'គោ', 'ជ្រូក'],
-      
-      // Week 32
-      ['បក្សី', 'ត្រី', 'ដំរី', 'សេះ', 'ក្របី', 'គោ', 'ជ្រូក'],
-      
-      ['កូន', 'ឪពុក', 'ម្តាយ', 'បង', 'ប្អូន', 'ជីដូន', 'ជីតា'],
-      // Week 33
-      ['បក្សី', 'ត្រី', 'ដំរី', 'សេះ', 'ក្របី', 'គោ', 'ជ្រូក'],
-      
-      // Week 34
-      ['បក្សី', 'ត្រី', 'ដំរី', 'សេះ', 'ក្របី', 'គោ', 'ជ្រូក'],
-      
-      // Week 35
-      ['បក្សី', 'ត្រី', 'ដំរី', 'សេះ', 'ក្របី', 'គោ', 'ជ្រូក'],
-      
-      // Week 36
-      ['បក្សី', 'ត្រី', 'ដំរី', 'សេះ', 'ក្របី', 'គោ', 'ជ្រូក'],
-      
-      // Week 37
-      ['បក្សី', 'ត្រី', 'ដំរី', 'សេះ', 'ក្របី', 'គោ', 'ជ្រូក'],
-    ];
-    // Fill remaining weeks with patterned words
-    for (let w = 6; w <= WEEK_COUNT; w++) {
-      const weekWords = [];
-      for (let i = 1; i <= WORDS_PER_WEEK; i++) {
-        weekWords.push(`ពាក្យ${w}-${i}`);
-      }
-      sampleWords.push(weekWords);
-    }
-    return sampleWords;
-  }
+  // Week 1: 15 consonants, Week 2: 18 consonants (using Khmer consonant names + image/sound placeholders)
+  const week1Consonants = [
+    'ក', 'ខ', 'គ', 'ឃ', 'ង',
+    'ច', 'ឆ', 'ជ', 'ឈ', 'ញ',
+    'ដ', 'ឋ', 'ឌ', 'ឍ', 'ណ'
+  ];
+  const week2Consonants = [
+    'ត', 'ថ', 'ទ', 'ធ', 'ន',
+    'ប', 'ផ', 'ព', 'ភ', 'ម',
+    'យ', 'រ', 'ល', 'វ', 'ស',
+    'ហ', 'ឡ', 'អ'
+  ];
 
-  let weeksData = generateSampleWords();
+  let weeksData = [
+    week1Consonants.map(c => ({ text: c })),
+    week2Consonants.map(c => ({ text: c }))
+  ];
+
   let currentWeek = 0;
   let cards = [];
   let current = 0;
@@ -681,13 +550,12 @@
   function loadWeek(weekIndex) {
     currentWeek = weekIndex;
     const words = weeksData[weekIndex] || [];
-    cards = words.map(text => ({ text }));
+    cards = words.map(item => typeof item === 'string' ? { text: item } : item);
     current = 0;
     renderCards();
     updateWeekUI();
     syncAdminList();
     document.getElementById('weekDisplay').textContent = `សប្តាហ៍ទី ${weekIndex+1}`;
-    // update dropdowns
     document.getElementById('weekDropdown').value = weekIndex;
     document.getElementById('adminWeekDropdown').value = weekIndex;
   }
@@ -697,16 +565,23 @@
     const stack = document.getElementById("stack");
     stack.innerHTML = "";
     if(cards.length === 0){
-      stack.innerHTML = `<div class="empty">មិនមានបណ្ណពាក្យ</div>`;
+      stack.innerHTML = `<div class="empty">មិនមានបណ្ណព្យញ្ជនៈ</div>`;
       updateWordCounter();
       return;
     }
     const c = cards[current];
     const card = document.createElement("div");
     card.className = "card";
+    // Build content: consonant with image and sound (placeholders)
+    // Each card shows the consonant + small icons indicating image/sound
     card.innerHTML = `
       <div class="face">
-        <div class="text">${c.text}</div>
+        <div class="text">
+          <div style="font-size:var(--card-font-size); line-height:1.4;">${c.text}</div>
+          <div style="font-size:12px; color:#8899aa; margin-top:8px; display:flex; gap:12px; justify-content:center;">
+            <span>🖼️</span><span>🔊</span>
+          </div>
+        </div>
       </div>
     `;
     let startX = 0;
@@ -739,17 +614,6 @@
   }
 
   // ============ CARD OPERATIONS ============
-  function addCard(text){
-    const t = (text || document.getElementById("frontInput").value).trim();
-    if(!t) return;
-    cards.push({ text:t });
-    current = cards.length - 1;
-    document.getElementById("frontInput").value = "";
-    weeksData[currentWeek] = cards.map(c => c.text);
-    renderCards();
-    syncAdminList();
-  }
-
   function deleteCard(){
     if(!cards.length) return;
     cards.splice(current,1);
@@ -795,7 +659,6 @@
       loadWeek(parseInt(this.value));
     });
 
-    // Admin dropdown
     const adminDropdown = document.getElementById('adminWeekDropdown');
     adminDropdown.innerHTML = '';
     for (let i = 0; i < WEEK_COUNT; i++) {
@@ -895,7 +758,7 @@
   }
 
   function updateWordCounter() {
-    document.getElementById('wordCounter').textContent = `សរុប: ${cards.length} ពាក្យ`;
+    document.getElementById('wordCounter').textContent = `សរុប: ${cards.length}`;
   }
 
   saveAllBtn.addEventListener('click', () => {
@@ -917,9 +780,6 @@
     }, 1400);
   });
 
-  document.getElementById('frontInput').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') addCard();
-  });
   document.getElementById('adminNewWord').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') adminAddWord();
   });
@@ -928,7 +788,6 @@
   loadWeek(0);
   updateWeekUI();
 
-  window.addCard = addCard;
   window.deleteCard = deleteCard;
   window.randomCard = randomCard;
   window.next = next;
