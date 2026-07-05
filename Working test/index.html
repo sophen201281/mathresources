@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Weekly Flashcards · 37 Weeks</title>
+  <!-- Google Font: Battambang (Khmer) -->
+  <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@100;300;400;700;900&display=swap" rel="stylesheet">
   <style>
     :root{
       --card-font-size: 28px;
@@ -14,7 +16,7 @@
     }
     *{ box-sizing:border-box; margin:0; padding:0; }
     body{
-      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+      font-family: 'Battambang', 'Segoe UI', Roboto, system-ui, sans-serif;
       background:#eef3ff;
       display:flex;
       flex-direction:column;
@@ -32,6 +34,7 @@
       gap:10px;
       flex-wrap:wrap;
       justify-content:center;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
     .week-selector{
       display:flex;
@@ -44,12 +47,14 @@
       padding:6px 14px;
       border-radius:40px;
       box-shadow:0 2px 8px rgba(0,0,0,0.04);
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
     .week-selector label{
       font-size:14px;
       color:#445566;
       font-weight:500;
       white-space:nowrap;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
     .week-selector select{
       padding:8px 14px;
@@ -65,6 +70,7 @@
       flex:1;
       max-width:220px;
       appearance:auto;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
     .week-selector select:focus{
       border-color:var(--accent);
@@ -107,6 +113,7 @@
       word-break:break-word;
       max-width:90%;
       line-height:1.3;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
     .card::before, .card::after{
       position:absolute;
@@ -121,6 +128,7 @@
       pointer-events:none;
       z-index:3;
       font-weight:300;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
     .card::before{ content:"◀"; left:0; }
     .card::after{ content:"▶"; right:0; }
@@ -143,6 +151,7 @@
       font-size:16px;
       background:white;
       transition:border .2s;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
     .controls input:focus{
       outline:none;
@@ -160,6 +169,7 @@
       font-size:16px;
       cursor:pointer;
       transition:background .2s;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
     .add-btn:hover{ background:#3a57d6; }
     .add-btn:active{ transform:scale(0.98); }
@@ -174,10 +184,12 @@
       border-radius:40px;
       box-shadow:0 2px 8px rgba(0,0,0,0.04);
       justify-content:center;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
     .font-control label{
       font-size:14px;
       color:#445566;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
     .font-control input[type="range"]{
       flex:1;
@@ -202,6 +214,7 @@
       transition:all .2s;
       border:1px solid transparent;
       flex:1 0 auto;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
     .nav button:hover{
       background:#f0f4ff;
@@ -220,6 +233,7 @@
       color:#8899aa;
       font-size:18px;
       font-style:italic;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
 
     /* ---- ADMIN PANEL (bottom sheet) ---- */
@@ -242,6 +256,7 @@
       transition:all .3s;
       white-space:nowrap;
       letter-spacing:0.3px;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
     .admin-toggle:hover{
       background:rgba(50,70,85,0.95);
@@ -273,6 +288,7 @@
       border-radius:24px 24px 0 0;
       box-shadow:0 -4px 30px rgba(0,0,0,0.3);
       border-top:2px solid #6a7f8f;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
     .admin-panel.open{ bottom:0; }
     .admin-header{
@@ -290,6 +306,7 @@
       font-weight:500;
       letter-spacing:0.5px;
       color:#f5e9da;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
     .close-panel{
       background:rgba(255,255,255,0.08);
@@ -327,6 +344,7 @@
       align-items:center;
       flex-wrap:wrap;
       gap:6px;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
     .admin-week-selector{
       display:flex;
@@ -336,6 +354,7 @@
     .admin-week-selector label{
       font-size:13px;
       color:rgba(255,255,255,0.6);
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
     .admin-week-selector select{
       padding:4px 10px;
@@ -346,6 +365,7 @@
       font-size:13px;
       cursor:pointer;
       outline:none;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
     .admin-week-selector select:focus{
       border-color:#8ba0b0;
@@ -370,6 +390,7 @@
       font-size:15px;
       outline:none;
       transition:border .2s;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
     .word-entry input:focus{
       border-color:#8ba0b0;
@@ -411,6 +432,7 @@
       color:white;
       font-size:15px;
       outline:none;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
     .add-word-row input:focus{
       border-color:#8ba0b0;
@@ -425,6 +447,7 @@
       font-weight:600;
       cursor:pointer;
       transition:background .2s;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
     .add-word-row button:hover{ background:#3a57d6; }
     .save-all-btn{
@@ -440,6 +463,7 @@
       transition:all .25s;
       margin-top:4px;
       letter-spacing:0.5px;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
     .save-all-btn:hover{
       background:#3a5f73;
@@ -452,6 +476,7 @@
       color:rgba(255,255,255,0.5);
       text-align:right;
       margin-top:4px;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
     .admin-panel::-webkit-scrollbar{ width:4px; }
     .admin-panel::-webkit-scrollbar-track{ background:transparent; }
@@ -461,6 +486,7 @@
       font-size:14px;
       color:rgba(255,255,255,0.6);
       margin-right:8px;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
   </style>
 </head>
@@ -468,7 +494,7 @@
 
 <h2>
   <span>📚 បណ្ណពាក្យ</span>
-  <span style="font-size:16px;font-weight:300;color:#667;" id="weekDisplay">សប្តាហ៍ទី 1</span>
+  <span style="font-size:16px;font-weight:300;color:#667;font-family:'Battambang','Segoe UI',system-ui,sans-serif;" id="weekDisplay">សប្តាហ៍ទី 1</span>
 </h2>
 
 <div class="week-selector">
@@ -487,7 +513,7 @@
   <div class="font-control">
     <label>🔤 ទំហំ</label>
     <input type="range" min="16" max="100" value="28" oninput="changeFontSize(this.value)">
-    <span id="fontSizeLabel" style="min-width:32px;font-size:14px;">28</span>
+    <span id="fontSizeLabel" style="min-width:32px;font-size:14px;font-family:'Battambang','Segoe UI',system-ui,sans-serif;">28</span>
   </div>
 
   <div class="nav">
@@ -712,7 +738,6 @@
     adminToggle.textContent = '✕ បិទ';
     document.body.style.overflow = 'hidden';
     syncAdminList();
-    // sync admin dropdown
     document.getElementById('adminWeekDropdown').value = currentWeek;
   }
   function closeAdmin() {
