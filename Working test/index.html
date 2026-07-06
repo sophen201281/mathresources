@@ -78,6 +78,40 @@
       border-color:var(--accent);
       box-shadow:0 0 0 3px rgba(74,108,247,0.12);
     }
+    /* sound button inside week-selector */
+    .sound-toggle-btn {
+      background: rgba(240, 244, 250, 0.9);
+      border: 1px solid #ccd7e6;
+      border-radius: 40px;
+      padding: 6px 14px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #1f2e3a;
+      transition: all 0.2s;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+      white-space: nowrap;
+    }
+    .sound-toggle-btn:hover {
+      background: white;
+      border-color: #a0b8d0;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      transform: translateY(-1px);
+    }
+    .sound-toggle-btn:active {
+      transform: scale(0.96);
+    }
+    .sound-toggle-btn.muted {
+      opacity: 0.6;
+      background: #eef0f2;
+    }
+    .sound-toggle-btn .icon { font-size: 18px; line-height: 1; }
+    .sound-toggle-btn .label { font-size: 13px; }
+
     .stack{
       position:relative;
       width:min(360px,90vw);
@@ -230,37 +264,7 @@
       margin-right: 5%;
     }
 
-    /* sound button removed from card, now placed in nav */
-    .sound-nav-btn {
-      background: white;
-      border: none;
-      border-radius: 40px;
-      padding: 10px 16px;
-      font-size: 14px;
-      font-weight: 500;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-      cursor: pointer;
-      transition: all 0.2s;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      color: #1f2e3a;
-      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
-      border: 1px solid transparent;
-      flex: 1 0 auto;
-    }
-    .sound-nav-btn:hover {
-      background: #f0f4ff;
-      border-color: #ccd7e6;
-      transform: translateY(-1px);
-    }
-    .sound-nav-btn:active { transform: scale(0.96); }
-    .sound-nav-btn.muted {
-      opacity: 0.6;
-      background: #eef0f2;
-    }
-    .sound-nav-btn .icon { font-size: 18px; line-height: 1; }
-    .sound-nav-btn .label { font-size: 13px; font-weight: 500; }
+    /* old sound-btn removed from card */
   </style>
 </head>
 <body>
@@ -273,19 +277,19 @@
 <!-- stack (cards) -->
 <div class="stack" id="stack"></div>
 
-<!-- week selector with new labels -->
+<!-- week selector with integrated sound button -->
 <div class="week-selector">
   <label for="weekDropdown">ក្រុមព្យញ្ជន:</label>
   <select id="weekDropdown"></select>
+  <!-- sound button moved here -->
+  <button class="sound-toggle-btn" id="globalSoundToggle">
+    <span class="icon">🔊</span>
+    <span class="label">សំឡេង</span>
+  </button>
 </div>
 
 <div class="bottom-controls">
   <div class="nav">
-    <!-- Sound button moved here, next to random button -->
-    <button class="sound-nav-btn" id="soundNavBtn">
-      <span class="icon">🔊</span>
-      <span class="label">សំឡេង</span>
-    </button>
     <button onclick="randomCard()">🎲 ក្រឡុក</button>
     <button onclick="deleteCard()">🗑 លុប</button>
     <button onclick="window.location.href='../index.html'" class="homeBtn">🏡 Home</button>
@@ -358,6 +362,7 @@
     const label = weekIndex === 0 ? 'ពួក អ' : 'ពួក អ៝';
     document.getElementById('weekDisplay').textContent = label;
     document.getElementById('weekDropdown').value = weekIndex;
+    updateSoundButtonUI();
   }
 
   // ============ RENDER ============
@@ -381,7 +386,6 @@
       imageHtml = '🖼️';
     }
     
-    // sound button removed from card
     card.innerHTML = `
       <div class="face">
         <div class="consonant-area" style="color:${textColor};">${c.text}</div>
@@ -389,7 +393,7 @@
       </div>
     `;
     
-    // card click plays sound (if enabled)
+    // Click on card plays sound if enabled
     card.addEventListener('click', function(e) {
       if (soundEnabled && cards[current] && cards[current].sound) {
         playSound(cards[current].sound);
@@ -416,7 +420,6 @@
     },{passive:true});
     
     stack.appendChild(card);
-    updateSoundButtonUI();
   }
 
   // ============ SOUND ============
@@ -478,28 +481,10 @@
     }
   }
 
-  // ============ SOUND BUTTON UI (in nav) ============
-  function updateSoundButtonUI() {
-    const btn = document.getElementById('soundNavBtn');
-    if (!btn) return;
-    const icon = btn.querySelector('.icon');
-    const label = btn.querySelector('.label');
-    if (soundEnabled) {
-      btn.classList.remove('muted');
-      icon.textContent = '🔊';
-      label.textContent = 'សំឡេង';
-    } else {
-      btn.classList.add('muted');
-      icon.textContent = '🔇';
-      label.textContent = 'បិទ';
-    }
-  }
-
   // ============ WEEK UI ============
   function updateWeekUI() {
     const dropdown = document.getElementById('weekDropdown');
     dropdown.innerHTML = '';
-    // use new labels: "ពួក អ" and "ពួក អ៝"
     const labels = ['ពួក អ', 'ពួក អ៝'];
     for (let i = 0; i < WEEK_COUNT; i++) {
       const option = document.createElement('option');
@@ -508,35 +493,63 @@
       dropdown.appendChild(option);
     }
     dropdown.value = currentWeek;
-    dropdown.addEventListener('change', function() {
+    // remove old listeners to avoid duplicates
+    const newDropdown = dropdown.cloneNode(true);
+    dropdown.parentNode.replaceChild(newDropdown, dropdown);
+    newDropdown.addEventListener('change', function() {
       loadWeek(parseInt(this.value));
     });
+    // re-bind global sound toggle
+    const soundBtn = document.getElementById('globalSoundToggle');
+    if (soundBtn) {
+      const newBtn = soundBtn.cloneNode(true);
+      soundBtn.parentNode.replaceChild(newBtn, soundBtn);
+      newBtn.addEventListener('click', toggleSound);
+    }
   }
 
-  // ============ INIT ============
-  loadWeek(0);
-  updateWeekUI();
-
-  // Attach sound nav button listener
-  document.getElementById('soundNavBtn').addEventListener('click', function(e) {
-    e.stopPropagation();
+  // ============ GLOBAL SOUND TOGGLE ============
+  function toggleSound() {
     soundEnabled = !soundEnabled;
     if (!soundEnabled && currentAudio) {
       currentAudio.pause();
       currentAudio = null;
     }
     updateSoundButtonUI();
-    // If sound is re-enabled and there's a current card, play it
-    if (soundEnabled && cards[current] && cards[current].sound) {
+    // if sound enabled and a card is visible, play its sound
+    if (soundEnabled && cards.length > 0 && cards[current] && cards[current].sound) {
       playSound(cards[current].sound);
     }
-  });
+  }
 
+  function updateSoundButtonUI() {
+    const btn = document.getElementById('globalSoundToggle');
+    if (!btn) return;
+    const icon = btn.querySelector('.icon');
+    const label = btn.querySelector('.label');
+    if (soundEnabled) {
+      icon.textContent = '🔊';
+      label.textContent = 'សំឡេង';
+      btn.classList.remove('muted');
+    } else {
+      icon.textContent = '🔇';
+      label.textContent = 'បិទ';
+      btn.classList.add('muted');
+    }
+  }
+
+  // ============ INIT ============
+  loadWeek(0);
+  // initial UI update for sound button
+  updateSoundButtonUI();
+
+  // Expose functions globally
   window.deleteCard = deleteCard;
   window.randomCard = randomCard;
   window.next = next;
   window.prev = prev;
   window.loadWeek = loadWeek;
+  window.toggleSound = toggleSound;
 </script>
 
 </body>
