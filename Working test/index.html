@@ -103,7 +103,6 @@
       box-shadow:0 10px 25px rgba(0,0,0,.12);
       background:white;
     }
-    /* Consonant on the left, image on the right — both closer to the middle */
     .consonant-area{
       flex: 0 0 auto;
       font-size: var(--card-font-size);
@@ -111,7 +110,7 @@
       line-height: 1.2;
       min-width: 60px;
       text-align: center;
-      margin-right: 4px;        /* small gap between consonant and image */
+      margin-right: 4px;
       margin-left: 5%;
       order: 1;
     }
@@ -129,7 +128,7 @@
       border: 1px dashed #ccd7e6;
       transition: all 0.2s;
       order: 2;
-      margin-left: 4px;         /* small gap between image and consonant */
+      margin-left: 4px;
       margin-right: 5%;
     }
     .image-area img {
@@ -476,7 +475,6 @@
       margin-right:8px;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
-    /* ensure consonant on left, image on right, both closer to middle */
     .face {
       justify-content: center;
     }
@@ -489,6 +487,40 @@
       margin-left: 4px;
       margin-right: 5%;
     }
+
+    /* Sound button */
+    .sound-btn {
+      position: absolute;
+      bottom: 12px;
+      right: 16px;
+      background: rgba(255,255,255,0.85);
+      border: none;
+      border-radius: 40px;
+      padding: 6px 14px;
+      font-size: 18px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      cursor: pointer;
+      z-index: 10;
+      backdrop-filter: blur(4px);
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #1f2e3a;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+    }
+    .sound-btn:hover {
+      background: white;
+      transform: scale(1.04);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    }
+    .sound-btn:active { transform: scale(0.95); }
+    .sound-btn.muted {
+      opacity: 0.5;
+      background: rgba(200,200,200,0.6);
+    }
+    .sound-btn .icon { font-size: 20px; line-height: 1; }
+    .sound-btn .label { font-size: 13px; font-weight: 500; }
   </style>
 </head>
 <body>
@@ -555,9 +587,6 @@
   // ============ DATA ============
   const WEEK_COUNT = 2;
 
-  // Week 1: 15 consonants (blue), Week 2: 18 consonants (red)
-  // Each consonant has unique image and sound (different per consonant)
-  // IMAGES and SOUNDS are explicitly placed in 'image/' and 'sound/' folders
   const week1Consonants = [
     { text: 'ក', image: 'image/ក.png', sound: 'sound/ក.m4a' },
     { text: 'ខ', image: 'image/image_b.jpg', sound: 'sound/sound_b.mp3' },
@@ -605,6 +634,10 @@
   let cards = [];
   let current = 0;
 
+  // Sound state
+  let soundEnabled = true;
+  let currentAudio = null;
+
   // ============ LOAD WEEK ============
   function loadWeek(weekIndex) {
     currentWeek = weekIndex;
@@ -634,7 +667,6 @@
     
     const textColor = currentWeek === 0 ? '#1a5bbf' : '#c0392b';
     
-    // Build image HTML: if image path exists, show img, else placeholder
     let imageHtml = '';
     if (c.image && c.image.trim() !== '') {
       imageHtml = `<img src="${c.image}" alt="image" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`;
@@ -642,14 +674,53 @@
       imageHtml = '🖼️';
     }
     
+    // Sound button (on/off toggle)
+    const soundIcon = soundEnabled ? '🔊' : '🔇';
+    const soundLabel = soundEnabled ? 'សំឡេង' : 'បិទ';
+    const mutedClass = soundEnabled ? '' : 'muted';
+    
     card.innerHTML = `
       <div class="face">
         <div class="consonant-area" style="color:${textColor};">${c.text}</div>
         <div class="image-area">${imageHtml}</div>
       </div>
+      <button class="sound-btn ${mutedClass}" id="soundToggleBtn" data-sound="${c.sound || ''}">
+        <span class="icon">${soundIcon}</span>
+        <span class="label">${soundLabel}</span>
+      </button>
     `;
     
-    // Click/touch handling for navigation
+    // Sound toggle button logic
+    const soundBtn = card.querySelector('#soundToggleBtn');
+    if (soundBtn) {
+      soundBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        // Toggle global sound state
+        soundEnabled = !soundEnabled;
+        // Update all sound buttons (just re-render)
+        renderCards();
+        // If sound disabled, stop any playing audio
+        if (!soundEnabled && currentAudio) {
+          currentAudio.pause();
+          currentAudio = null;
+        }
+        // If sound enabled, play current card sound
+        if (soundEnabled && cards[current] && cards[current].sound) {
+          playSound(cards[current].sound);
+        }
+      });
+      
+      // Also play sound on card click (if enabled)
+      card.addEventListener('click', function(e) {
+        // Ignore if clicked on sound button (already handled)
+        if (e.target.closest('.sound-btn')) return;
+        if (soundEnabled && cards[current] && cards[current].sound) {
+          playSound(cards[current].sound);
+        }
+      });
+    }
+    
+    // Touch navigation (keep existing)
     let startX = 0;
     card.addEventListener("touchstart",(e)=>{
       startX = e.touches[0].clientX;
@@ -668,20 +739,33 @@
       if(x < w*0.2) prev();
       else if(x > w*0.8) next();
     },{passive:true});
-    card.addEventListener("click",(e)=>{
-      const rect = card.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const w = rect.width;
-      if(x < w*0.2) prev();
-      else if(x > w*0.8) next();
-    });
+    
     stack.appendChild(card);
     updateWordCounter();
+  }
+
+  // ============ SOUND ============
+  function playSound(src) {
+    if (!soundEnabled) return;
+    if (!src) return;
+    try {
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+      }
+      const audio = new Audio(src);
+      audio.play().catch(err => console.warn('Sound play error:', err));
+      currentAudio = audio;
+      audio.onended = () => { currentAudio = null; };
+    } catch(e) {
+      console.warn('Sound error:', e);
+    }
   }
 
   // ============ CARD OPERATIONS ============
   function deleteCard(){
     if(!cards.length) return;
+    if (currentAudio) { currentAudio.pause(); currentAudio = null; }
     cards.splice(current,1);
     if(current >= cards.length) current = cards.length-1;
     if(current < 0) current = 0;
@@ -696,13 +780,29 @@
     do{ r = Math.floor(Math.random()*cards.length); }while(r === current);
     current = r;
     renderCards();
+    // Auto-play sound on random if enabled
+    if (soundEnabled && cards[current] && cards[current].sound) {
+      playSound(cards[current].sound);
+    }
   }
 
   function next(){
-    if(current < cards.length-1){ current++; renderCards(); }
+    if(current < cards.length-1){ 
+      current++; 
+      renderCards();
+      if (soundEnabled && cards[current] && cards[current].sound) {
+        playSound(cards[current].sound);
+      }
+    }
   }
   function prev(){
-    if(current > 0){ current--; renderCards(); }
+    if(current > 0){ 
+      current--; 
+      renderCards();
+      if (soundEnabled && cards[current] && cards[current].sound) {
+        playSound(cards[current].sound);
+      }
+    }
   }
 
   function changeFontSize(v){
@@ -857,7 +957,6 @@
   }
 
   saveAllBtn.addEventListener('click', () => {
-    // Save all changes from admin inputs
     document.querySelectorAll('.admin-word-input').forEach(inp => {
       const idx = parseInt(inp.dataset.index, 10);
       const val = inp.value.trim();
