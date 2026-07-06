@@ -230,38 +230,37 @@
       margin-right: 5%;
     }
 
-    .sound-btn {
-      position: absolute;
-      bottom: 12px;
-      right: 16px;
-      background: rgba(255,255,255,0.85);
+    /* sound button removed from card, now placed in nav */
+    .sound-nav-btn {
+      background: white;
       border: none;
       border-radius: 40px;
-      padding: 6px 14px;
-      font-size: 18px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
       cursor: pointer;
-      z-index: 10;
-      backdrop-filter: blur(4px);
       transition: all 0.2s;
-      display: flex;
+      display: inline-flex;
       align-items: center;
       gap: 6px;
       color: #1f2e3a;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+      border: 1px solid transparent;
+      flex: 1 0 auto;
     }
-    .sound-btn:hover {
-      background: white;
-      transform: scale(1.04);
-      box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    .sound-nav-btn:hover {
+      background: #f0f4ff;
+      border-color: #ccd7e6;
+      transform: translateY(-1px);
     }
-    .sound-btn:active { transform: scale(0.95); }
-    .sound-btn.muted {
-      opacity: 0.5;
-      background: rgba(200,200,200,0.6);
+    .sound-nav-btn:active { transform: scale(0.96); }
+    .sound-nav-btn.muted {
+      opacity: 0.6;
+      background: #eef0f2;
     }
-    .sound-btn .icon { font-size: 20px; line-height: 1; }
-    .sound-btn .label { font-size: 13px; font-weight: 500; }
+    .sound-nav-btn .icon { font-size: 18px; line-height: 1; }
+    .sound-nav-btn .label { font-size: 13px; font-weight: 500; }
   </style>
 </head>
 <body>
@@ -282,6 +281,11 @@
 
 <div class="bottom-controls">
   <div class="nav">
+    <!-- Sound button moved here, next to random button -->
+    <button class="sound-nav-btn" id="soundNavBtn">
+      <span class="icon">🔊</span>
+      <span class="label">សំឡេង</span>
+    </button>
     <button onclick="randomCard()">🎲 ក្រឡុក</button>
     <button onclick="deleteCard()">🗑 លុប</button>
     <button onclick="window.location.href='../index.html'" class="homeBtn">🏡 Home</button>
@@ -377,43 +381,20 @@
       imageHtml = '🖼️';
     }
     
-    const soundIcon = soundEnabled ? '🔊' : '🔇';
-    const soundLabel = soundEnabled ? 'សំឡេង' : 'បិទ';
-    const mutedClass = soundEnabled ? '' : 'muted';
-    
+    // sound button removed from card
     card.innerHTML = `
       <div class="face">
         <div class="consonant-area" style="color:${textColor};">${c.text}</div>
         <div class="image-area">${imageHtml}</div>
       </div>
-      <button class="sound-btn ${mutedClass}" id="soundToggleBtn" data-sound="${c.sound || ''}">
-        <span class="icon">${soundIcon}</span>
-        <span class="label">${soundLabel}</span>
-      </button>
     `;
     
-    const soundBtn = card.querySelector('#soundToggleBtn');
-    if (soundBtn) {
-      soundBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        soundEnabled = !soundEnabled;
-        renderCards();
-        if (!soundEnabled && currentAudio) {
-          currentAudio.pause();
-          currentAudio = null;
-        }
-        if (soundEnabled && cards[current] && cards[current].sound) {
-          playSound(cards[current].sound);
-        }
-      });
-      
-      card.addEventListener('click', function(e) {
-        if (e.target.closest('.sound-btn')) return;
-        if (soundEnabled && cards[current] && cards[current].sound) {
-          playSound(cards[current].sound);
-        }
-      });
-    }
+    // card click plays sound (if enabled)
+    card.addEventListener('click', function(e) {
+      if (soundEnabled && cards[current] && cards[current].sound) {
+        playSound(cards[current].sound);
+      }
+    });
     
     let startX = 0;
     card.addEventListener("touchstart",(e)=>{
@@ -435,6 +416,7 @@
     },{passive:true});
     
     stack.appendChild(card);
+    updateSoundButtonUI();
   }
 
   // ============ SOUND ============
@@ -496,6 +478,23 @@
     }
   }
 
+  // ============ SOUND BUTTON UI (in nav) ============
+  function updateSoundButtonUI() {
+    const btn = document.getElementById('soundNavBtn');
+    if (!btn) return;
+    const icon = btn.querySelector('.icon');
+    const label = btn.querySelector('.label');
+    if (soundEnabled) {
+      btn.classList.remove('muted');
+      icon.textContent = '🔊';
+      label.textContent = 'សំឡេង';
+    } else {
+      btn.classList.add('muted');
+      icon.textContent = '🔇';
+      label.textContent = 'បិទ';
+    }
+  }
+
   // ============ WEEK UI ============
   function updateWeekUI() {
     const dropdown = document.getElementById('weekDropdown');
@@ -517,6 +516,21 @@
   // ============ INIT ============
   loadWeek(0);
   updateWeekUI();
+
+  // Attach sound nav button listener
+  document.getElementById('soundNavBtn').addEventListener('click', function(e) {
+    e.stopPropagation();
+    soundEnabled = !soundEnabled;
+    if (!soundEnabled && currentAudio) {
+      currentAudio.pause();
+      currentAudio = null;
+    }
+    updateSoundButtonUI();
+    // If sound is re-enabled and there's a current card, play it
+    if (soundEnabled && cards[current] && cards[current].sound) {
+      playSound(cards[current].sound);
+    }
+  });
 
   window.deleteCard = deleteCard;
   window.randomCard = randomCard;
