@@ -103,7 +103,7 @@
       box-shadow:0 10px 25px rgba(0,0,0,.12);
       background:white;
     }
-    /* Consonant on the left, image on the right, both in middle half */
+    /* Consonant on the left, image on the right — both closer to the middle */
     .consonant-area{
       flex: 0 0 auto;
       font-size: var(--card-font-size);
@@ -111,7 +111,7 @@
       line-height: 1.2;
       min-width: 60px;
       text-align: center;
-      margin-right: auto;  /* push image to the right */
+      margin-right: 4px;        /* small gap between consonant and image */
       margin-left: 5%;
       order: 1;
     }
@@ -129,6 +129,7 @@
       border: 1px dashed #ccd7e6;
       transition: all 0.2s;
       order: 2;
+      margin-left: 4px;         /* small gap between image and consonant */
       margin-right: 5%;
     }
     .image-area img {
@@ -475,17 +476,17 @@
       margin-right:8px;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
-    /* ensure consonant on left, image on right, both in middle half */
+    /* ensure consonant on left, image on right, both closer to middle */
     .face {
       justify-content: center;
     }
     .consonant-area {
-      margin-right: auto;
+      margin-right: 4px;
       margin-left: 5%;
       text-align: center;
     }
     .image-area {
-      margin-left: auto;
+      margin-left: 4px;
       margin-right: 5%;
     }
   </style>
