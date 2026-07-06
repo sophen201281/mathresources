@@ -7,24 +7,30 @@
   <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@100;300;400;700;900&display=swap" rel="stylesheet">
   <style>
     :root{
-      --card-font-size: 82px;  /* bigger for consonants */
+      --card-font-size: 82px;
       --panel-bg: #1f2e3a;
       --panel-text: #f0ede5;
       --accent: #4a6cf7;
       --radius: 14px;
     }
     *{ box-sizing:border-box; margin:0; padding:0; }
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
     body{
       font-family: 'Battambang', 'Segoe UI', Roboto, system-ui, sans-serif;
       background:#eef3ff;
       display:flex;
       flex-direction:column;
       align-items:center;
-      padding:20px 12px 40px;
+      justify-content:center;
+      padding:12px;
       min-height:100vh;
+      height:100%;
     }
     h2{
-      margin-bottom:6px;
+      margin-bottom:2px;
       font-weight:400;
       color:#1f2e3a;
       letter-spacing:1px;
@@ -34,21 +40,23 @@
       flex-wrap:wrap;
       justify-content:center;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+      font-size:1.6rem;
     }
     .week-selector{
       display:flex;
       gap:8px;
       align-items:center;
-      margin-top: 18px;
-      margin-bottom: 10px;
+      margin-top: 8px;
+      margin-bottom: 6px;
       width:min(360px,90vw);
       justify-content:center;
       background:white;
-      padding:8px 16px;
+      padding:6px 16px;
       border-radius:40px;
       box-shadow:0 2px 8px rgba(0,0,0,0.04);
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
       flex-wrap: wrap;
+      flex-shrink:0;
     }
     .week-selector label{
       font-size:15px;
@@ -58,7 +66,7 @@
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
     .week-selector select{
-      padding:8px 14px;
+      padding:6px 12px;
       border:1px solid #ccd7e6;
       border-radius:30px;
       background:white;
@@ -69,8 +77,8 @@
       outline:none;
       transition:border .2s;
       flex:1;
-      min-width:120px;
-      max-width:220px;
+      min-width:100px;
+      max-width:180px;
       appearance:auto;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
@@ -78,23 +86,23 @@
       border-color:var(--accent);
       box-shadow:0 0 0 3px rgba(74,108,247,0.12);
     }
-    /* sound button inside week-selector */
     .sound-toggle-btn {
       background: rgba(240, 244, 250, 0.9);
       border: 1px solid #ccd7e6;
       border-radius: 40px;
-      padding: 6px 14px;
-      font-size: 16px;
+      padding: 4px 12px;
+      font-size: 15px;
       font-weight: 500;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
       color: #1f2e3a;
       transition: all 0.2s;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
       box-shadow: 0 2px 6px rgba(0,0,0,0.03);
       white-space: nowrap;
+      flex-shrink:0;
     }
     .sound-toggle-btn:hover {
       background: white;
@@ -117,7 +125,8 @@
       width:min(360px,90vw);
       height:260px;
       perspective:1400px;
-      margin-bottom:10px;
+      margin-bottom:6px;
+      flex-shrink:0;
     }
     .card{
       position:absolute;
@@ -136,7 +145,7 @@
       display:flex;
       align-items:center;
       justify-content:space-between;
-      padding:20px 30px;
+      padding:20px 20px;
       box-shadow:0 10px 25px rgba(0,0,0,.12);
       background:white;
     }
@@ -195,19 +204,20 @@
     .bottom-controls{
       width:min(360px,90vw);
       margin-top:4px;
+      flex-shrink:0;
     }
     .font-control{
-      display:none;  /* hidden */
+      display:none;
     }
     .nav{
       display:flex;
       gap:8px;
       flex-wrap:wrap;
       justify-content:center;
-      margin-top: 6px;
+      margin-top: 4px;
     }
     .nav button{
-      padding:10px 16px;
+      padding:8px 14px;
       border:none;
       background:white;
       color:#1f2e3a;
@@ -264,7 +274,20 @@
       margin-right: 5%;
     }
 
-    /* old sound-btn removed from card */
+    /* no scroll, everything fits */
+    @media (max-height: 700px) {
+      .stack { height: 200px; }
+      .consonant-area { font-size: 64px; }
+      .image-area { width: 80px; height: 80px; }
+      h2 { font-size: 1.2rem; }
+    }
+    @media (max-height: 550px) {
+      .stack { height: 160px; }
+      .consonant-area { font-size: 48px; }
+      .image-area { width: 60px; height: 60px; }
+      .week-selector { padding: 4px 10px; }
+      .nav button { padding: 4px 10px; font-size: 12px; }
+    }
   </style>
 </head>
 <body>
@@ -281,7 +304,6 @@
 <div class="week-selector">
   <label for="weekDropdown">ក្រុមព្យញ្ជន:</label>
   <select id="weekDropdown"></select>
-  <!-- sound button moved here -->
   <button class="sound-toggle-btn" id="globalSoundToggle">
     <span class="icon">🔊</span>
     <span class="label">សំឡេង</span>
@@ -358,7 +380,6 @@
     current = 0;
     renderCards();
     updateWeekUI();
-    // update week display label: "ពួក អ" for week0, "ពួក អ៝" for week1
     const label = weekIndex === 0 ? 'ពួក អ' : 'ពួក អ៝';
     document.getElementById('weekDisplay').textContent = label;
     document.getElementById('weekDropdown').value = weekIndex;
@@ -393,7 +414,6 @@
       </div>
     `;
     
-    // Click on card plays sound if enabled
     card.addEventListener('click', function(e) {
       if (soundEnabled && cards[current] && cards[current].sound) {
         playSound(cards[current].sound);
@@ -493,13 +513,11 @@
       dropdown.appendChild(option);
     }
     dropdown.value = currentWeek;
-    // remove old listeners to avoid duplicates
     const newDropdown = dropdown.cloneNode(true);
     dropdown.parentNode.replaceChild(newDropdown, dropdown);
     newDropdown.addEventListener('change', function() {
       loadWeek(parseInt(this.value));
     });
-    // re-bind global sound toggle
     const soundBtn = document.getElementById('globalSoundToggle');
     if (soundBtn) {
       const newBtn = soundBtn.cloneNode(true);
@@ -516,7 +534,6 @@
       currentAudio = null;
     }
     updateSoundButtonUI();
-    // if sound enabled and a card is visible, play its sound
     if (soundEnabled && cards.length > 0 && cards[current] && cards[current].sound) {
       playSound(cards[current].sound);
     }
@@ -540,10 +557,8 @@
 
   // ============ INIT ============
   loadWeek(0);
-  // initial UI update for sound button
   updateSoundButtonUI();
 
-  // Expose functions globally
   window.deleteCard = deleteCard;
   window.randomCard = randomCard;
   window.next = next;
