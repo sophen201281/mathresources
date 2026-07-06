@@ -1,1 +1,571 @@
-s
+s<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Consonants · 2 weeks</title>
+  <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@100;300;400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --card-font-size: 82px;
+      --panel-bg: #1f2e3a;
+      --panel-text: #f0ede5;
+      --accent: #4a6cf7;
+      --radius: 14px;
+    }
+    *{ box-sizing:border-box; margin:0; padding:0; }
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+    body{
+      font-family: 'Battambang', 'Segoe UI', Roboto, system-ui, sans-serif;
+      background:#eef3ff;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      padding:12px;
+      min-height:100vh;
+      height:100%;
+    }
+    h2{
+      margin-bottom:2px;
+      font-weight:400;
+      color:#1f2e3a;
+      letter-spacing:1px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:center;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+      font-size:1.6rem;
+    }
+    .week-selector{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      margin-top: 8px;
+      margin-bottom: 6px;
+      width:min(360px,90vw);
+      justify-content:center;
+      background:white;
+      padding:6px 16px;
+      border-radius:40px;
+      box-shadow:0 2px 8px rgba(0,0,0,0.04);
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+      flex-wrap: wrap;
+      flex-shrink:0;
+    }
+    .week-selector label{
+      font-size:15px;
+      color:#445566;
+      font-weight:500;
+      white-space:nowrap;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+    }
+    .week-selector select{
+      padding:6px 12px;
+      border:1px solid #ccd7e6;
+      border-radius:30px;
+      background:white;
+      font-size:15px;
+      font-weight:500;
+      color:#1f2e3a;
+      cursor:pointer;
+      outline:none;
+      transition:border .2s;
+      flex:1;
+      min-width:100px;
+      max-width:180px;
+      appearance:auto;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+    }
+    .week-selector select:focus{
+      border-color:var(--accent);
+      box-shadow:0 0 0 3px rgba(74,108,247,0.12);
+    }
+    .sound-toggle-btn {
+      background: rgba(240, 244, 250, 0.9);
+      border: 1px solid #ccd7e6;
+      border-radius: 40px;
+      padding: 4px 12px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: #1f2e3a;
+      transition: all 0.2s;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+      white-space: nowrap;
+      flex-shrink:0;
+    }
+    .sound-toggle-btn:hover {
+      background: white;
+      border-color: #a0b8d0;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      transform: translateY(-1px);
+    }
+    .sound-toggle-btn:active {
+      transform: scale(0.96);
+    }
+    .sound-toggle-btn.muted {
+      opacity: 0.6;
+      background: #eef0f2;
+    }
+    .sound-toggle-btn .icon { font-size: 18px; line-height: 1; }
+    .sound-toggle-btn .label { font-size: 13px; }
+
+    .stack{
+      position:relative;
+      width:min(360px,90vw);
+      height:260px;
+      perspective:1400px;
+      margin-bottom:6px;
+      flex-shrink:0;
+    }
+    .card{
+      position:absolute;
+      width:100%;
+      height:100%;
+      transition:opacity .3s;
+      cursor:pointer;
+      user-select:none;
+    }
+    .card.hidden{ opacity:0; pointer-events:none; }
+    .face{
+      position:absolute;
+      width:100%;
+      height:100%;
+      border-radius:var(--radius);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:20px 20px;
+      box-shadow:0 10px 25px rgba(0,0,0,.12);
+      background:white;
+    }
+    .consonant-area{
+      flex: 0 0 auto;
+      font-size: var(--card-font-size);
+      font-weight: 600;
+      line-height: 1.2;
+      min-width: 60px;
+      text-align: center;
+      margin-right: 4px;
+      margin-left: 5%;
+      order: 1;
+    }
+    .image-area{
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100px;
+      height: 100px;
+      background: #f0f4fa;
+      border-radius: 5px;
+      font-size: 30px;
+      color: #8899aa;
+      border: 1px dashed #ccd7e6;
+      transition: all 0.2s;
+      order: 2;
+      margin-left: 4px;
+      margin-right: 5%;
+    }
+    .image-area img {
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+    .card::before, .card::after{
+      position:absolute;
+      top:0;
+      width:20%;
+      height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:30px;
+      color:rgba(0,0,0,.10);
+      pointer-events:none;
+      z-index:3;
+      font-weight:300;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+    }
+    .card::before{ content:"◀"; left:0; }
+    .card::after{ content:"▶"; right:0; }
+
+    .bottom-controls{
+      width:min(360px,90vw);
+      margin-top:4px;
+      flex-shrink:0;
+    }
+    .font-control{
+      display:none;
+    }
+    .nav{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:center;
+      margin-top: 4px;
+    }
+    .nav button{
+      padding:8px 14px;
+      border:none;
+      background:white;
+      color:#1f2e3a;
+      border-radius:40px;
+      cursor:pointer;
+      font-weight:500;
+      font-size:14px;
+      box-shadow:0 2px 8px rgba(0,0,0,0.04);
+      transition:all .2s;
+      border:1px solid transparent;
+      flex:1 0 auto;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+    }
+    .nav button:hover{
+      background:#f0f4ff;
+      border-color:#ccd7e6;
+      transform:translateY(-1px);
+    }
+    .nav button:active{ transform:scale(0.96); }
+    .homeBtn{
+      background:#eef3ff;
+    }
+    .empty{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      height:100%;
+      color:#8899aa;
+      font-size:18px;
+      font-style:italic;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+    }
+
+    .admin-toggle, .admin-overlay, .admin-panel {
+      display: none !important;
+    }
+
+    .week-label{
+      font-size:14px;
+      color:rgba(255,255,255,0.6);
+      margin-right:8px;
+      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+    }
+    .face {
+      justify-content: center;
+    }
+    .consonant-area {
+      margin-right: 4px;
+      margin-left: 5%;
+      text-align: center;
+    }
+    .image-area {
+      margin-left: 4px;
+      margin-right: 5%;
+    }
+
+    /* no scroll, everything fits */
+    @media (max-height: 700px) {
+      .stack { height: 200px; }
+      .consonant-area { font-size: 64px; }
+      .image-area { width: 80px; height: 80px; }
+      h2 { font-size: 1.2rem; }
+    }
+    @media (max-height: 550px) {
+      .stack { height: 160px; }
+      .consonant-area { font-size: 48px; }
+      .image-area { width: 60px; height: 60px; }
+      .week-selector { padding: 4px 10px; }
+      .nav button { padding: 4px 10px; font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<h2>
+  <span>ព្យញ្ជនៈ</span>
+  <span style="font-size:16px;font-weight:300;color:#667;font-family:'Battambang','Segoe UI',system-ui,sans-serif;" id="weekDisplay">ពួក អ</span>
+</h2>
+
+<!-- stack (cards) -->
+<div class="stack" id="stack"></div>
+
+<!-- week selector with integrated sound button -->
+<div class="week-selector">
+  <label for="weekDropdown">ក្រុមព្យញ្ជន:</label>
+  <select id="weekDropdown"></select>
+  <button class="sound-toggle-btn" id="globalSoundToggle">
+    <span class="icon">🔊</span>
+    <span class="label">សំឡេង</span>
+  </button>
+</div>
+
+<div class="bottom-controls">
+  <div class="nav">
+    <button onclick="randomCard()">🎲 ក្រឡុក</button>
+    <button onclick="deleteCard()">🗑 លុប</button>
+    <button onclick="window.location.href='../index.html'" class="homeBtn">🏡 Home</button>
+  </div>
+</div>
+
+<script>
+  // ============ DATA ============
+  const WEEK_COUNT = 2;
+
+  const week1Consonants = [
+    { text: 'ក', image: 'image/ក.png', sound: 'sound/ក.m4a' },
+    { text: 'ខ', image: 'image/image_b.jpg', sound: 'sound/sound_b.mp3' },
+    { text: 'ច', image: 'image/image_c.jpg', sound: 'sound/sound_c.mp3' },
+    { text: 'ឆ', image: 'image/image_d.jpg', sound: 'sound/sound_d.mp3' },
+    { text: 'ដ', image: 'image/image_e.jpg', sound: 'sound/sound_e.mp3' },
+    { text: 'ឋ', image: 'image/image_f.jpg', sound: 'sound/sound_f.mp3' },
+    { text: 'ណ', image: 'image/image_g.jpg', sound: 'sound/sound_g.mp3' },
+    { text: 'ត', image: 'image/image_h.jpg', sound: 'sound/sound_h.mp3' },
+    { text: 'ថ', image: 'image/image_i.jpg', sound: 'sound/sound_i.mp3' },
+    { text: 'ប', image: 'image/image_j.jpg', sound: 'sound/sound_j.mp3' },
+    { text: 'ផ', image: 'image/image_k.jpg', sound: 'sound/sound_k.mp3' },
+    { text: 'ស', image: 'image/image_l.jpg', sound: 'sound/sound_l.mp3' },
+    { text: 'ហ', image: 'image/image_m.jpg', sound: 'sound/sound_m.mp3' },
+    { text: 'ឡ', image: 'image/image_n.jpg', sound: 'sound/sound_n.mp3' },
+    { text: 'អ', image: 'image/image_o.jpg', sound: 'sound/sound_o.mp3' }
+  ];
+  const week2Consonants = [
+    { text: 'គ', image: 'image/image_p.jpg', sound: 'sound/sound_p.mp3' },
+    { text: 'ឃ', image: 'image/image_q.jpg', sound: 'sound/sound_q.mp3' },
+    { text: 'ង', image: 'image/image_r.jpg', sound: 'sound/sound_r.mp3' },
+    { text: 'ជ', image: 'image/image_s.jpg', sound: 'sound/sound_s.mp3' },
+    { text: 'ឈ', image: 'image/image_t.jpg', sound: 'sound/sound_t.mp3' },
+    { text: 'ញ', image: 'image/image_u.jpg', sound: 'sound/sound_u.mp3' },
+    { text: 'ឌ', image: 'image/image_v.jpg', sound: 'sound/sound_v.mp3' },
+    { text: 'ឍ', image: 'image/image_w.jpg', sound: 'sound/sound_w.mp3' },
+    { text: 'ទ', image: 'image/image_x.jpg', sound: 'sound/sound_x.mp3' },
+    { text: 'ធ', image: 'image/image_y.jpg', sound: 'sound/sound_y.mp3' },
+    { text: 'ន', image: 'image/image_z.jpg', sound: 'sound/sound_z.mp3' },
+    { text: 'ព', image: 'image/image_aa.jpg', sound: 'sound/sound_aa.mp3' },
+    { text: 'ភ', image: 'image/image_ab.jpg', sound: 'sound/sound_ab.mp3' },
+    { text: 'ម', image: 'image/image_ac.jpg', sound: 'sound/sound_ac.mp3' },
+    { text: 'យ', image: 'image/image_ad.jpg', sound: 'sound/sound_ad.mp3' },
+    { text: 'រ', image: 'image/image_ae.jpg', sound: 'sound/sound_ae.mp3' },
+    { text: 'ល', image: 'image/image_af.jpg', sound: 'sound/sound_af.mp3' },
+    { text: 'វ', image: 'image/image_ag.jpg', sound: 'sound/sound_ag.mp3' }
+  ];
+
+  let weeksData = [
+    week1Consonants.map(c => ({ text: c.text, image: c.image, sound: c.sound })),
+    week2Consonants.map(c => ({ text: c.text, image: c.image, sound: c.sound }))
+  ];
+
+  let currentWeek = 0;
+  let cards = [];
+  let current = 0;
+
+  let soundEnabled = true;
+  let currentAudio = null;
+
+  // ============ LOAD WEEK ============
+  function loadWeek(weekIndex) {
+    currentWeek = weekIndex;
+    const words = weeksData[weekIndex] || [];
+    cards = words.map(item => typeof item === 'string' ? { text: item, image: '', sound: '' } : item);
+    current = 0;
+    renderCards();
+    updateWeekUI();
+    const label = weekIndex === 0 ? 'ពួក អ' : 'ពួក អ៝';
+    document.getElementById('weekDisplay').textContent = label;
+    document.getElementById('weekDropdown').value = weekIndex;
+    updateSoundButtonUI();
+  }
+
+  // ============ RENDER ============
+  function renderCards(){
+    const stack = document.getElementById("stack");
+    stack.innerHTML = "";
+    if(cards.length === 0){
+      stack.innerHTML = `<div class="empty">មិនមានបណ្ណព្យញ្ជនៈ</div>`;
+      return;
+    }
+    const c = cards[current];
+    const card = document.createElement("div");
+    card.className = "card";
+    
+    const textColor = currentWeek === 0 ? '#1a5bbf' : '#c0392b';
+    
+    let imageHtml = '';
+    if (c.image && c.image.trim() !== '') {
+      imageHtml = `<img src="${c.image}" alt="image" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`;
+    } else {
+      imageHtml = '🖼️';
+    }
+    
+    card.innerHTML = `
+      <div class="face">
+        <div class="consonant-area" style="color:${textColor};">${c.text}</div>
+        <div class="image-area">${imageHtml}</div>
+      </div>
+    `;
+    
+    card.addEventListener('click', function(e) {
+      if (soundEnabled && cards[current] && cards[current].sound) {
+        playSound(cards[current].sound);
+      }
+    });
+    
+    let startX = 0;
+    card.addEventListener("touchstart",(e)=>{
+      startX = e.touches[0].clientX;
+    },{passive:true});
+    card.addEventListener("touchend",(e)=>{
+      const endX = e.changedTouches[0].clientX;
+      const diff = endX - startX;
+      const rect = card.getBoundingClientRect();
+      const x = endX - rect.left;
+      const w = rect.width;
+      if(Math.abs(diff) > 60){
+        if(diff > 0) prev();
+        else next();
+        return;
+      }
+      if(x < w*0.2) prev();
+      else if(x > w*0.8) next();
+    },{passive:true});
+    
+    stack.appendChild(card);
+  }
+
+  // ============ SOUND ============
+  function playSound(src) {
+    if (!soundEnabled) return;
+    if (!src) return;
+    try {
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+      }
+      const audio = new Audio(src);
+      audio.play().catch(err => console.warn('Sound play error:', err));
+      currentAudio = audio;
+      audio.onended = () => { currentAudio = null; };
+    } catch(e) {
+      console.warn('Sound error:', e);
+    }
+  }
+
+  // ============ CARD OPERATIONS ============
+  function deleteCard(){
+    if(!cards.length) return;
+    if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+    cards.splice(current,1);
+    if(current >= cards.length) current = cards.length-1;
+    if(current < 0) current = 0;
+    weeksData[currentWeek] = cards.map(c => ({ text: c.text, image: c.image || '', sound: c.sound || '' }));
+    renderCards();
+  }
+
+  function randomCard(){
+    if(cards.length < 2) return;
+    let r;
+    do{ r = Math.floor(Math.random()*cards.length); }while(r === current);
+    current = r;
+    renderCards();
+    if (soundEnabled && cards[current] && cards[current].sound) {
+      playSound(cards[current].sound);
+    }
+  }
+
+  function next(){
+    if(current < cards.length-1){ 
+      current++; 
+      renderCards();
+      if (soundEnabled && cards[current] && cards[current].sound) {
+        playSound(cards[current].sound);
+      }
+    }
+  }
+  function prev(){
+    if(current > 0){ 
+      current--; 
+      renderCards();
+      if (soundEnabled && cards[current] && cards[current].sound) {
+        playSound(cards[current].sound);
+      }
+    }
+  }
+
+  // ============ WEEK UI ============
+  function updateWeekUI() {
+    const dropdown = document.getElementById('weekDropdown');
+    dropdown.innerHTML = '';
+    const labels = ['ពួក អ', 'ពួក អ៝'];
+    for (let i = 0; i < WEEK_COUNT; i++) {
+      const option = document.createElement('option');
+      option.value = i;
+      option.textContent = labels[i];
+      dropdown.appendChild(option);
+    }
+    dropdown.value = currentWeek;
+    const newDropdown = dropdown.cloneNode(true);
+    dropdown.parentNode.replaceChild(newDropdown, dropdown);
+    newDropdown.addEventListener('change', function() {
+      loadWeek(parseInt(this.value));
+    });
+    const soundBtn = document.getElementById('globalSoundToggle');
+    if (soundBtn) {
+      const newBtn = soundBtn.cloneNode(true);
+      soundBtn.parentNode.replaceChild(newBtn, soundBtn);
+      newBtn.addEventListener('click', toggleSound);
+    }
+  }
+
+  // ============ GLOBAL SOUND TOGGLE ============
+  function toggleSound() {
+    soundEnabled = !soundEnabled;
+    if (!soundEnabled && currentAudio) {
+      currentAudio.pause();
+      currentAudio = null;
+    }
+    updateSoundButtonUI();
+    if (soundEnabled && cards.length > 0 && cards[current] && cards[current].sound) {
+      playSound(cards[current].sound);
+    }
+  }
+
+  function updateSoundButtonUI() {
+    const btn = document.getElementById('globalSoundToggle');
+    if (!btn) return;
+    const icon = btn.querySelector('.icon');
+    const label = btn.querySelector('.label');
+    if (soundEnabled) {
+      icon.textContent = '🔊';
+      label.textContent = 'សំឡេង';
+      btn.classList.remove('muted');
+    } else {
+      icon.textContent = '🔇';
+      label.textContent = 'បិទ';
+      btn.classList.add('muted');
+    }
+  }
+
+  // ============ INIT ============
+  loadWeek(0);
+  updateSoundButtonUI();
+
+  window.deleteCard = deleteCard;
+  window.randomCard = randomCard;
+  window.next = next;
+  window.prev = prev;
+  window.loadWeek = loadWeek;
+  window.toggleSound = toggleSound;
+</script>
+
+</body>
+</html>
