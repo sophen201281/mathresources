@@ -7,7 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@100;300;400;700;900&display=swap" rel="stylesheet">
   <style>
     :root{
-      --card-font-size: 32px;
+      --card-font-size: 64px;  /* biggest size */
       --panel-bg: #1f2e3a;
       --panel-text: #f0ede5;
       --accent: #4a6cf7;
@@ -35,21 +35,24 @@
       justify-content:center;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
+    /* week selector moved below cards, responsive */
     .week-selector{
       display:flex;
       gap:8px;
       align-items:center;
-      margin-bottom:14px;
-      width:min(340px,90vw);
+      margin-top: 18px;
+      margin-bottom: 10px;
+      width:min(360px,90vw);
       justify-content:center;
       background:white;
-      padding:6px 14px;
+      padding:8px 16px;
       border-radius:40px;
       box-shadow:0 2px 8px rgba(0,0,0,0.04);
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+      flex-wrap: wrap;
     }
     .week-selector label{
-      font-size:14px;
+      font-size:15px;
       color:#445566;
       font-weight:500;
       white-space:nowrap;
@@ -67,6 +70,7 @@
       outline:none;
       transition:border .2s;
       flex:1;
+      min-width:120px;
       max-width:220px;
       appearance:auto;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
@@ -159,32 +163,16 @@
       width:min(360px,90vw);
       margin-top:4px;
     }
+    /* font control removed as requested (delete adjust font size) */
     .font-control{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      margin-bottom:12px;
-      background:white;
-      padding:8px 14px;
-      border-radius:40px;
-      box-shadow:0 2px 8px rgba(0,0,0,0.04);
-      justify-content:center;
-      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
-    }
-    .font-control label{
-      font-size:14px;
-      color:#445566;
-      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
-    }
-    .font-control input[type="range"]{
-      flex:1;
-      accent-color:var(--accent);
+      display:none;  /* hidden: removed */
     }
     .nav{
       display:flex;
       gap:8px;
       flex-wrap:wrap;
       justify-content:center;
+      margin-top: 6px;
     }
     .nav button{
       padding:10px 16px;
@@ -221,254 +209,12 @@
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
 
-    /* ---- ADMIN PANEL (bottom sheet) ---- */
-    .admin-toggle{
-      position:fixed;
-      bottom:20px;
-      left:50%;
-      transform:translateX(-50%);
-      background:rgba(30,45,55,0.92);
-      backdrop-filter:blur(8px);
-      color:white;
-      padding:10px 24px;
-      border-radius:50px;
-      font-size:15px;
-      font-weight:500;
-      border:1px solid #8899aa;
-      box-shadow:0 4px 20px rgba(0,0,0,0.2);
-      z-index:400;
-      cursor:pointer;
-      transition:all .3s;
-      white-space:nowrap;
-      letter-spacing:0.3px;
-      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+    /* admin toggle removed completely */
+    .admin-toggle, .admin-overlay, .admin-panel {
+      display: none !important;
     }
-    .admin-toggle:hover{
-      background:rgba(50,70,85,0.95);
-      transform:translateX(-50%) scale(1.04);
-    }
-    .admin-overlay{
-      position:fixed;
-      top:0; left:0;
-      width:100%; height:100%;
-      background:rgba(0,0,0,0.4);
-      z-index:450;
-      display:none;
-      opacity:0;
-      transition:opacity .3s;
-    }
-    .admin-overlay.active{ display:block; opacity:1; }
-    .admin-panel{
-      position:fixed;
-      bottom:-100%;
-      left:0;
-      width:100%;
-      max-height:80vh;
-      background:linear-gradient(145deg, #1f2e3a, #2a3f4d);
-      color:var(--panel-text);
-      z-index:500;
-      transition:bottom .4s cubic-bezier(0.4,0,0.2,1);
-      overflow-y:auto;
-      padding:18px 20px 24px;
-      border-radius:24px 24px 0 0;
-      box-shadow:0 -4px 30px rgba(0,0,0,0.3);
-      border-top:2px solid #6a7f8f;
-      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
-    }
-    .admin-panel.open{ bottom:0; }
-    .admin-header{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      margin-bottom:12px;
-      border-bottom:2px solid #6a7f8f;
-      padding-bottom:10px;
-      flex-wrap:wrap;
-      gap:8px;
-    }
-    .admin-header h3{
-      font-size:20px;
-      font-weight:500;
-      letter-spacing:0.5px;
-      color:#f5e9da;
-      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
-    }
-    .close-panel{
-      background:rgba(255,255,255,0.08);
-      border:1px solid rgba(255,255,255,0.15);
-      color:white;
-      width:32px;
-      height:32px;
-      border-radius:50%;
-      font-size:18px;
-      cursor:pointer;
-      transition:all .25s;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    }
-    .close-panel:hover{
-      background:rgba(255,255,255,0.18);
-      transform:rotate(90deg);
-    }
-    .admin-section{
-      background:rgba(255,255,255,0.04);
-      border-radius:14px;
-      padding:12px 14px;
-      margin-bottom:14px;
-      border:1px solid rgba(255,255,255,0.06);
-    }
-    .admin-section h4{
-      font-size:15px;
-      font-weight:400;
-      color:#c8d6e0;
-      margin-bottom:8px;
-      letter-spacing:0.3px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      flex-wrap:wrap;
-      gap:6px;
-      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
-    }
-    .admin-week-selector{
-      display:flex;
-      align-items:center;
-      gap:6px;
-    }
-    .admin-week-selector label{
-      font-size:13px;
-      color:rgba(255,255,255,0.6);
-      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
-    }
-    .admin-week-selector select{
-      padding:4px 10px;
-      border-radius:20px;
-      border:1px solid rgba(255,255,255,0.15);
-      background:rgba(255,255,255,0.05);
-      color:white;
-      font-size:13px;
-      cursor:pointer;
-      outline:none;
-      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
-    }
-    .admin-week-selector select:focus{
-      border-color:#8ba0b0;
-    }
-    .admin-week-selector select option{
-      background:#1f2e3a;
-      color:white;
-    }
-    .word-entry{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      margin-bottom:6px;
-      flex-wrap:wrap;
-    }
-    .word-entry input{
-      flex:1;
-      padding:6px 12px;
-      border-radius:8px;
-      border:1.5px solid rgba(255,255,255,0.12);
-      background:rgba(255,255,255,0.06);
-      color:white;
-      font-size:15px;
-      outline:none;
-      transition:border .2s;
-      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
-      min-width:60px;
-    }
-    .word-entry input:focus{
-      border-color:#8ba0b0;
-      background:rgba(255,255,255,0.10);
-    }
-    .word-entry input::placeholder{
-      color:rgba(255,255,255,0.35);
-    }
-    .word-entry .del-word{
-      background:rgba(255,80,80,0.15);
-      border:1px solid rgba(255,80,80,0.2);
-      color:#ff8a8a;
-      width:28px;
-      height:28px;
-      border-radius:50%;
-      cursor:pointer;
-      font-size:14px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      transition:all .2s;
-      flex-shrink:0;
-    }
-    .word-entry .del-word:hover{
-      background:rgba(255,80,80,0.25);
-      border-color:#ff6b6b;
-    }
-    .add-word-row{
-      display:flex;
-      gap:8px;
-      margin-top:6px;
-    }
-    .add-word-row input{
-      flex:1;
-      padding:8px 12px;
-      border-radius:8px;
-      border:1.5px solid rgba(255,255,255,0.10);
-      background:rgba(255,255,255,0.04);
-      color:white;
-      font-size:15px;
-      outline:none;
-      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
-    }
-    .add-word-row input:focus{
-      border-color:#8ba0b0;
-      background:rgba(255,255,255,0.08);
-    }
-    .add-word-row button{
-      padding:8px 16px;
-      background:var(--accent);
-      border:none;
-      border-radius:8px;
-      color:white;
-      font-weight:600;
-      cursor:pointer;
-      transition:background .2s;
-      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
-    }
-    .add-word-row button:hover{ background:#3a57d6; }
-    .save-all-btn{
-      width:100%;
-      padding:12px;
-      background:#2b4a5c;
-      border:2px solid #6a7f8f;
-      border-radius:12px;
-      color:white;
-      font-size:18px;
-      font-weight:600;
-      cursor:pointer;
-      transition:all .25s;
-      margin-top:4px;
-      letter-spacing:0.5px;
-      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
-    }
-    .save-all-btn:hover{
-      background:#3a5f73;
-      transform:translateY(-2px);
-      box-shadow:0 6px 20px rgba(43,74,92,0.3);
-    }
-    .save-all-btn:active{ transform:translateY(0); }
-    .word-counter{
-      font-size:13px;
-      color:rgba(255,255,255,0.5);
-      text-align:right;
-      margin-top:4px;
-      font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
-    }
-    .admin-panel::-webkit-scrollbar{ width:4px; }
-    .admin-panel::-webkit-scrollbar-track{ background:transparent; }
-    .admin-panel::-webkit-scrollbar-thumb{ background:#6a7f8f; border-radius:10px; }
 
+    /* week label inside header */
     .week-label{
       font-size:14px;
       color:rgba(255,255,255,0.6);
@@ -530,20 +276,17 @@
   <span style="font-size:16px;font-weight:300;color:#667;font-family:'Battambang','Segoe UI',system-ui,sans-serif;" id="weekDisplay">សប្តាហ៍ទី 1</span>
 </h2>
 
+<!-- stack (cards) -->
+<div class="stack" id="stack"></div>
+
+<!-- week selector moved below cards -->
 <div class="week-selector">
   <label for="weekDropdown">📅 សប្តាហ៍:</label>
   <select id="weekDropdown"></select>
 </div>
 
-<div class="stack" id="stack"></div>
-
 <div class="bottom-controls">
-  <div class="font-control">
-    <label>🔤 ទំហំ</label>
-    <input type="range" min="16" max="100" value="32" oninput="changeFontSize(this.value)">
-    <span id="fontSizeLabel" style="min-width:32px;font-size:14px;font-family:'Battambang','Segoe UI',system-ui,sans-serif;">32</span>
-  </div>
-
+  <!-- font control removed, only nav remains -->
   <div class="nav">
     <button onclick="randomCard()">🎲 ក្រឡុក</button>
     <button onclick="deleteCard()">🗑 លុប</button>
@@ -551,37 +294,7 @@
   </div>
 </div>
 
-<!-- Admin Toggle -->
-<button class="admin-toggle" id="adminToggle">⚙️ កែសម្រួលបណ្ណ</button>
-
-<!-- Admin Overlay -->
-<div class="admin-overlay" id="adminOverlay"></div>
-
-<!-- Admin Panel -->
-<div class="admin-panel" id="adminPanel">
-  <div class="admin-header">
-    <h3>📝 កែសម្រួលបណ្ណតាមសប្តាហ៍</h3>
-    <button class="close-panel" id="closePanelBtn">✕</button>
-  </div>
-
-  <div class="admin-section">
-    <h4>
-      <span>📋 បញ្ជីព្យញ្ជនៈ</span>
-      <div class="admin-week-selector">
-        <label for="adminWeekDropdown">សប្តាហ៍:</label>
-        <select id="adminWeekDropdown"></select>
-      </div>
-    </h4>
-    <div id="wordListContainer"></div>
-    <div class="add-word-row">
-      <input id="adminNewWord" placeholder="បញ្ចូលព្យញ្ជនៈថ្មី..." >
-      <button onclick="adminAddWord()">បញ្ចូល</button>
-    </div>
-    <div class="word-counter" id="wordCounter">សរុប: 0</div>
-  </div>
-
-  <button class="save-all-btn" id="saveAllBtn">💾 រក្សាទុក &amp; បិទ</button>
-</div>
+<!-- Admin toggle and panel: removed (hidden via CSS) -->
 
 <script>
   // ============ DATA ============
@@ -646,10 +359,8 @@
     current = 0;
     renderCards();
     updateWeekUI();
-    syncAdminList();
     document.getElementById('weekDisplay').textContent = `សប្តាហ៍ទី ${weekIndex+1}`;
     document.getElementById('weekDropdown').value = weekIndex;
-    document.getElementById('adminWeekDropdown').value = weekIndex;
   }
 
   // ============ RENDER ============
@@ -658,7 +369,6 @@
     stack.innerHTML = "";
     if(cards.length === 0){
       stack.innerHTML = `<div class="empty">មិនមានបណ្ណព្យញ្ជនៈ</div>`;
-      updateWordCounter();
       return;
     }
     const c = cards[current];
@@ -695,24 +405,18 @@
     if (soundBtn) {
       soundBtn.addEventListener('click', function(e) {
         e.stopPropagation();
-        // Toggle global sound state
         soundEnabled = !soundEnabled;
-        // Update all sound buttons (just re-render)
         renderCards();
-        // If sound disabled, stop any playing audio
         if (!soundEnabled && currentAudio) {
           currentAudio.pause();
           currentAudio = null;
         }
-        // If sound enabled, play current card sound
         if (soundEnabled && cards[current] && cards[current].sound) {
           playSound(cards[current].sound);
         }
       });
       
-      // Also play sound on card click (if enabled)
       card.addEventListener('click', function(e) {
-        // Ignore if clicked on sound button (already handled)
         if (e.target.closest('.sound-btn')) return;
         if (soundEnabled && cards[current] && cards[current].sound) {
           playSound(cards[current].sound);
@@ -720,7 +424,7 @@
       });
     }
     
-    // Touch navigation (keep existing)
+    // Touch navigation
     let startX = 0;
     card.addEventListener("touchstart",(e)=>{
       startX = e.touches[0].clientX;
@@ -741,7 +445,6 @@
     },{passive:true});
     
     stack.appendChild(card);
-    updateWordCounter();
   }
 
   // ============ SOUND ============
@@ -771,7 +474,6 @@
     if(current < 0) current = 0;
     weeksData[currentWeek] = cards.map(c => ({ text: c.text, image: c.image || '', sound: c.sound || '' }));
     renderCards();
-    syncAdminList();
   }
 
   function randomCard(){
@@ -780,7 +482,6 @@
     do{ r = Math.floor(Math.random()*cards.length); }while(r === current);
     current = r;
     renderCards();
-    // Auto-play sound on random if enabled
     if (soundEnabled && cards[current] && cards[current].sound) {
       playSound(cards[current].sound);
     }
@@ -805,11 +506,6 @@
     }
   }
 
-  function changeFontSize(v){
-    document.documentElement.style.setProperty("--card-font-size", v+"px");
-    document.getElementById("fontSizeLabel").textContent = v;
-  }
-
   // ============ WEEK UI ============
   function updateWeekUI() {
     const dropdown = document.getElementById('weekDropdown');
@@ -824,174 +520,7 @@
     dropdown.addEventListener('change', function() {
       loadWeek(parseInt(this.value));
     });
-
-    const adminDropdown = document.getElementById('adminWeekDropdown');
-    adminDropdown.innerHTML = '';
-    for (let i = 0; i < WEEK_COUNT; i++) {
-      const option = document.createElement('option');
-      option.value = i;
-      option.textContent = `សប្តាហ៍ ${i+1}`;
-      adminDropdown.appendChild(option);
-    }
-    adminDropdown.value = currentWeek;
-    adminDropdown.addEventListener('change', function() {
-      const w = parseInt(this.value);
-      loadWeek(w);
-      syncAdminList();
-    });
   }
-
-  // ============ ADMIN PANEL ============
-  const adminToggle = document.getElementById('adminToggle');
-  const adminPanel = document.getElementById('adminPanel');
-  const adminOverlay = document.getElementById('adminOverlay');
-  const closePanelBtn = document.getElementById('closePanelBtn');
-  const saveAllBtn = document.getElementById('saveAllBtn');
-
-  function openAdmin() {
-    adminPanel.classList.add('open');
-    adminOverlay.classList.add('active');
-    adminToggle.textContent = '✕ បិទ';
-    document.body.style.overflow = 'hidden';
-    syncAdminList();
-    document.getElementById('adminWeekDropdown').value = currentWeek;
-  }
-  function closeAdmin() {
-    adminPanel.classList.remove('open');
-    adminOverlay.classList.remove('active');
-    adminToggle.textContent = '⚙️ កែសម្រួលបណ្ណ';
-    document.body.style.overflow = '';
-  }
-  adminToggle.addEventListener('click', () => {
-    adminPanel.classList.contains('open') ? closeAdmin() : openAdmin();
-  });
-  closePanelBtn.addEventListener('click', closeAdmin);
-  adminOverlay.addEventListener('click', closeAdmin);
-
-  function syncAdminList() {
-    const container = document.getElementById('wordListContainer');
-    container.innerHTML = '';
-    cards.forEach((card, idx) => {
-      const row = document.createElement('div');
-      row.className = 'word-entry';
-      row.innerHTML = `
-        <input type="text" value="${card.text}" data-index="${idx}" class="admin-word-input" placeholder="ព្យញ្ជនៈ" style="flex:0.7;">
-        <input type="text" value="${card.image || ''}" data-index="${idx}" class="admin-image-input" placeholder="ផ្លូវរូបភាព" style="flex:1;">
-        <input type="text" value="${card.sound || ''}" data-index="${idx}" class="admin-sound-input" placeholder="ផ្លូវសម្លេង" style="flex:1;">
-        <button class="del-word" data-index="${idx}" title="លុប">✕</button>
-      `;
-      container.appendChild(row);
-    });
-    container.querySelectorAll('.del-word').forEach(btn => {
-      btn.addEventListener('click', function(e) {
-        const idx = parseInt(this.dataset.index, 10);
-        if (idx >= 0 && idx < cards.length) {
-          cards.splice(idx, 1);
-          if (current >= cards.length) current = cards.length - 1;
-          if (current < 0) current = 0;
-          weeksData[currentWeek] = cards.map(c => ({ text: c.text, image: c.image || '', sound: c.sound || '' }));
-          renderCards();
-          syncAdminList();
-        }
-        e.stopPropagation();
-      });
-    });
-    container.querySelectorAll('.admin-word-input').forEach(inp => {
-      inp.addEventListener('change', function(e) {
-        const idx = parseInt(this.dataset.index, 10);
-        const val = this.value.trim();
-        if (idx >= 0 && idx < cards.length && val) {
-          cards[idx].text = val;
-          weeksData[currentWeek] = cards.map(c => ({ text: c.text, image: c.image || '', sound: c.sound || '' }));
-          renderCards();
-        }
-      });
-      inp.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') { this.blur(); }
-      });
-    });
-    container.querySelectorAll('.admin-image-input').forEach(inp => {
-      inp.addEventListener('change', function(e) {
-        const idx = parseInt(this.dataset.index, 10);
-        const val = this.value.trim();
-        if (idx >= 0 && idx < cards.length) {
-          cards[idx].image = val;
-          weeksData[currentWeek] = cards.map(c => ({ text: c.text, image: c.image || '', sound: c.sound || '' }));
-          renderCards();
-        }
-      });
-      inp.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') { this.blur(); }
-      });
-    });
-    container.querySelectorAll('.admin-sound-input').forEach(inp => {
-      inp.addEventListener('change', function(e) {
-        const idx = parseInt(this.dataset.index, 10);
-        const val = this.value.trim();
-        if (idx >= 0 && idx < cards.length) {
-          cards[idx].sound = val;
-          weeksData[currentWeek] = cards.map(c => ({ text: c.text, image: c.image || '', sound: c.sound || '' }));
-        }
-      });
-      inp.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') { this.blur(); }
-      });
-    });
-    updateWordCounter();
-  }
-
-  function adminAddWord() {
-    const input = document.getElementById('adminNewWord');
-    const val = input.value.trim();
-    if (!val) return;
-    cards.push({ text: val, image: '', sound: '' });
-    current = cards.length - 1;
-    weeksData[currentWeek] = cards.map(c => ({ text: c.text, image: c.image || '', sound: c.sound || '' }));
-    input.value = '';
-    renderCards();
-    syncAdminList();
-  }
-
-  function updateWordCounter() {
-    document.getElementById('wordCounter').textContent = `សរុប: ${cards.length}`;
-  }
-
-  saveAllBtn.addEventListener('click', () => {
-    document.querySelectorAll('.admin-word-input').forEach(inp => {
-      const idx = parseInt(inp.dataset.index, 10);
-      const val = inp.value.trim();
-      if (idx >= 0 && idx < cards.length && val) {
-        cards[idx].text = val;
-      }
-    });
-    document.querySelectorAll('.admin-image-input').forEach(inp => {
-      const idx = parseInt(inp.dataset.index, 10);
-      const val = inp.value.trim();
-      if (idx >= 0 && idx < cards.length) {
-        cards[idx].image = val;
-      }
-    });
-    document.querySelectorAll('.admin-sound-input').forEach(inp => {
-      const idx = parseInt(inp.dataset.index, 10);
-      const val = inp.value.trim();
-      if (idx >= 0 && idx < cards.length) {
-        cards[idx].sound = val;
-      }
-    });
-    weeksData[currentWeek] = cards.map(c => ({ text: c.text, image: c.image || '', sound: c.sound || '' }));
-    renderCards();
-    closeAdmin();
-    saveAllBtn.textContent = '✅ បានរក្សាទុក!';
-    saveAllBtn.style.background = '#4CAF50';
-    setTimeout(() => {
-      saveAllBtn.textContent = '💾 រក្សាទុក &amp; បិទ';
-      saveAllBtn.style.background = '#2b4a5c';
-    }, 1400);
-  });
-
-  document.getElementById('adminNewWord').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') adminAddWord();
-  });
 
   // ============ INIT ============
   loadWeek(0);
@@ -1001,8 +530,6 @@
   window.randomCard = randomCard;
   window.next = next;
   window.prev = prev;
-  window.changeFontSize = changeFontSize;
-  window.adminAddWord = adminAddWord;
   window.loadWeek = loadWeek;
 </script>
 
