@@ -7,7 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@100;300;400;700;900&display=swap" rel="stylesheet">
   <style>
     :root{
-      --card-font-size: 64px;  /* biggest size */
+      --card-font-size: 82px;  /* bigger for consonants */
       --panel-bg: #1f2e3a;
       --panel-text: #f0ede5;
       --accent: #4a6cf7;
@@ -35,7 +35,6 @@
       justify-content:center;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
-    /* week selector moved below cards, responsive */
     .week-selector{
       display:flex;
       gap:8px;
@@ -163,9 +162,8 @@
       width:min(360px,90vw);
       margin-top:4px;
     }
-    /* font control removed as requested (delete adjust font size) */
     .font-control{
-      display:none;  /* hidden: removed */
+      display:none;  /* hidden */
     }
     .nav{
       display:flex;
@@ -209,12 +207,10 @@
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
 
-    /* admin toggle removed completely */
     .admin-toggle, .admin-overlay, .admin-panel {
       display: none !important;
     }
 
-    /* week label inside header */
     .week-label{
       font-size:14px;
       color:rgba(255,255,255,0.6);
@@ -234,7 +230,6 @@
       margin-right: 5%;
     }
 
-    /* Sound button */
     .sound-btn {
       position: absolute;
       bottom: 12px;
@@ -273,28 +268,25 @@
 
 <h2>
   <span>ព្យញ្ជនៈ</span>
-  <span style="font-size:16px;font-weight:300;color:#667;font-family:'Battambang','Segoe UI',system-ui,sans-serif;" id="weekDisplay">ព្យញ្ជនៈពួក អ</span>
+  <span style="font-size:16px;font-weight:300;color:#667;font-family:'Battambang','Segoe UI',system-ui,sans-serif;" id="weekDisplay">ពួក អ</span>
 </h2>
 
 <!-- stack (cards) -->
 <div class="stack" id="stack"></div>
 
-<!-- week selector moved below cards -->
+<!-- week selector with new labels -->
 <div class="week-selector">
   <label for="weekDropdown">ក្រុមព្យញ្ជន:</label>
   <select id="weekDropdown"></select>
 </div>
 
 <div class="bottom-controls">
-  <!-- font control removed, only nav remains -->
   <div class="nav">
     <button onclick="randomCard()">🎲 ក្រឡុក</button>
     <button onclick="deleteCard()">🗑 លុប</button>
     <button onclick="window.location.href='../index.html'" class="homeBtn">🏡 Home</button>
   </div>
 </div>
-
-<!-- Admin toggle and panel: removed (hidden via CSS) -->
 
 <script>
   // ============ DATA ============
@@ -347,7 +339,6 @@
   let cards = [];
   let current = 0;
 
-  // Sound state
   let soundEnabled = true;
   let currentAudio = null;
 
@@ -359,7 +350,9 @@
     current = 0;
     renderCards();
     updateWeekUI();
-    document.getElementById('weekDisplay').textContent = `សប្តាហ៍ទី ${weekIndex+1}`;
+    // update week display label: "ពួក អ" for week0, "ពួក អ៝" for week1
+    const label = weekIndex === 0 ? 'ពួក អ' : 'ពួក អ៝';
+    document.getElementById('weekDisplay').textContent = label;
     document.getElementById('weekDropdown').value = weekIndex;
   }
 
@@ -384,7 +377,6 @@
       imageHtml = '🖼️';
     }
     
-    // Sound button (on/off toggle)
     const soundIcon = soundEnabled ? '🔊' : '🔇';
     const soundLabel = soundEnabled ? 'សំឡេង' : 'បិទ';
     const mutedClass = soundEnabled ? '' : 'muted';
@@ -400,7 +392,6 @@
       </button>
     `;
     
-    // Sound toggle button logic
     const soundBtn = card.querySelector('#soundToggleBtn');
     if (soundBtn) {
       soundBtn.addEventListener('click', function(e) {
@@ -424,7 +415,6 @@
       });
     }
     
-    // Touch navigation
     let startX = 0;
     card.addEventListener("touchstart",(e)=>{
       startX = e.touches[0].clientX;
@@ -510,10 +500,12 @@
   function updateWeekUI() {
     const dropdown = document.getElementById('weekDropdown');
     dropdown.innerHTML = '';
+    // use new labels: "ពួក អ" and "ពួក អ៝"
+    const labels = ['ពួក អ', 'ពួក អ៝'];
     for (let i = 0; i < WEEK_COUNT; i++) {
       const option = document.createElement('option');
       option.value = i;
-      option.textContent = `សប្តាហ៍ ${i+1}`;
+      option.textContent = labels[i];
       dropdown.appendChild(option);
     }
     dropdown.value = currentWeek;
