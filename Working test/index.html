@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Consonants · 2 weeks</title>
-  <!-- Google Font: Battambang (Khmer) -->
   <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@100;300;400;700;900&display=swap" rel="stylesheet">
   <style>
     :root{
@@ -104,13 +103,17 @@
       box-shadow:0 10px 25px rgba(0,0,0,.12);
       background:white;
     }
+    /* Consonant on the left, image on the right, both in middle half */
     .consonant-area{
       flex: 0 0 auto;
       font-size: var(--card-font-size);
       font-weight: 600;
       line-height: 1.2;
       min-width: 60px;
-      text-align: left;
+      text-align: center;
+      margin-right: auto;  /* push image to the right */
+      margin-left: 5%;
+      order: 1;
     }
     .image-area{
       flex: 0 0 auto;
@@ -124,6 +127,15 @@
       font-size: 28px;
       color: #8899aa;
       border: 1px dashed #ccd7e6;
+      transition: all 0.2s;
+      order: 2;
+      margin-right: 5%;
+    }
+    .image-area img {
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 8px;
+      object-fit: cover;
     }
     .card::before, .card::after{
       position:absolute;
@@ -352,6 +364,7 @@
       gap:10px;
       align-items:center;
       margin-bottom:6px;
+      flex-wrap:wrap;
     }
     .word-entry input{
       flex:1;
@@ -364,6 +377,7 @@
       outline:none;
       transition:border .2s;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
+      min-width:60px;
     }
     .word-entry input:focus{
       border-color:#8ba0b0;
@@ -461,6 +475,19 @@
       margin-right:8px;
       font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif;
     }
+    /* ensure consonant on left, image on right, both in middle half */
+    .face {
+      justify-content: center;
+    }
+    .consonant-area {
+      margin-right: auto;
+      margin-left: 5%;
+      text-align: center;
+    }
+    .image-area {
+      margin-left: auto;
+      margin-right: 5%;
+    }
   </style>
 </head>
 <body>
@@ -528,21 +555,48 @@
   const WEEK_COUNT = 2;
 
   // Week 1: 15 consonants (blue), Week 2: 18 consonants (red)
+  // Each consonant has unique image and sound (different per consonant)
   const week1Consonants = [
-    'ក', 'ខ', 'គ', 'ឃ', 'ង',
-    'ច', 'ឆ', 'ជ', 'ឈ', 'ញ',
-    'ដ', 'ឋ', 'ឌ', 'ឍ', 'ណ'
+    { text: 'ក', image: 'image_a.jpg', sound: 'sound_a.mp3' },
+    { text: 'ខ', image: 'image_b.jpg', sound: 'sound_b.mp3' },
+    { text: 'គ', image: 'image_c.jpg', sound: 'sound_c.mp3' },
+    { text: 'ឃ', image: 'image_d.jpg', sound: 'sound_d.mp3' },
+    { text: 'ង', image: 'image_e.jpg', sound: 'sound_e.mp3' },
+    { text: 'ច', image: 'image_f.jpg', sound: 'sound_f.mp3' },
+    { text: 'ឆ', image: 'image_g.jpg', sound: 'sound_g.mp3' },
+    { text: 'ជ', image: 'image_h.jpg', sound: 'sound_h.mp3' },
+    { text: 'ឈ', image: 'image_i.jpg', sound: 'sound_i.mp3' },
+    { text: 'ញ', image: 'image_j.jpg', sound: 'sound_j.mp3' },
+    { text: 'ដ', image: 'image_k.jpg', sound: 'sound_k.mp3' },
+    { text: 'ឋ', image: 'image_l.jpg', sound: 'sound_l.mp3' },
+    { text: 'ឌ', image: 'image_m.jpg', sound: 'sound_m.mp3' },
+    { text: 'ឍ', image: 'image_n.jpg', sound: 'sound_n.mp3' },
+    { text: 'ណ', image: 'image_o.jpg', sound: 'sound_o.mp3' }
   ];
   const week2Consonants = [
-    'ត', 'ថ', 'ទ', 'ធ', 'ន',
-    'ប', 'ផ', 'ព', 'ភ', 'ម',
-    'យ', 'រ', 'ល', 'វ', 'ស',
-    'ហ', 'ឡ', 'អ'
+    { text: 'ត', image: 'image_p.jpg', sound: 'sound_p.mp3' },
+    { text: 'ថ', image: 'image_q.jpg', sound: 'sound_q.mp3' },
+    { text: 'ទ', image: 'image_r.jpg', sound: 'sound_r.mp3' },
+    { text: 'ធ', image: 'image_s.jpg', sound: 'sound_s.mp3' },
+    { text: 'ន', image: 'image_t.jpg', sound: 'sound_t.mp3' },
+    { text: 'ប', image: 'image_u.jpg', sound: 'sound_u.mp3' },
+    { text: 'ផ', image: 'image_v.jpg', sound: 'sound_v.mp3' },
+    { text: 'ព', image: 'image_w.jpg', sound: 'sound_w.mp3' },
+    { text: 'ភ', image: 'image_x.jpg', sound: 'sound_x.mp3' },
+    { text: 'ម', image: 'image_y.jpg', sound: 'sound_y.mp3' },
+    { text: 'យ', image: 'image_z.jpg', sound: 'sound_z.mp3' },
+    { text: 'រ', image: 'image_aa.jpg', sound: 'sound_aa.mp3' },
+    { text: 'ល', image: 'image_ab.jpg', sound: 'sound_ab.mp3' },
+    { text: 'វ', image: 'image_ac.jpg', sound: 'sound_ac.mp3' },
+    { text: 'ស', image: 'image_ad.jpg', sound: 'sound_ad.mp3' },
+    { text: 'ហ', image: 'image_ae.jpg', sound: 'sound_ae.mp3' },
+    { text: 'ឡ', image: 'image_af.jpg', sound: 'sound_af.mp3' },
+    { text: 'អ', image: 'image_ag.jpg', sound: 'sound_ag.mp3' }
   ];
 
   let weeksData = [
-    week1Consonants.map(c => ({ text: c })),
-    week2Consonants.map(c => ({ text: c }))
+    week1Consonants.map(c => ({ text: c.text, image: c.image, sound: c.sound })),
+    week2Consonants.map(c => ({ text: c.text, image: c.image, sound: c.sound }))
   ];
 
   let currentWeek = 0;
@@ -553,7 +607,7 @@
   function loadWeek(weekIndex) {
     currentWeek = weekIndex;
     const words = weeksData[weekIndex] || [];
-    cards = words.map(item => typeof item === 'string' ? { text: item } : item);
+    cards = words.map(item => typeof item === 'string' ? { text: item, image: '', sound: '' } : item);
     current = 0;
     renderCards();
     updateWeekUI();
@@ -576,15 +630,24 @@
     const card = document.createElement("div");
     card.className = "card";
     
-    // Determine color based on week: week1 = blue, week2 = red
     const textColor = currentWeek === 0 ? '#1a5bbf' : '#c0392b';
+    
+    // Build image HTML: if image path exists, show img, else placeholder
+    let imageHtml = '';
+    if (c.image && c.image.trim() !== '') {
+      imageHtml = `<img src="${c.image}" alt="image" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`;
+    } else {
+      imageHtml = '🖼️';
+    }
     
     card.innerHTML = `
       <div class="face">
         <div class="consonant-area" style="color:${textColor};">${c.text}</div>
-        <div class="image-area">🖼️</div>
+        <div class="image-area">${imageHtml}</div>
       </div>
     `;
+    
+    // Click/touch handling for navigation
     let startX = 0;
     card.addEventListener("touchstart",(e)=>{
       startX = e.touches[0].clientX;
@@ -620,7 +683,7 @@
     cards.splice(current,1);
     if(current >= cards.length) current = cards.length-1;
     if(current < 0) current = 0;
-    weeksData[currentWeek] = cards.map(c => c.text);
+    weeksData[currentWeek] = cards.map(c => ({ text: c.text, image: c.image || '', sound: c.sound || '' }));
     renderCards();
     syncAdminList();
   }
@@ -710,7 +773,9 @@
       const row = document.createElement('div');
       row.className = 'word-entry';
       row.innerHTML = `
-        <input type="text" value="${card.text}" data-index="${idx}" class="admin-word-input">
+        <input type="text" value="${card.text}" data-index="${idx}" class="admin-word-input" placeholder="ព្យញ្ជនៈ" style="flex:0.7;">
+        <input type="text" value="${card.image || ''}" data-index="${idx}" class="admin-image-input" placeholder="ផ្លូវរូបភាព" style="flex:1;">
+        <input type="text" value="${card.sound || ''}" data-index="${idx}" class="admin-sound-input" placeholder="ផ្លូវសម្លេង" style="flex:1;">
         <button class="del-word" data-index="${idx}" title="លុប">✕</button>
       `;
       container.appendChild(row);
@@ -722,7 +787,7 @@
           cards.splice(idx, 1);
           if (current >= cards.length) current = cards.length - 1;
           if (current < 0) current = 0;
-          weeksData[currentWeek] = cards.map(c => c.text);
+          weeksData[currentWeek] = cards.map(c => ({ text: c.text, image: c.image || '', sound: c.sound || '' }));
           renderCards();
           syncAdminList();
         }
@@ -735,8 +800,35 @@
         const val = this.value.trim();
         if (idx >= 0 && idx < cards.length && val) {
           cards[idx].text = val;
-          weeksData[currentWeek] = cards.map(c => c.text);
+          weeksData[currentWeek] = cards.map(c => ({ text: c.text, image: c.image || '', sound: c.sound || '' }));
           renderCards();
+        }
+      });
+      inp.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { this.blur(); }
+      });
+    });
+    container.querySelectorAll('.admin-image-input').forEach(inp => {
+      inp.addEventListener('change', function(e) {
+        const idx = parseInt(this.dataset.index, 10);
+        const val = this.value.trim();
+        if (idx >= 0 && idx < cards.length) {
+          cards[idx].image = val;
+          weeksData[currentWeek] = cards.map(c => ({ text: c.text, image: c.image || '', sound: c.sound || '' }));
+          renderCards();
+        }
+      });
+      inp.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { this.blur(); }
+      });
+    });
+    container.querySelectorAll('.admin-sound-input').forEach(inp => {
+      inp.addEventListener('change', function(e) {
+        const idx = parseInt(this.dataset.index, 10);
+        const val = this.value.trim();
+        if (idx >= 0 && idx < cards.length) {
+          cards[idx].sound = val;
+          weeksData[currentWeek] = cards.map(c => ({ text: c.text, image: c.image || '', sound: c.sound || '' }));
         }
       });
       inp.addEventListener('keydown', function(e) {
@@ -750,9 +842,9 @@
     const input = document.getElementById('adminNewWord');
     const val = input.value.trim();
     if (!val) return;
-    cards.push({ text: val });
+    cards.push({ text: val, image: '', sound: '' });
     current = cards.length - 1;
-    weeksData[currentWeek] = cards.map(c => c.text);
+    weeksData[currentWeek] = cards.map(c => ({ text: c.text, image: c.image || '', sound: c.sound || '' }));
     input.value = '';
     renderCards();
     syncAdminList();
@@ -763,6 +855,7 @@
   }
 
   saveAllBtn.addEventListener('click', () => {
+    // Save all changes from admin inputs
     document.querySelectorAll('.admin-word-input').forEach(inp => {
       const idx = parseInt(inp.dataset.index, 10);
       const val = inp.value.trim();
@@ -770,7 +863,21 @@
         cards[idx].text = val;
       }
     });
-    weeksData[currentWeek] = cards.map(c => c.text);
+    document.querySelectorAll('.admin-image-input').forEach(inp => {
+      const idx = parseInt(inp.dataset.index, 10);
+      const val = inp.value.trim();
+      if (idx >= 0 && idx < cards.length) {
+        cards[idx].image = val;
+      }
+    });
+    document.querySelectorAll('.admin-sound-input').forEach(inp => {
+      const idx = parseInt(inp.dataset.index, 10);
+      const val = inp.value.trim();
+      if (idx >= 0 && idx < cards.length) {
+        cards[idx].sound = val;
+      }
+    });
+    weeksData[currentWeek] = cards.map(c => ({ text: c.text, image: c.image || '', sound: c.sound || '' }));
     renderCards();
     closeAdmin();
     saveAllBtn.textContent = '✅ បានរក្សាទុក!';
