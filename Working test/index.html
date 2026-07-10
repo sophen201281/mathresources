@@ -1,612 +1,381 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Place Value · Ones, Tens, Hundreds</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      user-select: none;
-    }
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      background: #eef3f7;
-      overflow: hidden;
-    }
-    #toolbar {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      padding: 12px 16px;
-      background: white;
-      border-bottom: 1px solid #ccc;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-      z-index: 10;
-      align-items: center;
-    }
-    #toolbar button, #toolbar select {
-      padding: 8px 18px;
-      font-size: 0.95rem;
-      border-radius: 30px;
-      border: 1px solid #bbb;
-      background: #f5f9ff;
-      cursor: pointer;
-      font-weight: 500;
-      transition: 0.15s;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-    }
-    #toolbar button:hover {
-      background: #e3edff;
-      border-color: #1976d2;
-      transform: scale(0.97);
-    }
-    #toolbar button:active {
-      background: #c5d9ff;
-    }
-    #mode {
-      background: white;
-      min-width: 150px;
-    }
-    #clear {
-      background: #ffebee;
-      border-color: #c62828;
-      color: #b71c1c;
-    }
-    #clear:hover {
-      background: #ffcdd2;
-    }
-    #deleteSelected {
-      background: #d32f2f;
-      color: white;
-      border-color: #b71c1c;
-    }
-    #deleteSelected:hover {
-      background: #b71c1c;
-    }
-    #wrap {
-      display: flex;
-      flex: 1;
-      min-height: 0;
-      position: relative;
-    }
-    #left {
-      width: 220px;
-      padding: 16px;
-      overflow: auto;
-      background: #f8fafc;
-      border-right: 1px solid #ddd;
-      z-index: 5;
-      box-shadow: 2px 0 8px rgba(0,0,0,0.04);
-    }
-    #left p {
-      font-size: 0.95rem;
-      color: #1a2a3a;
-      margin-top: 0;
-      line-height: 1.5;
-    }
-    #left .hint-icon {
-      font-size: 2rem;
-      text-align: center;
-      margin: 20px 0;
-    }
-    #right {
-      flex: 1;
-      position: relative;
-      background: #dce4ec;
-      overflow: hidden;
-    }
-    canvas {
-      position: absolute;
-      inset: 0;
-      touch-action: none;
-      width: 100%;
-      height: 100%;
-      display: block;
-      z-index: 3;
-      pointer-events: auto;
-    }
-    #table {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      pointer-events: none;
-      z-index: 2;
-    }
-    #table table {
-      border-collapse: collapse;
-      background: rgba(255,255,255,0.85);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-      border-radius: 16px;
-      overflow: hidden;
-      width: min(90%, 700px);
-      backdrop-filter: blur(4px);
-      pointer-events: none;
-    }
-    #table th {
-      background: #0d47a1;
-      color: white;
-      font-weight: 600;
-      font-size: 1.1rem;
-      padding: 14px 0;
-      border: 2px solid #1a2a3a;
-      letter-spacing: 1px;
-    }
-    #table td {
-      border: 2px solid #1a2a3a;
-      width: 130px;
-      height: 280px;
-      text-align: center;
-      background: rgba(255,255,255,0.6);
-    }
-    #table tr:last-child td {
-      height: 280px;
-    }
-    /* draggable blocks */
-    .block {
-      position: absolute;
-      cursor: grab;
-      touch-action: none;
-      z-index: 20;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-      transition: filter 0.1s, transform 0.1s;
-      border-radius: 6px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 2px;
-      padding: 4px;
-      background: transparent;
-      will-change: transform;
-    }
-    .block:active {
-      cursor: grabbing;
-      transform: scale(0.96);
-    }
-    .block.selected {
-      outline: 4px solid #ff1744;
-      outline-offset: 4px;
-      filter: drop-shadow(0 0 10px #ff1744);
-    }
-    /* ----- ONE: red square ----- */
-    .block.one {
-      width: 48px;
-      height: 48px;
-      background: #e53935;
-      border: 3px solid #b71c1c;
-      border-radius: 4px;
-      box-shadow: inset 0 -3px 0 #8e0000, 0 4px 8px rgba(0,0,0,0.2);
-      padding: 0;
-    }
-    /* ----- TEN: vertical stack of 10 green squares ----- */
-    .block.ten {
-      width: 48px;
-      height: fit-content;
-      background: transparent;
-      padding: 4px;
-      border: 3px solid #2e7d32;
-      border-radius: 8px;
-      background: #388e3c;
-      box-shadow: inset 0 -3px 0 #1b5e20, 0 4px 8px rgba(0,0,0,0.2);
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      align-items: center;
-    }
-    .block.ten .mini {
-      width: 36px;
-      height: 36px;
-      background: #4caf50;
-      border: 2px solid #2e7d32;
-      border-radius: 4px;
-      box-shadow: inset 0 -2px 0 #1b5e20;
-      flex-shrink: 0;
-    }
-    /* ----- HUNDRED: 10 tens in a grid (2 rows of 5) ----- */
-    .block.hundred {
-      width: fit-content;
-      height: fit-content;
-      background: #c62828;
-      padding: 8px;
-      border-radius: 10px;
-      border: 3px solid #8e0000;
-      box-shadow: inset 0 -3px 0 #5c0000, 0 4px 12px rgba(0,0,0,0.25);
-      display: grid;
-      grid-template-columns: repeat(5, 48px);
-      gap: 4px;
-    }
-    .block.hundred .ten-group {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      background: rgba(255,255,255,0.08);
-      padding: 3px;
-      border-radius: 4px;
-      border: 1px solid rgba(255,255,255,0.12);
-      align-items: center;
-    }
-    .block.hundred .ten-group .mini {
-      width: 36px;
-      height: 36px;
-      background: #e53935;
-      border: 2px solid #b71c1c;
-      border-radius: 4px;
-      box-shadow: inset 0 -2px 0 #8e0000;
-      flex-shrink: 0;
-    }
-    @media (max-width: 700px) {
-      .block.one {
-        width: 38px;
-        height: 38px;
-      }
-      .block.ten {
-        width: 38px;
-        padding: 3px;
-        gap: 2px;
-      }
-      .block.ten .mini {
-        width: 28px;
-        height: 28px;
-      }
-      .block.hundred {
-        grid-template-columns: repeat(5, 38px);
-        gap: 3px;
-        padding: 6px;
-      }
-      .block.hundred .ten-group .mini {
-        width: 28px;
-        height: 28px;
-      }
-    }
-    #deleteSelected {
-      margin-left: 8px;
-    }
-    #status {
-      font-size: 0.8rem;
-      color: #555;
-      margin-left: 12px;
-      padding: 4px 12px;
-      background: #f0f0f0;
-      border-radius: 20px;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Place Value Blocks</title>
+<style>
+  :root{
+    --paper:#faf7f0;
+    --ink:#2e2a24;
+    --line:#d8d0c0;
+    --yellow:#f4c430;
+    --yellow-dark:#c99a00;
+    --accent:#3d5a52;
+    --accent-soft:#e8efec;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Segoe UI', system-ui, -apple-system, sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    padding:24px;
+  }
+  h1{
+    font-size:1.4rem;
+    margin:0 0 4px 0;
+    letter-spacing:.02em;
+  }
+  p.sub{
+    margin:0 0 20px 0;
+    color:#6b6455;
+    font-size:.92rem;
+  }
+  .controls{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:20px;
+    flex-wrap:wrap;
+  }
+  select{
+    font-size:.95rem;
+    padding:8px 12px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    background:white;
+    color:var(--ink);
+  }
+  button.reset{
+    font-size:.85rem;
+    padding:8px 14px;
+    border-radius:8px;
+    border:1px solid var(--accent);
+    background:white;
+    color:var(--accent);
+    cursor:pointer;
+  }
+  button.reset:hover{ background:var(--accent-soft); }
+
+  .layout{
+    display:flex;
+    gap:28px;
+    align-items:flex-start;
+    flex-wrap:wrap;
+  }
+
+  /* --- Palette (the "drawing" area with source blocks) --- */
+  .palette{
+    background:white;
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:16px;
+    width:220px;
+    flex-shrink:0;
+  }
+  .palette h2{
+    font-size:.8rem;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:#8a8271;
+    margin:0 0 14px 0;
+  }
+  .palette-item{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:20px;
+    cursor:grab;
+  }
+  .palette-item:active{ cursor:grabbing; }
+  .palette-label{
+    font-size:.85rem;
+    color:#544e40;
+  }
+  .palette-label b{ display:block; color:var(--ink); font-size:.9rem; }
+
+  /* block shapes */
+  .block-ones{
+    width:26px; height:26px;
+    background:var(--yellow);
+    border:1.5px solid var(--yellow-dark);
+    border-radius:3px;
+  }
+  .block-tens{
+    width:26px; height:130px;
+    background:var(--yellow);
+    border:1.5px solid var(--yellow-dark);
+    border-radius:3px;
+    display:flex;
+    flex-direction:column;
+  }
+  .block-tens .seg{
+    flex:1;
+    border-bottom:1px solid var(--yellow-dark);
+  }
+  .block-tens .seg:last-child{ border-bottom:none; }
+  .block-hundreds{
+    width:130px; height:130px;
+    background:var(--yellow);
+    border:1.5px solid var(--yellow-dark);
+    border-radius:3px;
+    display:grid;
+    grid-template-columns:repeat(10,1fr);
+    grid-template-rows:repeat(10,1fr);
+  }
+  .block-hundreds .cell{
+    border:.5px solid var(--yellow-dark);
+  }
+
+  /* small preview scale used inside table columns */
+  .mini-ones{ width:20px; height:20px; }
+  .mini-tens{ width:20px; height:100px; }
+  .mini-hundreds{ width:100px; height:100px; }
+
+  /* --- Table --- */
+  table{
+    border-collapse:collapse;
+    background:white;
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 1px 3px rgba(0,0,0,.06);
+  }
+  th{
+    background:var(--accent);
+    color:white;
+    font-size:.8rem;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    padding:10px 6px;
+    text-align:center;
+  }
+  td{
+    vertical-align:top;
+    border:1px solid var(--line);
+    padding:10px;
+    min-width:150px;
+    height:340px;
+  }
+  .col-body{
+    display:flex;
+    flex-wrap:wrap;
+    align-content:flex-start;
+    gap:6px;
+    height:260px;
+    overflow-y:auto;
+    border-radius:8px;
+    transition:background .15s;
+  }
+  .col-body.dragover{ background:var(--accent-soft); }
+  .col-footer{
+    margin-top:8px;
+    font-size:.8rem;
+    color:#6b6455;
+    display:flex;
+    justify-content:space-between;
+  }
+  .col-footer button{
+    border:none;
+    background:none;
+    color:var(--accent);
+    cursor:pointer;
+    font-size:.78rem;
+    text-decoration:underline;
+    padding:0;
+  }
+  .placed{ animation:pop .15s ease-out; }
+  @keyframes pop{ from{ transform:scale(.6); opacity:0;} to{ transform:scale(1); opacity:1;} }
+  .rejected{ animation:shake .3s; }
+  @keyframes shake{
+    0%,100%{ transform:translateX(0); }
+    25%{ transform:translateX(-4px); }
+    75%{ transform:translateX(4px); }
+  }
+  .no-table-msg{
+    color:#8a8271;
+    font-style:italic;
+    font-size:.9rem;
+  }
+</style>
 </head>
 <body>
-<div id="toolbar">
-  <select id="mode" aria-label="Table columns">
-    <option value="none">No Table</option>
-    <option value="2" selected>2 Columns</option>
-    <option value="3">3 Columns</option>
+
+<h1>Place Value Blocks</h1>
+<p class="sub">Drag a yellow block from the shelf on the left into the matching column. Each drag makes a copy — the shelf never runs out.</p>
+
+<div class="controls">
+  <label for="layoutSelect"><b>Table layout:</b></label>
+  <select id="layoutSelect">
+    <option value="none">No table</option>
+    <option value="two" selected>2 columns — Ones &amp; Tens</option>
+    <option value="three">3 columns — Ones, Tens &amp; Hundreds</option>
   </select>
-  <button id="addOnes">🟥 Ones</button>
-  <button id="addTens">🟩 Tens</button>
-  <button id="addHundreds">🟥 Hundreds</button>
-  <button id="clear">🧹 Clear Drawing</button>
-  <button id="deleteSelected">🗑️ Delete Selected</button>
-  <span id="status">0 selected</span>
+  <button class="reset" id="resetAll">Clear all blocks</button>
 </div>
-<div id="wrap">
-  <div id="left">
-    <p><strong>📐 Place Value</strong></p>
-    <p>🟥 One = red square<br>🟩 Ten = 10 green squares (vertical)<br>🟥 Hundred = 100 red squares (10 tens)</p>
-    <div class="hint-icon">🖱️✏️</div>
-    <p style="font-size:0.8rem; color:#555;">Click a block to select it.<br>Use "Delete Selected" to remove.</p>
+
+<div class="layout">
+
+  <div class="palette">
+    <h2>Shelf</h2>
+
+    <div class="palette-item" draggable="true" data-type="ones">
+      <div class="block-ones"></div>
+      <div class="palette-label"><b>Ones</b>single unit</div>
+    </div>
+
+    <div class="palette-item" draggable="true" data-type="tens">
+      <div class="block-tens">
+        <div class="seg"></div><div class="seg"></div><div class="seg"></div><div class="seg"></div><div class="seg"></div>
+        <div class="seg"></div><div class="seg"></div><div class="seg"></div><div class="seg"></div><div class="seg"></div>
+      </div>
+      <div class="palette-label"><b>Tens</b>rod of 10</div>
+    </div>
+
+    <div class="palette-item" draggable="true" data-type="hundreds">
+      <div class="block-hundreds" id="hundredsGrid"></div>
+      <div class="palette-label"><b>Hundreds</b>flat of 100</div>
+    </div>
   </div>
-  <div id="right">
-    <canvas id="c"></canvas>
-    <div id="table"></div>
-  </div>
+
+  <div id="tableWrap"></div>
+
 </div>
 
 <script>
-  (function() {
-    const cv = document.getElementById('c');
-    const ctx = cv.getContext('2d');
-    const right = document.getElementById('right');
-    const tableDiv = document.getElementById('table');
-    const modeSelect = document.getElementById('mode');
-    const clearBtn = document.getElementById('clear');
-    const deleteSelectedBtn = document.getElementById('deleteSelected');
-    const statusSpan = document.getElementById('status');
+// build the 10x10 grid cells for the hundreds palette block
+const hGrid = document.getElementById('hundredsGrid');
+for(let i=0;i<100;i++){
+  const c = document.createElement('div');
+  c.className='cell';
+  hGrid.appendChild(c);
+}
 
-    // ----- selection state -----
-    let selectedBlocks = new Set();
+const tableWrap = document.getElementById('tableWrap');
+const layoutSelect = document.getElementById('layoutSelect');
 
-    // ----- resize canvas -----
-    function resizeCanvas() {
-      const rect = right.getBoundingClientRect();
-      cv.width = rect.width;
-      cv.height = rect.height;
-      cv.style.width = rect.width + 'px';
-      cv.style.height = rect.height + 'px';
-      ctx.strokeStyle = '#c62828';
-      ctx.lineWidth = 3;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
+const columnDefs = {
+  ones:      { label:'Ones',      class:'mini-ones' },
+  tens:      { label:'Tens',      class:'mini-tens' },
+  hundreds:  { label:'Hundreds',  class:'mini-hundreds' }
+};
+
+function makeMiniBlock(type){
+  const el = document.createElement('div');
+  el.classList.add('placed');
+  if(type==='ones'){
+    el.className += ' block-ones mini-ones';
+  } else if(type==='tens'){
+    el.className += ' block-tens mini-tens';
+    for(let i=0;i<10;i++){
+      const seg=document.createElement('div');
+      seg.className='seg';
+      el.appendChild(seg);
     }
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-
-    // ----- drawing -----
-    let isDrawing = false;
-    let lastX = 0, lastY = 0;
-
-    function getCanvasCoords(e) {
-      const rect = cv.getBoundingClientRect();
-      const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-      const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-      if (clientX === undefined) return { x: 0, y: 0 };
-      return {
-        x: (clientX - rect.left) * (cv.width / rect.width),
-        y: (clientY - rect.top) * (cv.height / rect.height)
-      };
+  } else if(type==='hundreds'){
+    el.className += ' block-hundreds mini-hundreds';
+    for(let i=0;i<100;i++){
+      const cell=document.createElement('div');
+      cell.className='cell';
+      el.appendChild(cell);
     }
+  }
+  return el;
+}
 
-    function startDraw(e) {
+function updateCount(type){
+  const body = document.getElementById('body-'+type);
+  const countEl = document.getElementById('count-'+type);
+  if(body && countEl){
+    countEl.textContent = body.children.length;
+  }
+}
+
+function buildTable(mode){
+  tableWrap.innerHTML = '';
+  if(mode === 'none'){
+    const msg = document.createElement('p');
+    msg.className = 'no-table-msg';
+    msg.textContent = 'No table selected — choose a layout above to start placing blocks.';
+    tableWrap.appendChild(msg);
+    return;
+  }
+
+  const types = mode === 'two' ? ['tens','ones'] : ['hundreds','tens','ones'];
+  // display order left-to-right should read hundreds, tens, ones for 3-col; tens, ones for 2-col
+  const table = document.createElement('table');
+
+  const thead = document.createElement('tr');
+  types.forEach(t=>{
+    const th = document.createElement('th');
+    th.textContent = columnDefs[t].label;
+    thead.appendChild(th);
+  });
+  table.appendChild(thead);
+
+  const trow = document.createElement('tr');
+  types.forEach(t=>{
+    const td = document.createElement('td');
+
+    const body = document.createElement('div');
+    body.className = 'col-body';
+    body.id = 'body-'+t;
+    body.dataset.type = t;
+
+    body.addEventListener('dragover', e=>{
       e.preventDefault();
-      isDrawing = true;
-      const pos = getCanvasCoords(e);
-      lastX = pos.x;
-      lastY = pos.y;
-      ctx.beginPath();
-      ctx.moveTo(lastX, lastY);
-    }
-
-    function draw(e) {
-      e.preventDefault();
-      if (!isDrawing) return;
-      const pos = getCanvasCoords(e);
-      ctx.lineTo(pos.x, pos.y);
-      ctx.stroke();
-      lastX = pos.x;
-      lastY = pos.y;
-    }
-
-    function stopDraw(e) {
-      e.preventDefault();
-      isDrawing = false;
-    }
-
-    cv.addEventListener('mousedown', startDraw);
-    cv.addEventListener('mousemove', draw);
-    cv.addEventListener('mouseup', stopDraw);
-    cv.addEventListener('mouseleave', stopDraw);
-    cv.addEventListener('touchstart', startDraw, { passive: false });
-    cv.addEventListener('touchmove', draw, { passive: false });
-    cv.addEventListener('touchend', stopDraw, { passive: false });
-    cv.addEventListener('touchcancel', stopDraw, { passive: false });
-
-    // ----- clear drawing -----
-    clearBtn.addEventListener('click', function() {
-      ctx.clearRect(0, 0, cv.width, cv.height);
-      ctx.strokeStyle = '#c62828';
-      ctx.lineWidth = 3;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
+      body.classList.add('dragover');
     });
-
-    // ----- render table -----
-    function renderTable() {
-      const mode = modeSelect.value;
-      let html = '';
-      if (mode === 'none') {
-        tableDiv.innerHTML = '';
-        return;
-      }
-      if (mode === '2') {
-        html = `<table>
-          <tr><th>Tens</th><th>Ones</th></tr>
-          <tr><td></td><td></td></tr>
-        </table>`;
-      } else if (mode === '3') {
-        html = `<table>
-          <tr><th>Hundreds</th><th>Tens</th><th>Ones</th></tr>
-          <tr><td></td><td></td><td></td></tr>
-        </table>`;
-      }
-      tableDiv.innerHTML = html;
-    }
-    modeSelect.addEventListener('change', renderTable);
-    renderTable();
-
-    // ----- selection management -----
-    function updateStatus() {
-      statusSpan.textContent = selectedBlocks.size + ' selected';
-    }
-
-    function selectBlock(el) {
-      if (selectedBlocks.has(el)) {
-        el.classList.remove('selected');
-        selectedBlocks.delete(el);
+    body.addEventListener('dragleave', ()=> body.classList.remove('dragover'));
+    body.addEventListener('drop', e=>{
+      e.preventDefault();
+      body.classList.remove('dragover');
+      const droppedType = e.dataTransfer.getData('text/plain');
+      if(droppedType === t){
+        const mini = makeMiniBlock(t);
+        body.appendChild(mini);
+        updateCount(t);
       } else {
-        el.classList.add('selected');
-        selectedBlocks.add(el);
-      }
-      updateStatus();
-    }
-
-    function clearSelection() {
-      for (let el of selectedBlocks) {
-        el.classList.remove('selected');
-      }
-      selectedBlocks.clear();
-      updateStatus();
-    }
-
-    // ----- drag & drop (with selection on click) -----
-    function makeDraggable(el) {
-      let offsetX = 0, offsetY = 0;
-      let isDragging = false;
-      let hasMoved = false;
-
-      function onPointerDown(e) {
-        e.preventDefault();
-        hasMoved = false;
-        const pointer = e.pointerId !== undefined ? e : e.touches?.[0] || e;
-        const rect = el.getBoundingClientRect();
-        const clientX = pointer.clientX || pointer.pageX;
-        const clientY = pointer.clientY || pointer.pageY;
-        offsetX = clientX - rect.left;
-        offsetY = clientY - rect.top;
-        isDragging = true;
-        if (el.setPointerCapture) el.setPointerCapture(e.pointerId);
-        el.style.cursor = 'grabbing';
-        el.style.transition = 'none';
-        el.style.zIndex = 30;
-      }
-
-      function onPointerMove(e) {
-        if (!isDragging) return;
-        e.preventDefault();
-        hasMoved = true;
-        const pointer = e.pointerId !== undefined ? e : e.touches?.[0] || e;
-        const clientX = pointer.clientX || pointer.pageX;
-        const clientY = pointer.clientY || pointer.pageY;
-        const rightRect = right.getBoundingClientRect();
-        let left = clientX - rightRect.left - offsetX;
-        let top = clientY - rightRect.top - offsetY;
-        const elW = el.offsetWidth || 60;
-        const elH = el.offsetHeight || 50;
-        left = Math.max(0, Math.min(left, rightRect.width - elW - 2));
-        top = Math.max(0, Math.min(top, rightRect.height - elH - 2));
-        el.style.left = left + 'px';
-        el.style.top = top + 'px';
-      }
-
-      function onPointerUp(e) {
-        if (isDragging) {
-          isDragging = false;
-          el.style.cursor = 'grab';
-          el.style.zIndex = 20;
-          el.style.transition = 'filter 0.1s';
-          if (e && e.pointerId !== undefined && el.releasePointerCapture) {
-            el.releasePointerCapture(e.pointerId);
-          }
-          if (!hasMoved) {
-            selectBlock(el);
-          }
-        }
-      }
-
-      el.addEventListener('mousedown', onPointerDown);
-      window.addEventListener('mousemove', onPointerMove);
-      window.addEventListener('mouseup', onPointerUp);
-
-      el.addEventListener('touchstart', onPointerDown, { passive: false });
-      window.addEventListener('touchmove', onPointerMove, { passive: false });
-      window.addEventListener('touchend', onPointerUp, { passive: false });
-      window.addEventListener('touchcancel', onPointerUp, { passive: false });
-
-      el.addEventListener('pointerdown', onPointerDown);
-      el.addEventListener('pointermove', onPointerMove);
-      el.addEventListener('pointerup', onPointerUp);
-      el.addEventListener('pointercancel', onPointerUp);
-
-      el.addEventListener('contextmenu', (e) => e.preventDefault());
-    }
-
-    // ----- create blocks -----
-    function createBlock(type) {
-      const el = document.createElement('div');
-      el.className = 'block ' + type.toLowerCase();
-      el.dataset.type = type;
-
-      if (type === 'Ones') {
-        // red square
-      } else if (type === 'Tens') {
-        // vertical stack of 10 green squares
-        for (let i = 0; i < 10; i++) {
-          const mini = document.createElement('div');
-          mini.className = 'mini';
-          el.appendChild(mini);
-        }
-      } else if (type === 'Hundreds') {
-        // 10 tens in a grid (2 rows of 5) - all red squares
-        for (let t = 0; t < 10; t++) {
-          const tenGroup = document.createElement('div');
-          tenGroup.className = 'ten-group';
-          for (let i = 0; i < 10; i++) {
-            const mini = document.createElement('div');
-            mini.className = 'mini';
-            tenGroup.appendChild(mini);
-          }
-          el.appendChild(tenGroup);
-        }
-      }
-
-      // position randomly
-      const rect = right.getBoundingClientRect();
-      const left = 20 + Math.random() * (rect.width - 200);
-      const top = 20 + Math.random() * (rect.height - 200);
-      el.style.left = Math.min(left, rect.width - 120) + 'px';
-      el.style.top = Math.min(top, rect.height - 120) + 'px';
-      right.appendChild(el);
-      makeDraggable(el);
-      return el;
-    }
-
-    document.getElementById('addOnes').addEventListener('click', () => createBlock('Ones'));
-    document.getElementById('addTens').addEventListener('click', () => createBlock('Tens'));
-    document.getElementById('addHundreds').addEventListener('click', () => createBlock('Hundreds'));
-
-    // ----- delete selected -----
-    deleteSelectedBtn.addEventListener('click', function() {
-      const toRemove = Array.from(selectedBlocks);
-      for (let el of toRemove) {
-        el.remove();
-        selectedBlocks.delete(el);
-      }
-      updateStatus();
-    });
-
-    // ----- start with demo blocks -----
-    window.addEventListener('load', function() {
-      setTimeout(() => {
-        const h = createBlock('Hundreds');
-        h.style.left = '40px';
-        h.style.top = '40px';
-        const t = createBlock('Tens');
-        t.style.left = '240px';
-        t.style.top = '100px';
-        const o = createBlock('Ones');
-        o.style.left = '400px';
-        o.style.top = '160px';
-      }, 100);
-    });
-
-    // preserve drawing style
-    function resetDrawStyle() {
-      ctx.strokeStyle = '#c62828';
-      ctx.lineWidth = 3;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-    }
-    window.addEventListener('resize', function() {
-      resizeCanvas();
-      resetDrawStyle();
-    });
-    cv.addEventListener('mouseup', resetDrawStyle);
-    cv.addEventListener('touchend', resetDrawStyle);
-    cv.addEventListener('dragstart', (e) => e.preventDefault());
-
-    // click on empty space to clear selection
-    right.addEventListener('mousedown', function(e) {
-      if (e.target === right || e.target === cv) {
-        clearSelection();
-      }
-    });
-    right.addEventListener('touchstart', function(e) {
-      if (e.target === right || e.target === cv) {
-        clearSelection();
+        body.classList.add('rejected');
+        setTimeout(()=>body.classList.remove('rejected'), 300);
       }
     });
 
-  })();
+    const footer = document.createElement('div');
+    footer.className = 'col-footer';
+    const countSpan = document.createElement('span');
+    countSpan.id = 'count-'+t;
+    countSpan.textContent = '0';
+    countSpan.style.fontWeight = 'bold';
+    const clearBtn = document.createElement('button');
+    clearBtn.textContent = 'clear';
+    clearBtn.addEventListener('click', ()=>{
+      body.innerHTML = '';
+      updateCount(t);
+    });
+    footer.appendChild(countSpan);
+    footer.appendChild(clearBtn);
+
+    td.appendChild(body);
+    td.appendChild(footer);
+    trow.appendChild(td);
+  });
+  table.appendChild(trow);
+  tableWrap.appendChild(table);
+}
+
+// drag start from palette
+document.querySelectorAll('.palette-item').forEach(item=>{
+  item.addEventListener('dragstart', e=>{
+    e.dataTransfer.setData('text/plain', item.dataset.type);
+    e.dataTransfer.effectAllowed = 'copy';
+  });
+});
+
+layoutSelect.addEventListener('change', ()=> buildTable(layoutSelect.value));
+document.getElementById('resetAll').addEventListener('click', ()=> buildTable(layoutSelect.value));
+
+buildTable(layoutSelect.value);
 </script>
+
 </body>
 </html>
