@@ -233,7 +233,7 @@
 
     <div class="palette-item" draggable="true" data-type="ones">
       <div class="block-ones"></div>
-      <div class="palette-label"><b>Ones</b>single unit</div>
+      <div class="palette-label"><b>រាយ</b></div>
     </div>
 
     <div class="palette-item" draggable="true" data-type="tens">
@@ -241,12 +241,12 @@
         <div class="seg"></div><div class="seg"></div><div class="seg"></div><div class="seg"></div><div class="seg"></div>
         <div class="seg"></div><div class="seg"></div><div class="seg"></div><div class="seg"></div><div class="seg"></div>
       </div>
-      <div class="palette-label"><b>Tens</b>rod of 10</div>
+      <div class="palette-label"><b>ដប់</b></div>
     </div>
 
     <div class="palette-item" draggable="true" data-type="hundreds">
       <div class="block-hundreds" id="hundredsGrid"></div>
-      <div class="palette-label"><b>Hundreds</b>flat of 100</div>
+      <div class="palette-label"><b>រយ</b></div>
     </div>
   </div>
 
@@ -267,9 +267,9 @@ const tableWrap = document.getElementById('tableWrap');
 const layoutSelect = document.getElementById('layoutSelect');
 
 const columnDefs = {
-  ones:      { label:'Ones',      class:'mini-ones' },
-  tens:      { label:'Tens',      class:'mini-tens' },
-  hundreds:  { label:'Hundreds',  class:'mini-hundreds' }
+  ones:      { label:'ខ្ទង់រាយ',      class:'mini-ones' },
+  tens:      { label:'ខ្ទង់ដប់',      class:'mini-tens' },
+  hundreds:  { label:'ខ្ទង់រយ',  class:'mini-hundreds' }
 };
 
 function makeMiniBlock(type){
