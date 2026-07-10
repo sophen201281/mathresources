@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Place Value Blocks</title>
 <style>
   :root{
@@ -13,13 +14,15 @@
     --accent:#3d5a52;
     --accent-soft:#e8efec;
   }
-  *{box-sizing:border-box;}
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html{ -webkit-text-size-adjust:100%; }
   body{
     margin:0;
     font-family:'Segoe UI', system-ui, -apple-system, sans-serif;
     background:var(--paper);
     color:var(--ink);
-    padding:24px;
+    padding:16px;
+    touch-action:manipulation;
   }
   h1{
     font-size:1.4rem;
@@ -39,7 +42,7 @@
     flex-wrap:wrap;
   }
   select{
-    font-size:.95rem;
+    font-size:1rem;
     padding:8px 12px;
     border-radius:8px;
     border:1px solid var(--line);
@@ -47,8 +50,8 @@
     color:var(--ink);
   }
   button.reset{
-    font-size:.85rem;
-    padding:8px 14px;
+    font-size:.9rem;
+    padding:10px 14px;
     border-radius:8px;
     border:1px solid var(--accent);
     background:white;
@@ -56,10 +59,11 @@
     cursor:pointer;
   }
   button.reset:hover{ background:var(--accent-soft); }
+  button.reset:active{ background:var(--accent-soft); }
 
   .layout{
     display:flex;
-    gap:28px;
+    gap:24px;
     align-items:flex-start;
     flex-wrap:wrap;
   }
@@ -72,6 +76,9 @@
     padding:16px;
     width:220px;
     flex-shrink:0;
+    position:sticky;
+    top:16px;
+    z-index:5;
   }
   .palette h2{
     font-size:.8rem;
@@ -86,11 +93,16 @@
     gap:12px;
     margin-bottom:20px;
     cursor:grab;
+    user-select:none;
+    -webkit-user-select:none;
+    touch-action:none;
   }
+  .palette-item:last-child{ margin-bottom:0; }
   .palette-item:active{ cursor:grabbing; }
   .palette-label{
     font-size:.85rem;
     color:#544e40;
+    pointer-events:none;
   }
   .palette-label b{ display:block; color:var(--ink); font-size:.9rem; }
 
@@ -100,6 +112,7 @@
     background:var(--yellow);
     border:1.5px solid var(--yellow-dark);
     border-radius:3px;
+    pointer-events:none;
   }
   .block-tens{
     width:26px; height:130px;
@@ -108,6 +121,7 @@
     border-radius:3px;
     display:flex;
     flex-direction:column;
+    pointer-events:none;
   }
   .block-tens .seg{
     flex:1;
@@ -122,6 +136,7 @@
     display:grid;
     grid-template-columns:repeat(10,1fr);
     grid-template-rows:repeat(10,1fr);
+    pointer-events:none;
   }
   .block-hundreds .cell{
     border:.5px solid var(--yellow-dark);
@@ -133,6 +148,11 @@
   .mini-hundreds{ width:100px; height:100px; }
 
   /* --- Table --- */
+  #tableWrap{
+    max-width:100%;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+  }
   table{
     border-collapse:collapse;
     background:white;
@@ -192,9 +212,9 @@
     background:none;
     color:var(--accent);
     cursor:pointer;
-    font-size:.78rem;
+    font-size:.85rem;
     text-decoration:underline;
-    padding:0;
+    padding:6px 0;
   }
   .placed{ animation:pop .15s ease-out; }
   @keyframes pop{ from{ transform:scale(.6); opacity:0;} to{ transform:scale(1); opacity:1;} }
@@ -209,12 +229,63 @@
     font-style:italic;
     font-size:.9rem;
   }
+
+  /* --- Drag ghost used for touch (and as a visual double for mouse) --- */
+  .drag-ghost{
+    position:fixed;
+    top:0; left:0;
+    pointer-events:none;
+    z-index:1000;
+    opacity:.85;
+    transform:translate(-1000px,-1000px);
+    filter:drop-shadow(0 4px 8px rgba(0,0,0,.25));
+  }
+
+  /* --- Responsive breakpoints --- */
+  @media (max-width: 720px){
+    body{ padding:12px; }
+    h1{ font-size:1.2rem; }
+    p.sub{ font-size:.85rem; margin-bottom:16px; }
+    .layout{ flex-direction:column; gap:16px; }
+    .palette{
+      width:100%;
+      position:static;
+      display:flex;
+      align-items:center;
+      justify-content:space-around;
+      gap:8px;
+      padding:12px;
+    }
+    .palette h2{ display:none; }
+    .palette-item{
+      flex-direction:column;
+      margin-bottom:0;
+      gap:6px;
+      text-align:center;
+    }
+    .palette-label b{ font-size:.8rem; }
+    .palette-label{ font-size:.7rem; }
+    .block-tens{ width:20px; height:100px; }
+    .block-hundreds{ width:100px; height:100px; }
+    td{ min-width:130px; padding:8px; }
+    .col-body{ height:130px; }
+    .mini-hundreds{ width:88px; height:88px; }
+    .mini-tens{ width:18px; height:88px; }
+    .controls{ gap:8px; }
+    select, button.reset{ font-size:.9rem; padding:9px 12px; }
+  }
+
+  @media (max-width: 420px){
+    .block-hundreds{ width:80px; height:80px; }
+    .mini-hundreds{ width:70px; height:70px; }
+    .palette-item{ gap:4px; }
+  }
 </style>
 </head>
 <body>
 
 <h1>Place Value Blocks</h1>
-<p class="sub">Drag a yellow block from the shelf on the left into the matching column. Each drag makes a copy — the shelf never runs out.</p>
+<p class="sub">Drag (or tap and drag) a yellow block from the shelf into the matching column. Each drag makes a copy — the shelf never runs out.</p>
 
 <div class="controls">
   <label for="layoutSelect"><b>Table layout:</b></label>
@@ -228,7 +299,7 @@
 
 <div class="layout">
 
-  <div class="palette">
+  <div class="palette" id="palette">
     <h2>Shelf</h2>
 
     <div class="palette-item" draggable="true" data-type="ones">
@@ -304,6 +375,17 @@ function updateCount(type){
   }
 }
 
+function placeInBody(body, type){
+  const mini = makeMiniBlock(type);
+  body.appendChild(mini);
+  updateCount(type);
+}
+
+function rejectBody(body){
+  body.classList.add('rejected');
+  setTimeout(()=>body.classList.remove('rejected'), 300);
+}
+
 function makeDropSection(type, part, label){
   const section = document.createElement('div');
   section.className = 'col-section';
@@ -318,6 +400,7 @@ function makeDropSection(type, part, label){
   body.id = 'body-'+type+'-'+part;
   body.dataset.type = type;
 
+  // --- Mouse / desktop HTML5 drag-and-drop ---
   body.addEventListener('dragover', e=>{
     e.preventDefault();
     body.classList.add('dragover');
@@ -328,12 +411,9 @@ function makeDropSection(type, part, label){
     body.classList.remove('dragover');
     const droppedType = e.dataTransfer.getData('text/plain');
     if(droppedType === type){
-      const mini = makeMiniBlock(type);
-      body.appendChild(mini);
-      updateCount(type);
+      placeInBody(body, type);
     } else {
-      body.classList.add('rejected');
-      setTimeout(()=>body.classList.remove('rejected'), 300);
+      rejectBody(body);
     }
   });
 
@@ -352,7 +432,6 @@ function buildTable(mode){
   }
 
   const types = mode === 'two' ? ['tens','ones'] : ['hundreds','tens','ones'];
-  // display order left-to-right should read hundreds, tens, ones for 3-col; tens, ones for 2-col
   const table = document.createElement('table');
 
   const thead = document.createElement('tr');
@@ -397,11 +476,110 @@ function buildTable(mode){
   tableWrap.appendChild(table);
 }
 
-// drag start from palette
+// ===== Desktop drag (HTML5 DnD) =====
 document.querySelectorAll('.palette-item').forEach(item=>{
   item.addEventListener('dragstart', e=>{
     e.dataTransfer.setData('text/plain', item.dataset.type);
     e.dataTransfer.effectAllowed = 'copy';
+  });
+});
+
+// ===== Touch / pointer drag (works on phones, tablets, and as a mouse fallback) =====
+// This custom implementation exists because the native HTML5 Drag and Drop
+// API does not fire on touch devices, so palette drags would otherwise be
+// completely broken on phones and tablets.
+let ghost = null;
+let dragType = null;
+let currentTargetBody = null;
+
+function clearHoverStates(){
+  document.querySelectorAll('.col-body.dragover').forEach(b=>b.classList.remove('dragover'));
+}
+
+function bodyFromPoint(x, y){
+  const el = document.elementFromPoint(x, y);
+  if(!el) return null;
+  return el.closest('.col-body');
+}
+
+function startTouchDrag(item, x, y){
+  dragType = item.dataset.type;
+
+  // build a floating visual copy of the block to follow the finger/pointer
+  const inner = item.querySelector('.block-ones, .block-tens, .block-hundreds');
+  ghost = document.createElement('div');
+  ghost.className = 'drag-ghost';
+  ghost.appendChild(inner.cloneNode(true));
+  document.body.appendChild(ghost);
+  moveGhost(x, y);
+}
+
+function moveGhost(x, y){
+  if(!ghost) return;
+  const rect = ghost.getBoundingClientRect();
+  const w = rect.width || 26;
+  const h = rect.height || 26;
+  ghost.style.transform = `translate(${x - w/2}px, ${y - h/2}px)`;
+
+  clearHoverStates();
+  const body = bodyFromPoint(x, y);
+  currentTargetBody = body;
+  if(body) body.classList.add('dragover');
+}
+
+function endTouchDrag(){
+  clearHoverStates();
+  if(ghost){ ghost.remove(); ghost = null; }
+  if(currentTargetBody && dragType){
+    if(currentTargetBody.dataset.type === dragType){
+      placeInBody(currentTargetBody, dragType);
+    } else {
+      rejectBody(currentTargetBody);
+    }
+  }
+  currentTargetBody = null;
+  dragType = null;
+}
+
+document.querySelectorAll('.palette-item').forEach(item=>{
+  item.addEventListener('touchstart', e=>{
+    e.preventDefault();
+    const t = e.touches[0];
+    startTouchDrag(item, t.clientX, t.clientY);
+  }, {passive:false});
+
+  item.addEventListener('touchmove', e=>{
+    e.preventDefault();
+    const t = e.touches[0];
+    moveGhost(t.clientX, t.clientY);
+  }, {passive:false});
+
+  item.addEventListener('touchend', e=>{
+    e.preventDefault();
+    endTouchDrag();
+  }, {passive:false});
+
+  item.addEventListener('touchcancel', e=>{
+    endTouchDrag();
+  });
+
+  // Pointer-based fallback covers stylus / non-standard touch browsers
+  // without double-firing on devices that already support touch events.
+  let usingPointer = false;
+  item.addEventListener('pointerdown', e=>{
+    if(e.pointerType === 'touch') return; // handled by touch events above
+    usingPointer = true;
+    item.setPointerCapture(e.pointerId);
+    startTouchDrag(item, e.clientX, e.clientY);
+  });
+  item.addEventListener('pointermove', e=>{
+    if(!usingPointer) return;
+    moveGhost(e.clientX, e.clientY);
+  });
+  item.addEventListener('pointerup', e=>{
+    if(!usingPointer) return;
+    usingPointer = false;
+    endTouchDrag();
   });
 });
 
