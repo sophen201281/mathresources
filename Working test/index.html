@@ -79,6 +79,11 @@
     position:sticky;
     top:16px;
     z-index:5;
+    transition:background .15s, border-color .15s;
+  }
+  .palette.remove-hover{
+    background:#fdecec;
+    border-color:#c0392b;
   }
   .palette h2{
     font-size:.8rem;
@@ -147,6 +152,22 @@
   .mini-tens{ width:20px; height:100px; }
   .mini-hundreds{ width:100px; height:100px; }
 
+  /* placed (mini) blocks are themselves draggable, so re-enable pointer events
+     and a grab cursor + touch handling on just these elements */
+  .col-body .mini-ones,
+  .col-body .mini-tens,
+  .col-body .mini-hundreds{
+    pointer-events:auto;
+    cursor:grab;
+    touch-action:none;
+  }
+  .col-body .mini-ones:active,
+  .col-body .mini-tens:active,
+  .col-body .mini-hundreds:active{
+    cursor:grabbing;
+  }
+  .dragging-source{ opacity:.3; }
+
   /* --- Table --- */
   #tableWrap{
     max-width:100%;
@@ -182,6 +203,7 @@
     padding:8px;
     background:#fffdf8;
   }
+  .col-section:last-of-type{ margin-bottom:0; }
   .section-label{
     font-size:.68rem;
     text-transform:uppercase;
@@ -194,7 +216,7 @@
     flex-wrap:wrap;
     align-content:flex-start;
     gap:6px;
-    height:150px;
+    height:110px;
     overflow-y:auto;
     border-radius:6px;
     transition:background .15s;
@@ -268,7 +290,7 @@
     .block-tens{ width:20px; height:100px; }
     .block-hundreds{ width:100px; height:100px; }
     td{ min-width:130px; padding:8px; }
-    .col-body{ height:130px; }
+    .col-body{ height:92px; }
     .mini-hundreds{ width:88px; height:88px; }
     .mini-tens{ width:18px; height:88px; }
     .controls{ gap:8px; }
@@ -285,7 +307,7 @@
 <body>
 
 <h1>Place Value Blocks</h1>
-<p class="sub">Drag (or tap and drag) a yellow block from the shelf into the matching column. Each drag makes a copy — the shelf never runs out.</p>
+<p class="sub">Drag (or tap and drag) a yellow block from the shelf into the matching column. Once placed, a block can be dragged again — move it to another section, or drag it off the table to remove it.</p>
 
 <div class="controls">
   <label for="layoutSelect"><b>Table layout:</b></label>
@@ -336,6 +358,7 @@ for(let i=0;i<100;i++){
 
 const tableWrap = document.getElementById('tableWrap');
 const layoutSelect = document.getElementById('layoutSelect');
+const paletteEl = document.getElementById('palette');
 
 const columnDefs = {
   ones:      { label:'ខ្ទង់រាយ',      class:'mini-ones' },
@@ -343,9 +366,21 @@ const columnDefs = {
   hundreds:  { label:'ខ្ទង់រយ',  class:'mini-hundreds' }
 };
 
+const SECTIONS = ['upper','middle','lower'];
+const SECTION_LABELS = { upper:'Upper section', middle:'Middle section', lower:'Lower section' };
+
+// ===== Shared drag state (used by both the mouse/HTML5 path and the touch/pointer path) =====
+let dragMode = null;      // 'copy' (from shelf) or 'move' (an already-placed block)
+let dragType = null;      // 'ones' | 'tens' | 'hundreds'
+let dragSourceEl = null;  // the placed block element, when dragMode === 'move'
+let ghost = null;
+let currentTargetBody = null;
+
 function makeMiniBlock(type){
   const el = document.createElement('div');
   el.classList.add('placed');
+  el.draggable = true;
+  el.dataset.blockType = type;
   if(type==='ones'){
     el.className += ' block-ones mini-ones';
   } else if(type==='tens'){
@@ -363,16 +398,42 @@ function makeMiniBlock(type){
       el.appendChild(cell);
     }
   }
+
+  // --- mouse / HTML5 drag for an already-placed block ---
+  el.addEventListener('dragstart', e=>{
+    dragMode = 'move';
+    dragType = type;
+    dragSourceEl = el;
+    e.dataTransfer.setData('text/plain', 'move');
+    e.dataTransfer.effectAllowed = 'move';
+    el.classList.add('dragging-source');
+  });
+  el.addEventListener('dragend', e=>{
+    el.classList.remove('dragging-source');
+    if(dragMode === 'move' && e.dataTransfer.dropEffect === 'none'){
+      // released somewhere that never accepted the drop -- take it off the table
+      const removedType = dragType;
+      el.remove();
+      updateCount(removedType);
+    }
+    dragMode = null; dragType = null; dragSourceEl = null;
+  });
+
+  // --- touch / pointer drag for an already-placed block ---
+  attachManualDrag(el, 'move', type);
+
   return el;
 }
 
 function updateCount(type){
-  const upper = document.getElementById('body-'+type+'-upper');
-  const lower = document.getElementById('body-'+type+'-lower');
   const countEl = document.getElementById('count-'+type);
-  if(upper && lower && countEl){
-    countEl.textContent = upper.children.length + lower.children.length;
-  }
+  if(!countEl) return;
+  let total = 0;
+  SECTIONS.forEach(part=>{
+    const body = document.getElementById('body-'+type+'-'+part);
+    if(body) total += body.children.length;
+  });
+  countEl.textContent = total;
 }
 
 function placeInBody(body, type){
@@ -409,11 +470,25 @@ function makeDropSection(type, part, label){
   body.addEventListener('drop', e=>{
     e.preventDefault();
     body.classList.remove('dragover');
-    const droppedType = e.dataTransfer.getData('text/plain');
-    if(droppedType === type){
-      placeInBody(body, type);
-    } else {
-      rejectBody(body);
+
+    if(dragMode === 'copy'){
+      if(dragType === type){
+        placeInBody(body, type);
+      } else {
+        rejectBody(body);
+      }
+    } else if(dragMode === 'move' && dragSourceEl){
+      if(dragType === type){
+        body.appendChild(dragSourceEl);
+        dragSourceEl.classList.remove('dragging-source');
+        // restart the pop-in animation
+        dragSourceEl.classList.remove('placed');
+        void dragSourceEl.offsetWidth;
+        dragSourceEl.classList.add('placed');
+        updateCount(type);
+      } else {
+        rejectBody(body);
+      }
     }
   });
 
@@ -446,8 +521,9 @@ function buildTable(mode){
   types.forEach(t=>{
     const td = document.createElement('td');
 
-    td.appendChild(makeDropSection(t, 'upper', 'Upper section'));
-    td.appendChild(makeDropSection(t, 'lower', 'Lower section'));
+    SECTIONS.forEach(part=>{
+      td.appendChild(makeDropSection(t, part, SECTION_LABELS[part]));
+    });
 
     const footer = document.createElement('div');
     footer.className = 'col-footer';
@@ -462,8 +538,9 @@ function buildTable(mode){
     const clearBtn = document.createElement('button');
     clearBtn.textContent = 'clear column';
     clearBtn.addEventListener('click', ()=>{
-      document.getElementById('body-'+t+'-upper').innerHTML = '';
-      document.getElementById('body-'+t+'-lower').innerHTML = '';
+      SECTIONS.forEach(part=>{
+        document.getElementById('body-'+t+'-'+part).innerHTML = '';
+      });
       updateCount(t);
     });
     footer.appendChild(totalLabel);
@@ -476,24 +553,29 @@ function buildTable(mode){
   tableWrap.appendChild(table);
 }
 
-// ===== Desktop drag (HTML5 DnD) =====
+// ===== Desktop drag (HTML5 DnD) for the shelf items =====
 document.querySelectorAll('.palette-item').forEach(item=>{
   item.addEventListener('dragstart', e=>{
+    dragMode = 'copy';
+    dragType = item.dataset.type;
+    dragSourceEl = null;
     e.dataTransfer.setData('text/plain', item.dataset.type);
     e.dataTransfer.effectAllowed = 'copy';
+  });
+  item.addEventListener('dragend', ()=>{
+    dragMode = null; dragType = null; dragSourceEl = null;
   });
 });
 
 // ===== Touch / pointer drag (works on phones, tablets, and as a mouse fallback) =====
 // This custom implementation exists because the native HTML5 Drag and Drop
-// API does not fire on touch devices, so palette drags would otherwise be
-// completely broken on phones and tablets.
-let ghost = null;
-let dragType = null;
-let currentTargetBody = null;
+// API does not fire on touch devices, so drags would otherwise be completely
+// broken on phones and tablets. It mirrors the mouse behavior above for both
+// copying a new block from the shelf and moving/removing a placed block.
 
 function clearHoverStates(){
   document.querySelectorAll('.col-body.dragover').forEach(b=>b.classList.remove('dragover'));
+  paletteEl.classList.remove('remove-hover');
 }
 
 function bodyFromPoint(x, y){
@@ -502,15 +584,21 @@ function bodyFromPoint(x, y){
   return el.closest('.col-body');
 }
 
-function startTouchDrag(item, x, y){
-  dragType = item.dataset.type;
+function startDrag(item, x, y, mode, type){
+  dragMode = mode;
+  dragType = type;
+  dragSourceEl = mode === 'move' ? item : null;
 
-  // build a floating visual copy of the block to follow the finger/pointer
-  const inner = item.querySelector('.block-ones, .block-tens, .block-hundreds');
+  const visual = mode === 'copy'
+    ? item.querySelector('.block-ones, .block-tens, .block-hundreds')
+    : item;
+
   ghost = document.createElement('div');
   ghost.className = 'drag-ghost';
-  ghost.appendChild(inner.cloneNode(true));
+  ghost.appendChild(visual.cloneNode(true));
   document.body.appendChild(ghost);
+
+  if(mode === 'move') item.classList.add('dragging-source');
   moveGhost(x, y);
 }
 
@@ -524,63 +612,90 @@ function moveGhost(x, y){
   clearHoverStates();
   const body = bodyFromPoint(x, y);
   currentTargetBody = body;
-  if(body) body.classList.add('dragover');
+  if(body){
+    body.classList.add('dragover');
+  } else if(dragMode === 'move'){
+    const overPalette = paletteEl.contains(document.elementFromPoint(x, y));
+    if(overPalette) paletteEl.classList.add('remove-hover');
+  }
 }
 
-function endTouchDrag(){
+function endDrag(){
   clearHoverStates();
   if(ghost){ ghost.remove(); ghost = null; }
-  if(currentTargetBody && dragType){
-    if(currentTargetBody.dataset.type === dragType){
+
+  if(dragMode === 'copy'){
+    if(currentTargetBody && currentTargetBody.dataset.type === dragType){
       placeInBody(currentTargetBody, dragType);
-    } else {
+    } else if(currentTargetBody){
       rejectBody(currentTargetBody);
     }
+  } else if(dragMode === 'move' && dragSourceEl){
+    dragSourceEl.classList.remove('dragging-source');
+    if(currentTargetBody && currentTargetBody.dataset.type === dragType){
+      currentTargetBody.appendChild(dragSourceEl);
+      dragSourceEl.classList.remove('placed');
+      void dragSourceEl.offsetWidth;
+      dragSourceEl.classList.add('placed');
+      updateCount(dragType);
+    } else if(currentTargetBody){
+      rejectBody(currentTargetBody);
+    } else {
+      // released outside any column -- take the block out of the table
+      const removedType = dragType;
+      dragSourceEl.remove();
+      updateCount(removedType);
+    }
   }
-  currentTargetBody = null;
+
+  dragMode = null;
   dragType = null;
+  dragSourceEl = null;
+  currentTargetBody = null;
 }
 
-document.querySelectorAll('.palette-item').forEach(item=>{
-  item.addEventListener('touchstart', e=>{
+function attachManualDrag(el, mode, type){
+  el.addEventListener('touchstart', e=>{
     e.preventDefault();
     const t = e.touches[0];
-    startTouchDrag(item, t.clientX, t.clientY);
+    startDrag(el, t.clientX, t.clientY, mode, type);
   }, {passive:false});
 
-  item.addEventListener('touchmove', e=>{
+  el.addEventListener('touchmove', e=>{
     e.preventDefault();
     const t = e.touches[0];
     moveGhost(t.clientX, t.clientY);
   }, {passive:false});
 
-  item.addEventListener('touchend', e=>{
+  el.addEventListener('touchend', e=>{
     e.preventDefault();
-    endTouchDrag();
+    endDrag();
   }, {passive:false});
 
-  item.addEventListener('touchcancel', e=>{
-    endTouchDrag();
-  });
+  el.addEventListener('touchcancel', ()=> endDrag());
 
   // Pointer-based fallback covers stylus / non-standard touch browsers
   // without double-firing on devices that already support touch events.
   let usingPointer = false;
-  item.addEventListener('pointerdown', e=>{
+  el.addEventListener('pointerdown', e=>{
     if(e.pointerType === 'touch') return; // handled by touch events above
     usingPointer = true;
-    item.setPointerCapture(e.pointerId);
-    startTouchDrag(item, e.clientX, e.clientY);
+    el.setPointerCapture(e.pointerId);
+    startDrag(el, e.clientX, e.clientY, mode, type);
   });
-  item.addEventListener('pointermove', e=>{
+  el.addEventListener('pointermove', e=>{
     if(!usingPointer) return;
     moveGhost(e.clientX, e.clientY);
   });
-  item.addEventListener('pointerup', e=>{
+  el.addEventListener('pointerup', e=>{
     if(!usingPointer) return;
     usingPointer = false;
-    endTouchDrag();
+    endDrag();
   });
+}
+
+document.querySelectorAll('.palette-item').forEach(item=>{
+  attachManualDrag(item, 'copy', item.dataset.type);
 });
 
 layoutSelect.addEventListener('change', ()=> buildTable(layoutSelect.value));
