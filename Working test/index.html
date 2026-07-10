@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Place Value · Hundreds, Tens, Ones</title>
+  <title>Place Value Drawing Tool</title>
   <style>
     * {
       box-sizing: border-box;
@@ -12,37 +12,24 @@
     body {
       margin: 0;
       font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
-      background: #eef3f7;
       height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: #eef3f7;
       overflow: hidden;
     }
-    header {
-      padding: 10px 16px;
-      background: #0d47a1;
-      color: white;
-      text-align: center;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-      position: relative;
-      z-index: 10;
-    }
-    header h2 {
-      margin: 0;
-      font-weight: 500;
-      letter-spacing: 0.5px;
-    }
-    .toolbar {
-      background: white;
-      padding: 10px 12px;
+    #toolbar {
       display: flex;
       gap: 10px;
-      justify-content: center;
       flex-wrap: wrap;
+      padding: 12px 16px;
+      background: white;
       border-bottom: 1px solid #ccc;
-      position: relative;
-      z-index: 10;
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      z-index: 10;
+      align-items: center;
     }
-    .toolbar button, .toolbar select {
+    #toolbar button, #toolbar select {
       padding: 8px 18px;
       font-size: 0.95rem;
       border-radius: 30px;
@@ -53,225 +40,233 @@
       transition: 0.15s;
       box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     }
-    .toolbar button:hover {
+    #toolbar button:hover {
       background: #e3edff;
       border-color: #1976d2;
       transform: scale(0.97);
     }
-    .toolbar button:active {
+    #toolbar button:active {
       background: #c5d9ff;
     }
     #mode {
       background: white;
       min-width: 150px;
     }
-    #wrap {
-      position: relative;
-      height: calc(100vh - 110px);
-      width: 100%;
-      overflow: hidden;
-      background: #dce4ec;
+    #clear {
+      background: #ffebee;
+      border-color: #c62828;
+      color: #b71c1c;
     }
-    #draw {
+    #clear:hover {
+      background: #ffcdd2;
+    }
+    #wrap {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+      position: relative;
+    }
+    #left {
+      width: 220px;
+      padding: 16px;
+      overflow: auto;
+      background: #f8fafc;
+      border-right: 1px solid #ddd;
+      z-index: 5;
+      box-shadow: 2px 0 8px rgba(0,0,0,0.04);
+    }
+    #left p {
+      font-size: 0.95rem;
+      color: #1a2a3a;
+      margin-top: 0;
+      line-height: 1.5;
+    }
+    #left .hint-icon {
+      font-size: 2rem;
+      text-align: center;
+      margin: 20px 0;
+    }
+    #right {
+      flex: 1;
+      position: relative;
+      background: #dce4ec;
+      overflow: hidden;
+    }
+    canvas {
       position: absolute;
       inset: 0;
-      z-index: 5;
       touch-action: none;
       width: 100%;
       height: 100%;
       display: block;
+      z-index: 3;
       pointer-events: auto;
     }
     #table {
       position: absolute;
-      left: 50%;
-      top: 20px;
-      transform: translateX(-50%);
-      width: min(94vw, 820px);
-      height: 680px;   /* doubled height */
-      border: 4px solid #1a2a3a;
-      background: white;
-      z-index: 8;
-      border-radius: 18px;
-      box-shadow: 0 12px 28px rgba(0,0,0,0.25);
-      overflow: hidden;
-      transition: opacity 0.2s;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 2;
     }
-    #head {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;  /* three columns */
+    #table table {
+      border-collapse: collapse;
+      background: rgba(255,255,255,0.85);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      border-radius: 16px;
+      overflow: hidden;
+      width: min(90%, 700px);
+      backdrop-filter: blur(4px);
+      pointer-events: none;
+    }
+    #table th {
       background: #0d47a1;
       color: white;
       font-weight: 600;
       font-size: 1.1rem;
-    }
-    #head div {
       padding: 14px 0;
-      text-align: center;
-      border-right: 1px solid #2a5f9e;
+      border: 2px solid #1a2a3a;
       letter-spacing: 1px;
     }
-    #head div:last-child { border-right: none; }
-    #body {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      height: calc(100% - 54px);
-      background: #fafcff;
+    #table td {
+      border: 2px solid #1a2a3a;
+      width: 130px;
+      height: 280px;
+      text-align: center;
+      background: rgba(255,255,255,0.6);
+      transition: background 0.2s;
     }
-    .cell {
-      border: 1px solid #3e4b5e;
-      background: #ffffff;
-      position: relative;
-      min-height: 200px;
-      transition: background 0.1s;
+    #table tr:last-child td {
+      height: 280px;
     }
-    .cell:nth-child(1) { border-right: 2px solid #3e4b5e; }
-    .cell:nth-child(2) { border-right: 2px solid #3e4b5e; }
-
     /* draggable blocks */
     .block {
       position: absolute;
+      padding: 12px 20px;
+      border: 3px solid #1a2a3a;
+      border-radius: 12px;
+      background: #ffd54f;
+      color: #1a2a3a;
+      font-weight: 700;
+      font-size: 1.2rem;
       cursor: grab;
       touch-action: none;
       z-index: 20;
-      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
-      transition: filter 0.1s;
-      will-change: transform;
-      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      transition: transform 0.1s, box-shadow 0.1s;
+      letter-spacing: 0.5px;
+      min-width: 60px;
+      text-align: center;
     }
     .block:active {
       cursor: grabbing;
-      filter: drop-shadow(0 6px 10px rgba(0,0,0,0.35));
+      transform: scale(0.96);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
     }
-    .one {
-      width: 44px;
-      height: 44px;
-      background: #2e7d32;
-      border: 3px solid #1b5e20;
-      border-radius: 8px;
-      box-shadow: inset 0 -3px 0 #1b4a1b;
+    .block[data-type="Ones"] {
+      background: #81c784;
+      border-color: #2e7d32;
     }
-    .ten {
-      display: grid;
-      grid-template-columns: repeat(10, 18px);
-      gap: 2px;
-      background: #e65100;
-      padding: 6px;
-      border-radius: 10px;
-      border: 3px solid #bf360c;
-      box-shadow: inset 0 -3px 0 #8d2b00;
-      width: fit-content;
-    }
-    .ten div {
-      width: 18px;
-      height: 18px;
+    .block[data-type="Tens"] {
       background: #ffb74d;
-      border: 1px solid #a85d00;
-      border-radius: 3px;
-      box-shadow: inset 0 -1px 0 #6d3a00;
+      border-color: #bf360c;
     }
-    .hundred {
-      display: grid;
-      grid-template-columns: repeat(10, 18px);
-      gap: 2px;
-      background: #1a237e;
-      padding: 6px;
-      border-radius: 10px;
-      border: 3px solid #0d1442;
-      box-shadow: inset 0 -3px 0 #070b2a;
-      width: fit-content;
-    }
-    .hundred div {
-      width: 18px;
-      height: 18px;
+    .block[data-type="Hundreds"] {
       background: #64b5f6;
-      border: 1px solid #0d47a1;
-      border-radius: 3px;
-      box-shadow: inset 0 -1px 0 #0a2a5e;
+      border-color: #0d47a1;
+      color: #0d1a3a;
     }
-
-    @media (max-width: 600px) {
-      .ten, .hundred {
-        grid-template-columns: repeat(1, 18px);
-        grid-template-rows: repeat(10, 18px);
-        padding: 4px;
-        gap: 2px;
-      }
-      .one { width: 38px; height: 38px; }
-    }
-    #clear { background: #ffebee; border-color: #c62828; color: #b71c1c; }
-    #clear:hover { background: #ffcdd2; }
-
-    .hint {
+    #delete {
       position: absolute;
-      bottom: 12px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0,0,0,0.6);
-      color: #eee;
-      padding: 4px 18px;
+      right: 20px;
+      bottom: 20px;
+      background: #d32f2f;
+      color: white;
+      padding: 12px 24px;
       border-radius: 40px;
-      font-size: 0.8rem;
+      font-weight: 600;
+      font-size: 1rem;
+      border: none;
+      box-shadow: 0 4px 12px rgba(211,47,47,0.4);
+      cursor: pointer;
       z-index: 30;
-      pointer-events: none;
-      opacity: 0.5;
-      backdrop-filter: blur(2px);
+      transition: 0.2s;
+      letter-spacing: 0.5px;
     }
-    /* double-tap delete style */
-    .block.selected-for-delete {
-      outline: 4px solid #ff1744;
-      outline-offset: 3px;
-      filter: drop-shadow(0 0 8px #ff1744);
+    #delete:hover {
+      background: #b71c1c;
+      transform: scale(1.04);
+      box-shadow: 0 6px 16px rgba(211,47,47,0.5);
+    }
+    #delete:active {
+      transform: scale(0.94);
+    }
+    /* responsive */
+    @media (max-width: 700px) {
+      #left {
+        display: none;
+      }
+      #table td {
+        width: 80px;
+        height: 200px;
+      }
+      #table th {
+        font-size: 0.9rem;
+        padding: 10px 0;
+      }
+      .block {
+        padding: 8px 14px;
+        font-size: 1rem;
+        min-width: 40px;
+      }
     }
   </style>
 </head>
 <body>
-<header>
-  <h2>🧮 Place Value · Hundreds · Tens · Ones</h2>
-</header>
-<div class="toolbar">
-  <select id="mode" aria-label="Table visibility">
+<div id="toolbar">
+  <select id="mode" aria-label="Table columns">
     <option value="none">No Table</option>
-    <option value="table" selected>3-Column Table</option>
+    <option value="2" selected>2 Columns</option>
+    <option value="3">3 Columns</option>
   </select>
-  <button id="add100">➕ Hundreds</button>
-  <button id="add10">➕ Tens</button>
-  <button id="add1">➕ Ones</button>
+  <button id="addOnes">➕ Ones</button>
+  <button id="addTens">➕ Tens</button>
+  <button id="addHundreds">➕ Hundreds</button>
   <button id="clear">🧹 Clear Drawing</button>
 </div>
 <div id="wrap">
-  <canvas id="draw"></canvas>
-  <div id="table">
-    <div id="head">
-      <div>Hundreds</div>
-      <div>Tens</div>
-      <div>Ones</div>
-    </div>
-    <div id="body">
-      <div class="cell" id="cellHundreds"></div>
-      <div class="cell" id="cellTens"></div>
-      <div class="cell" id="cellOnes"></div>
-    </div>
+  <div id="left">
+    <p><strong>📐 Place Value</strong></p>
+    <p>Drag blocks into the columns.<br>Draw on the canvas with red pen.</p>
+    <div class="hint-icon">🖱️✏️</div>
+    <p style="font-size:0.8rem; color:#555;">Drop a block on the 🗑️ trash to delete it.</p>
   </div>
-  <div class="hint">✏️ Draw · drag blocks · double-tap any block to delete</div>
+  <div id="right">
+    <canvas id="c"></canvas>
+    <div id="table"></div>
+    <button id="delete">🗑️ Delete</button>
+  </div>
 </div>
 
 <script>
   (function() {
-    const wrap = document.getElementById('wrap');
-    const canvas = document.getElementById('draw');
-    const ctx = canvas.getContext('2d');
-    const table = document.getElementById('table');
+    const cv = document.getElementById('c');
+    const ctx = cv.getContext('2d');
+    const right = document.getElementById('right');
+    const tableDiv = document.getElementById('table');
     const modeSelect = document.getElementById('mode');
     const clearBtn = document.getElementById('clear');
+    const deleteBtn = document.getElementById('delete');
 
     // ----- resize canvas -----
     function resizeCanvas() {
-      const rect = wrap.getBoundingClientRect();
-      canvas.width = rect.width;
-      canvas.height = rect.height;
-      canvas.style.width = rect.width + 'px';
-      canvas.style.height = rect.height + 'px';
+      const rect = right.getBoundingClientRect();
+      cv.width = rect.width;
+      cv.height = rect.height;
+      cv.style.width = rect.width + 'px';
+      cv.style.height = rect.height + 'px';
       ctx.strokeStyle = '#c62828';
       ctx.lineWidth = 3;
       ctx.lineCap = 'round';
@@ -285,13 +280,13 @@
     let lastX = 0, lastY = 0;
 
     function getCanvasCoords(e) {
-      const rect = canvas.getBoundingClientRect();
+      const rect = cv.getBoundingClientRect();
       const clientX = e.clientX || (e.touches && e.touches[0].clientX);
       const clientY = e.clientY || (e.touches && e.touches[0].clientY);
       if (clientX === undefined) return { x: 0, y: 0 };
       return {
-        x: (clientX - rect.left) * (canvas.width / rect.width),
-        y: (clientY - rect.top) * (canvas.height / rect.height)
+        x: (clientX - rect.left) * (cv.width / rect.width),
+        y: (clientY - rect.top) * (cv.height / rect.height)
       };
     }
 
@@ -320,60 +315,55 @@
       isDrawing = false;
     }
 
-    canvas.addEventListener('mousedown', startDraw);
-    canvas.addEventListener('mousemove', draw);
-    canvas.addEventListener('mouseup', stopDraw);
-    canvas.addEventListener('mouseleave', stopDraw);
-    canvas.addEventListener('touchstart', startDraw, { passive: false });
-    canvas.addEventListener('touchmove', draw, { passive: false });
-    canvas.addEventListener('touchend', stopDraw, { passive: false });
-    canvas.addEventListener('touchcancel', stopDraw, { passive: false });
+    cv.addEventListener('mousedown', startDraw);
+    cv.addEventListener('mousemove', draw);
+    cv.addEventListener('mouseup', stopDraw);
+    cv.addEventListener('mouseleave', stopDraw);
+    cv.addEventListener('touchstart', startDraw, { passive: false });
+    cv.addEventListener('touchmove', draw, { passive: false });
+    cv.addEventListener('touchend', stopDraw, { passive: false });
+    cv.addEventListener('touchcancel', stopDraw, { passive: false });
 
+    // ----- clear drawing -----
     clearBtn.addEventListener('click', function() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(0, 0, cv.width, cv.height);
       ctx.strokeStyle = '#c62828';
       ctx.lineWidth = 3;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
     });
 
-    // ----- table visibility -----
-    modeSelect.addEventListener('change', function() {
-      table.style.display = this.value === 'none' ? 'none' : 'block';
-    });
-    table.style.display = 'block';
+    // ----- render table -----
+    function renderTable() {
+      const mode = modeSelect.value;
+      let html = '';
+      if (mode === 'none') {
+        tableDiv.innerHTML = '';
+        return;
+      }
+      if (mode === '2') {
+        html = `<table>
+          <tr><th>Tens</th><th>Ones</th></tr>
+          <tr><td></td><td></td></tr>
+        </table>`;
+      } else if (mode === '3') {
+        html = `<table>
+          <tr><th>Hundreds</th><th>Tens</th><th>Ones</th></tr>
+          <tr><td></td><td></td><td></td></tr>
+        </table>`;
+      }
+      tableDiv.innerHTML = html;
+    }
+    modeSelect.addEventListener('change', renderTable);
+    renderTable();
 
-    // ----- drag & drop (with double-tap delete) -----
+    // ----- drag & drop with trash -----
     function makeDraggable(el) {
       let offsetX = 0, offsetY = 0;
       let isDragging = false;
-      let tapTimer = null;
-
-      // double-tap detection (delete)
-      function handleDoubleTap(e) {
-        if (tapTimer) {
-          clearTimeout(tapTimer);
-          tapTimer = null;
-          // delete this block
-          if (el.parentNode) {
-            el.remove();
-          }
-          return true;
-        } else {
-          tapTimer = setTimeout(() => {
-            tapTimer = null;
-          }, 300);
-          return false;
-        }
-      }
 
       function onPointerDown(e) {
         e.preventDefault();
-        // check for double-tap
-        if (handleDoubleTap(e)) {
-          return; // deleted
-        }
-
         const pointer = e.pointerId !== undefined ? e : e.touches?.[0] || e;
         const rect = el.getBoundingClientRect();
         const clientX = pointer.clientX || pointer.pageX;
@@ -383,9 +373,8 @@
         isDragging = true;
         if (el.setPointerCapture) el.setPointerCapture(e.pointerId);
         el.style.cursor = 'grabbing';
-        el.style.transition = 'none';
         el.style.zIndex = 30;
-        el.classList.remove('selected-for-delete');
+        el.style.transition = 'none';
       }
 
       function onPointerMove(e) {
@@ -394,13 +383,13 @@
         const pointer = e.pointerId !== undefined ? e : e.touches?.[0] || e;
         const clientX = pointer.clientX || pointer.pageX;
         const clientY = pointer.clientY || pointer.pageY;
-        const wrapRect = wrap.getBoundingClientRect();
-        let left = clientX - wrapRect.left - offsetX;
-        let top = clientY - wrapRect.top - offsetY;
-        const elW = el.offsetWidth || 44;
-        const elH = el.offsetHeight || 44;
-        left = Math.max(0, Math.min(left, wrapRect.width - elW - 2));
-        top = Math.max(0, Math.min(top, wrapRect.height - elH - 2));
+        const rightRect = right.getBoundingClientRect();
+        let left = clientX - rightRect.left - offsetX;
+        let top = clientY - rightRect.top - offsetY;
+        const elW = el.offsetWidth || 60;
+        const elH = el.offsetHeight || 50;
+        left = Math.max(0, Math.min(left, rightRect.width - elW - 2));
+        top = Math.max(0, Math.min(top, rightRect.height - elH - 2));
         el.style.left = left + 'px';
         el.style.top = top + 'px';
       }
@@ -413,6 +402,15 @@
           el.style.transition = 'filter 0.1s';
           if (e && e.pointerId !== undefined && el.releasePointerCapture) {
             el.releasePointerCapture(e.pointerId);
+          }
+          // check if dropped on trash
+          const trashRect = deleteBtn.getBoundingClientRect();
+          const elRect = el.getBoundingClientRect();
+          if (!(elRect.right < trashRect.left || 
+                elRect.left > trashRect.right || 
+                elRect.bottom < trashRect.top || 
+                elRect.top > trashRect.bottom)) {
+            el.remove();
           }
         }
       }
@@ -437,43 +435,45 @@
       el.addEventListener('contextmenu', (e) => e.preventDefault());
     }
 
-    // ----- block factories -----
-    function createBlock(className, label) {
-      const block = document.createElement('div');
-      block.className = 'block ' + className;
-      if (className === 'ten' || className === 'hundred') {
-        for (let i = 0; i < 10; i++) {
-          const mini = document.createElement('div');
-          block.appendChild(mini);
-        }
-      }
-      const wrapRect = wrap.getBoundingClientRect();
-      const left = 30 + Math.random() * (wrapRect.width - 160);
-      const top = 60 + Math.random() * (wrapRect.height - 240);
-      block.style.left = Math.min(left, wrapRect.width - 100) + 'px';
-      block.style.top = Math.min(top, wrapRect.height - 120) + 'px';
-      wrap.appendChild(block);
-      makeDraggable(block);
-      return block;
+    // ----- create block -----
+    function createBlock(type) {
+      const el = document.createElement('div');
+      el.className = 'block';
+      el.textContent = type;
+      el.dataset.type = type;
+      // random position inside right
+      const rect = right.getBoundingClientRect();
+      const left = 20 + Math.random() * (rect.width - 120);
+      const top = 20 + Math.random() * (rect.height - 120);
+      el.style.left = Math.min(left, rect.width - 80) + 'px';
+      el.style.top = Math.min(top, rect.height - 80) + 'px';
+      right.appendChild(el);
+      makeDraggable(el);
+      return el;
     }
 
-    document.getElementById('add1').addEventListener('click', () => createBlock('one'));
-    document.getElementById('add10').addEventListener('click', () => createBlock('ten'));
-    document.getElementById('add100').addEventListener('click', () => createBlock('hundred'));
+    document.getElementById('addOnes').addEventListener('click', () => createBlock('Ones'));
+    document.getElementById('addTens').addEventListener('click', () => createBlock('Tens'));
+    document.getElementById('addHundreds').addEventListener('click', () => createBlock('Hundreds'));
 
-    // ----- initial demo blocks -----
+    // ----- delete button (click to remove selected? we keep drop) -----
+    // trash button also works as a drop target, but we already handle drop.
+    // also allow clicking trash to delete any block that is "selected" via double-click? 
+    // We'll keep drop-only to avoid confusion.
+
+    // ----- start with demo blocks -----
     window.addEventListener('load', function() {
       setTimeout(() => {
-        const h = createBlock('hundred');
-        h.style.left = '80px';
-        h.style.top = '180px';
-        const t = createBlock('ten');
-        t.style.left = '220px';
-        t.style.top = '140px';
-        const o = createBlock('one');
-        o.style.left = '360px';
-        o.style.top = '200px';
-      }, 60);
+        const h = createBlock('Hundreds');
+        h.style.left = '60px';
+        h.style.top = '80px';
+        const t = createBlock('Tens');
+        t.style.left = '200px';
+        t.style.top = '120px';
+        const o = createBlock('Ones');
+        o.style.left = '340px';
+        o.style.top = '160px';
+      }, 100);
     });
 
     // preserve drawing style
@@ -483,14 +483,13 @@
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
     }
-    const origResize = resizeCanvas;
     window.addEventListener('resize', function() {
       resizeCanvas();
       resetDrawStyle();
     });
-    canvas.addEventListener('mouseup', resetDrawStyle);
-    canvas.addEventListener('touchend', resetDrawStyle);
-    canvas.addEventListener('dragstart', (e) => e.preventDefault());
+    cv.addEventListener('mouseup', resetDrawStyle);
+    cv.addEventListener('touchend', resetDrawStyle);
+    cv.addEventListener('dragstart', (e) => e.preventDefault());
 
   })();
 </script>
