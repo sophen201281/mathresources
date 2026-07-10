@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Place Value · Squares, Tens, Hundreds</title>
+  <title>Place Value · Ones, Tens, Hundreds</title>
   <style>
     * {
       box-sizing: border-box;
@@ -148,7 +148,7 @@
     #table tr:last-child td {
       height: 280px;
     }
-    /* draggable blocks - square based */
+    /* draggable blocks */
     .block {
       position: absolute;
       cursor: grab;
@@ -173,91 +173,94 @@
       outline-offset: 4px;
       filter: drop-shadow(0 0 10px #ff1744);
     }
-    /* One square */
+    /* ----- ONE: orange square ----- */
     .block.one {
       width: 48px;
       height: 48px;
-      background: #2e7d32;
-      border: 3px solid #1b5e20;
-      border-radius: 8px;
-      box-shadow: inset 0 -3px 0 #1b4a1b, 0 4px 8px rgba(0,0,0,0.2);
+      background: #ff8c00;
+      border: 3px solid #cc6a00;
+      border-radius: 6px;
+      box-shadow: inset 0 -3px 0 #b85e00, 0 4px 8px rgba(0,0,0,0.2);
       padding: 0;
     }
-    /* Tens: 10 small squares */
+    /* ----- TEN: vertical stack of 10 ones ----- */
     .block.ten {
-      width: fit-content;
+      width: 48px;
       height: fit-content;
-      background: #e65100;
-      padding: 6px;
-      border-radius: 10px;
+      background: transparent;
+      padding: 4px;
       border: 3px solid #bf360c;
+      border-radius: 8px;
+      background: #e65100;
       box-shadow: inset 0 -3px 0 #8d2b00, 0 4px 8px rgba(0,0,0,0.2);
-      display: grid;
-      grid-template-columns: repeat(5, 20px);
-      gap: 3px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      align-items: center;
     }
     .block.ten .mini {
-      width: 20px;
-      height: 20px;
-      background: #ffb74d;
-      border: 1px solid #a85d00;
-      border-radius: 3px;
-      box-shadow: inset 0 -1px 0 #6d3a00;
+      width: 36px;
+      height: 36px;
+      background: #ff8c00;
+      border: 2px solid #cc6a00;
+      border-radius: 4px;
+      box-shadow: inset 0 -2px 0 #b85e00;
+      flex-shrink: 0;
     }
-    /* Hundreds: 10 tens (100 squares) */
+    /* ----- HUNDRED: 10 tens in a grid (2 rows of 5) ----- */
     .block.hundred {
       width: fit-content;
       height: fit-content;
       background: #1a237e;
       padding: 8px;
-      border-radius: 12px;
+      border-radius: 10px;
       border: 3px solid #0d1442;
       box-shadow: inset 0 -3px 0 #070b2a, 0 4px 12px rgba(0,0,0,0.25);
       display: grid;
-      grid-template-columns: repeat(5, 20px);
+      grid-template-columns: repeat(5, 48px);
       gap: 4px;
     }
-    .block.hundred .mini-ten {
-      display: grid;
-      grid-template-columns: repeat(5, 20px);
+    .block.hundred .ten-group {
+      display: flex;
+      flex-direction: column;
       gap: 2px;
       background: rgba(255,255,255,0.08);
       padding: 3px;
       border-radius: 4px;
-      border: 1px solid rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.12);
+      align-items: center;
     }
-    .block.hundred .mini-ten .mini {
-      width: 20px;
-      height: 20px;
-      background: #64b5f6;
-      border: 1px solid #0d47a1;
-      border-radius: 2px;
-      box-shadow: inset 0 -1px 0 #0a2a5e;
+    .block.hundred .ten-group .mini {
+      width: 36px;
+      height: 36px;
+      background: #ff8c00;
+      border: 2px solid #cc6a00;
+      border-radius: 4px;
+      box-shadow: inset 0 -2px 0 #b85e00;
+      flex-shrink: 0;
     }
-    @media (max-width: 600px) {
+    @media (max-width: 700px) {
+      .block.one {
+        width: 38px;
+        height: 38px;
+      }
       .block.ten {
-        grid-template-columns: repeat(5, 16px);
+        width: 38px;
+        padding: 3px;
         gap: 2px;
       }
       .block.ten .mini {
-        width: 16px;
-        height: 16px;
+        width: 28px;
+        height: 28px;
       }
       .block.hundred {
-        grid-template-columns: repeat(5, 16px);
+        grid-template-columns: repeat(5, 38px);
         gap: 3px;
+        padding: 6px;
       }
-      .block.hundred .mini-ten {
-        grid-template-columns: repeat(5, 16px);
-        gap: 1px;
-      }
-      .block.hundred .mini-ten .mini {
-        width: 16px;
-        height: 16px;
-      }
-      .block.one {
-        width: 40px;
-        height: 40px;
+      .block.hundred .ten-group .mini {
+        width: 28px;
+        height: 28px;
       }
     }
     #deleteSelected {
@@ -280,7 +283,7 @@
     <option value="2" selected>2 Columns</option>
     <option value="3">3 Columns</option>
   </select>
-  <button id="addOnes">⬜ Ones</button>
+  <button id="addOnes">🟧 Ones</button>
   <button id="addTens">📦 Tens</button>
   <button id="addHundreds">📦 Hundreds</button>
   <button id="clear">🧹 Clear Drawing</button>
@@ -290,9 +293,9 @@
 <div id="wrap">
   <div id="left">
     <p><strong>📐 Place Value</strong></p>
-    <p>Click a block to select it.<br>Drag blocks freely.<br>Draw on canvas with red pen.</p>
+    <p>🟧 One = orange square<br>📦 Ten = 10 ones (vertical)<br>📦 Hundred = 10 tens</p>
     <div class="hint-icon">🖱️✏️</div>
-    <p style="font-size:0.8rem; color:#555;">Selected blocks have a red outline.<br>Use "Delete Selected" to remove them.</p>
+    <p style="font-size:0.8rem; color:#555;">Click a block to select it.<br>Use "Delete Selected" to remove.</p>
   </div>
   <div id="right">
     <canvas id="c"></canvas>
@@ -418,7 +421,6 @@
 
     function selectBlock(el) {
       if (selectedBlocks.has(el)) {
-        // deselect
         el.classList.remove('selected');
         selectedBlocks.delete(el);
       } else {
@@ -440,12 +442,10 @@
     function makeDraggable(el) {
       let offsetX = 0, offsetY = 0;
       let isDragging = false;
-      let clickTimer = null;
       let hasMoved = false;
 
       function onPointerDown(e) {
         e.preventDefault();
-        // detect click vs drag
         hasMoved = false;
         const pointer = e.pointerId !== undefined ? e : e.touches?.[0] || e;
         const rect = el.getBoundingClientRect();
@@ -487,28 +487,21 @@
           if (e && e.pointerId !== undefined && el.releasePointerCapture) {
             el.releasePointerCapture(e.pointerId);
           }
-          // if not moved, treat as click → toggle selection
           if (!hasMoved) {
-            // clear other selections if shift not pressed (we keep it simple: toggle)
-            // For better UX: click toggles selection without clearing others.
-            // But we want multi-select: click toggles.
             selectBlock(el);
           }
         }
       }
 
-      // mouse
       el.addEventListener('mousedown', onPointerDown);
       window.addEventListener('mousemove', onPointerMove);
       window.addEventListener('mouseup', onPointerUp);
 
-      // touch
       el.addEventListener('touchstart', onPointerDown, { passive: false });
       window.addEventListener('touchmove', onPointerMove, { passive: false });
       window.addEventListener('touchend', onPointerUp, { passive: false });
       window.addEventListener('touchcancel', onPointerUp, { passive: false });
 
-      // pointer events
       el.addEventListener('pointerdown', onPointerDown);
       el.addEventListener('pointermove', onPointerMove);
       el.addEventListener('pointerup', onPointerUp);
@@ -524,18 +517,19 @@
       el.dataset.type = type;
 
       if (type === 'Ones') {
-        // just the square
+        // just the orange square
       } else if (type === 'Tens') {
+        // vertical stack of 10 ones
         for (let i = 0; i < 10; i++) {
           const mini = document.createElement('div');
           mini.className = 'mini';
           el.appendChild(mini);
         }
       } else if (type === 'Hundreds') {
-        // 10 tens
+        // 10 tens in a grid (2 rows of 5)
         for (let t = 0; t < 10; t++) {
           const tenGroup = document.createElement('div');
-          tenGroup.className = 'mini-ten';
+          tenGroup.className = 'ten-group';
           for (let i = 0; i < 10; i++) {
             const mini = document.createElement('div');
             mini.className = 'mini';
@@ -547,10 +541,10 @@
 
       // position randomly
       const rect = right.getBoundingClientRect();
-      const left = 20 + Math.random() * (rect.width - 180);
-      const top = 20 + Math.random() * (rect.height - 180);
-      el.style.left = Math.min(left, rect.width - 100) + 'px';
-      el.style.top = Math.min(top, rect.height - 100) + 'px';
+      const left = 20 + Math.random() * (rect.width - 200);
+      const top = 20 + Math.random() * (rect.height - 200);
+      el.style.left = Math.min(left, rect.width - 120) + 'px';
+      el.style.top = Math.min(top, rect.height - 120) + 'px';
       right.appendChild(el);
       makeDraggable(el);
       return el;
@@ -574,14 +568,14 @@
     window.addEventListener('load', function() {
       setTimeout(() => {
         const h = createBlock('Hundreds');
-        h.style.left = '60px';
-        h.style.top = '60px';
+        h.style.left = '40px';
+        h.style.top = '40px';
         const t = createBlock('Tens');
         t.style.left = '220px';
-        t.style.top = '120px';
+        t.style.top = '100px';
         const o = createBlock('Ones');
         o.style.left = '380px';
-        o.style.top = '180px';
+        o.style.top = '160px';
       }, 100);
     });
 
