@@ -154,16 +154,29 @@
     border:1px solid var(--line);
     padding:10px;
     min-width:150px;
-    height:340px;
+  }
+  .col-section{
+    border:1px solid var(--line);
+    border-radius:8px;
+    margin-bottom:8px;
+    padding:8px;
+    background:#fffdf8;
+  }
+  .section-label{
+    font-size:.68rem;
+    text-transform:uppercase;
+    letter-spacing:.07em;
+    color:#9a9280;
+    margin-bottom:6px;
   }
   .col-body{
     display:flex;
     flex-wrap:wrap;
     align-content:flex-start;
     gap:6px;
-    height:260px;
+    height:150px;
     overflow-y:auto;
-    border-radius:8px;
+    border-radius:6px;
     transition:background .15s;
   }
   .col-body.dragover{ background:var(--accent-soft); }
@@ -283,11 +296,49 @@ function makeMiniBlock(type){
 }
 
 function updateCount(type){
-  const body = document.getElementById('body-'+type);
+  const upper = document.getElementById('body-'+type+'-upper');
+  const lower = document.getElementById('body-'+type+'-lower');
   const countEl = document.getElementById('count-'+type);
-  if(body && countEl){
-    countEl.textContent = body.children.length;
+  if(upper && lower && countEl){
+    countEl.textContent = upper.children.length + lower.children.length;
   }
+}
+
+function makeDropSection(type, part, label){
+  const section = document.createElement('div');
+  section.className = 'col-section';
+
+  const labelEl = document.createElement('div');
+  labelEl.className = 'section-label';
+  labelEl.textContent = label;
+  section.appendChild(labelEl);
+
+  const body = document.createElement('div');
+  body.className = 'col-body';
+  body.id = 'body-'+type+'-'+part;
+  body.dataset.type = type;
+
+  body.addEventListener('dragover', e=>{
+    e.preventDefault();
+    body.classList.add('dragover');
+  });
+  body.addEventListener('dragleave', ()=> body.classList.remove('dragover'));
+  body.addEventListener('drop', e=>{
+    e.preventDefault();
+    body.classList.remove('dragover');
+    const droppedType = e.dataTransfer.getData('text/plain');
+    if(droppedType === type){
+      const mini = makeMiniBlock(type);
+      body.appendChild(mini);
+      updateCount(type);
+    } else {
+      body.classList.add('rejected');
+      setTimeout(()=>body.classList.remove('rejected'), 300);
+    }
+  });
+
+  section.appendChild(body);
+  return section;
 }
 
 function buildTable(mode){
@@ -316,46 +367,29 @@ function buildTable(mode){
   types.forEach(t=>{
     const td = document.createElement('td');
 
-    const body = document.createElement('div');
-    body.className = 'col-body';
-    body.id = 'body-'+t;
-    body.dataset.type = t;
-
-    body.addEventListener('dragover', e=>{
-      e.preventDefault();
-      body.classList.add('dragover');
-    });
-    body.addEventListener('dragleave', ()=> body.classList.remove('dragover'));
-    body.addEventListener('drop', e=>{
-      e.preventDefault();
-      body.classList.remove('dragover');
-      const droppedType = e.dataTransfer.getData('text/plain');
-      if(droppedType === t){
-        const mini = makeMiniBlock(t);
-        body.appendChild(mini);
-        updateCount(t);
-      } else {
-        body.classList.add('rejected');
-        setTimeout(()=>body.classList.remove('rejected'), 300);
-      }
-    });
+    td.appendChild(makeDropSection(t, 'upper', 'Upper section'));
+    td.appendChild(makeDropSection(t, 'lower', 'Lower section'));
 
     const footer = document.createElement('div');
     footer.className = 'col-footer';
+    const totalLabel = document.createElement('span');
+    totalLabel.textContent = 'Total: ';
     const countSpan = document.createElement('span');
     countSpan.id = 'count-'+t;
     countSpan.textContent = '0';
     countSpan.style.fontWeight = 'bold';
+    totalLabel.appendChild(countSpan);
+
     const clearBtn = document.createElement('button');
-    clearBtn.textContent = 'clear';
+    clearBtn.textContent = 'clear column';
     clearBtn.addEventListener('click', ()=>{
-      body.innerHTML = '';
+      document.getElementById('body-'+t+'-upper').innerHTML = '';
+      document.getElementById('body-'+t+'-lower').innerHTML = '';
       updateCount(t);
     });
-    footer.appendChild(countSpan);
+    footer.appendChild(totalLabel);
     footer.appendChild(clearBtn);
 
-    td.appendChild(body);
     td.appendChild(footer);
     trow.appendChild(td);
   });
