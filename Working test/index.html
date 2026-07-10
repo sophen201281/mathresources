@@ -173,26 +173,26 @@
       outline-offset: 4px;
       filter: drop-shadow(0 0 10px #ff1744);
     }
-    /* ----- ONE: orange square ----- */
+    /* ----- ONE: red square ----- */
     .block.one {
       width: 48px;
       height: 48px;
-      background: #ff8c00;
-      border: 3px solid #cc6a00;
-      border-radius: 6px;
-      box-shadow: inset 0 -3px 0 #b85e00, 0 4px 8px rgba(0,0,0,0.2);
+      background: #e53935;
+      border: 3px solid #b71c1c;
+      border-radius: 4px;
+      box-shadow: inset 0 -3px 0 #8e0000, 0 4px 8px rgba(0,0,0,0.2);
       padding: 0;
     }
-    /* ----- TEN: vertical stack of 10 ones ----- */
+    /* ----- TEN: vertical stack of 10 green squares ----- */
     .block.ten {
       width: 48px;
       height: fit-content;
       background: transparent;
       padding: 4px;
-      border: 3px solid #bf360c;
+      border: 3px solid #2e7d32;
       border-radius: 8px;
-      background: #e65100;
-      box-shadow: inset 0 -3px 0 #8d2b00, 0 4px 8px rgba(0,0,0,0.2);
+      background: #388e3c;
+      box-shadow: inset 0 -3px 0 #1b5e20, 0 4px 8px rgba(0,0,0,0.2);
       display: flex;
       flex-direction: column;
       gap: 2px;
@@ -201,21 +201,21 @@
     .block.ten .mini {
       width: 36px;
       height: 36px;
-      background: #ff8c00;
-      border: 2px solid #cc6a00;
+      background: #4caf50;
+      border: 2px solid #2e7d32;
       border-radius: 4px;
-      box-shadow: inset 0 -2px 0 #b85e00;
+      box-shadow: inset 0 -2px 0 #1b5e20;
       flex-shrink: 0;
     }
     /* ----- HUNDRED: 10 tens in a grid (2 rows of 5) ----- */
     .block.hundred {
       width: fit-content;
       height: fit-content;
-      background: #1a237e;
+      background: #c62828;
       padding: 8px;
       border-radius: 10px;
-      border: 3px solid #0d1442;
-      box-shadow: inset 0 -3px 0 #070b2a, 0 4px 12px rgba(0,0,0,0.25);
+      border: 3px solid #8e0000;
+      box-shadow: inset 0 -3px 0 #5c0000, 0 4px 12px rgba(0,0,0,0.25);
       display: grid;
       grid-template-columns: repeat(5, 48px);
       gap: 4px;
@@ -233,10 +233,10 @@
     .block.hundred .ten-group .mini {
       width: 36px;
       height: 36px;
-      background: #ff8c00;
-      border: 2px solid #cc6a00;
+      background: #e53935;
+      border: 2px solid #b71c1c;
       border-radius: 4px;
-      box-shadow: inset 0 -2px 0 #b85e00;
+      box-shadow: inset 0 -2px 0 #8e0000;
       flex-shrink: 0;
     }
     @media (max-width: 700px) {
@@ -283,9 +283,9 @@
     <option value="2" selected>2 Columns</option>
     <option value="3">3 Columns</option>
   </select>
-  <button id="addOnes">🟧 Ones</button>
-  <button id="addTens">📦 Tens</button>
-  <button id="addHundreds">📦 Hundreds</button>
+  <button id="addOnes">🟥 Ones</button>
+  <button id="addTens">🟩 Tens</button>
+  <button id="addHundreds">🟥 Hundreds</button>
   <button id="clear">🧹 Clear Drawing</button>
   <button id="deleteSelected">🗑️ Delete Selected</button>
   <span id="status">0 selected</span>
@@ -293,7 +293,7 @@
 <div id="wrap">
   <div id="left">
     <p><strong>📐 Place Value</strong></p>
-    <p>🟧 One = orange square<br>📦 Ten = 10 ones (vertical)<br>📦 Hundred = 10 tens</p>
+    <p>🟥 One = red square<br>🟩 Ten = 10 green squares (vertical)<br>🟥 Hundred = 100 red squares (10 tens)</p>
     <div class="hint-icon">🖱️✏️</div>
     <p style="font-size:0.8rem; color:#555;">Click a block to select it.<br>Use "Delete Selected" to remove.</p>
   </div>
@@ -517,16 +517,16 @@
       el.dataset.type = type;
 
       if (type === 'Ones') {
-        // just the orange square
+        // red square
       } else if (type === 'Tens') {
-        // vertical stack of 10 ones
+        // vertical stack of 10 green squares
         for (let i = 0; i < 10; i++) {
           const mini = document.createElement('div');
           mini.className = 'mini';
           el.appendChild(mini);
         }
       } else if (type === 'Hundreds') {
-        // 10 tens in a grid (2 rows of 5)
+        // 10 tens in a grid (2 rows of 5) - all red squares
         for (let t = 0; t < 10; t++) {
           const tenGroup = document.createElement('div');
           tenGroup.className = 'ten-group';
@@ -571,10 +571,10 @@
         h.style.left = '40px';
         h.style.top = '40px';
         const t = createBlock('Tens');
-        t.style.left = '220px';
+        t.style.left = '240px';
         t.style.top = '100px';
         const o = createBlock('Ones');
-        o.style.left = '380px';
+        o.style.left = '400px';
         o.style.top = '160px';
       }, 100);
     });
