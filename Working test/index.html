@@ -1,378 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>តារាងតម្លៃលេខតាមខ្ទង់</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --paper:#faf7f0;
-    --ink:#2e2a24;
-    --line:#d8d0c0;
-    --yellow:#f4c430;
-    --yellow-dark:#c99a00;
-    --accent:#3d5a52;
-    --accent-soft:#e8efec;
-  }
-  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-  html{ -webkit-text-size-adjust:100%; }
-  body{
-    margin:0;
-    font-family:'Battambang', 'Segoe UI', system-ui, -apple-system, sans-serif;
-    background:var(--paper);
-    color:var(--ink);
-    padding:16px;
-    touch-action:manipulation;
-  }
-  h1{
-    font-size:1.4rem;
-    margin:0 0 4px 0;
-    letter-spacing:.02em;
-  }
-  p.sub{
-    margin:0 0 20px 0;
-    color:#6b6455;
-    font-size:.92rem;
-  }
-  .controls{
-    display:flex;
-    align-items:center;
-    gap:12px;
-    margin-bottom:20px;
-    flex-wrap:wrap;
-  }
-  select{
-    font-family:inherit;
-    font-size:1rem;
-    padding:8px 12px;
-    border-radius:8px;
-    border:1px solid var(--line);
-    background:white;
-    color:var(--ink);
-  }
-  button.reset{
-    font-family:inherit;
-    font-size:.9rem;
-    padding:10px 14px;
-    border-radius:8px;
-    border:1px solid var(--accent);
-    background:white;
-    color:var(--accent);
-    cursor:pointer;
-  }
-  button.reset:hover{ background:var(--accent-soft); }
-  button.reset:active{ background:var(--accent-soft); }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>តារាងតម្លៃលេខតាមខ្ទង់</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body { margin: 0; font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif; background: #faf7f0; color: #2e2a24; padding: 16px; touch-action: manipulation; }
+    h1 { font-size: 1.4rem; margin: 0 0 4px 0; }
+    p.sub { margin: 0 0 20px 0; color: #6b6455; font-size: .92rem; }
+    .controls { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+    select { font-family: inherit; font-size: 1rem; padding: 8px 12px; border-radius: 8px; border: 1px solid #d8d0c0; background: white; }
+    button.reset { font-family: inherit; font-size: .9rem; padding: 10px 14px; border-radius: 8px; border: 1px solid #3d5a52; background: white; color: #3d5a52; cursor: pointer; }
+    button.reset:hover { background: #e8efec; }
+    .layout { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
 
-  .layout{
-    display:flex;
-    gap:24px;
-    align-items:flex-start;
-    flex-wrap:wrap;
-  }
+    /* palette */
+    .palette { background: white; border: 1px solid #d8d0c0; border-radius: 12px; padding: 16px; width: 220px; flex-shrink: 0; position: sticky; top: 16px; z-index: 5; }
+    .palette.remove-hover { background: #fdecec; border-color: #c0392b; }
+    .palette h2 { font-size: .8rem; text-transform: uppercase; color: #8a8271; margin: 0 0 14px 0; }
+    .palette-item { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; cursor: grab; user-select: none; touch-action: none; }
+    .palette-item:last-child { margin-bottom: 0; }
+    .palette-item:active { cursor: grabbing; }
+    .palette-label { font-size: .85rem; color: #544e40; pointer-events: none; }
+    .palette-label b { display: block; color: #2e2a24; }
 
-  /* --- Palette (the "drawing" area with source blocks) --- */
-  .palette{
-    background:white;
-    border:1px solid var(--line);
-    border-radius:12px;
-    padding:16px;
-    width:220px;
-    flex-shrink:0;
-    position:sticky;
-    top:16px;
-    z-index:5;
-    transition:background .15s, border-color .15s;
-  }
-  .palette.remove-hover{
-    background:#fdecec;
-    border-color:#c0392b;
-  }
-  .palette h2{
-    font-size:.8rem;
-    text-transform:uppercase;
-    letter-spacing:.08em;
-    color:#8a8271;
-    margin:0 0 14px 0;
-  }
-  .palette-item{
-    display:flex;
-    align-items:center;
-    gap:12px;
-    margin-bottom:20px;
-    cursor:grab;
-    user-select:none;
-    -webkit-user-select:none;
-    touch-action:none;
-  }
-  .palette-item:last-child{ margin-bottom:0; }
-  .palette-item:active{ cursor:grabbing; }
-  .palette-label{
-    font-size:.85rem;
-    color:#544e40;
-    pointer-events:none;
-  }
-  .palette-label b{ display:block; color:var(--ink); font-size:.9rem; }
+    .block-ones { width: 26px; height: 26px; background: #f4c430; border: 1.5px solid #c99a00; border-radius: 3px; }
+    .block-tens { width: 26px; height: 130px; background: #f4c430; border: 1.5px solid #c99a00; border-radius: 3px; display: flex; flex-direction: column; }
+    .block-tens .seg { flex: 1; border-bottom: 1px solid #c99a00; }
+    .block-tens .seg:last-child { border-bottom: none; }
+    .block-hundreds { width: 130px; height: 130px; background: #f4c430; border: 1.5px solid #c99a00; border-radius: 3px; display: grid; grid-template-columns: repeat(10,1fr); grid-template-rows: repeat(10,1fr); }
+    .block-hundreds .cell { border: .5px solid #c99a00; }
 
-  /* block shapes */
-  .block-ones{
-    width:26px; height:26px;
-    background:var(--yellow);
-    border:1.5px solid var(--yellow-dark);
-    border-radius:3px;
-    pointer-events:none;
-  }
-  .block-tens{
-    width:26px; height:130px;
-    background:var(--yellow);
-    border:1.5px solid var(--yellow-dark);
-    border-radius:3px;
-    display:flex;
-    flex-direction:column;
-    pointer-events:none;
-  }
-  .block-tens .seg{
-    flex:1;
-    border-bottom:1px solid var(--yellow-dark);
-  }
-  .block-tens .seg:last-child{ border-bottom:none; }
-  .block-hundreds{
-    width:130px; height:130px;
-    background:var(--yellow);
-    border:1.5px solid var(--yellow-dark);
-    border-radius:3px;
-    display:grid;
-    grid-template-columns:repeat(10,1fr);
-    grid-template-rows:repeat(10,1fr);
-    pointer-events:none;
-  }
-  .block-hundreds .cell{
-    border:.5px solid var(--yellow-dark);
-  }
+    .mini-ones { width: 20px; height: 20px; }
+    .mini-tens { width: 20px; height: 100px; }
+    .mini-hundreds { width: 100px; height: 100px; }
 
-  /* small preview scale used inside table columns */
-  .mini-ones{ width:20px; height:20px; }
-  .mini-tens{ width:20px; height:100px; }
-  .mini-hundreds{ width:100px; height:100px; }
+    .card-section { margin-top: 16px; padding-top: 16px; border-top: 1px solid #d8d0c0; }
+    .card-items { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+    .card { width: 34px; height: 34px; border-radius: 7px; background: white; border: 1.5px solid #3d5a52; color: #3d5a52; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem; user-select: none; cursor: grab; touch-action: none; flex-shrink: 0; }
+    .card:active { cursor: grabbing; }
+    .card.op { background: #3d5a52; color: white; }
 
-  /* number / operator cards */
-  .card-section{
-    margin-top:16px;
-    padding-top:16px;
-    border-top:1px solid var(--line);
-  }
-  .card-items{
-    display:flex;
-    flex-wrap:wrap;
-    gap:6px;
-    justify-content:center;
-  }
-  .card{
-    width:34px;
-    height:34px;
-    border-radius:7px;
-    background:white;
-    border:1.5px solid var(--accent);
-    color:var(--accent);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-weight:700;
-    font-size:1rem;
-    user-select:none;
-    -webkit-user-select:none;
-    cursor:grab;
-    touch-action:none;
-    flex-shrink:0;
-  }
-  .card:active{ cursor:grabbing; }
-  .card.op{
-    background:var(--accent);
-    color:white;
-  }
-
-  /* placed (mini) blocks/cards are themselves draggable, so re-enable pointer events
-     and a grab cursor + touch handling on just these elements */
-  .col-body .mini-ones,
-  .col-body .mini-tens,
-  .col-body .mini-hundreds,
-  .col-body .card{
-    pointer-events:auto;
-    cursor:grab;
-    touch-action:none;
-  }
-  .col-body .mini-ones:active,
-  .col-body .mini-tens:active,
-  .col-body .mini-hundreds:active,
-  .col-body .card:active{
-    cursor:grabbing;
-  }
-  .dragging-source{ opacity:.3; }
-
-  /* --- Table --- */
-  #tableWrap{
-    max-width:100%;
-    overflow-x:auto;
-    -webkit-overflow-scrolling:touch;
-  }
-  table{
-    border-collapse:collapse;
-    background:white;
-    border-radius:12px;
-    overflow:hidden;
-    box-shadow:0 1px 3px rgba(0,0,0,.06);
-  }
-  th{
-    background:var(--accent);
-    color:white;
-    font-size:.8rem;
-    letter-spacing:.06em;
-    text-transform:uppercase;
-    padding:10px 6px;
-    text-align:center;
-  }
-  td{
-    vertical-align:top;
-    border:1px solid var(--line);
-    padding:10px;
-    min-width:150px;
-  }
-  .col-section{
-    border:1px solid var(--line);
-    border-radius:8px;
-    margin-bottom:8px;
-    padding:8px;
-    background:#fffdf8;
-  }
-  .col-section:last-of-type{ margin-bottom:0; }
-  .section-label{
-    font-size:.68rem;
-    text-transform:uppercase;
-    letter-spacing:.07em;
-    color:#9a9280;
-    margin-bottom:6px;
-  }
-  .col-body{
-    display:flex;
-    flex-wrap:wrap;
-    align-content:flex-start;
-    gap:6px;
-    height:110px;
-    overflow-y:auto;
-    border-radius:6px;
-    transition:background .15s;
-  }
-  .col-body.dragover{ background:var(--accent-soft); }
-  .col-footer{
-    margin-top:8px;
-    font-size:.8rem;
-    color:#6b6455;
-    display:flex;
-    justify-content:space-between;
-  }
-  .col-footer button{
-    font-family:inherit;
-    border:none;
-    background:none;
-    color:var(--accent);
-    cursor:pointer;
-    font-size:.85rem;
-    text-decoration:underline;
-    padding:6px 0;
-  }
-  .placed{ animation:pop .15s ease-out; }
-  @keyframes pop{ from{ transform:scale(.6); opacity:0;} to{ transform:scale(1); opacity:1;} }
-  .rejected{ animation:shake .3s; }
-  @keyframes shake{
-    0%,100%{ transform:translateX(0); }
-    25%{ transform:translateX(-4px); }
-    75%{ transform:translateX(4px); }
-  }
-
-  /* --- Free space (replaces the old "no table" placeholder) --- */
-  /* This is the only area with true free-form drop positioning, since the
-     place-value table columns are too small for a block to have room to move
-     around in -- there it just auto-arranges instead. */
-  .free-wrap{
-    background:white;
-    border-radius:12px;
-    box-shadow:0 1px 3px rgba(0,0,0,.06);
-    padding:14px;
-    min-width:280px;
-  }
-  .free-wrap .section-label{
-    margin-bottom:10px;
-  }
-  .free-body{
-    position:relative;
-    overflow:hidden;
-    height:340px;
-    min-width:260px;
-    border:2px dashed var(--line);
-    padding:10px;
-  }
-  .free-body .placed{ position:absolute; left:0; top:0; }
-  .free-body.dragover{ background:var(--accent-soft); border-color:var(--accent); }
-
-  /* --- Drag ghost used for touch (and as a visual double for mouse) --- */
-  .drag-ghost{
-    position:fixed;
-    top:0; left:0;
-    pointer-events:none;
-    z-index:1000;
-    opacity:.85;
-    transform:translate(-1000px,-1000px);
-    filter:drop-shadow(0 4px 8px rgba(0,0,0,.25));
-  }
-
-  /* --- Responsive breakpoints --- */
-  @media (max-width: 720px){
-    body{ padding:12px; }
-    h1{ font-size:1.2rem; }
-    p.sub{ font-size:.85rem; margin-bottom:16px; }
-    .layout{ flex-direction:column; gap:16px; }
-    .palette{
-      width:100%;
-      position:static;
-      padding:12px;
+    /* placed items: draggable and clickable */
+    .col-body .mini-ones, .col-body .mini-tens, .col-body .mini-hundreds, .col-body .card {
+      pointer-events: auto;
+      cursor: grab;
+      touch-action: none;
     }
-    .palette h2{ display:none; }
-    .block-items{
-      display:flex;
-      align-items:center;
-      justify-content:space-around;
-      gap:8px;
-    }
-    .palette-item{
-      flex-direction:column;
-      margin-bottom:0;
-      gap:6px;
-      text-align:center;
-    }
-    .palette-label b{ font-size:.8rem; }
-    .palette-label{ font-size:.7rem; }
-    .block-tens{ width:20px; height:100px; }
-    .block-hundreds{ width:100px; height:100px; }
-    td{ min-width:130px; padding:8px; }
-    .col-body{ height:92px; }
-    .mini-hundreds{ width:88px; height:88px; }
-    .mini-tens{ width:18px; height:88px; }
-    .controls{ gap:8px; }
-    select, button.reset{ font-size:.9rem; padding:9px 12px; }
-    .free-body{ height:260px; min-width:0; }
-  }
+    .col-body .mini-ones:active, .col-body .mini-tens:active, .col-body .mini-hundreds:active, .col-body .card:active { cursor: grabbing; }
+    .dragging-source { opacity: .3; }
 
-  @media (max-width: 420px){
-    .block-hundreds{ width:80px; height:80px; }
-    .mini-hundreds{ width:70px; height:70px; }
-    .palette-item{ gap:4px; }
-  }
-</style>
+    /* table */
+    #tableWrap { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    table { border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+    th { background: #3d5a52; color: white; font-size: .8rem; padding: 10px 6px; text-align: center; }
+    td { vertical-align: top; border: 1px solid #d8d0c0; padding: 10px; min-width: 150px; }
+    .col-section { border: 1px solid #d8d0c0; border-radius: 8px; margin-bottom: 8px; padding: 8px; background: #fffdf8; }
+    .col-section:last-of-type { margin-bottom: 0; }
+    .section-label { font-size: .68rem; text-transform: uppercase; color: #9a9280; margin-bottom: 6px; }
+    .col-body { display: flex; flex-wrap: wrap; align-content: flex-start; gap: 6px; height: 110px; overflow-y: auto; border-radius: 6px; transition: background .15s; position: relative; }
+    .col-body.dragover { background: #e8efec; }
+    .col-footer { margin-top: 8px; font-size: .8rem; color: #6b6455; display: flex; justify-content: space-between; }
+    .col-footer button { font-family: inherit; border: none; background: none; color: #3d5a52; cursor: pointer; font-size: .85rem; text-decoration: underline; padding: 6px 0; }
+    .placed { animation: pop .15s ease-out; }
+    @keyframes pop { from { transform: scale(.6); opacity:0; } to { transform: scale(1); opacity:1; } }
+    .rejected { animation: shake .3s; }
+    @keyframes shake { 0%,100%{ transform: translateX(0); } 25%{ transform: translateX(-4px); } 75%{ transform: translateX(4px); } }
+
+    /* free space */
+    .free-wrap { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.06); padding: 14px; min-width: 280px; }
+    .free-body { position: relative; overflow: hidden; height: 340px; min-width: 260px; border: 2px dashed #d8d0c0; padding: 10px; }
+    .free-body .placed { position: absolute; left: 0; top: 0; }
+    .free-body.dragover { background: #e8efec; border-color: #3d5a52; }
+
+    /* drag ghost */
+    .drag-ghost { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 1000; opacity: .85; transform: translate(-1000px,-1000px); filter: drop-shadow(0 4px 8px rgba(0,0,0,.25)); }
+
+    /* responsive */
+    @media (max-width: 720px) {
+      body { padding: 12px; }
+      .layout { flex-direction: column; gap: 16px; }
+      .palette { width: 100%; position: static; padding: 12px; }
+      .palette h2 { display: none; }
+      .block-items { display: flex; align-items: center; justify-content: space-around; gap: 8px; }
+      .palette-item { flex-direction: column; margin-bottom: 0; gap: 6px; text-align: center; }
+      .block-tens { width: 20px; height: 100px; }
+      .block-hundreds { width: 100px; height: 100px; }
+      td { min-width: 130px; padding: 8px; }
+      .col-body { height: 92px; }
+      .mini-hundreds { width: 88px; height: 88px; }
+      .mini-tens { width: 18px; height: 88px; }
+      .free-body { height: 260px; min-width: 0; }
+    }
+    @media (max-width: 420px) {
+      .block-hundreds { width: 80px; height: 80px; }
+      .mini-hundreds { width: 70px; height: 70px; }
+    }
+  </style>
 </head>
 <body>
-
 <h1>តារាតម្លៃលេខតាមខ្ទង់</h1>
 <p class="sub"></p>
 
@@ -387,575 +117,473 @@
 </div>
 
 <div class="layout">
-
   <div class="palette" id="palette">
     <h2>សម្ភារ</h2>
-
     <div class="block-items">
       <div class="palette-item" draggable="true" data-type="ones">
         <div class="block-ones"></div>
         <div class="palette-label"><b>រាយ</b></div>
       </div>
-
       <div class="palette-item" draggable="true" data-type="tens">
-        <div class="block-tens">
-          <div class="seg"></div><div class="seg"></div><div class="seg"></div><div class="seg"></div><div class="seg"></div>
-          <div class="seg"></div><div class="seg"></div><div class="seg"></div><div class="seg"></div><div class="seg"></div>
-        </div>
+        <div class="block-tens"><div class="seg"></div><div class="seg"></div><div class="seg"></div><div class="seg"></div><div class="seg"></div><div class="seg"></div><div class="seg"></div><div class="seg"></div><div class="seg"></div><div class="seg"></div></div>
         <div class="palette-label"><b>ដប់</b></div>
       </div>
-
       <div class="palette-item" draggable="true" data-type="hundreds">
         <div class="block-hundreds" id="hundredsGrid"></div>
         <div class="palette-label"><b>រយ</b></div>
       </div>
     </div>
-
     <div class="card-section">
       <div class="section-label" style="text-align:center;">លេខ និងសញ្ញា</div>
       <div class="card-items" id="cardItems"></div>
     </div>
   </div>
-
   <div id="tableWrap"></div>
-
 </div>
 
 <script>
-// build the 10x10 grid cells for the hundreds palette block
-const hGrid = document.getElementById('hundredsGrid');
-for(let i=0;i<100;i++){
-  const c = document.createElement('div');
-  c.className='cell';
-  hGrid.appendChild(c);
-}
-
-const tableWrap = document.getElementById('tableWrap');
-const layoutSelect = document.getElementById('layoutSelect');
-const paletteEl = document.getElementById('palette');
-const cardItemsEl = document.getElementById('cardItems');
-
-const columnDefs = {
-  ones:      { label:'ខ្ទង់រាយ',      class:'mini-ones' },
-  tens:      { label:'ខ្ទង់ដប់',      class:'mini-tens' },
-  hundreds:  { label:'ខ្ទង់រយ',  class:'mini-hundreds' }
-};
-
-const SECTIONS = ['upper','middle','lower'];
-const SECTION_LABELS = { upper:'', middle:'', lower:'' };
-
-// Number / operator cards
-const CARD_DEFS = [
-  {type:'num0', label:'0'},
-  {type:'num1', label:'1'},
-  {type:'num2', label:'2'},
-  {type:'num3', label:'3'},
-  {type:'num4', label:'4'},
-  {type:'num5', label:'5'},
-  {type:'num6', label:'6'},
-  {type:'num7', label:'7'},
-  {type:'num8', label:'8'},
-  {type:'num9', label:'9'},
-  {type:'plus', label:'+', op:true},
-  {type:'minus', label:'−', op:true},
-  {type:'equals', label:'=', op:true}
-];
-const CARD_LABELS = {};
-const CARD_OPS = [];
-CARD_DEFS.forEach(d=>{
-  CARD_LABELS[d.type] = d.label;
-  if(d.op) CARD_OPS.push(d.type);
-});
-
-// ===== Shared drag state (used by both the mouse/HTML5 path and the touch/pointer path) =====
-let dragMode = null;      // 'copy' (from shelf) or 'move' (an already-placed block)
-let dragType = null;      // 'ones' | 'tens' | 'hundreds' | 'num0'..'num9' | 'plus' | 'minus' | 'equals'
-let dragSourceEl = null;  // the placed block element, when dragMode === 'move'
-let ghost = null;
-let currentTargetBody = null;
-let lastClientX = 0;
-let lastClientY = 0;
-
-function makeVisualPreview(type){
-  const el = document.createElement('div');
-  if(type==='ones'){
-    el.className = 'block-ones mini-ones';
-  } else if(type==='tens'){
-    el.className = 'block-tens mini-tens';
-    for(let i=0;i<10;i++){
-      const seg=document.createElement('div');
-      seg.className='seg';
-      el.appendChild(seg);
+  (function() {
+    // Build 10x10 grid for hundreds palette
+    const hGrid = document.getElementById('hundredsGrid');
+    for (let i = 0; i < 100; i++) {
+      const c = document.createElement('div');
+      c.className = 'cell';
+      hGrid.appendChild(c);
     }
-  } else if(type==='hundreds'){
-    el.className = 'block-hundreds mini-hundreds';
-    for(let i=0;i<100;i++){
-      const cell=document.createElement('div');
-      cell.className='cell';
-      el.appendChild(cell);
-    }
-  } else if(CARD_LABELS.hasOwnProperty(type)){
-    el.className = 'card' + (CARD_OPS.includes(type) ? ' op' : '');
-    el.textContent = CARD_LABELS[type];
-  }
-  return el;
-}
 
-function makeMiniBlock(type){
-  const el = document.createElement('div');
-  el.classList.add('placed');
-  el.draggable = true;
-  el.dataset.blockType = type;
-  if(type==='ones'){
-    el.className += ' block-ones mini-ones';
-  } else if(type==='tens'){
-    el.className += ' block-tens mini-tens';
-    for(let i=0;i<10;i++){
-      const seg=document.createElement('div');
-      seg.className='seg';
-      el.appendChild(seg);
-    }
-  } else if(type==='hundreds'){
-    el.className += ' block-hundreds mini-hundreds';
-    for(let i=0;i<100;i++){
-      const cell=document.createElement('div');
-      cell.className='cell';
-      el.appendChild(cell);
-    }
-  } else if(CARD_LABELS.hasOwnProperty(type)){
-    el.className += ' card' + (CARD_OPS.includes(type) ? ' op' : '');
-    el.textContent = CARD_LABELS[type];
-  }
+    const tableWrap = document.getElementById('tableWrap');
+    const layoutSelect = document.getElementById('layoutSelect');
+    const paletteEl = document.getElementById('palette');
+    const cardItemsEl = document.getElementById('cardItems');
 
-  // --- mouse / HTML5 drag for an already-placed block ---
-  el.addEventListener('dragstart', e=>{
-    dragMode = 'move';
-    dragType = type;
-    dragSourceEl = el;
-    e.dataTransfer.setData('text/plain', 'move');
-    e.dataTransfer.effectAllowed = 'move';
-    el.classList.add('dragging-source');
-  });
-  el.addEventListener('dragend', e=>{
-    el.classList.remove('dragging-source');
-    if(dragMode === 'move' && e.dataTransfer.dropEffect === 'none'){
-      // released somewhere that never accepted the drop -- take it off the table
-      const removedType = dragType;
-      el.remove();
-      updateCount(removedType);
-    }
-    dragMode = null; dragType = null; dragSourceEl = null;
-  });
+    const columnDefs = {
+      ones: { label: 'ខ្ទង់រាយ', class: 'mini-ones' },
+      tens: { label: 'ខ្ទង់ដប់', class: 'mini-tens' },
+      hundreds: { label: 'ខ្ទង់រយ', class: 'mini-hundreds' }
+    };
+    const SECTIONS = ['upper', 'middle', 'lower'];
+    const SECTION_LABELS = { upper: '', middle: '', lower: '' };
 
-  // --- touch / pointer drag for an already-placed block ---
-  attachManualDrag(el, 'move', type);
+    const CARD_DEFS = [
+      { type: 'num0', label: '0' }, { type: 'num1', label: '1' }, { type: 'num2', label: '2' },
+      { type: 'num3', label: '3' }, { type: 'num4', label: '4' }, { type: 'num5', label: '5' },
+      { type: 'num6', label: '6' }, { type: 'num7', label: '7' }, { type: 'num8', label: '8' },
+      { type: 'num9', label: '9' }, { type: 'plus', label: '+', op: true }, { type: 'minus', label: '−', op: true }, { type: 'equals', label: '=', op: true }
+    ];
+    const CARD_LABELS = {};
+    const CARD_OPS = [];
+    CARD_DEFS.forEach(d => { CARD_LABELS[d.type] = d.label; if (d.op) CARD_OPS.push(d.type); });
 
-  return el;
-}
+    // ---- drag state ----
+    let dragMode = null;      // 'copy' or 'move'
+    let dragType = null;
+    let dragSourceEl = null;
+    let ghost = null;
+    let currentTargetBody = null;
+    let lastClientX = 0, lastClientY = 0;
 
-function updateCount(type){
-  const countEl = document.getElementById('count-'+type);
-  if(!countEl) return;
-  let total = 0;
-  SECTIONS.forEach(part=>{
-    const body = document.getElementById('body-'+type+'-'+part);
-    if(body) total += body.children.length;
-  });
-  countEl.textContent = total;
-}
-
-function positionAt(el, body, clientX, clientY){
-  const rect = body.getBoundingClientRect();
-  const w = el.offsetWidth || 26;
-  const h = el.offsetHeight || 26;
-  let x = clientX - rect.left - w/2;
-  let y = clientY - rect.top - h/2;
-  x = Math.max(0, Math.min(x, Math.max(0, rect.width - w)));
-  y = Math.max(0, Math.min(y, Math.max(0, rect.height - h)));
-  el.style.left = x + 'px';
-  el.style.top = y + 'px';
-}
-
-function placeInBody(body, type, clientX, clientY){
-  const mini = makeMiniBlock(type);
-  body.appendChild(mini);
-  updateCount(type);
-  if(clientX !== undefined && clientY !== undefined){
-    positionAt(mini, body, clientX, clientY);
-  }
-}
-
-function rejectBody(body){
-  body.classList.add('rejected');
-  setTimeout(()=>body.classList.remove('rejected'), 300);
-}
-
-function makeDropSection(type, part, label){
-  const section = document.createElement('div');
-  section.className = 'col-section';
-
-  const labelEl = document.createElement('div');
-  labelEl.className = 'section-label';
-  labelEl.textContent = label;
-  section.appendChild(labelEl);
-
-  const body = document.createElement('div');
-  body.className = 'col-body';
-  body.id = 'body-'+type+'-'+part;
-  body.dataset.type = type;
-
-  // --- Mouse / desktop HTML5 drag-and-drop ---
-  body.addEventListener('dragover', e=>{
-    e.preventDefault();
-    body.classList.add('dragover');
-  });
-  body.addEventListener('dragleave', ()=> body.classList.remove('dragover'));
-  body.addEventListener('drop', e=>{
-    e.preventDefault();
-    body.classList.remove('dragover');
-
-    const isCard = CARD_LABELS.hasOwnProperty(dragType);
-
-    if(dragMode === 'copy'){
-      if(dragType === type || isCard){
-        placeInBody(body, dragType, e.clientX, e.clientY);
-      } else {
-        rejectBody(body);
+    function makeVisualPreview(type) {
+      const el = document.createElement('div');
+      if (type === 'ones') {
+        el.className = 'block-ones mini-ones';
+      } else if (type === 'tens') {
+        el.className = 'block-tens mini-tens';
+        for (let i = 0; i < 10; i++) { const seg = document.createElement('div'); seg.className = 'seg'; el.appendChild(seg); }
+      } else if (type === 'hundreds') {
+        el.className = 'block-hundreds mini-hundreds';
+        for (let i = 0; i < 100; i++) { const cell = document.createElement('div'); cell.className = 'cell'; el.appendChild(cell); }
+      } else if (CARD_LABELS.hasOwnProperty(type)) {
+        el.className = 'card' + (CARD_OPS.includes(type) ? ' op' : '');
+        el.textContent = CARD_LABELS[type];
       }
-    } else if(dragMode === 'move' && dragSourceEl){
-      if(dragType === type || isCard){
-        body.appendChild(dragSourceEl);
-        dragSourceEl.classList.remove('dragging-source');
-        // restart the pop-in animation
-        dragSourceEl.classList.remove('placed');
-        void dragSourceEl.offsetWidth;
-        dragSourceEl.classList.add('placed');
-        positionAt(dragSourceEl, body, e.clientX, e.clientY);
-        updateCount(dragType);
-      } else {
-        rejectBody(body);
-      }
+      return el;
     }
-  });
 
-  section.appendChild(body);
-  return section;
-}
-
-function buildTable(mode){
-  tableWrap.innerHTML = '';
-  if(mode === 'none'){
-    tableWrap.appendChild(makeFreeSpace());
-    return;
-  }
-
-  const types = mode === 'two' ? ['tens','ones'] : ['hundreds','tens','ones'];
-  const table = document.createElement('table');
-
-  const thead = document.createElement('tr');
-  types.forEach(t=>{
-    const th = document.createElement('th');
-    th.textContent = columnDefs[t].label;
-    thead.appendChild(th);
-  });
-  table.appendChild(thead);
-
-  const trow = document.createElement('tr');
-  types.forEach(t=>{
-    const td = document.createElement('td');
-
-    SECTIONS.forEach(part=>{
-      td.appendChild(makeDropSection(t, part, SECTION_LABELS[part]));
-    });
-
-    const footer = document.createElement('div');
-    footer.className = 'col-footer';
-    const totalLabel = document.createElement('span');
-    totalLabel.textContent = 'Total: ';
-    const countSpan = document.createElement('span');
-    countSpan.id = 'count-'+t;
-    countSpan.textContent = '0';
-    countSpan.style.fontWeight = 'bold';
-    totalLabel.appendChild(countSpan);
-
-    const clearBtn = document.createElement('button');
-    clearBtn.textContent = 'clear column';
-    clearBtn.addEventListener('click', ()=>{
-      SECTIONS.forEach(part=>{
-        document.getElementById('body-'+t+'-'+part).innerHTML = '';
+    function makeMiniBlock(type) {
+      const el = document.createElement('div');
+      el.classList.add('placed');
+      el.draggable = true;
+      el.dataset.blockType = type;
+      const cls = columnDefs[type] ? columnDefs[type].class : '';
+      if (type === 'ones') {
+        el.className += ' block-ones mini-ones';
+      } else if (type === 'tens') {
+        el.className += ' block-tens mini-tens';
+        for (let i = 0; i < 10; i++) { const seg = document.createElement('div'); seg.className = 'seg'; el.appendChild(seg); }
+      } else if (type === 'hundreds') {
+        el.className += ' block-hundreds mini-hundreds';
+        for (let i = 0; i < 100; i++) { const cell = document.createElement('div'); cell.className = 'cell'; el.appendChild(cell); }
+      } else if (CARD_LABELS.hasOwnProperty(type)) {
+        el.className += ' card' + (CARD_OPS.includes(type) ? ' op' : '');
+        el.textContent = CARD_LABELS[type];
+      }
+      // Attach drag events (HTML5 + manual touch)
+      el.addEventListener('dragstart', e => {
+        dragMode = 'move';
+        dragType = type;
+        dragSourceEl = el;
+        e.dataTransfer.setData('text/plain', 'move');
+        e.dataTransfer.effectAllowed = 'move';
+        el.classList.add('dragging-source');
       });
-      updateCount(t);
+      el.addEventListener('dragend', e => {
+        el.classList.remove('dragging-source');
+        if (dragMode === 'move' && e.dataTransfer.dropEffect === 'none') {
+          const removedType = dragType;
+          el.remove();
+          updateCount(removedType);
+        }
+        dragMode = null; dragType = null; dragSourceEl = null;
+      });
+      attachManualDrag(el, 'move', type);
+      return el;
+    }
+
+    function updateCount(type) {
+      const countEl = document.getElementById('count-' + type);
+      if (!countEl) return;
+      let total = 0;
+      SECTIONS.forEach(part => {
+        const body = document.getElementById('body-' + type + '-' + part);
+        if (body) total += body.children.length;
+      });
+      countEl.textContent = total;
+    }
+
+    function positionAt(el, body, clientX, clientY) {
+      const rect = body.getBoundingClientRect();
+      const w = el.offsetWidth || 26;
+      const h = el.offsetHeight || 26;
+      let x = clientX - rect.left - w / 2;
+      let y = clientY - rect.top - h / 2;
+      x = Math.max(0, Math.min(x, Math.max(0, rect.width - w)));
+      y = Math.max(0, Math.min(y, Math.max(0, rect.height - h)));
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+    }
+
+    function placeInBody(body, type, clientX, clientY) {
+      const mini = makeMiniBlock(type);
+      body.appendChild(mini);
+      updateCount(type);
+      if (clientX !== undefined && clientY !== undefined) {
+        positionAt(mini, body, clientX, clientY);
+      }
+    }
+
+    function rejectBody(body) {
+      body.classList.add('rejected');
+      setTimeout(() => body.classList.remove('rejected'), 300);
+    }
+
+    function makeDropSection(type, part, label) {
+      const section = document.createElement('div');
+      section.className = 'col-section';
+      const labelEl = document.createElement('div');
+      labelEl.className = 'section-label';
+      labelEl.textContent = label;
+      section.appendChild(labelEl);
+      const body = document.createElement('div');
+      body.className = 'col-body';
+      body.id = 'body-' + type + '-' + part;
+      body.dataset.type = type;
+
+      // HTML5 DnD
+      body.addEventListener('dragover', e => { e.preventDefault(); body.classList.add('dragover'); });
+      body.addEventListener('dragleave', () => body.classList.remove('dragover'));
+      body.addEventListener('drop', e => {
+        e.preventDefault();
+        body.classList.remove('dragover');
+        const isCard = CARD_LABELS.hasOwnProperty(dragType);
+        if (dragMode === 'copy') {
+          if (dragType === type || isCard) {
+            placeInBody(body, dragType, e.clientX, e.clientY);
+          } else {
+            rejectBody(body);
+          }
+        } else if (dragMode === 'move' && dragSourceEl) {
+          if (dragType === type || isCard) {
+            body.appendChild(dragSourceEl);
+            dragSourceEl.classList.remove('dragging-source');
+            dragSourceEl.classList.remove('placed');
+            void dragSourceEl.offsetWidth;
+            dragSourceEl.classList.add('placed');
+            positionAt(dragSourceEl, body, e.clientX, e.clientY);
+            updateCount(dragType);
+          } else {
+            rejectBody(body);
+          }
+        }
+      });
+      section.appendChild(body);
+      return section;
+    }
+
+    function buildTable(mode) {
+      tableWrap.innerHTML = '';
+      if (mode === 'none') {
+        tableWrap.appendChild(makeFreeSpace());
+        return;
+      }
+      const types = mode === 'two' ? ['tens', 'ones'] : ['hundreds', 'tens', 'ones'];
+      const table = document.createElement('table');
+      const thead = document.createElement('tr');
+      types.forEach(t => {
+        const th = document.createElement('th');
+        th.textContent = columnDefs[t].label;
+        thead.appendChild(th);
+      });
+      table.appendChild(thead);
+      const trow = document.createElement('tr');
+      types.forEach(t => {
+        const td = document.createElement('td');
+        SECTIONS.forEach(part => {
+          td.appendChild(makeDropSection(t, part, SECTION_LABELS[part]));
+        });
+        const footer = document.createElement('div');
+        footer.className = 'col-footer';
+        const totalLabel = document.createElement('span');
+        totalLabel.textContent = 'Total: ';
+        const countSpan = document.createElement('span');
+        countSpan.id = 'count-' + t;
+        countSpan.textContent = '0';
+        countSpan.style.fontWeight = 'bold';
+        totalLabel.appendChild(countSpan);
+        const clearBtn = document.createElement('button');
+        clearBtn.textContent = 'clear column';
+        clearBtn.addEventListener('click', () => {
+          SECTIONS.forEach(part => {
+            document.getElementById('body-' + t + '-' + part).innerHTML = '';
+          });
+          updateCount(t);
+        });
+        footer.appendChild(totalLabel);
+        footer.appendChild(clearBtn);
+        td.appendChild(footer);
+        trow.appendChild(td);
+      });
+      table.appendChild(trow);
+      tableWrap.appendChild(table);
+    }
+
+    function makeFreeSpace() {
+      const wrap = document.createElement('div');
+      wrap.className = 'free-wrap';
+      const label = document.createElement('div');
+      label.className = 'section-label';
+      label.textContent = 'ដាក់រាយ ដប់ រយ លេខ ឬសញ្ញា នៅត្រង់នេះដោយសេរី';
+      wrap.appendChild(label);
+      const body = document.createElement('div');
+      body.className = 'col-body free-body';
+      body.id = 'body-free';
+      body.addEventListener('dragover', e => { e.preventDefault(); body.classList.add('dragover'); });
+      body.addEventListener('dragleave', () => body.classList.remove('dragover'));
+      body.addEventListener('drop', e => {
+        e.preventDefault();
+        body.classList.remove('dragover');
+        if (dragMode === 'copy') {
+          placeInBody(body, dragType, e.clientX, e.clientY);
+        } else if (dragMode === 'move' && dragSourceEl) {
+          body.appendChild(dragSourceEl);
+          dragSourceEl.classList.remove('dragging-source');
+          dragSourceEl.classList.remove('placed');
+          void dragSourceEl.offsetWidth;
+          dragSourceEl.classList.add('placed');
+          positionAt(dragSourceEl, body, e.clientX, e.clientY);
+        }
+      });
+      wrap.appendChild(body);
+      const footer = document.createElement('div');
+      footer.className = 'col-footer';
+      footer.appendChild(document.createElement('span'));
+      const clearBtn = document.createElement('button');
+      clearBtn.textContent = 'clear';
+      clearBtn.addEventListener('click', () => { body.innerHTML = ''; });
+      footer.appendChild(clearBtn);
+      wrap.appendChild(footer);
+      return wrap;
+    }
+
+    // ---- desktop drag for shelf items ----
+    document.querySelectorAll('.block-items .palette-item').forEach(item => {
+      item.addEventListener('dragstart', e => {
+        dragMode = 'copy';
+        dragType = item.dataset.type;
+        dragSourceEl = null;
+        e.dataTransfer.setData('text/plain', item.dataset.type);
+        e.dataTransfer.effectAllowed = 'copy';
+      });
+      item.addEventListener('dragend', () => { dragMode = null; dragType = null; dragSourceEl = null; });
     });
-    footer.appendChild(totalLabel);
-    footer.appendChild(clearBtn);
 
-    td.appendChild(footer);
-    trow.appendChild(td);
-  });
-  table.appendChild(trow);
-  tableWrap.appendChild(table);
-}
+    // ---- cards ----
+    CARD_DEFS.forEach(def => {
+      const el = document.createElement('div');
+      el.className = 'card' + (def.op ? ' op' : '');
+      el.textContent = def.label;
+      el.draggable = true;
+      el.dataset.type = def.type;
+      el.addEventListener('dragstart', e => {
+        dragMode = 'copy';
+        dragType = def.type;
+        dragSourceEl = null;
+        e.dataTransfer.setData('text/plain', def.type);
+        e.dataTransfer.effectAllowed = 'copy';
+      });
+      el.addEventListener('dragend', () => { dragMode = null; dragType = null; dragSourceEl = null; });
+      attachManualDrag(el, 'copy', def.type);
+      cardItemsEl.appendChild(el);
+    });
 
-// --- Free space: an unrestricted drop area for ones/tens/hundreds AND number/operator cards ---
-function makeFreeSpace(){
-  const wrap = document.createElement('div');
-  wrap.className = 'free-wrap';
-
-  const label = document.createElement('div');
-  label.className = 'section-label';
-  label.textContent = 'ដាក់រាយ ដប់ រយ លេខ ឬសញ្ញា នៅត្រង់នេះដោយសេរី';
-  wrap.appendChild(label);
-
-  const body = document.createElement('div');
-  body.className = 'col-body free-body';
-  body.id = 'body-free';
-  // intentionally no dataset.type -- this area accepts every draggable type
-
-  body.addEventListener('dragover', e=>{
-    e.preventDefault();
-    body.classList.add('dragover');
-  });
-  body.addEventListener('dragleave', ()=> body.classList.remove('dragover'));
-  body.addEventListener('drop', e=>{
-    e.preventDefault();
-    body.classList.remove('dragover');
-    if(dragMode === 'copy'){
-      placeInBody(body, dragType, e.clientX, e.clientY);
-    } else if(dragMode === 'move' && dragSourceEl){
-      body.appendChild(dragSourceEl);
-      dragSourceEl.classList.remove('dragging-source');
-      dragSourceEl.classList.remove('placed');
-      void dragSourceEl.offsetWidth;
-      dragSourceEl.classList.add('placed');
-      positionAt(dragSourceEl, body, e.clientX, e.clientY);
+    // ---- manual drag (touch + pointer) ----
+    function clearHoverStates() {
+      document.querySelectorAll('.col-body.dragover').forEach(b => b.classList.remove('dragover'));
+      paletteEl.classList.remove('remove-hover');
     }
-  });
-  wrap.appendChild(body);
 
-  const footer = document.createElement('div');
-  footer.className = 'col-footer';
-  footer.appendChild(document.createElement('span'));
-  const clearBtn = document.createElement('button');
-  clearBtn.textContent = 'clear';
-  clearBtn.addEventListener('click', ()=>{ body.innerHTML = ''; });
-  footer.appendChild(clearBtn);
-  wrap.appendChild(footer);
-
-  return wrap;
-}
-
-// ===== Desktop drag (HTML5 DnD) for the shelf block items =====
-document.querySelectorAll('.block-items .palette-item').forEach(item=>{
-  item.addEventListener('dragstart', e=>{
-    dragMode = 'copy';
-    dragType = item.dataset.type;
-    dragSourceEl = null;
-    e.dataTransfer.setData('text/plain', item.dataset.type);
-    e.dataTransfer.effectAllowed = 'copy';
-  });
-  item.addEventListener('dragend', ()=>{
-    dragMode = null; dragType = null; dragSourceEl = null;
-  });
-});
-
-// ===== Build the number/operator card palette (shelf source items) =====
-CARD_DEFS.forEach(def=>{
-  const el = document.createElement('div');
-  el.className = 'card' + (def.op ? ' op' : '');
-  el.textContent = def.label;
-  el.draggable = true;
-  el.dataset.type = def.type;
-
-  el.addEventListener('dragstart', e=>{
-    dragMode = 'copy';
-    dragType = def.type;
-    dragSourceEl = null;
-    e.dataTransfer.setData('text/plain', def.type);
-    e.dataTransfer.effectAllowed = 'copy';
-  });
-  el.addEventListener('dragend', ()=>{
-    dragMode = null; dragType = null; dragSourceEl = null;
-  });
-
-  attachManualDrag(el, 'copy', def.type);
-  cardItemsEl.appendChild(el);
-});
-
-// ===== Touch / pointer drag (works on phones, tablets, and as a mouse fallback) =====
-// This custom implementation exists because the native HTML5 Drag and Drop
-// API does not fire on touch devices, so drags would otherwise be completely
-// broken on phones and tablets. It mirrors the mouse behavior above for both
-// copying a new block/card from the shelf and moving/removing a placed one.
-
-function clearHoverStates(){
-  document.querySelectorAll('.col-body.dragover').forEach(b=>b.classList.remove('dragover'));
-  paletteEl.classList.remove('remove-hover');
-}
-
-function bodyFromPoint(x, y){
-  const el = document.elementFromPoint(x, y);
-  if(!el) return null;
-  return el.closest('.col-body');
-}
-
-function startDrag(item, x, y, mode, type){
-  dragMode = mode;
-  dragType = type;
-  dragSourceEl = mode === 'move' ? item : null;
-
-  // Use the same size the piece will actually be once placed (the "mini" size),
-  // not the larger palette shelf image -- otherwise the ghost you see while
-  // dragging doesn't match where/how big the block lands, making it look
-  // like it moved on drop.
-  const visual = mode === 'copy'
-    ? makeVisualPreview(type)
-    : item;
-
-  ghost = document.createElement('div');
-  ghost.className = 'drag-ghost';
-  ghost.appendChild(visual.cloneNode(true));
-  document.body.appendChild(ghost);
-
-  if(mode === 'move') item.classList.add('dragging-source');
-  moveGhost(x, y);
-}
-
-function moveGhost(x, y){
-  lastClientX = x;
-  lastClientY = y;
-  if(!ghost) return;
-  const rect = ghost.getBoundingClientRect();
-  const w = rect.width || 26;
-  const h = rect.height || 26;
-  ghost.style.transform = `translate(${x - w/2}px, ${y - h/2}px)`;
-
-  clearHoverStates();
-  const body = bodyFromPoint(x, y);
-  currentTargetBody = body;
-  if(body){
-    body.classList.add('dragover');
-  } else if(dragMode === 'move'){
-    const overPalette = paletteEl.contains(document.elementFromPoint(x, y));
-    if(overPalette) paletteEl.classList.add('remove-hover');
-  }
-}
-
-function endDrag(){
-  clearHoverStates();
-  if(ghost){ ghost.remove(); ghost = null; }
-
-  const isFree = currentTargetBody && currentTargetBody.classList.contains('free-body');
-  const isCard = CARD_LABELS.hasOwnProperty(dragType);
-  const typeMatches = currentTargetBody && (isFree || isCard || currentTargetBody.dataset.type === dragType);
-
-  if(dragMode === 'copy'){
-    if(typeMatches){
-      placeInBody(currentTargetBody, dragType, lastClientX, lastClientY);
-    } else if(currentTargetBody){
-      rejectBody(currentTargetBody);
+    function bodyFromPoint(x, y) {
+      const el = document.elementFromPoint(x, y);
+      if (!el) return null;
+      return el.closest('.col-body');
     }
-  } else if(dragMode === 'move' && dragSourceEl){
-    dragSourceEl.classList.remove('dragging-source');
-    if(typeMatches){
-      currentTargetBody.appendChild(dragSourceEl);
-      dragSourceEl.classList.remove('placed');
-      void dragSourceEl.offsetWidth;
-      dragSourceEl.classList.add('placed');
-      positionAt(dragSourceEl, currentTargetBody, lastClientX, lastClientY);
-      updateCount(dragType);
-    } else if(currentTargetBody){
-      rejectBody(currentTargetBody);
-    } else {
-      // released outside any column -- take the block/card out of the table
-      const removedType = dragType;
-      dragSourceEl.remove();
-      updateCount(removedType);
+
+    function startDrag(item, x, y, mode, type) {
+      dragMode = mode;
+      dragType = type;
+      dragSourceEl = mode === 'move' ? item : null;
+      const visual = mode === 'copy' ? makeVisualPreview(type) : item;
+      ghost = document.createElement('div');
+      ghost.className = 'drag-ghost';
+      ghost.appendChild(visual.cloneNode(true));
+      document.body.appendChild(ghost);
+      if (mode === 'move') item.classList.add('dragging-source');
+      moveGhost(x, y);
     }
-  }
 
-  dragMode = null;
-  dragType = null;
-  dragSourceEl = null;
-  currentTargetBody = null;
-}
-
-const DRAG_THRESHOLD = 6; // px of movement required before a touch/pointer counts as a drag
-
-function attachManualDrag(el, mode, type){
-  let pending = false;
-  let dragStarted = false;
-  let startX = 0, startY = 0;
-
-  function onStart(x, y){
-    pending = true;
-    dragStarted = false;
-    startX = x; startY = y;
-  }
-  function onMove(x, y){
-    if(!pending) return;
-    if(!dragStarted){
-      const dx = x - startX, dy = y - startY;
-      if(Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
-      dragStarted = true;
-      startDrag(el, x, y, mode, type);
-      return;
+    function moveGhost(x, y) {
+      lastClientX = x;
+      lastClientY = y;
+      if (!ghost) return;
+      const rect = ghost.getBoundingClientRect();
+      const w = rect.width || 26;
+      const h = rect.height || 26;
+      ghost.style.transform = 'translate(' + (x - w / 2) + 'px, ' + (y - h / 2) + 'px)';
+      clearHoverStates();
+      const body = bodyFromPoint(x, y);
+      currentTargetBody = body;
+      if (body) {
+        body.classList.add('dragover');
+      } else if (dragMode === 'move') {
+        const overPalette = paletteEl.contains(document.elementFromPoint(x, y));
+        if (overPalette) paletteEl.classList.add('remove-hover');
+      }
     }
-    moveGhost(x, y);
-  }
-  function onEnd(){
-    if(dragStarted) endDrag();
-    pending = false;
-    dragStarted = false;
-  }
 
-  el.addEventListener('touchstart', e=>{
-    e.preventDefault();
-    const t = e.touches[0];
-    onStart(t.clientX, t.clientY);
-  }, {passive:false});
+    function endDrag() {
+      clearHoverStates();
+      if (ghost) { ghost.remove(); ghost = null; }
+      const isFree = currentTargetBody && currentTargetBody.classList.contains('free-body');
+      const isCard = CARD_LABELS.hasOwnProperty(dragType);
+      const typeMatches = currentTargetBody && (isFree || isCard || currentTargetBody.dataset.type === dragType);
 
-  el.addEventListener('touchmove', e=>{
-    e.preventDefault();
-    const t = e.touches[0];
-    onMove(t.clientX, t.clientY);
-  }, {passive:false});
+      if (dragMode === 'copy') {
+        if (typeMatches) {
+          placeInBody(currentTargetBody, dragType, lastClientX, lastClientY);
+        } else if (currentTargetBody) {
+          rejectBody(currentTargetBody);
+        }
+      } else if (dragMode === 'move' && dragSourceEl) {
+        dragSourceEl.classList.remove('dragging-source');
+        if (typeMatches) {
+          currentTargetBody.appendChild(dragSourceEl);
+          dragSourceEl.classList.remove('placed');
+          void dragSourceEl.offsetWidth;
+          dragSourceEl.classList.add('placed');
+          positionAt(dragSourceEl, currentTargetBody, lastClientX, lastClientY);
+          updateCount(dragType);
+        } else if (currentTargetBody) {
+          rejectBody(currentTargetBody);
+        } else {
+          // dropped outside any column – remove
+          const removedType = dragType;
+          dragSourceEl.remove();
+          updateCount(removedType);
+        }
+      }
+      dragMode = null; dragType = null; dragSourceEl = null; currentTargetBody = null;
+    }
 
-  el.addEventListener('touchend', e=>{
-    e.preventDefault();
-    onEnd();
-  }, {passive:false});
+    const DRAG_THRESHOLD = 6;
 
-  el.addEventListener('touchcancel', ()=>{ pending = false; dragStarted = false; });
+    function attachManualDrag(el, mode, type) {
+      let pending = false, dragStarted = false, startX = 0, startY = 0;
 
-  // Pointer-based fallback covers stylus / non-standard touch browsers
-  // without double-firing on devices that already support touch events.
-  let usingPointer = false;
-  el.addEventListener('pointerdown', e=>{
-    if(e.pointerType !== 'pen') return; // mouse uses native HTML5 drag-and-drop; touch is handled above
-    usingPointer = true;
-    el.setPointerCapture(e.pointerId);
-    onStart(e.clientX, e.clientY);
-  });
-  el.addEventListener('pointermove', e=>{
-    if(!usingPointer) return;
-    onMove(e.clientX, e.clientY);
-  });
-  el.addEventListener('pointerup', e=>{
-    if(!usingPointer) return;
-    usingPointer = false;
-    onEnd();
-  });
-}
+      function onStart(x, y) { pending = true; dragStarted = false; startX = x; startY = y; }
+      function onMove(x, y) {
+        if (!pending) return;
+        if (!dragStarted) {
+          const dx = x - startX, dy = y - startY;
+          if (Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
+          dragStarted = true;
+          startDrag(el, x, y, mode, type);
+          return;
+        }
+        moveGhost(x, y);
+      }
+      function onEnd() {
+        if (dragStarted) endDrag();
+        pending = false; dragStarted = false;
+      }
 
-document.querySelectorAll('.block-items .palette-item').forEach(item=>{
-  attachManualDrag(item, 'copy', item.dataset.type);
-});
+      el.addEventListener('touchstart', e => {
+        e.preventDefault();
+        const t = e.touches[0];
+        onStart(t.clientX, t.clientY);
+      }, { passive: false });
 
-layoutSelect.addEventListener('change', ()=> buildTable(layoutSelect.value));
-document.getElementById('resetAll').addEventListener('click', ()=> buildTable(layoutSelect.value));
+      el.addEventListener('touchmove', e => {
+        e.preventDefault();
+        const t = e.touches[0];
+        onMove(t.clientX, t.clientY);
+      }, { passive: false });
 
-buildTable(layoutSelect.value);
+      el.addEventListener('touchend', e => {
+        e.preventDefault();
+        onEnd();
+      }, { passive: false });
+
+      el.addEventListener('touchcancel', () => { pending = false; dragStarted = false; });
+
+      // Pointer fallback (for stylus)
+      let usingPointer = false;
+      el.addEventListener('pointerdown', e => {
+        if (e.pointerType !== 'pen') return;
+        usingPointer = true;
+        el.setPointerCapture(e.pointerId);
+        onStart(e.clientX, e.clientY);
+      });
+      el.addEventListener('pointermove', e => {
+        if (!usingPointer) return;
+        onMove(e.clientX, e.clientY);
+      });
+      el.addEventListener('pointerup', e => {
+        if (!usingPointer) return;
+        usingPointer = false;
+        onEnd();
+      });
+    }
+
+    // Attach manual drag to shelf items (already attached for cards and placed items)
+    document.querySelectorAll('.block-items .palette-item').forEach(item => {
+      attachManualDrag(item, 'copy', item.dataset.type);
+    });
+
+    // ---- layout switching ----
+    layoutSelect.addEventListener('change', () => buildTable(layoutSelect.value));
+    document.getElementById('resetAll').addEventListener('click', () => buildTable(layoutSelect.value));
+
+    buildTable(layoutSelect.value);
+  })();
 </script>
-
 </body>
 </html>
