@@ -1,626 +1,514 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dot Counting · Dice & Canvas</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      user-select: none;
-    }
-    body {
-      font-family: 'Segoe UI', Roboto, system-ui, Arial, sans-serif;
-      text-align: center;
-      background: #eef3f7;
-      margin: 0;
-      padding: 12px;
-    }
-    h2 {
-      margin: 6px 0 4px;
-      font-weight: 400;
-      color: #1e3a4f;
-    }
-    .top-bar {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: center;
-      gap: 12px 20px;
-      background: #dce6ed;
-      padding: 10px 16px;
-      border-radius: 40px;
-      margin: 0 auto 16px;
-      max-width: 600px;
-    }
-    .top-bar button, .top-bar a {
-      background: white;
-      border: none;
-      padding: 6px 18px;
-      border-radius: 30px;
-      font-weight: 600;
-      font-size: 0.95rem;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      cursor: pointer;
-      text-decoration: none;
-      color: #1e3a4f;
-      transition: 0.15s;
-    }
-    .top-bar button:hover, .top-bar a:hover {
-      background: #ffd966;
-      transform: scale(1.02);
-    }
-    #restartBtn {
-      background: #ff8a80;
-      color: #3e1f1f;
-    }
-    /* ---------- MATCHED AREA ---------- */
-    #matchedArea {
-      position: relative;
-      min-height: 170px;
-      padding: 12px;
-      background: #e8f5e9;
-      border-radius: 24px;
-      border: 3px dashed #66bb6a;
-      margin: 12px 0 8px;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: flex-start;
-      gap: 10px 14px;
-    }
-    .matchPair {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background: white;
-      border: 2px solid #2e7d32;
-      border-radius: 12px;
-      padding: 4px 8px 4px 4px;
-      cursor: grab;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.12);
-      touch-action: none;
-      transition: box-shadow 0.1s;
-      flex-shrink: 0;
-    }
-    .matchPair:active {
-      cursor: grabbing;
-      box-shadow: 0 6px 14px rgba(0,0,0,0.25);
-    }
-    .cardBox {
-      width: 48px;
-      height: 48px;
-      border: 2px solid #333;
-      border-radius: 10px;
-      display: grid;
-      grid-template-columns: repeat(5, 6px);
-      gap: 3px;
-      justify-content: center;
-      align-content: center;
-      background: #fafafa;
-      padding: 3px;
-    }
-    .dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #1e88e5;
-    }
-    .numberCard {
-      width: 48px;
-      height: 48px;
-      border: 2px solid #333;
-      border-radius: 10px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 20px;
-      font-weight: 700;
-      background: white;
-    }
-    /* ---------- NUMBER OPTIONS ---------- */
-    #numberCards {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 10px;
-      max-width: 500px;
-      margin: 16px auto;
-    }
-    .numberOption {
-      height: 58px;
-      border: 3px solid #1f3a4b;
-      border-radius: 14px;
-      background: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 28px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.12s;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    }
-    .numberOption:hover {
-      background: #ffe082;
-      border-color: #bf6f00;
-      transform: scale(0.97);
-    }
-    .numberOption:active {
-      background: #ffb300;
-    }
-    /* ---------- DOT FRAME (5/10) ---------- */
-    #dotCard {
-      width: 95%;
-      max-width: 260px;
-      margin: 10px auto 16px;
-      background: white;
-      border: 4px solid #1f3a4b;
-      border-radius: 24px;
-      padding: 14px 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    .row {
-      display: flex;
-      justify-content: space-evenly;
-      margin: 5px 0;
-    }
-    .slot {
-      width: 26px;
-      height: 26px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .bigDot {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: #1976d2;
-      cursor: pointer;
-      transition: 0.1s;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    }
-    .bigDot.active {
-      background: #ff8f00;
-      transform: scale(1.25);
-      box-shadow: 0 0 0 2px #ffb300;
-    }
-    /* ---------- DICE & CANVAS ZONE ---------- */
-    .dice-canvas-row {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: flex-start;
-      gap: 25px 40px;
-      margin: 16px 0 8px;
-    }
-    .dice-box {
-      background: #f5f1e6;
-      padding: 12px 14px 18px;
-      border-radius: 40px;
-      box-shadow: 0 6px 12px rgba(0,0,0,0.1);
-      min-width: 150px;
-    }
-    .dice-box h4 {
-      margin: 0 0 8px 0;
-      font-weight: 400;
-      color: #2a3f4e;
-      letter-spacing: 1px;
-    }
-    .dice {
-      width: 100px;
-      height: 100px;
-      background: white;
-      border-radius: 20px;
-      box-shadow: 0 8px 0 #b0a48b, 0 12px 20px rgba(0,0,0,0.3);
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: repeat(3, 1fr);
-      padding: 12px;
-      margin: 0 auto;
-      transition: 0.15s;
-      cursor: pointer;
-    }
-    .dice:active {
-      transform: scale(0.94);
-    }
-    .pip {
-      border-radius: 50%;
-      background: #1a1a2e;
-      width: 90%;
-      height: 90%;
-      place-self: center;
-      transition: 0.1s;
-      box-shadow: inset -2px -2px 4px rgba(0,0,0,0.3);
-    }
-    .pip.hidden {
-      opacity: 0;
-    }
-    .pip-center {
-      grid-column: 2;
-      grid-row: 2;
-    }
-    .pip-tl { grid-column: 1; grid-row: 1; }
-    .pip-tr { grid-column: 3; grid-row: 1; }
-    .pip-bl { grid-column: 1; grid-row: 3; }
-    .pip-br { grid-column: 3; grid-row: 3; }
-    .pip-ml { grid-column: 1; grid-row: 2; }
-    .pip-mr { grid-column: 3; grid-row: 2; }
 
-    .roll-btn {
-      margin-top: 12px;
-      background: #3f51b5;
-      border: none;
-      color: white;
-      font-weight: 600;
-      padding: 10px 20px;
-      border-radius: 40px;
-      font-size: 1rem;
-      letter-spacing: 0.5px;
-      box-shadow: 0 4px 0 #1a237e;
-      cursor: pointer;
-      transition: 0.08s linear;
-    }
-    .roll-btn:active {
-      transform: translateY(4px);
-      box-shadow: 0 0 0 #1a237e;
-    }
+<meta charset="UTF-8">
 
-    /* drawing canvas */
-    .canvas-box {
-      background: #f5f1e6;
-      padding: 12px 14px 18px;
-      border-radius: 40px;
-      box-shadow: 0 6px 12px rgba(0,0,0,0.1);
-    }
-    .canvas-box h4 {
-      margin: 0 0 6px 0;
-      font-weight: 400;
-      color: #2a3f4e;
-      letter-spacing: 1px;
-    }
-    #drawCanvas {
-      background: white;
-      border-radius: 24px;
-      box-shadow: inset 0 0 0 2px #b8c7d9, 0 6px 12px rgba(0,0,0,0.08);
-      cursor: crosshair;
-      display: block;
-      touch-action: none;
-      width: 200px;
-      height: 200px;
-    }
-    .canvas-tools {
-      display: flex;
-      gap: 8px;
-      justify-content: center;
-      margin-top: 8px;
-      flex-wrap: wrap;
-    }
-    .canvas-tools button {
-      background: white;
-      border: 2px solid #3f4a5a;
-      border-radius: 30px;
-      padding: 4px 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.1s;
-    }
-    .canvas-tools button:active {
-      background: #b0c4de;
-    }
-    #clearCanvasBtn {
-      background: #ffe0b0;
-    }
-    /* responsive */
-    @media (max-width: 600px) {
-      #drawCanvas { width: 160px; height: 160px; }
-      .dice { width: 80px; height: 80px; padding: 8px; }
-    }
-  </style>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Dot Counting</title>
+
+<style>
+
+body{
+
+    font-family:Arial;
+
+    text-align:center;
+
+    background:#eef3f7;
+
+    margin:0;
+
+}
+
+/* ---------- MATCHED AREA ---------- */
+
+#matchedArea{
+
+    position:relative;
+
+    min-height:160px;
+
+    padding:10px;
+
+    background:#e8f5e9;
+
+    border-bottom:4px solid #66bb6a;
+
+}
+
+/* MATCH CARD */
+
+.matchPair{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:6px;
+
+    background:white;
+
+    border:2px solid #43a047;
+
+    border-radius:8px;
+
+    padding:5px;
+
+    cursor:grab;
+
+    position:absolute;
+
+    user-select:none;
+
+    touch-action:none;
+
+}
+
+/* DOT BOX */
+
+.cardBox{
+
+    width:45px;
+
+    height:45px;
+
+    border:2px solid #444;
+
+    border-radius:8px;
+
+    display:grid;
+
+    grid-template-columns:repeat(5,5px);
+
+    gap:2px;
+
+    justify-content:center;
+
+    align-content:center;
+
+    background:white;
+
+}
+
+/* DOT */
+
+.dot{
+
+    width:5px;
+
+    height:5px;
+
+    border-radius:50%;
+
+    background:#1e88e5;
+
+}
+
+/* NUMBER */
+
+.numberCard{
+
+    width:45px;
+
+    height:45px;
+
+    border:2px solid #444;
+
+    border-radius:8px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-size:16px;
+
+    font-weight:bold;
+
+    background:white;
+
+}
+
+/* ---------- NUMBER OPTIONS ---------- */
+
+#numberCards{
+
+    display:grid;
+
+    grid-template-columns:repeat(5,1fr);
+
+    gap:10px;
+
+    max-width:500px;
+
+    margin:20px auto;
+
+}
+
+.numberOption{
+
+    height:60px;
+
+    border:3px solid #444;
+
+    border-radius:10px;
+
+    background:white;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-size:28px;
+
+    cursor:pointer;
+
+}
+
+/* ---------- DOT FRAME ---------- */
+
+#dotCard{
+
+    width:95%;
+
+    max-width:260px;
+
+    margin:20px auto;
+
+    background:white;
+
+    border:4px solid #333;
+
+    border-radius:16px;
+
+    padding:10px;
+
+}
+
+.row{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    margin:6px 0;
+
+}
+
+.slot{
+
+    width:18px;
+
+    height:18px;
+
+}
+
+.bigDot{
+
+    width:18px;
+
+    height:18px;
+
+    border-radius:50%;
+
+    background:#2196f3;
+
+    cursor:pointer;
+
+}
+
+.bigDot.active{
+
+    background:#ff9800;
+
+    transform:scale(1.2);
+
+}
+
+/* ---------- BUTTON ---------- */
+
+#restartBtn{
+
+    margin:10px;
+
+    padding:10px 15px;
+
+    font-size:16px;
+
+    border:none;
+
+    background:#ff5252;
+
+    color:white;
+
+    border-radius:8px;
+
+    cursor:pointer;
+
+}
+
+</style>
+
 </head>
+
 <body>
-<h2>🎲 count & draw</h2>
-<div class="top-bar">
-  <button id="restartBtn">⟳ reset</button>
-  <a href="../index.html">🏡 home</a>
-</div>
+
+<h2></h2>
+
+<button id="restartBtn">សារដើម🔄</button>
+<a href="../index.html">🏡 Home</a>
 
 <div id="matchedArea"></div>
 
-<h3>🔢 pick the number</h3>
+<h3>ចូរជ្រើរើសលេខ</h3>
+
 <div id="numberCards"></div>
 
-<h3>⚪ count the dots</h3>
+<h3>ចូររាប់ចំនួនចំណុច</h3>
+
 <div id="dotCard"></div>
 
-<!-- DICE + CANVAS -->
-<div class="dice-canvas-row">
-  <div class="dice-box">
-    <h4>🎲 roll dice</h4>
-    <div id="diceContainer" class="dice">
-      <div class="pip pip-tl hidden"></div>
-      <div class="pip pip-ml hidden"></div>
-      <div class="pip pip-bl hidden"></div>
-      <div class="pip pip-center hidden"></div>
-      <div class="pip pip-mr hidden"></div>
-      <div class="pip pip-tr hidden"></div>
-      <div class="pip pip-br hidden"></div>
-    </div>
-    <button class="roll-btn" id="rollDiceBtn">roll</button>
-  </div>
-
-  <div class="canvas-box">
-    <h4>✏️ drawing canvas</h4>
-    <canvas id="drawCanvas" width="200" height="200"></canvas>
-    <div class="canvas-tools">
-      <button id="clearCanvasBtn">🧽 clear</button>
-      <button id="colorToggleBtn">🎨 color</button>
-    </div>
-  </div>
-</div>
-
 <script>
-  (function(){
-    // ---------- EXISTING GAME LOGIC ----------
-    const dotCard = document.getElementById('dotCard');
-    const numberCards = document.getElementById('numberCards');
-    const matchedArea = document.getElementById('matchedArea');
-    const restartBtn = document.getElementById('restartBtn');
 
-    let dotCount = 0;
-    let zIndexCounter = 1;
+const dotCard=document.getElementById("dotCard");
 
-    // number options 1-10
-    for (let i = 1; i <= 10; i++) {
-      let c = document.createElement('div');
-      c.className = 'numberOption';
-      c.textContent = i;
-      c.onclick = () => checkAnswer(i);
-      numberCards.appendChild(c);
-    }
+const numberCards=document.getElementById("numberCards");
 
-    function createDotElement() {
-      let d = document.createElement('div');
-      d.className = 'bigDot';
-      d.onclick = (e) => {
-        e.stopPropagation();
-        d.classList.toggle('active');
-      };
-      return d;
-    }
+const matchedArea=document.getElementById("matchedArea");
 
-    function buildFrame(n) {
-      dotCard.innerHTML = '';
-      let row1 = document.createElement('div');
-      row1.className = 'row';
-      let row2 = document.createElement('div');
-      row2.className = 'row';
-      for (let i = 0; i < 5; i++) {
-        let slot = document.createElement('div');
-        slot.className = 'slot';
-        if (i < n) slot.appendChild(createDotElement());
+const restartBtn=document.getElementById("restartBtn");
+
+let dotCount=0;
+
+let zIndexCounter=1;
+
+/* ---------- NUMBER OPTIONS ---------- */
+
+for(let i=1;i<=10;i++){
+
+    let c=document.createElement("div");
+
+    c.className="numberOption";
+
+    c.textContent=i;
+
+    c.onclick=()=>checkAnswer(i);
+
+    numberCards.appendChild(c);
+
+}
+
+/* ---------- DOT ---------- */
+
+function dot(){
+
+    let d=document.createElement("div");
+
+    d.className="bigDot";
+
+    d.onclick=()=>d.classList.toggle("active");
+
+    return d;
+
+}
+
+/* ---------- 5 & 10 FRAME ---------- */
+
+function buildFrame(n){
+
+    dotCard.innerHTML="";
+
+    let row1=document.createElement("div");
+
+    row1.className="row";
+
+    let row2=document.createElement("div");
+
+    row2.className="row";
+
+    for(let i=0;i<5;i++){
+
+        let slot=document.createElement("div");
+
+        slot.className="slot";
+
+        if(i<n) slot.appendChild(dot());
+
         row1.appendChild(slot);
-      }
-      for (let i = 5; i < 10; i++) {
-        let slot = document.createElement('div');
-        slot.className = 'slot';
-        if (i < n) slot.appendChild(createDotElement());
+
+    }
+
+    for(let i=5;i<10;i++){
+
+        let slot=document.createElement("div");
+
+        slot.className="slot";
+
+        if(i<n) slot.appendChild(dot());
+
         row2.appendChild(slot);
-      }
-      dotCard.appendChild(row1);
-      dotCard.appendChild(row2);
+
     }
 
-    function newRound() {
-      dotCount = Math.floor(Math.random() * 10) + 1;
-      buildFrame(dotCount);
-    }
+    dotCard.appendChild(row1);
 
-    function checkAnswer(num) {
-      if (num === dotCount) {
+    dotCard.appendChild(row2);
+
+}
+
+/* ---------- NEW ROUND ---------- */
+
+function newRound(){
+
+    dotCount=Math.floor(Math.random()*10)+1;
+
+    buildFrame(dotCount);
+
+}
+
+/* ---------- CHECK ANSWER ---------- */
+
+function checkAnswer(num){
+
+    if(num===dotCount){
+
         addMatch(num);
+
         newRound();
-      }
+
     }
 
-    function addMatch(count) {
-      let pair = document.createElement('div');
-      pair.className = 'matchPair';
-      // flex layout – no absolute
-      let dots = document.createElement('div');
-      dots.className = 'cardBox';
-      for (let i = 0; i < count; i++) {
-        let d = document.createElement('div');
-        d.className = 'dot';
+}
+
+/* ---------- MATCH CARD ---------- */
+
+function addMatch(count){
+
+    let pair=document.createElement("div");
+
+    pair.className="matchPair";
+
+    pair.style.left="10px";
+
+    pair.style.top=(matchedArea.children.length*65+10)+"px";
+
+    let dots=document.createElement("div");
+
+    dots.className="cardBox";
+
+    for(let i=0;i<count;i++){
+
+        let d=document.createElement("div");
+
+        d.className="dot";
+
         dots.appendChild(d);
-      }
-      let num = document.createElement('div');
-      num.className = 'numberCard';
-      num.textContent = count;
-      pair.appendChild(dots);
-      pair.appendChild(num);
-      matchedArea.appendChild(pair);
-      enableDrag(pair);
-      enableDoubleTapDelete(pair);
+
     }
 
-    function enableDrag(el) {
-      let offsetX = 0, offsetY = 0;
-      let dragging = false;
-      el.addEventListener('pointerdown', (e) => {
-        dragging = true;
-        el.style.zIndex = ++zIndexCounter;
-        const rect = el.getBoundingClientRect();
-        offsetX = e.clientX - rect.left;
-        offsetY = e.clientY - rect.top;
-        el.setPointerCapture(e.pointerId);
-      });
-      document.addEventListener('pointermove', (e) => {
-        if (!dragging) return;
-        el.style.position = 'fixed';
-        el.style.left = (e.clientX - offsetX) + 'px';
-        el.style.top = (e.clientY - offsetY) + 'px';
-        el.style.width = 'auto';
-      });
-      document.addEventListener('pointerup', (e) => {
-        if (dragging) {
-          dragging = false;
-          el.releasePointerCapture(e.pointerId);
+    let num=document.createElement("div");
+
+    num.className="numberCard";
+
+    num.textContent=count;
+
+    pair.appendChild(dots);
+
+    pair.appendChild(num);
+
+    matchedArea.appendChild(pair);
+
+    enableDrag(pair);
+
+    enableDoubleTapDelete(pair);
+
+}
+
+/* ---------- DRAG ---------- */
+
+function enableDrag(el){
+
+    let offsetX=0, offsetY=0;
+
+    let dragging=false;
+
+    el.addEventListener("pointerdown",(e)=>{
+
+        dragging=true;
+
+        el.style.zIndex=++zIndexCounter;
+
+        offsetX=e.clientX-el.offsetLeft;
+
+        offsetY=e.clientY-el.offsetTop;
+
+    });
+
+    document.addEventListener("pointermove",(e)=>{
+
+        if(!dragging) return;
+
+        el.style.position="absolute";
+
+        el.style.left=(e.clientX-offsetX)+"px";
+
+        el.style.top=(e.clientY-offsetY)+"px";
+
+    });
+
+    document.addEventListener("pointerup",()=>{
+
+        dragging=false;
+
+    });
+
+}
+
+/* ---------- DOUBLE TAP DELETE ---------- */
+
+function enableDoubleTapDelete(el){
+
+    let lastTap=0;
+
+    el.addEventListener("pointerdown",()=>{
+
+        let now=Date.now();
+
+        if(now-lastTap<300){
+
+            el.remove();
+
         }
-      });
-    }
 
-    function enableDoubleTapDelete(el) {
-      let lastTap = 0;
-      el.addEventListener('pointerdown', () => {
-        let now = Date.now();
-        if (now - lastTap < 300) {
-          el.remove();
-        }
-        lastTap = now;
-      });
-    }
+        lastTap=now;
 
-    restartBtn.onclick = () => {
-      matchedArea.innerHTML = '';
-      newRound();
-    };
+    });
+
+}
+
+/* ---------- RESTART ---------- */
+
+restartBtn.onclick=()=>{
+
+    matchedArea.innerHTML="";
+
     newRound();
 
-    // ---------- DICE (realistic) ----------
-    const diceContainer = document.getElementById('diceContainer');
-    const pipMap = {
-      1: ['pip-center'],
-      2: ['pip-tl', 'pip-br'],
-      3: ['pip-tl', 'pip-center', 'pip-br'],
-      4: ['pip-tl', 'pip-tr', 'pip-bl', 'pip-br'],
-      5: ['pip-tl', 'pip-tr', 'pip-center', 'pip-bl', 'pip-br'],
-      6: ['pip-tl', 'pip-tr', 'pip-ml', 'pip-mr', 'pip-bl', 'pip-br']
-    };
-    // get all pip elements
-    const pips = diceContainer.querySelectorAll('.pip');
+};
 
-    function setDiceFace(value) {
-      // hide all
-      pips.forEach(p => p.classList.add('hidden'));
-      // show matching
-      const positions = pipMap[value] || [];
-      positions.forEach(cls => {
-        const el = diceContainer.querySelector('.' + cls);
-        if (el) el.classList.remove('hidden');
-      });
-    }
+/* START GAME */
 
-    function rollDice() {
-      const val = Math.floor(Math.random() * 6) + 1;
-      setDiceFace(val);
-      // subtle animation
-      diceContainer.style.transform = 'rotate(0deg) scale(0.95)';
-      setTimeout(() => {
-        diceContainer.style.transform = 'rotate(8deg) scale(1)';
-      }, 40);
-      setTimeout(() => {
-        diceContainer.style.transform = 'rotate(-4deg)';
-      }, 100);
-      setTimeout(() => {
-        diceContainer.style.transform = 'rotate(0deg)';
-      }, 170);
-      // also update dotCount? no, just for fun.
-    }
+newRound();
 
-    document.getElementById('rollDiceBtn').addEventListener('click', rollDice);
-    diceContainer.addEventListener('click', rollDice);
-
-    // set initial dice face (random)
-    (function initDice() {
-      const initial = Math.floor(Math.random() * 6) + 1;
-      setDiceFace(initial);
-    })();
-
-    // ---------- DRAWING CANVAS ----------
-    const canvas = document.getElementById('drawCanvas');
-    const ctx = canvas.getContext('2d');
-    let isDrawing = false;
-    let lastX = 0, lastY = 0;
-    let drawColor = '#1a237e';
-    let lineWidth = 3;
-
-    function getCanvasCoords(e) {
-      const rect = canvas.getBoundingClientRect();
-      const scaleX = canvas.width / rect.width;
-      const scaleY = canvas.height / rect.height;
-      let clientX, clientY;
-      if (e.touches) {
-        clientX = e.touches[0].clientX;
-        clientY = e.touches[0].clientY;
-        e.preventDefault();
-      } else {
-        clientX = e.clientX;
-        clientY = e.clientY;
-      }
-      const x = (clientX - rect.left) * scaleX;
-      const y = (clientY - rect.top) * scaleY;
-      return { x: Math.min(Math.max(x, 0), canvas.width), y: Math.min(Math.max(y, 0), canvas.height) };
-    }
-
-    function startDrawing(e) {
-      e.preventDefault();
-      isDrawing = true;
-      const pos = getCanvasCoords(e);
-      lastX = pos.x;
-      lastY = pos.y;
-    }
-
-    function draw(e) {
-      e.preventDefault();
-      if (!isDrawing) return;
-      const pos = getCanvasCoords(e);
-      ctx.beginPath();
-      ctx.moveTo(lastX, lastY);
-      ctx.lineTo(pos.x, pos.y);
-      ctx.strokeStyle = drawColor;
-      ctx.lineWidth = lineWidth;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ctx.stroke();
-      lastX = pos.x;
-      lastY = pos.y;
-    }
-
-    function stopDrawing(e) {
-      e.preventDefault();
-      isDrawing = false;
-    }
-
-    // mouse events
-    canvas.addEventListener('mousedown', startDrawing);
-    canvas.addEventListener('mousemove', draw);
-    canvas.addEventListener('mouseup', stopDrawing);
-    canvas.addEventListener('mouseleave', stopDrawing);
-    // touch events
-    canvas.addEventListener('touchstart', startDrawing, { passive: false });
-    canvas.addEventListener('touchmove', draw, { passive: false });
-    canvas.addEventListener('touchend', stopDrawing, { passive: false });
-    canvas.addEventListener('touchcancel', stopDrawing, { passive: false });
-
-    document.getElementById('clearCanvasBtn').addEventListener('click', () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    });
-
-    const colorBtn = document.getElementById('colorToggleBtn');
-    const colors = ['#1a237e', '#c62828', '#2e7d32', '#e65100', '#6a1b9a'];
-    let colorIndex = 0;
-    colorBtn.addEventListener('click', () => {
-      colorIndex = (colorIndex + 1) % colors.length;
-      drawColor = colors[colorIndex];
-      colorBtn.style.background = drawColor;
-      colorBtn.style.color = 'white';
-    });
-    colorBtn.style.background = drawColor;
-    colorBtn.style.color = 'white';
-
-    // also add a small dice to match area? we keep everything
-    console.log('🎲 dice & canvas ready');
-  })();
 </script>
+
 </body>
+
 </html>
