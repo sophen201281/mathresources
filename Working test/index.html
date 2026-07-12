@@ -255,9 +255,12 @@
     margin-bottom:6px;
   }
   .col-body{
-    position:relative;
-    overflow:hidden;
+    display:flex;
+    flex-wrap:wrap;
+    align-content:flex-start;
+    gap:6px;
     height:110px;
+    overflow-y:auto;
     border-radius:6px;
     transition:background .15s;
   }
@@ -279,7 +282,7 @@
     text-decoration:underline;
     padding:6px 0;
   }
-  .placed{ position:absolute; left:0; top:0; animation:pop .15s ease-out; }
+  .placed{ animation:pop .15s ease-out; }
   @keyframes pop{ from{ transform:scale(.6); opacity:0;} to{ transform:scale(1); opacity:1;} }
   .rejected{ animation:shake .3s; }
   @keyframes shake{
@@ -289,6 +292,9 @@
   }
 
   /* --- Free space (replaces the old "no table" placeholder) --- */
+  /* This is the only area with true free-form drop positioning, since the
+     place-value table columns are too small for a block to have room to move
+     around in -- there it just auto-arranges instead. */
   .free-wrap{
     background:white;
     border-radius:12px;
@@ -300,11 +306,14 @@
     margin-bottom:10px;
   }
   .free-body{
+    position:relative;
+    overflow:hidden;
     height:340px;
     min-width:260px;
     border:2px dashed var(--line);
     padding:10px;
   }
+  .free-body .placed{ position:absolute; left:0; top:0; }
   .free-body.dragover{ background:var(--accent-soft); border-color:var(--accent); }
 
   /* --- Drag ghost used for touch (and as a visual double for mouse) --- */
@@ -466,6 +475,31 @@ let ghost = null;
 let currentTargetBody = null;
 let lastClientX = 0;
 let lastClientY = 0;
+
+function makeVisualPreview(type){
+  const el = document.createElement('div');
+  if(type==='ones'){
+    el.className = 'block-ones mini-ones';
+  } else if(type==='tens'){
+    el.className = 'block-tens mini-tens';
+    for(let i=0;i<10;i++){
+      const seg=document.createElement('div');
+      seg.className='seg';
+      el.appendChild(seg);
+    }
+  } else if(type==='hundreds'){
+    el.className = 'block-hundreds mini-hundreds';
+    for(let i=0;i<100;i++){
+      const cell=document.createElement('div');
+      cell.className='cell';
+      el.appendChild(cell);
+    }
+  } else if(CARD_LABELS.hasOwnProperty(type)){
+    el.className = 'card' + (CARD_OPS.includes(type) ? ' op' : '');
+    el.textContent = CARD_LABELS[type];
+  }
+  return el;
+}
 
 function makeMiniBlock(type){
   const el = document.createElement('div');
@@ -769,8 +803,12 @@ function startDrag(item, x, y, mode, type){
   dragType = type;
   dragSourceEl = mode === 'move' ? item : null;
 
+  // Use the same size the piece will actually be once placed (the "mini" size),
+  // not the larger palette shelf image -- otherwise the ghost you see while
+  // dragging doesn't match where/how big the block lands, making it look
+  // like it moved on drop.
   const visual = mode === 'copy'
-    ? (item.querySelector('.block-ones, .block-tens, .block-hundreds') || item)
+    ? makeVisualPreview(type)
     : item;
 
   ghost = document.createElement('div');
