@@ -224,9 +224,15 @@ function resizeCanvas(){
 }
 resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
-const BOX_SIZE = 40;
+const BOX_SIZE = 26;
 const magneticBox = {
     x: window.innerWidth - 240,
+    y: 120,
+    width: 200,
+    height: 500
+};
+const tensBox = {
+    x: magneticBox.x - 220,
     y: 120,
     width: 200,
     height: 500
