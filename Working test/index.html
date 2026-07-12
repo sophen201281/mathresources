@@ -3,21 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <title>តារាងតម្លៃលេខតាមខ្ទង់</title>
+  <title>តារាងតម្លៃលេខតាមខ្ទង់ · គ្រាប់ឡុកឡាក់</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body { margin: 0; font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif; background: #faf7f0; color: #2e2a24; padding: 16px; touch-action: manipulation; }
-    h1 { font-size: 1.4rem; margin: 0 0 4px 0; }
+    h1 { font-size: 1.4rem; margin: 0 0 4px 0; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
     p.sub { margin: 0 0 20px 0; color: #6b6455; font-size: .92rem; }
     .controls { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
     select { font-family: inherit; font-size: 1rem; padding: 8px 12px; border-radius: 8px; border: 1px solid #d8d0c0; background: white; }
-    button { font-family: inherit; font-size: .9rem; padding: 10px 14px; border-radius: 8px; border: 1px solid #3d5a52; background: white; color: #3d5a52; cursor: pointer; transition: 0.15s; }
-    button:hover { background: #e8efec; }
-    button.primary { background: #3d5a52; color: white; border-color: #3d5a52; }
-    button.primary:hover { background: #2d4640; }
+    button.reset { font-family: inherit; font-size: .9rem; padding: 10px 14px; border-radius: 8px; border: 1px solid #3d5a52; background: white; color: #3d5a52; cursor: pointer; }
+    button.reset:hover { background: #e8efec; }
     .layout { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
 
     /* palette */
@@ -66,7 +64,7 @@
     .section-label { font-size: .68rem; text-transform: uppercase; color: #9a9280; margin-bottom: 6px; }
     .col-body { display: flex; flex-wrap: wrap; align-content: flex-start; gap: 6px; height: 110px; overflow-y: auto; border-radius: 6px; transition: background .15s; position: relative; }
     .col-body.dragover { background: #e8efec; }
-    .col-footer { margin-top: 8px; font-size: .8rem; color: #6b6455; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; }
+    .col-footer { margin-top: 8px; font-size: .8rem; color: #6b6455; display: flex; justify-content: space-between; }
     .col-footer button { font-family: inherit; border: none; background: none; color: #3d5a52; cursor: pointer; font-size: .85rem; text-decoration: underline; padding: 6px 0; }
     .placed { animation: pop .15s ease-out; }
     @keyframes pop { from { transform: scale(.6); opacity:0; } to { transform: scale(1); opacity:1; } }
@@ -82,87 +80,15 @@
     /* drag ghost */
     .drag-ghost { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 1000; opacity: .85; transform: translate(-1000px,-1000px); filter: drop-shadow(0 4px 8px rgba(0,0,0,.25)); }
 
-    /* dice modal */
-    .dice-overlay {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.4);
-      backdrop-filter: blur(3px);
-      z-index: 2000;
-      justify-content: center;
-      align-items: center;
-    }
-    .dice-overlay.active { display: flex; }
-    .dice-box {
-      background: white;
-      border-radius: 24px;
-      padding: 30px 40px 40px;
-      max-width: 420px;
-      width: 90%;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-      text-align: center;
-    }
-    .dice-box h2 { margin-top: 0; color: #2e2a24; }
-    .dice-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
-      justify-content: center;
-      margin: 24px 0;
-    }
-    .dice-group {
-      background: #f8f5ee;
-      border-radius: 16px;
-      padding: 16px 20px;
-      min-width: 100px;
-      flex: 1 0 auto;
-    }
-    .dice-group label {
-      display: block;
-      font-size: .75rem;
-      text-transform: uppercase;
-      color: #8a8271;
-      letter-spacing: .06em;
-      margin-bottom: 6px;
-    }
-    .dice-value {
-      font-size: 2.8rem;
-      font-weight: 700;
-      color: #2e2a24;
-      line-height: 1.2;
-    }
-    .dice-controls {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      margin-top: 8px;
-      flex-wrap: wrap;
-    }
-    .dice-controls button {
-      border: 1px solid #d8d0c0;
-      background: white;
-      padding: 8px 18px;
-      border-radius: 30px;
-      font-size: .9rem;
-    }
-    .dice-controls button.primary { background: #3d5a52; color: white; border-color: #3d5a52; }
-    .dice-controls button.primary:hover { background: #2d4640; }
-    .dice-result {
-      margin-top: 12px;
-      font-size: 1rem;
-      color: #3d5a52;
-      font-weight: 700;
-    }
-    .dice-close {
-      margin-top: 16px;
-      background: none;
-      border: none;
-      color: #8a8271;
-      font-size: .9rem;
-      text-decoration: underline;
-      cursor: pointer;
-    }
+    /* ===== DICE ===== */
+    .dice-area { display: flex; align-items: center; gap: 16px; margin: 8px 0 16px 0; }
+    .dice-box { width: 80px; height: 80px; background: white; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.1s, box-shadow 0.15s; border: 2px solid #c0b8a8; user-select: none; }
+    .dice-box:active { transform: scale(0.92); box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+    .dice-box .dot-grid { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); gap: 6px; width: 58px; height: 58px; padding: 4px; }
+    .dice-dot { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+    .dice-dot::after { content: ''; width: 12px; height: 12px; background: #1e1a16; border-radius: 50%; display: block; opacity: 0; transition: opacity 0.15s; }
+    .dice-dot.on::after { opacity: 1; }
+    .dice-result { font-size: 1.2rem; font-weight: 700; color: #3d5a52; min-width: 60px; }
 
     /* responsive */
     @media (max-width: 720px) {
@@ -179,8 +105,9 @@
       .mini-hundreds { width: 88px; height: 88px; }
       .mini-tens { width: 18px; height: 88px; }
       .free-body { height: 260px; min-width: 0; }
-      .dice-box { padding: 24px 20px 30px; }
-      .dice-value { font-size: 2.2rem; }
+      .dice-box { width: 64px; height: 64px; }
+      .dice-box .dot-grid { width: 46px; height: 46px; gap: 4px; }
+      .dice-dot::after { width: 10px; height: 10px; }
     }
     @media (max-width: 420px) {
       .block-hundreds { width: 80px; height: 80px; }
@@ -189,7 +116,10 @@
   </style>
 </head>
 <body>
-<h1>តារាតម្លៃលេខតាមខ្ទង់</h1>
+<h1>
+  <span>តារាតម្លៃលេខតាមខ្ទង់</span>
+  <span style="font-size:1rem; font-weight:400; background:#eee8dd; padding:0 12px; border-radius:40px;">+ គ្រាប់ឡុកឡាក់</span>
+</h1>
 <p class="sub"></p>
 
 <div class="controls">
@@ -199,8 +129,20 @@
     <option value="two">២ខ្ទង់ ដប់ និងរាយ</option>
     <option value="three">៣ខ្ទង់ រយ ដប់ រាយ</option>
   </select>
-  <button class="primary" id="rollDiceBtn">🎲 បោះឡុកឡាក់</button>
   <button class="reset" id="resetAll">សម្អាតខ្ទង់</button>
+</div>
+
+<!-- DICE -->
+<div class="dice-area">
+  <div class="dice-box" id="diceBox" role="button" aria-label="Roll dice">
+    <div class="dot-grid" id="diceGrid">
+      <!-- 3x3 dots, toggled via JS -->
+      <div class="dice-dot" data-idx="0"></div><div class="dice-dot" data-idx="1"></div><div class="dice-dot" data-idx="2"></div>
+      <div class="dice-dot" data-idx="3"></div><div class="dice-dot" data-idx="4"></div><div class="dice-dot" data-idx="5"></div>
+      <div class="dice-dot" data-idx="6"></div><div class="dice-dot" data-idx="7"></div><div class="dice-dot" data-idx="8"></div>
+    </div>
+  </div>
+  <div class="dice-result" id="diceResult">⚀ 1</div>
 </div>
 
 <div class="layout">
@@ -226,33 +168,6 @@
     </div>
   </div>
   <div id="tableWrap"></div>
-</div>
-
-<!-- Dice Modal -->
-<div class="dice-overlay" id="diceOverlay">
-  <div class="dice-box">
-    <h2>🎲 បោះឡុកឡាក់</h2>
-    <div class="dice-grid" id="diceGrid">
-      <div class="dice-group">
-        <label>រយ (Hundreds)</label>
-        <div class="dice-value" id="diceHundreds">0</div>
-      </div>
-      <div class="dice-group">
-        <label>ដប់ (Tens)</label>
-        <div class="dice-value" id="diceTens">0</div>
-      </div>
-      <div class="dice-group">
-        <label>រាយ (Ones)</label>
-        <div class="dice-value" id="diceOnes">0</div>
-      </div>
-    </div>
-    <div class="dice-controls">
-      <button class="primary" id="diceRollBtn">បោះឡុកឡាក់</button>
-      <button id="diceAddBtn">បន្ថែមទៅតារាង</button>
-    </div>
-    <div class="dice-result" id="diceResult"></div>
-    <button class="dice-close" id="diceCloseBtn">បិទ</button>
-  </div>
 </div>
 
 <script>
@@ -384,44 +299,6 @@
         positionAt(mini, body, clientX, clientY);
       }
     }
-
-    // public helper to add dice results to the table
-    window.addDiceToTable = function(type, count) {
-      const mode = layoutSelect.value;
-      if (mode === 'none') {
-        const body = document.getElementById('body-free');
-        if (!body) return;
-        for (let i = 0; i < count; i++) {
-          // place them stacked with a small offset for visibility
-          const mini = makeMiniBlock(type);
-          body.appendChild(mini);
-          // random position within free area
-          const rect = body.getBoundingClientRect();
-          const w = mini.offsetWidth || 26;
-          const h = mini.offsetHeight || 26;
-          const x = Math.random() * (rect.width - w);
-          const y = Math.random() * (rect.height - h);
-          mini.style.left = x + 'px';
-          mini.style.top = y + 'px';
-        }
-        return;
-      }
-      const types = mode === 'two' ? ['tens', 'ones'] : ['hundreds', 'tens', 'ones'];
-      if (!types.includes(type)) return;
-      // distribute across sections (upper, middle, lower) evenly
-      const parts = ['upper', 'middle', 'lower'];
-      let idx = 0;
-      for (let i = 0; i < count; i++) {
-        const part = parts[idx % parts.length];
-        const body = document.getElementById('body-' + type + '-' + part);
-        if (body) {
-          const mini = makeMiniBlock(type);
-          body.appendChild(mini);
-          updateCount(type);
-        }
-        idx++;
-      }
-    };
 
     function rejectBody(body) {
       body.classList.add('rejected');
@@ -665,4 +542,82 @@
       dragMode = null; dragType = null; dragSourceEl = null; currentTargetBody = null;
     }
 
-    const DRAG_THRESH
+    const DRAG_THRESHOLD = 6;
+
+    function attachManualDrag(el, mode, type) {
+      let pending = false, dragStarted = false, startX = 0, startY = 0;
+
+      function onStart(x, y) { pending = true; dragStarted = false; startX = x; startY = y; }
+      function onMove(x, y) {
+        if (!pending) return;
+        if (!dragStarted) {
+          const dx = x - startX, dy = y - startY;
+          if (Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
+          dragStarted = true;
+          startDrag(el, x, y, mode, type);
+          return;
+        }
+        moveGhost(x, y);
+      }
+      function onEnd() {
+        if (dragStarted) endDrag();
+        pending = false; dragStarted = false;
+      }
+
+      el.addEventListener('touchstart', e => {
+        e.preventDefault();
+        const t = e.touches[0];
+        onStart(t.clientX, t.clientY);
+      }, { passive: false });
+
+      el.addEventListener('touchmove', e => {
+        e.preventDefault();
+        const t = e.touches[0];
+        onMove(t.clientX, t.clientY);
+      }, { passive: false });
+
+      el.addEventListener('touchend', e => {
+        e.preventDefault();
+        onEnd();
+      }, { passive: false });
+
+      el.addEventListener('touchcancel', () => { pending = false; dragStarted = false; });
+
+      // Pointer fallback (for stylus)
+      let usingPointer = false;
+      el.addEventListener('pointerdown', e => {
+        if (e.pointerType !== 'pen') return;
+        usingPointer = true;
+        el.setPointerCapture(e.pointerId);
+        onStart(e.clientX, e.clientY);
+      });
+      el.addEventListener('pointermove', e => {
+        if (!usingPointer) return;
+        onMove(e.clientX, e.clientY);
+      });
+      el.addEventListener('pointerup', e => {
+        if (!usingPointer) return;
+        usingPointer = false;
+        onEnd();
+      });
+    }
+
+    // Attach manual drag to shelf items (already attached for cards and placed items)
+    document.querySelectorAll('.block-items .palette-item').forEach(item => {
+      attachManualDrag(item, 'copy', item.dataset.type);
+    });
+
+    // ---- layout switching ----
+    layoutSelect.addEventListener('change', () => buildTable(layoutSelect.value));
+    document.getElementById('resetAll').addEventListener('click', () => buildTable(layoutSelect.value));
+
+    buildTable(layoutSelect.value);
+
+    // ========== DICE ==========
+    const diceBox = document.getElementById('diceBox');
+    const diceResult = document.getElementById('diceResult');
+    const dotEls = document.querySelectorAll('#diceGrid .dice-dot');
+
+    // dot patterns for 1-6 (indexes 0..8, row-major)
+    const PATTERNS = {
+      1:
