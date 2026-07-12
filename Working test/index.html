@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <title>តារាងតម្លៃលេខតាមខ្ទង់ · គ្រាប់ឡុកឡាក់</title>
+  <title>តារាងតម្លៃលេខតាមខ្ទង់</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body { margin: 0; font-family: 'Battambang', 'Segoe UI', system-ui, sans-serif; background: #faf7f0; color: #2e2a24; padding: 16px; touch-action: manipulation; }
-    h1 { font-size: 1.4rem; margin: 0 0 4px 0; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    h1 { font-size: 1.4rem; margin: 0 0 4px 0; }
     p.sub { margin: 0 0 20px 0; color: #6b6455; font-size: .92rem; }
     .controls { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
     select { font-family: inherit; font-size: 1rem; padding: 8px 12px; border-radius: 8px; border: 1px solid #d8d0c0; background: white; }
@@ -80,16 +80,6 @@
     /* drag ghost */
     .drag-ghost { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 1000; opacity: .85; transform: translate(-1000px,-1000px); filter: drop-shadow(0 4px 8px rgba(0,0,0,.25)); }
 
-    /* ===== DICE ===== */
-    .dice-area { display: flex; align-items: center; gap: 16px; margin: 8px 0 16px 0; }
-    .dice-box { width: 80px; height: 80px; background: white; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.1s, box-shadow 0.15s; border: 2px solid #c0b8a8; user-select: none; }
-    .dice-box:active { transform: scale(0.92); box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
-    .dice-box .dot-grid { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); gap: 6px; width: 58px; height: 58px; padding: 4px; }
-    .dice-dot { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
-    .dice-dot::after { content: ''; width: 12px; height: 12px; background: #1e1a16; border-radius: 50%; display: block; opacity: 0; transition: opacity 0.15s; }
-    .dice-dot.on::after { opacity: 1; }
-    .dice-result { font-size: 1.2rem; font-weight: 700; color: #3d5a52; min-width: 60px; }
-
     /* responsive */
     @media (max-width: 720px) {
       body { padding: 12px; }
@@ -105,9 +95,6 @@
       .mini-hundreds { width: 88px; height: 88px; }
       .mini-tens { width: 18px; height: 88px; }
       .free-body { height: 260px; min-width: 0; }
-      .dice-box { width: 64px; height: 64px; }
-      .dice-box .dot-grid { width: 46px; height: 46px; gap: 4px; }
-      .dice-dot::after { width: 10px; height: 10px; }
     }
     @media (max-width: 420px) {
       .block-hundreds { width: 80px; height: 80px; }
@@ -116,10 +103,7 @@
   </style>
 </head>
 <body>
-<h1>
-  <span>តារាតម្លៃលេខតាមខ្ទង់</span>
-  <span style="font-size:1rem; font-weight:400; background:#eee8dd; padding:0 12px; border-radius:40px;">+ គ្រាប់ឡុកឡាក់</span>
-</h1>
+<h1>តារាតម្លៃលេខតាមខ្ទង់</h1>
 <p class="sub"></p>
 
 <div class="controls">
@@ -130,19 +114,6 @@
     <option value="three">៣ខ្ទង់ រយ ដប់ រាយ</option>
   </select>
   <button class="reset" id="resetAll">សម្អាតខ្ទង់</button>
-</div>
-
-<!-- DICE -->
-<div class="dice-area">
-  <div class="dice-box" id="diceBox" role="button" aria-label="Roll dice">
-    <div class="dot-grid" id="diceGrid">
-      <!-- 3x3 dots, toggled via JS -->
-      <div class="dice-dot" data-idx="0"></div><div class="dice-dot" data-idx="1"></div><div class="dice-dot" data-idx="2"></div>
-      <div class="dice-dot" data-idx="3"></div><div class="dice-dot" data-idx="4"></div><div class="dice-dot" data-idx="5"></div>
-      <div class="dice-dot" data-idx="6"></div><div class="dice-dot" data-idx="7"></div><div class="dice-dot" data-idx="8"></div>
-    </div>
-  </div>
-  <div class="dice-result" id="diceResult">⚀ 1</div>
 </div>
 
 <div class="layout">
@@ -612,12 +583,7 @@
     document.getElementById('resetAll').addEventListener('click', () => buildTable(layoutSelect.value));
 
     buildTable(layoutSelect.value);
-
-    // ========== DICE ==========
-    const diceBox = document.getElementById('diceBox');
-    const diceResult = document.getElementById('diceResult');
-    const dotEls = document.querySelectorAll('#diceGrid .dice-dot');
-
-    // dot patterns for 1-6 (indexes 0..8, row-major)
-    const PATTERNS = {
-      1:
+  })();
+</script>
+</body>
+</html>
