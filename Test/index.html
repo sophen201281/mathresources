@@ -28,13 +28,11 @@
         display:flex;
         flex-wrap:wrap;
         gap:10px;
-        max-width:calc(100vw - 140px);
+        max-width:calc(100vw - 20px);
+        align-items:center;
     }
-    /* Fixed and styled the Home button to stay top-right */
+    /* Home button now sits in the toolbar with the other buttons */
     .home-btn {
-        position: fixed;
-        top: 10px;
-        right: 10px;
         z-index: 101;
         padding: 10px 16px;
         background: #fff;
@@ -68,7 +66,7 @@
         display:flex;
         flex-wrap:wrap;
         gap:6px;
-        max-width:calc(100vw - 140px);
+        max-width:calc(100vw - 20px);
         background:rgba(255,255,255,0.85);
         border:2px solid #90a4ae;
         border-radius:12px;
@@ -166,14 +164,12 @@
 </head>
 <body>
 
-<!-- HOME BUTTON IS NOW INSIDE BODY AND PROPERLY CLASS-STYLED -->
-<a href="../index.html" class="home-btn" style="font-family:'Battambang', cursive; font-size: 20px;">
-    🏡 Home
-</a>
-
 <div class="toolbar">
     <button id="addOneBtn">➕ វត្ថុសម្រាប់រាប់</button>
     <button id="deleteBtn">🗑 លុប</button>
+    <a href="../index.html" class="home-btn" style="font-family:'Battambang', cursive; font-size: 20px;">
+        🏡 Home
+    </a>
 </div>
 
 <div class="number-tray" id="numberTray"></div>
@@ -232,17 +228,21 @@ const magneticBox = { x:0, y:0, width:200, height:500 };
 const tensBox = { x:0, y:0, width:200, height:500 };
 const hundredsBox = { x:0, y:0, width:200, height:500 };
 
+const dropSpot = { x:0, y:0 };
 function layoutBoxes(){
     const gap = 20;
+    const dropAreaWidth = 70; // space reserved to the right of the ones box for the drop spot
     const margin = 40;
-    let boxWidth = 200;
-    const totalWidth = boxWidth * 3 + gap * 2;
+    let boxWidth = 280;
+    const totalWidth = boxWidth * 3 + gap * 2 + dropAreaWidth;
 
     if(totalWidth > canvas.width - margin){
-        boxWidth = Math.max(70, (canvas.width - margin - gap * 2) / 3);
+        boxWidth = Math.max(90, (canvas.width - margin - gap * 2 - dropAreaWidth) / 3);
     }
 
-    const finalTotalWidth = boxWidth * 3 + gap * 2;
+    const finalTotalWidth = boxWidth * 3 + gap * 2 + dropAreaWidth;
+    // Centering the boxes + reserved drop area together shifts the hundreds,
+    // tens & ones boxes to the left, opening space on the right for the drop spot.
     const startX = (canvas.width - finalTotalWidth) / 2;
 
     const topMargin = 110;
@@ -265,6 +265,10 @@ function layoutBoxes(){
     magneticBox.y = y;
     magneticBox.width = boxWidth;
     magneticBox.height = boxHeight;
+
+    // Drop spot sits outside, to the right of the ones box, in the reserved space
+    dropSpot.x = magneticBox.x + magneticBox.width + (dropAreaWidth - BOX_SIZE) / 2;
+    dropSpot.y = magneticBox.y + 12;
 }
 layoutBoxes();
 let blocks = [];
@@ -426,8 +430,8 @@ draw();
 document.getElementById("addOneBtn").addEventListener("click",()=>{
     blocks.push(
         new OneBlock(
-            80 + Math.random()*100,
-            120 + Math.random()*100
+            dropSpot.x,
+            dropSpot.y
         )
     );
 });
