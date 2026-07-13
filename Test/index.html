@@ -60,13 +60,16 @@
     /* --- Number card tray --- */
     .number-tray{
         position:fixed;
-        bottom:64px;
-        left:10px;
+        top:110px;
+        right:10px;
+        left:auto;
+        bottom:auto;
         z-index:100;
         display:flex;
-        flex-wrap:wrap;
+        flex-wrap:nowrap;
+        flex-direction:column;
         gap:6px;
-        max-width:calc(100vw - 20px);
+        width:52px;
         background:rgba(255,255,255,0.85);
         border:2px solid #90a4ae;
         border-radius:12px;
@@ -166,6 +169,7 @@
 
 <div class="toolbar">
     <button id="addOneBtn">➕ វត្ថុសម្រាប់រាប់</button>
+    <button id="addTenBtn">➕ ដប់</button>
     <button id="deleteBtn">🗑 លុប</button>
     <a href="../index.html" class="home-btn" style="font-family:'Battambang', cursive; font-size: 20px;">
         🏡 Home
@@ -223,27 +227,23 @@ window.addEventListener("resize", ()=>{
     resizeCanvas();
     layoutBoxes();
 });
-const BOX_SIZE = 26;
+const BOX_SIZE = 18;
 const magneticBox = { x:0, y:0, width:200, height:500 };
 const tensBox = { x:0, y:0, width:200, height:500 };
-const hundredsBox = { x:0, y:0, width:200, height:500 };
 
 const dropSpot = { x:0, y:0 };
+const tenDropSpot = { x:0, y:0 };
 function layoutBoxes(){
+    const leftMargin = 40;
     const gap = 20;
     const dropAreaWidth = 70; // space reserved to the right of the ones box for the drop spot
-    const margin = 40;
+    const trayReserve = 90; // space kept clear on the far right for the number tray
     let boxWidth = 280;
-    const totalWidth = boxWidth * 3 + gap * 2 + dropAreaWidth;
+    const totalWidth = leftMargin + boxWidth * 2 + gap + dropAreaWidth + trayReserve;
 
-    if(totalWidth > canvas.width - margin){
-        boxWidth = Math.max(90, (canvas.width - margin - gap * 2 - dropAreaWidth) / 3);
+    if(totalWidth > canvas.width){
+        boxWidth = Math.max(90, (canvas.width - leftMargin - gap - dropAreaWidth - trayReserve) / 2);
     }
-
-    const finalTotalWidth = boxWidth * 3 + gap * 2 + dropAreaWidth;
-    // Centering the boxes + reserved drop area together shifts the hundreds,
-    // tens & ones boxes to the left, opening space on the right for the drop spot.
-    const startX = (canvas.width - finalTotalWidth) / 2;
 
     const topMargin = 110;
     const bottomMargin = 130;
@@ -251,17 +251,12 @@ function layoutBoxes(){
     const boxHeight = Math.max(180, Math.min(500, usableHeight));
     const y = topMargin + Math.max(0, (usableHeight - boxHeight) / 2);
 
-    hundredsBox.x = startX;
-    hundredsBox.y = y;
-    hundredsBox.width = boxWidth;
-    hundredsBox.height = boxHeight;
-
-    tensBox.x = startX + boxWidth + gap;
+    tensBox.x = leftMargin;
     tensBox.y = y;
     tensBox.width = boxWidth;
     tensBox.height = boxHeight;
 
-    magneticBox.x = startX + (boxWidth + gap) * 2;
+    magneticBox.x = tensBox.x + boxWidth + gap;
     magneticBox.y = y;
     magneticBox.width = boxWidth;
     magneticBox.height = boxHeight;
@@ -269,6 +264,10 @@ function layoutBoxes(){
     // Drop spot sits outside, to the right of the ones box, in the reserved space
     dropSpot.x = magneticBox.x + magneticBox.width + (dropAreaWidth - BOX_SIZE) / 2;
     dropSpot.y = magneticBox.y + 12;
+
+    // Ten-stick drop spot sits just below the ones drop spot, same reserved column
+    tenDropSpot.x = dropSpot.x;
+    tenDropSpot.y = dropSpot.y + BOX_SIZE + 24;
 }
 layoutBoxes();
 let blocks = [];
@@ -432,6 +431,14 @@ document.getElementById("addOneBtn").addEventListener("click",()=>{
         new OneBlock(
             dropSpot.x,
             dropSpot.y
+        )
+    );
+});
+document.getElementById("addTenBtn").addEventListener("click",()=>{
+    blocks.push(
+        new TenStick(
+            tenDropSpot.x,
+            tenDropSpot.y
         )
     );
 });
