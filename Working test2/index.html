@@ -1,1 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deal &amp; Match — Number Cards</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --felt-1:#0f3d3e;
+    --felt-2:#0a2c2d;
+    --card-face:#f5efe0;
+    --card-face-shade:#e8dfc8;
+    --card-back:#b23b34;
+    --card-back-line:#8f2e28;
+    --ink:#1c2a44;
+    --gold:#d9a441;
+    --slot-green:#4fa37b;
+    --muted:#a9c2bd;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    min-height:100vh;
+    background:
+      radial-gradient(ellipse at 50% -10%, rgba(217,164,65,0.10), transparent 60%),
+      radial-gradient(circle at 50% 50%, var(--felt-1), var(--felt-2) 120%);
+    font-family:'Space Grotesk', sans-serif;
+    color:var(--muted);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:32px 16px 64px;
+  }
+
+  /* ---------- Header ---------- */
+  header{
+    text-align:center;
+    max-width:640px;
+    margin-bottom:28px;
+  }
+  .eyebrow{
+    font-size:12px;
+    letter-spacing:0.28em;
+    text-transform:uppercase;
+    color:var(--gold);
+    font-weight:600;
+    margin-bottom:10px;
+  }
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(32px,5vw,48px);
+    color:#f5efe0;
+    margin:0 0 10px;
+    letter-spacing:-0.01em;
+  }
+  header p{
+    font-size:14.5px;
+    line-height:1.6;
+    color:var(--muted);
+    margin:0;
+  }
+
+  /* ---------- Controls ---------- */
+  .controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:14px;
+    align-items:flex-end;
+    justify-content:center;
+    background:rgba(255,255,255,0.04);
+    border:1px solid rgba(255,255,255,0.08);
+    padding:16px 20px;
+    border-radius:14px;
+    margin-bottom:36px;
+  }
+  .field{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .field label{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.14em;
+    color:var(--muted);
+  }
+  select{
+    appearance:none;
+    background:var(--felt-2);
+    border:1px solid rgba(255,255,255,0.18);
+    color:#f5efe0;
+    font-family:'Space Grotesk',sans-serif;
+    font-size:15px;
+    font-weight:600;
+    padding:8px 14px;
+    border-radius:8px;
+    min-width:64px;
+    text-align:center;
+    cursor:pointer;
+  }
+  select:focus-visible, button:focus-visible, .card:focus-visible{
+    outline:2px solid var(--gold);
+    outline-offset:2px;
+  }
+  .btn{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:14px;
+    letter-spacing:0.02em;
+    padding:10px 22px;
+    border-radius:8px;
+    border:none;
+    cursor:pointer;
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .btn:active{transform:translateY(1px);}
+  .btn-primary{
+    background:var(--gold);
+    color:#2a1c05;
+    box-shadow:0 6px 16px rgba(217,164,65,0.28);
+  }
+  .btn-primary:hover{box-shadow:0 8px 20px rgba(217,164,65,0.4);}
+  .btn-ghost{
+    background:transparent;
+    color:var(--muted);
+    border:1px solid rgba(255,255,255,0.2);
+  }
+  .btn-ghost:hover{color:#f5efe0;border-color:rgba(255,255,255,0.4);}
+  .error-msg{
+    font-size:12.5px;
+    color:#f0a08a;
+    min-height:16px;
+    text-align:center;
+    margin-top:-24px;
+    margin-bottom:20px;
+  }
+
+  /* ---------- Table ---------- */
+  .table{
+    width:100%;
+    max-width:920px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:36px;
+  }
+
+  .slots{
+    width:100%;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:20px;
+  }
+  .slot-wrap{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+    flex:1;
+  }
+  .slot-label{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.2em;
+    color:var(--muted);
+  }
+  .slot{
+    width:96px;
+    height:132px;
+    border:2px dashed rgba(255,255,255,0.28);
+    border-radius:12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .slot.drag-over{
+    border-color:var(--gold);
+    background:rgba(217,164,65,0.08);
+  }
+  .slot.filled{
+    border-style:solid;
+    border-color:var(--slot-green);
+  }
+  .slot-hint{
+    font-size:11px;
+    color:rgba(255,255,255,0.28);
+    text-align:center;
+    padding:0 8px;
+  }
+
+  .divider{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:4px;
+    color:rgba(255,255,255,0.35);
+  }
+  .divider .glyph{
+    font-family:'Fraunces',serif;
+    font-size:22px;
+    color:var(--gold);
+  }
+  .divider small{
+    font-size:10px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+  }
+
+  /* ---------- Card grid ---------- */
+  .grid{
+    display:flex;
+    flex-wrap:wrap;
+    gap:14px;
+    justify-content:center;
+    max-width:760px;
+  }
+
+  .card{
+    width:72px;
+    height:100px;
+    perspective:600px;
+    cursor:grab;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .card:active{cursor:grabbing;}
+  .card.dragging{opacity:0.35;}
+  .card.selected .card-inner{
+    box-shadow:0 0 0 3px var(--gold), 0 10px 18px rgba(0,0,0,0.35);
+    transform:translateY(-4px) rotateY(0deg);
+  }
+
+  .card-inner{
+    width:100%;
+    height:100%;
+    border-radius:9px;
+    position:relative;
+    transform-style:preserve-3d;
+    transition:transform .45s cubic-bezier(.2,.8,.3,1), box-shadow .15s ease;
+    box-shadow:0 6px 12px rgba(0,0,0,0.35);
+  }
+  .card.face-up .card-inner{transform:rotateY(180deg);}
+
+  .card-face{
+    position:absolute;
+    inset:0;
+    border-radius:9px;
+    backface-visibility:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .card-back{
+    background:
+      repeating-linear-gradient(45deg, var(--card-back-line) 0 2px, var(--card-back) 2px 10px);
+    border:2px solid rgba(0,0,0,0.25);
+  }
+  .card-back::after{
+    content:"";
+    width:34px;
+    height:34px;
+    border:2px solid rgba(245,239,224,0.55);
+    border-radius:50%;
+    display:block;
+  }
+  .card-front{
+    background:linear-gradient(160deg, var(--card-face), var(--card-face-shade));
+    color:var(--ink);
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-size:34px;
+    transform:rotateY(180deg);
+    border:2px solid rgba(28,42,68,0.15);
+  }
+
+  .card.placed{
+    width:96px;
+    height:132px;
+  }
+  .card.placed .card-front{font-size:44px;}
+
+  .empty-note{
+    color:rgba(255,255,255,0.4);
+    font-size:13.5px;
+    padding:20px 0;
+  }
+
+  /* ---------- Ones square button + strip ---------- */
+  .btn-square{
+    background:var(--slot-green);
+    color:#08211a;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+  }
+  .btn-square:hover{box-shadow:0 8px 18px rgba(79,163,123,0.35);}
+  .btn-square .sq-icon{
+    width:14px;
+    height:14px;
+    border-radius:3px;
+    background:#08211a;
+    display:inline-block;
+  }
+
+  .ones-zone{
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+  }
+  .ones-zone-head{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .ones-clear{
+    font-size:11px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:rgba(255,255,255,0.35);
+    background:none;
+    border:none;
+    cursor:pointer;
+    padding:2px 6px;
+  }
+  .ones-clear:hover{color:var(--gold);}
+
+  .ones-strip{
+    width:100%;
+    max-width:800px;
+    min-height:220px;
+    border:1.5px dashed rgba(255,255,255,0.18);
+    border-radius:12px;
+    position:relative;
+    padding:16px;
+    overflow:hidden;
+  }
+  .ones-hint{
+    font-size:12.5px;
+    color:rgba(255,255,255,0.32);
+    position:absolute;
+    top:16px;
+    left:16px;
+  }
+  .ones-square{
+    width:38px;
+    height:38px;
+    border-radius:6px;
+    background:linear-gradient(160deg, var(--slot-green), #3a8465);
+    color:#08211a;
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-size:16px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:0 6px 12px rgba(0,0,0,0.3);
+    opacity:0;
+    animation:dropIn .38s cubic-bezier(.3,.9,.4,1.2) forwards;
+    position:absolute;
+    cursor:grab;
+    touch-action:none;
+    user-select:none;
+  }
+  .ones-square.dragging{
+    cursor:grabbing;
+    box-shadow:0 12px 22px rgba(0,0,0,0.45);
+    z-index:5;
+  }
+  @keyframes dropIn{
+    from{opacity:0; transform:scale(0.5) translateY(-16px);}
+    to{opacity:1; transform:scale(1) translateY(0);}
+  }
+
+  footer{
+    margin-top:44px;
+    font-size:12px;
+    color:rgba(255,255,255,0.28);
+    text-align:center;
+    max-width:480px;
+    line-height:1.6;
+  }
+
+  @media (max-width:520px){
+    .slot{width:76px;height:104px;}
+    .card{width:60px;height:84px;}
+    .card-front{font-size:26px;}
+    .card.placed{width:76px;height:104px;}
+    .card.placed .card-front{font-size:32px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">A quiet table game</div>
+  <h1>Deal &amp; Match</h1>
+  <p>Pick a range, deal the cards face down, then drag any two into the left and right slots to reveal them.</p>
+</header>
+
+<div class="table">
+  <div class="slots">
+    <div class="slot-wrap">
+      <div class="slot-label">Left</div>
+      <div class="slot" id="leftSlot" data-side="left">
+        <span class="slot-hint">Drop a card here</span>
+      </div>
+    </div>
+    <div class="divider">
+      <span class="glyph">&amp;</span>
+      <small>Match</small>
+    </div>
+    <div class="slot-wrap">
+      <div class="slot-label">Right</div>
+      <div class="slot" id="rightSlot" data-side="right">
+        <span class="slot-hint">Drop a card here</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="ones-zone">
+    <div class="ones-zone-head">
+      <div class="slot-label">Ones</div>
+      <button class="ones-clear" id="onesClearBtn">Clear</button>
+    </div>
+    <div class="ones-strip" id="onesStrip">
+      <span class="ones-hint" id="onesHint">Press "Ones Square" to drop a one here</span>
+    </div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+</div>
+
+<div class="controls">
+  <div class="field">
+    <label for="fromSelect">From</label>
+    <select id="fromSelect"></select>
+  </div>
+  <div class="field">
+    <label for="toSelect">To</label>
+    <select id="toSelect"></select>
+  </div>
+  <button class="btn btn-primary" id="dealBtn">Shuffle &amp; Deal</button>
+  <button class="btn btn-ghost" id="clearBtn">Clear Slots</button>
+  <button class="btn btn-square" id="onesBtn"><span class="sq-icon"></span>Ones Square</button>
+</div>
+<div class="error-msg" id="errorMsg"></div>
+
+<footer>
+  On desktop, drag a card into a slot. On touch devices, tap a card to select it, then tap a slot to place it. Tap a placed card to send it back to the deck.
+</footer>
+
+<script>
+(function(){
+  const fromSelect = document.getElementById('fromSelect');
+  const toSelect = document.getElementById('toSelect');
+  const dealBtn = document.getElementById('dealBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const errorMsg = document.getElementById('errorMsg');
+  const grid = document.getElementById('grid');
+  const leftSlot = document.getElementById('leftSlot');
+  const rightSlot = document.getElementById('rightSlot');
+
+  const slots = { left: leftSlot, right: rightSlot };
+  let selectedCardId = null; // for tap-to-place on touch
+  let cardIdCounter = 0;
+
+  // populate range dropdowns 0-9
+  for(let i=0;i<=9;i++){
+    const o1 = document.createElement('option'); o1.value=i; o1.textContent=i;
+    const o2 = document.createElement('option'); o2.value=i; o2.textContent=i;
+    fromSelect.appendChild(o1);
+    toSelect.appendChild(o2);
+  }
+  fromSelect.value = 1;
+  toSelect.value = 5;
+
+  function shuffle(arr){
+    for(let i=arr.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [arr[i],arr[j]] = [arr[j],arr[i]];
+    }
+    return arr;
+  }
+
+  function buildCardEl(number){
+    cardIdCounter += 1;
+    const id = 'card-' + cardIdCounter;
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.draggable = true;
+    card.tabIndex = 0;
+    card.id = id;
+    card.dataset.number = number;
+
+    const inner = document.createElement('div');
+    inner.className = 'card-inner';
+
+    const back = document.createElement('div');
+    back.className = 'card-face card-back';
+
+    const front = document.createElement('div');
+    front.className = 'card-face card-front';
+    front.textContent = number;
+
+    inner.appendChild(back);
+    inner.appendChild(front);
+    card.appendChild(inner);
+
+    attachCardEvents(card);
+    return card;
+  }
+
+  function attachCardEvents(card){
+    card.addEventListener('dragstart', (e)=>{
+      e.dataTransfer.setData('text/plain', card.id);
+      e.dataTransfer.effectAllowed = 'move';
+      setTimeout(()=>card.classList.add('dragging'),0);
+    });
+    card.addEventListener('dragend', ()=>{
+      card.classList.remove('dragging');
+    });
+    card.addEventListener('click', ()=>{
+      // if the card is already placed in a slot, tapping sends it home
+      if(card.parentElement && card.parentElement.classList.contains('slot')){
+        returnCardToGrid(card);
+        return;
+      }
+      // tap-to-select flow (touch friendly)
+      if(selectedCardId === card.id){
+        card.classList.remove('selected');
+        selectedCardId = null;
+      } else {
+        document.querySelectorAll('.card.selected').forEach(c=>c.classList.remove('selected'));
+        card.classList.add('selected');
+        selectedCardId = card.id;
+      }
+    });
+    card.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter' || e.key === ' '){
+        e.preventDefault();
+        card.click();
+      }
+    });
+  }
+
+  function returnCardToGrid(card){
+    card.classList.remove('face-up','placed','selected');
+    grid.appendChild(card);
+    const slotEl = card.closest ? null : null;
+    updateSlotState();
+  }
+
+  function updateSlotState(){
+    Object.values(slots).forEach(slot=>{
+      const hasCard = slot.querySelector('.card');
+      slot.classList.toggle('filled', !!hasCard);
+      const hint = slot.querySelector('.slot-hint');
+      if(hint) hint.style.display = hasCard ? 'none' : 'block';
+    });
+    grid.querySelectorAll('.empty-note').forEach(n=>n.remove());
+    if(!grid.querySelector('.card')){
+      const note = document.createElement('div');
+      note.className = 'empty-note';
+      note.textContent = 'All cards are on the table.';
+      grid.appendChild(note);
+    }
+  }
+
+  function placeCardInSlot(card, slot){
+    // if slot already has a card, return it to the grid first
+    const existing = slot.querySelector('.card');
+    if(existing) returnCardToGrid(existing);
+
+    card.classList.remove('selected');
+    card.classList.add('placed');
+    slot.querySelector('.slot-hint')?.style.setProperty('display','none');
+    slot.appendChild(card);
+    // ensure hint text node still exists for later reuse
+    if(!slot.querySelector('.slot-hint')){
+      const hint = document.createElement('span');
+      hint.className = 'slot-hint';
+      hint.style.display = 'none';
+      hint.textContent = 'Drop a card here';
+      slot.insertBefore(hint, slot.firstChild);
+    }
+    requestAnimationFrame(()=>card.classList.add('face-up'));
+    selectedCardId = null;
+    updateSlotState();
+  }
+
+  // Drag and drop wiring for both slots
+  Object.values(slots).forEach(slot=>{
+    slot.addEventListener('dragover', (e)=>{
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      slot.classList.add('drag-over');
+    });
+    slot.addEventListener('dragleave', ()=>{
+      slot.classList.remove('drag-over');
+    });
+    slot.addEventListener('drop', (e)=>{
+      e.preventDefault();
+      slot.classList.remove('drag-over');
+      const id = e.dataTransfer.getData('text/plain');
+      const card = document.getElementById(id);
+      if(card) placeCardInSlot(card, slot);
+    });
+    // tap-to-place: clicking an empty slot while a card is selected
+    slot.addEventListener('click', (e)=>{
+      if(e.target.closest('.card')) return; // let card's own handler manage this
+      if(selectedCardId){
+        const card = document.getElementById(selectedCardId);
+        if(card) placeCardInSlot(card, slot);
+      }
+    });
+  });
+
+  function dealCards(){
+    const from = parseInt(fromSelect.value, 10);
+    const to = parseInt(toSelect.value, 10);
+
+    if(from > to){
+      errorMsg.textContent = '"From" must be less than or equal to "To".';
+      return;
+    }
+    errorMsg.textContent = '';
+
+    // clear table
+    grid.innerHTML = '';
+    Object.values(slots).forEach(slot=>{
+      slot.innerHTML = '<span class="slot-hint">Drop a card here</span>';
+    });
+    selectedCardId = null;
+
+    const numbers = [];
+    for(let n = from; n <= to; n++) numbers.push(n);
+    shuffle(numbers);
+
+    numbers.forEach(n=>{
+      const card = buildCardEl(n);
+      grid.appendChild(card);
+    });
+    updateSlotState();
+  }
+
+  function clearSlotsOnly(){
+    Object.values(slots).forEach(slot=>{
+      const card = slot.querySelector('.card');
+      if(card) returnCardToGrid(card);
+    });
+    // re-shuffle position of returned cards for a tidier feel
+    const cards = Array.from(grid.querySelectorAll('.card'));
+    shuffle(cards).forEach(c=>grid.appendChild(c));
+    updateSlotState();
+  }
+
+  const onesBtn = document.getElementById('onesBtn');
+  const onesClearBtn = document.getElementById('onesClearBtn');
+  const onesStrip = document.getElementById('onesStrip');
+  const onesHint = document.getElementById('onesHint');
+  const SQUARE_SIZE = 38;
+  const SQUARE_GAP = 10;
+  let onesCount = 0;
+
+  function nextCascadePosition(){
+    const stripW = onesStrip.clientWidth || 800;
+    const cellSize = SQUARE_SIZE + SQUARE_GAP;
+    const cols = Math.max(1, Math.floor((stripW - 32) / cellSize));
+    const col = onesCount % cols;
+    const row = Math.floor(onesCount / cols);
+    return {
+      left: 16 + col * cellSize,
+      top: 16 + row * cellSize
+    };
+  }
+
+  function makeDraggable(el){
+    el.addEventListener('pointerdown', (e)=>{
+      e.preventDefault();
+      const stripRect = onesStrip.getBoundingClientRect();
+      const startLeft = el.offsetLeft;
+      const startTop = el.offsetTop;
+      const startX = e.clientX;
+      const startY = e.clientY;
+      el.classList.add('dragging');
+      el.setPointerCapture(e.pointerId);
+
+      function onMove(ev){
+        const dx = ev.clientX - startX;
+        const dy = ev.clientY - startY;
+        const maxLeft = stripRect.width - SQUARE_SIZE - 4;
+        const maxTop = stripRect.height - SQUARE_SIZE - 4;
+        let newLeft = startLeft + dx;
+        let newTop = startTop + dy;
+        newLeft = Math.max(4, Math.min(maxLeft, newLeft));
+        newTop = Math.max(4, Math.min(maxTop, newTop));
+        el.style.left = newLeft + 'px';
+        el.style.top = newTop + 'px';
+      }
+      function onUp(ev){
+        el.classList.remove('dragging');
+        el.releasePointerCapture(ev.pointerId);
+        el.removeEventListener('pointermove', onMove);
+        el.removeEventListener('pointerup', onUp);
+      }
+      el.addEventListener('pointermove', onMove);
+      el.addEventListener('pointerup', onUp);
+    });
+  }
+
+  function addOnesSquare(){
+    if(onesHint) onesHint.style.display = 'none';
+    const sq = document.createElement('div');
+    sq.className = 'ones-square';
+    sq.textContent = '1';
+    const pos = nextCascadePosition();
+    sq.style.left = pos.left + 'px';
+    sq.style.top = pos.top + 'px';
+    onesStrip.appendChild(sq);
+    makeDraggable(sq);
+    onesCount += 1;
+  }
+
+  function clearOnesSquares(){
+    onesStrip.querySelectorAll('.ones-square').forEach(sq => sq.remove());
+    if(onesHint) onesHint.style.display = 'block';
+    onesCount = 0;
+  }
+
+  onesBtn.addEventListener('click', addOnesSquare);
+  onesClearBtn.addEventListener('click', clearOnesSquares);
+
+  dealBtn.addEventListener('click', dealCards);
+  clearBtn.addEventListener('click', clearSlotsOnly);
+
+  dealCards();
+})();
+</script>
+
+</body>
+</html>
 
