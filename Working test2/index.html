@@ -20,9 +20,9 @@
     --muted:#a9c2bd;
   }
   *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
+  html,body{margin:0;padding:0;height:100%;overflow:hidden;overscroll-behavior:none;}
   body{
-    min-height:100vh;
+    height:100dvh;
     background:
       radial-gradient(ellipse at 50% -10%, rgba(217,164,65,0.10), transparent 60%),
       radial-gradient(circle at 50% 50%, var(--felt-1), var(--felt-2) 120%);
@@ -31,22 +31,24 @@
     display:flex;
     flex-direction:column;
     align-items:center;
-    padding:32px 16px 64px;
+    justify-content:center;
+    gap:clamp(8px,1.6dvh,20px);
+    padding:clamp(8px,2dvh,24px) clamp(10px,3vw,24px);
+    overflow:hidden;
   }
 
   /* ---------- Header ---------- */
   header{
     text-align:center;
     max-width:640px;
-    margin-bottom:28px;
+    flex:0 0 auto;
   }
   .eyebrow{
-    font-size:12px;
+    font-size:clamp(10px,1.4vw,12px);
     letter-spacing:0.28em;
     text-transform:uppercase;
     color:var(--gold);
     font-weight:600;
-    margin-bottom:10px;
   }
   h1{
     font-family:'Fraunces', serif;
@@ -67,14 +69,15 @@
   .controls{
     display:flex;
     flex-wrap:wrap;
-    gap:14px;
+    gap:clamp(8px,1.6vw,14px);
     align-items:flex-end;
     justify-content:center;
     background:rgba(255,255,255,0.04);
     border:1px solid rgba(255,255,255,0.08);
-    padding:16px 20px;
+    padding:clamp(8px,1.4dvh,16px) clamp(10px,2vw,20px);
     border-radius:14px;
-    margin-bottom:36px;
+    flex:0 0 auto;
+    max-width:100%;
   }
   .field{
     display:flex;
@@ -93,11 +96,11 @@
     border:1px solid rgba(255,255,255,0.18);
     color:#f5efe0;
     font-family:'Space Grotesk',sans-serif;
-    font-size:15px;
+    font-size:clamp(13px,1.6vw,15px);
     font-weight:600;
-    padding:8px 14px;
+    padding:clamp(6px,1.2dvh,8px) clamp(10px,1.8vw,14px);
     border-radius:8px;
-    min-width:64px;
+    min-width:52px;
     text-align:center;
     cursor:pointer;
   }
@@ -108,13 +111,14 @@
   .btn{
     font-family:'Space Grotesk',sans-serif;
     font-weight:700;
-    font-size:14px;
+    font-size:clamp(12px,1.5vw,14px);
     letter-spacing:0.02em;
-    padding:10px 22px;
+    padding:clamp(7px,1.3dvh,10px) clamp(14px,2.4vw,22px);
     border-radius:8px;
     border:none;
     cursor:pointer;
     transition:transform .12s ease, box-shadow .12s ease;
+    white-space:nowrap;
   }
   .btn:active{transform:translateY(1px);}
   .btn-primary{
@@ -130,13 +134,13 @@
   }
   .btn-ghost:hover{color:#f5efe0;border-color:rgba(255,255,255,0.4);}
   .error-msg{
-    font-size:12.5px;
+    font-size:clamp(11px,1.4vw,12.5px);
     color:#f0a08a;
-    min-height:16px;
+    min-height:0;
     text-align:center;
-    margin-top:-24px;
-    margin-bottom:20px;
+    flex:0 0 auto;
   }
+  .error-msg:empty{display:none;}
 
   /* ---------- Table ---------- */
   .table{
@@ -145,7 +149,11 @@
     display:flex;
     flex-direction:column;
     align-items:center;
-    gap:36px;
+    justify-content:center;
+    gap:clamp(10px,2dvh,32px);
+    flex:1 1 auto;
+    min-height:0;
+    overflow:hidden;
   }
 
   .slots{
@@ -153,24 +161,25 @@
     display:flex;
     justify-content:space-between;
     align-items:center;
-    gap:20px;
+    gap:clamp(10px,2.5vw,20px);
+    flex:0 0 auto;
   }
   .slot-wrap{
     display:flex;
     flex-direction:column;
     align-items:center;
-    gap:8px;
+    gap:clamp(4px,0.8dvh,8px);
     flex:1;
   }
   .slot-label{
-    font-size:11px;
+    font-size:clamp(9px,1.2vw,11px);
     text-transform:uppercase;
     letter-spacing:0.2em;
     color:var(--muted);
   }
   .slot{
-    width:96px;
-    height:132px;
+    width:clamp(52px, min(9vw, 13dvh), 96px);
+    aspect-ratio:96/132;
     border:2px dashed rgba(255,255,255,0.28);
     border-radius:12px;
     display:flex;
@@ -216,14 +225,17 @@
   .grid{
     display:flex;
     flex-wrap:wrap;
-    gap:14px;
+    gap:clamp(6px,1.2vw,14px);
     justify-content:center;
+    align-content:center;
     max-width:760px;
+    flex:0 1 auto;
+    overflow:hidden;
   }
 
   .card{
-    width:72px;
-    height:100px;
+    width:clamp(38px, min(7vw, 9.5dvh), 72px);
+    aspect-ratio:72/100;
     perspective:600px;
     cursor:grab;
     -webkit-tap-highlight-color: transparent;
@@ -262,8 +274,10 @@
   }
   .card-back::after{
     content:"";
-    width:34px;
-    height:34px;
+    width:60%;
+    height:60%;
+    max-width:34px;
+    max-height:34px;
     border:2px solid rgba(245,239,224,0.55);
     border-radius:50%;
     display:block;
@@ -273,21 +287,21 @@
     color:var(--ink);
     font-family:'Fraunces', serif;
     font-weight:700;
-    font-size:34px;
+    font-size:clamp(16px, min(3.4vw, 4.6dvh), 34px);
     transform:rotateY(180deg);
     border:2px solid rgba(28,42,68,0.15);
   }
 
   .card.placed{
-    width:96px;
-    height:132px;
+    width:clamp(52px, min(9vw, 13dvh), 96px);
+    aspect-ratio:96/132;
   }
-  .card.placed .card-front{font-size:44px;}
+  .card.placed .card-front{font-size:clamp(20px, min(4.4vw, 6dvh), 44px);}
 
   .empty-note{
     color:rgba(255,255,255,0.4);
-    font-size:13.5px;
-    padding:20px 0;
+    font-size:clamp(11px,1.5vw,13.5px);
+    padding:clamp(6px,1.5dvh,20px) 0;
   }
 
   /* ---------- Ones square button + strip ---------- */
@@ -312,7 +326,9 @@
     display:flex;
     flex-direction:column;
     align-items:center;
-    gap:8px;
+    gap:clamp(4px,0.8dvh,8px);
+    flex:1 1 auto;
+    min-height:0;
   }
   .ones-zone-head{
     display:flex;
@@ -334,19 +350,20 @@
   .ones-strip{
     width:100%;
     max-width:800px;
-    min-height:220px;
+    height:clamp(64px, 18dvh, 220px);
+    flex:0 1 auto;
     border:1.5px dashed rgba(255,255,255,0.18);
     border-radius:12px;
     position:relative;
-    padding:16px;
+    padding:clamp(8px,1.6dvh,16px);
     overflow:hidden;
   }
   .ones-hint{
-    font-size:12.5px;
+    font-size:clamp(10px,1.4vw,12.5px);
     color:rgba(255,255,255,0.32);
     position:absolute;
-    top:16px;
-    left:16px;
+    top:clamp(8px,1.6dvh,16px);
+    left:clamp(8px,1.6dvh,16px);
   }
   .ones-square{
     width:38px;
@@ -387,12 +404,9 @@
     line-height:1.6;
   }
 
-  @media (max-width:520px){
-    .slot{width:76px;height:104px;}
-    .card{width:60px;height:84px;}
-    .card-front{font-size:26px;}
-    .card.placed{width:76px;height:104px;}
-    .card.placed .card-front{font-size:32px;}
+  @media (max-width:420px){
+    .btn{padding:clamp(6px,1.2dvh,8px) clamp(10px,3vw,16px);}
+    .controls{gap:8px;}
   }
 </style>
 </head>
@@ -742,4 +756,3 @@
 
 </body>
 </html>
-
