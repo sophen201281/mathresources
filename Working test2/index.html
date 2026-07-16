@@ -31,13 +31,13 @@
     display:flex;
     flex-direction:column;
     align-items:center;
-    justify-content:center;
+    justify-content:flex-start;
     gap:clamp(8px,1.6dvh,20px);
     padding:clamp(8px,2dvh,24px) clamp(10px,3vw,24px);
     overflow:hidden;
   }
 
-  /* ---------- Header ---------- */
+  /* ---------- Header (unused, kept for reference) ---------- */
   header{
     text-align:center;
     max-width:640px;
@@ -149,7 +149,7 @@
     display:flex;
     flex-direction:column;
     align-items:center;
-    justify-content:center;
+    justify-content:flex-start;
     gap:clamp(10px,2dvh,32px);
     flex:1 1 auto;
     min-height:0;
@@ -356,7 +356,7 @@
   }
   .ones-box{
     flex:1;
-    height:clamp(76px, 16dvh, 150px);
+    height:clamp(60px, 12dvh, 120px);
     border:1.5px dashed rgba(255,255,255,0.18);
     border-radius:12px;
     position:relative;
@@ -392,8 +392,8 @@
   .ones-canvas-wrap{
     width:100%;
     max-width:800px;
-    flex:1 1 auto;
-    min-height:56px;
+    flex:3 1 auto;
+    min-height:260px;
     border:1.5px dashed rgba(255,255,255,0.18);
     border-radius:12px;
     position:relative;
@@ -418,18 +418,18 @@
     touch-action:none;
   }
   .ones-square{
-    width:38px;
-    height:38px;
-    border-radius:6px;
+    width:22px;
+    height:22px;
+    border-radius:4px;
     background:linear-gradient(160deg, var(--slot-green), #3a8465);
     color:#08211a;
     font-family:'Fraunces', serif;
     font-weight:700;
-    font-size:16px;
+    font-size:11px;
     display:flex;
     align-items:center;
     justify-content:center;
-    box-shadow:0 6px 12px rgba(0,0,0,0.3);
+    box-shadow:0 4px 8px rgba(0,0,0,0.3);
     opacity:0;
     animation:dropIn .38s cubic-bezier(.3,.9,.4,1.2) forwards;
     position:absolute;
@@ -440,13 +440,13 @@
   }
   .ones-square.dragging{
     cursor:grabbing;
-    box-shadow:0 12px 22px rgba(0,0,0,0.45);
+    box-shadow:0 10px 18px rgba(0,0,0,0.45);
     z-index:5;
   }
   .ones-square.leaving{
     opacity:0.4;
     transform:scale(0.82);
-    box-shadow:0 4px 10px rgba(0,0,0,0.3);
+    box-shadow:0 3px 8px rgba(0,0,0,0.3);
   }
   @keyframes dropIn{
     from{opacity:0; transform:scale(0.5) translateY(-16px);}
@@ -492,9 +492,6 @@
 </style>
 </head>
 <body>
-
-<header>
-  
 
 <div class="table">
   <div class="slots">
@@ -772,8 +769,8 @@
   const onesHint = document.getElementById('onesHint');
   const onesCanvas = document.getElementById('onesCanvas');
   const ctx = onesCanvas.getContext('2d');
-  const SQUARE_SIZE = 38;
-  const SQUARE_GAP = 10;
+  const SQUARE_SIZE = 22;
+  const SQUARE_GAP = 6;
   const onesBoxes = {
     left: { el: onesBoxLeft, count: 0 },
     right: { el: onesBoxRight, count: 0 }
