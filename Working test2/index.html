@@ -176,6 +176,17 @@
     text-transform:uppercase;
     letter-spacing:0.2em;
     color:var(--muted);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:5px;
+  }
+  .label-icon{
+    width:32px;
+    height:32px;
+    object-fit:contain;
+    border-radius:5px;
+    vertical-align:middle;
   }
   .slot{
     width:clamp(52px, min(9vw, 13dvh), 96px);
@@ -350,7 +361,7 @@
   .ones-strip{
     width:100%;
     max-width:800px;
-    height:clamp(64px, 18dvh, 220px);
+    height:clamp(160px, 44dvh, 460px);
     flex:0 1 auto;
     border:1.5px dashed rgba(255,255,255,0.18);
     border-radius:12px;
@@ -364,6 +375,16 @@
     position:absolute;
     top:clamp(8px,1.6dvh,16px);
     left:clamp(8px,1.6dvh,16px);
+    pointer-events:none;
+  }
+  .ones-canvas{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    border-radius:12px;
+    cursor:crosshair;
+    touch-action:none;
   }
   .ones-square{
     width:38px;
@@ -395,6 +416,29 @@
     to{opacity:1; transform:scale(1) translateY(0);}
   }
 
+  /* ---------- Deal / shuffle animation ---------- */
+  .card.dealing{
+    animation: dealIn .55s cubic-bezier(.25,.85,.3,1.15) both;
+    animation-delay:var(--deal-delay, 0ms);
+  }
+  @keyframes dealIn{
+    0%{
+      opacity:0;
+      transform: translate(calc(-50vw - 40px), -14px) scale(0.82) rotate(calc(var(--r,0deg) * -1));
+    }
+    55%{
+      opacity:1;
+      transform: translate(6%, -6px) scale(1.04) rotate(calc(var(--r,0deg) * 0.6));
+    }
+    80%{
+      transform: translate(-2%, 2px) scale(0.99) rotate(calc(var(--r,0deg) * -0.3));
+    }
+    100%{
+      opacity:1;
+      transform: translate(0,0) scale(1) rotate(0deg);
+    }
+  }
+
   footer{
     margin-top:44px;
     font-size:12px;
@@ -419,7 +463,7 @@
 <div class="table">
   <div class="slots">
     <div class="slot-wrap">
-      <div class="slot-label">Left</div>
+      <div class="slot-label">Left <img src="images/boy.gif" alt="boy" class="label-icon"></div>
       <div class="slot" id="leftSlot" data-side="left">
         <span class="slot-hint">Drop a card here</span>
       </div>
@@ -429,7 +473,7 @@
       <small>Match</small>
     </div>
     <div class="slot-wrap">
-      <div class="slot-label">Right</div>
+      <div class="slot-label">Right <img src="images/girl.gif" alt="girl" class="label-icon"></div>
       <div class="slot" id="rightSlot" data-side="right">
         <span class="slot-hint">Drop a card here</span>
       </div>
@@ -439,10 +483,10 @@
   <div class="ones-zone">
     <div class="ones-zone-head">
       <div class="slot-label">Ones</div>
-      <button class="ones-clear" id="onesClearBtn">Clear</button>
     </div>
     <div class="ones-strip" id="onesStrip">
-      <span class="ones-hint" id="onesHint">Press "Ones Square" to drop a one here</span>
+      <canvas class="ones-canvas" id="onesCanvas"></canvas>
+      <span class="ones-hint" id="onesHint">Press "Ones Square" to drop a one here, or draw</span>
     </div>
   </div>
 
@@ -461,6 +505,7 @@
   <button class="btn btn-primary" id="dealBtn">Shuffle &amp; Deal</button>
   <button class="btn btn-ghost" id="clearBtn">Clear Slots</button>
   <button class="btn btn-square" id="onesBtn"><span class="sq-icon"></span>Ones Square</button>
+  <button class="btn btn-ghost" id="onesClearBtn">Clear</button>
 </div>
 <div class="error-msg" id="errorMsg"></div>
 
@@ -653,8 +698,12 @@
     for(let n = from; n <= to; n++) numbers.push(n);
     shuffle(numbers);
 
-    numbers.forEach(n=>{
+    numbers.forEach((n, i)=>{
       const card = buildCardEl(n);
+      card.classList.add('dealing');
+      card.style.setProperty('--r', (Math.random() * 24 - 12).toFixed(1) + 'deg');
+      card.style.setProperty('--deal-delay', (i * 90) + 'ms');
+      card.addEventListener('animationend', ()=>card.classList.remove('dealing'), { once:true });
       grid.appendChild(card);
     });
     updateSlotState();
@@ -675,9 +724,67 @@
   const onesClearBtn = document.getElementById('onesClearBtn');
   const onesStrip = document.getElementById('onesStrip');
   const onesHint = document.getElementById('onesHint');
+  const onesCanvas = document.getElementById('onesCanvas');
+  const ctx = onesCanvas.getContext('2d');
   const SQUARE_SIZE = 38;
   const SQUARE_GAP = 10;
   let onesCount = 0;
+
+  function resizeCanvas(){
+    const rect = onesStrip.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    onesCanvas.width = Math.max(1, Math.round(rect.width * dpr));
+    onesCanvas.height = Math.max(1, Math.round(rect.height * dpr));
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = '#d9a441';
+    ctx.lineWidth = 3;
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+
+  let drawing = false;
+  let lastX = 0, lastY = 0;
+
+  function canvasPoint(e){
+    const rect = onesCanvas.getBoundingClientRect();
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  }
+
+  onesCanvas.addEventListener('pointerdown', (e)=>{
+    drawing = true;
+    if(onesHint) onesHint.style.display = 'none';
+    const p = canvasPoint(e);
+    lastX = p.x; lastY = p.y;
+    onesCanvas.setPointerCapture(e.pointerId);
+    // draw a dot for a single tap/click
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, ctx.lineWidth/2, 0, Math.PI*2);
+    ctx.fillStyle = ctx.strokeStyle;
+    ctx.fill();
+  });
+  onesCanvas.addEventListener('pointermove', (e)=>{
+    if(!drawing) return;
+    const p = canvasPoint(e);
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+    lastX = p.x; lastY = p.y;
+  });
+  function stopDrawing(e){
+    if(!drawing) return;
+    drawing = false;
+    try{ onesCanvas.releasePointerCapture(e.pointerId); }catch(err){}
+  }
+  onesCanvas.addEventListener('pointerup', stopDrawing);
+  onesCanvas.addEventListener('pointercancel', stopDrawing);
+  onesCanvas.addEventListener('pointerleave', stopDrawing);
+
+  function clearCanvas(){
+    ctx.clearRect(0, 0, onesCanvas.width, onesCanvas.height);
+  }
 
   function nextCascadePosition(){
     const stripW = onesStrip.clientWidth || 800;
@@ -740,6 +847,7 @@
 
   function clearOnesSquares(){
     onesStrip.querySelectorAll('.ones-square').forEach(sq => sq.remove());
+    clearCanvas();
     if(onesHint) onesHint.style.display = 'block';
     onesCount = 0;
   }
