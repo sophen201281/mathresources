@@ -182,8 +182,8 @@
     gap:5px;
   }
   .label-icon{
-    width:100px;
-    height:100px;
+    width:32px;
+    height:32px;
     object-fit:contain;
     border-radius:5px;
     vertical-align:middle;
@@ -337,7 +337,7 @@
     display:flex;
     flex-direction:column;
     align-items:center;
-    gap:clamp(4px,0.8dvh,8px);
+    gap:clamp(6px,1.2dvh,12px);
     flex:1 1 auto;
     min-height:0;
   }
@@ -346,23 +346,54 @@
     align-items:center;
     gap:10px;
   }
-  .ones-clear{
-    font-size:11px;
-    letter-spacing:0.1em;
-    text-transform:uppercase;
-    color:rgba(255,255,255,0.35);
-    background:none;
-    border:none;
-    cursor:pointer;
-    padding:2px 6px;
-  }
-  .ones-clear:hover{color:var(--gold);}
 
-  .ones-strip{
+  .ones-boxes{
     width:100%;
     max-width:800px;
-    height:clamp(160px, 44dvh, 460px);
-    flex:0 1 auto;
+    display:flex;
+    gap:clamp(10px,2.5vw,20px);
+    flex:0 0 auto;
+  }
+  .ones-box{
+    flex:1;
+    height:clamp(76px, 16dvh, 150px);
+    border:1.5px dashed rgba(255,255,255,0.18);
+    border-radius:12px;
+    position:relative;
+    padding:clamp(8px,1.4dvh,14px);
+    overflow:hidden;
+    cursor:pointer;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .ones-box:hover{
+    border-color:rgba(217,164,65,0.5);
+    background:rgba(217,164,65,0.06);
+  }
+  .ones-box-label{
+    position:absolute;
+    top:clamp(8px,1.4dvh,14px);
+    right:clamp(8px,1.4dvh,14px);
+    font-size:10px;
+    letter-spacing:0.16em;
+    text-transform:uppercase;
+    color:rgba(255,255,255,0.25);
+    pointer-events:none;
+  }
+  .ones-box-hint{
+    font-size:clamp(10px,1.4vw,12.5px);
+    color:rgba(255,255,255,0.32);
+    position:absolute;
+    top:clamp(8px,1.4dvh,14px);
+    left:clamp(8px,1.4dvh,14px);
+    max-width:70%;
+    pointer-events:none;
+  }
+
+  .ones-canvas-wrap{
+    width:100%;
+    max-width:800px;
+    flex:1 1 auto;
+    min-height:56px;
     border:1.5px dashed rgba(255,255,255,0.18);
     border-radius:12px;
     position:relative;
@@ -457,13 +488,13 @@
 <body>
 
 <header>
-  <div class="eyebrow"></div>
+  <div class="eyebrow">A quiet table game</div>
 </header>
 
 <div class="table">
   <div class="slots">
     <div class="slot-wrap">
-      <div class="slot-label"><img src="images/boy.gif" alt="boy" class="label-icon"></div>
+      <div class="slot-label">Left <img src="images/boy.gif" alt="boy" class="label-icon"></div>
       <div class="slot" id="leftSlot" data-side="left">
         <span class="slot-hint">Drop a card here</span>
       </div>
@@ -473,7 +504,7 @@
       <small>Match</small>
     </div>
     <div class="slot-wrap">
-      <div class="slot-label"><img src="images/girl.gif" alt="girl" class="label-icon"></div>
+      <div class="slot-label">Right <img src="images/girl.gif" alt="girl" class="label-icon"></div>
       <div class="slot" id="rightSlot" data-side="right">
         <span class="slot-hint">Drop a card here</span>
       </div>
@@ -484,9 +515,19 @@
     <div class="ones-zone-head">
       <div class="slot-label">Ones</div>
     </div>
-    <div class="ones-strip" id="onesStrip">
+    <div class="ones-boxes">
+      <div class="ones-box" id="onesBoxLeft" data-side="left">
+        <span class="ones-box-label">Left</span>
+        <span class="ones-box-hint">Tap to add a one</span>
+      </div>
+      <div class="ones-box" id="onesBoxRight" data-side="right">
+        <span class="ones-box-label">Right</span>
+        <span class="ones-box-hint">Tap to add a one</span>
+      </div>
+    </div>
+    <div class="ones-canvas-wrap" id="onesCanvasWrap">
       <canvas class="ones-canvas" id="onesCanvas"></canvas>
-      <span class="ones-hint" id="onesHint">Press "Ones Square" to drop a one here, or draw</span>
+      <span class="ones-hint" id="onesHint">Draw here</span>
     </div>
   </div>
 
@@ -504,7 +545,6 @@
   </div>
   <button class="btn btn-primary" id="dealBtn">Shuffle &amp; Deal</button>
   <button class="btn btn-ghost" id="clearBtn">Clear Slots</button>
-  <button class="btn btn-square" id="onesBtn"><span class="sq-icon"></span>Ones Square</button>
   <button class="btn btn-ghost" id="onesClearBtn">Clear</button>
 </div>
 <div class="error-msg" id="errorMsg"></div>
@@ -720,18 +760,22 @@
     updateSlotState();
   }
 
-  const onesBtn = document.getElementById('onesBtn');
   const onesClearBtn = document.getElementById('onesClearBtn');
-  const onesStrip = document.getElementById('onesStrip');
+  const onesBoxLeft = document.getElementById('onesBoxLeft');
+  const onesBoxRight = document.getElementById('onesBoxRight');
+  const onesCanvasWrap = document.getElementById('onesCanvasWrap');
   const onesHint = document.getElementById('onesHint');
   const onesCanvas = document.getElementById('onesCanvas');
   const ctx = onesCanvas.getContext('2d');
   const SQUARE_SIZE = 38;
   const SQUARE_GAP = 10;
-  let onesCount = 0;
+  const onesBoxes = {
+    left: { el: onesBoxLeft, count: 0 },
+    right: { el: onesBoxRight, count: 0 }
+  };
 
   function resizeCanvas(){
-    const rect = onesStrip.getBoundingClientRect();
+    const rect = onesCanvasWrap.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
     onesCanvas.width = Math.max(1, Math.round(rect.width * dpr));
     onesCanvas.height = Math.max(1, Math.round(rect.height * dpr));
@@ -786,22 +830,23 @@
     ctx.clearRect(0, 0, onesCanvas.width, onesCanvas.height);
   }
 
-  function nextCascadePosition(){
-    const stripW = onesStrip.clientWidth || 800;
+  function nextCascadePosition(box){
+    const boxW = box.el.clientWidth || 300;
     const cellSize = SQUARE_SIZE + SQUARE_GAP;
-    const cols = Math.max(1, Math.floor((stripW - 32) / cellSize));
-    const col = onesCount % cols;
-    const row = Math.floor(onesCount / cols);
+    const cols = Math.max(1, Math.floor((boxW - 24) / cellSize));
+    const col = box.count % cols;
+    const row = Math.floor(box.count / cols);
     return {
-      left: 16 + col * cellSize,
-      top: 16 + row * cellSize
+      left: 12 + col * cellSize,
+      top: 12 + row * cellSize
     };
   }
 
-  function makeDraggable(el){
+  function makeDraggable(el, boxEl){
     el.addEventListener('pointerdown', (e)=>{
       e.preventDefault();
-      const stripRect = onesStrip.getBoundingClientRect();
+      e.stopPropagation();
+      const boxRect = boxEl.getBoundingClientRect();
       const startLeft = el.offsetLeft;
       const startTop = el.offsetTop;
       const startX = e.clientX;
@@ -812,8 +857,8 @@
       function onMove(ev){
         const dx = ev.clientX - startX;
         const dy = ev.clientY - startY;
-        const maxLeft = stripRect.width - SQUARE_SIZE - 4;
-        const maxTop = stripRect.height - SQUARE_SIZE - 4;
+        const maxLeft = boxRect.width - SQUARE_SIZE - 4;
+        const maxTop = boxRect.height - SQUARE_SIZE - 4;
         let newLeft = startLeft + dx;
         let newTop = startTop + dy;
         newLeft = Math.max(4, Math.min(maxLeft, newLeft));
@@ -832,27 +877,40 @@
     });
   }
 
-  function addOnesSquare(){
-    if(onesHint) onesHint.style.display = 'none';
+  function addOnesSquare(box){
+    const hint = box.el.querySelector('.ones-box-hint');
+    if(hint) hint.style.display = 'none';
     const sq = document.createElement('div');
     sq.className = 'ones-square';
     sq.textContent = '1';
-    const pos = nextCascadePosition();
+    const pos = nextCascadePosition(box);
     sq.style.left = pos.left + 'px';
     sq.style.top = pos.top + 'px';
-    onesStrip.appendChild(sq);
-    makeDraggable(sq);
-    onesCount += 1;
+    box.el.appendChild(sq);
+    makeDraggable(sq, box.el);
+    box.count += 1;
   }
+
+  onesBoxLeft.addEventListener('click', (e)=>{
+    if(e.target.closest('.ones-square')) return;
+    addOnesSquare(onesBoxes.left);
+  });
+  onesBoxRight.addEventListener('click', (e)=>{
+    if(e.target.closest('.ones-square')) return;
+    addOnesSquare(onesBoxes.right);
+  });
 
   function clearOnesSquares(){
-    onesStrip.querySelectorAll('.ones-square').forEach(sq => sq.remove());
+    Object.values(onesBoxes).forEach(box=>{
+      box.el.querySelectorAll('.ones-square').forEach(sq => sq.remove());
+      const hint = box.el.querySelector('.ones-box-hint');
+      if(hint) hint.style.display = 'block';
+      box.count = 0;
+    });
     clearCanvas();
     if(onesHint) onesHint.style.display = 'block';
-    onesCount = 0;
   }
 
-  onesBtn.addEventListener('click', addOnesSquare);
   onesClearBtn.addEventListener('click', clearOnesSquares);
 
   dealBtn.addEventListener('click', dealCards);
