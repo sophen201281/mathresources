@@ -436,11 +436,17 @@
     cursor:grab;
     touch-action:none;
     user-select:none;
+    transition:opacity .15s ease, transform .15s ease;
   }
   .ones-square.dragging{
     cursor:grabbing;
     box-shadow:0 12px 22px rgba(0,0,0,0.45);
     z-index:5;
+  }
+  .ones-square.leaving{
+    opacity:0.4;
+    transform:scale(0.82);
+    box-shadow:0 4px 10px rgba(0,0,0,0.3);
   }
   @keyframes dropIn{
     from{opacity:0; transform:scale(0.5) translateY(-16px);}
@@ -842,35 +848,74 @@
     };
   }
 
-  function makeDraggable(el, boxEl){
+  function isPointInRect(x, y, rect){
+    return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+  }
+
+  function makeDraggable(el, box){
     el.addEventListener('pointerdown', (e)=>{
       e.preventDefault();
       e.stopPropagation();
-      const boxRect = boxEl.getBoundingClientRect();
-      const startLeft = el.offsetLeft;
-      const startTop = el.offsetTop;
+      const boxEl = box.el;
+      const elRect = el.getBoundingClientRect();
+      const startFixedLeft = elRect.left;
+      const startFixedTop = elRect.top;
       const startX = e.clientX;
       const startY = e.clientY;
+
+      // switch to fixed positioning + move to <body> so it can travel outside
+      // the box's overflow:hidden bounds while dragging
+      el.style.position = 'fixed';
+      el.style.left = startFixedLeft + 'px';
+      el.style.top = startFixedTop + 'px';
+      document.body.appendChild(el);
       el.classList.add('dragging');
       el.setPointerCapture(e.pointerId);
 
       function onMove(ev){
         const dx = ev.clientX - startX;
         const dy = ev.clientY - startY;
-        const maxLeft = boxRect.width - SQUARE_SIZE - 4;
-        const maxTop = boxRect.height - SQUARE_SIZE - 4;
-        let newLeft = startLeft + dx;
-        let newTop = startTop + dy;
-        newLeft = Math.max(4, Math.min(maxLeft, newLeft));
-        newTop = Math.max(4, Math.min(maxTop, newTop));
-        el.style.left = newLeft + 'px';
-        el.style.top = newTop + 'px';
+        el.style.left = (startFixedLeft + dx) + 'px';
+        el.style.top = (startFixedTop + dy) + 'px';
+
+        const boxRect = boxEl.getBoundingClientRect();
+        const inside = isPointInRect(ev.clientX, ev.clientY, boxRect);
+        el.classList.toggle('leaving', !inside);
       }
+
       function onUp(ev){
         el.classList.remove('dragging');
         el.releasePointerCapture(ev.pointerId);
         el.removeEventListener('pointermove', onMove);
         el.removeEventListener('pointerup', onUp);
+
+        const boxRect = boxEl.getBoundingClientRect();
+        const inside = isPointInRect(ev.clientX, ev.clientY, boxRect);
+
+        if(!inside){
+          // dropped outside its box: delete the square
+          el.remove();
+          box.count = Math.max(0, box.count - 1);
+          if(box.count === 0){
+            const hint = boxEl.querySelector('.ones-box-hint');
+            if(hint) hint.style.display = 'block';
+          }
+          return;
+        }
+
+        // dropped back inside: snap back to absolute positioning within the box
+        el.classList.remove('leaving');
+        const elFinalRect = el.getBoundingClientRect();
+        let newLeft = elFinalRect.left - boxRect.left;
+        let newTop = elFinalRect.top - boxRect.top;
+        const maxLeft = boxRect.width - SQUARE_SIZE - 4;
+        const maxTop = boxRect.height - SQUARE_SIZE - 4;
+        newLeft = Math.max(4, Math.min(maxLeft, newLeft));
+        newTop = Math.max(4, Math.min(maxTop, newTop));
+        el.style.position = 'absolute';
+        el.style.left = newLeft + 'px';
+        el.style.top = newTop + 'px';
+        boxEl.appendChild(el);
       }
       el.addEventListener('pointermove', onMove);
       el.addEventListener('pointerup', onUp);
@@ -887,7 +932,7 @@
     sq.style.left = pos.left + 'px';
     sq.style.top = pos.top + 'px';
     box.el.appendChild(sq);
-    makeDraggable(sq, box.el);
+    makeDraggable(sq, box);
     box.count += 1;
   }
 
