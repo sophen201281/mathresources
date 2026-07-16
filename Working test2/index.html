@@ -133,6 +133,11 @@
     border:1px solid rgba(255,255,255,0.2);
   }
   .btn-ghost:hover{color:#f5efe0;border-color:rgba(255,255,255,0.4);}
+  .btn-ghost.active{
+    color:#2a1c05;
+    background:var(--gold);
+    border-color:var(--gold);
+  }
   .error-msg{
     font-size:clamp(11px,1.4vw,12.5px);
     color:#f0a08a;
@@ -548,6 +553,7 @@
   <button class="btn btn-primary" id="dealBtn">Shuffle &amp; Deal</button>
   <button class="btn btn-ghost" id="clearBtn">Clear Slots</button>
   <button class="btn btn-ghost" id="onesClearBtn">Clear</button>
+  <button class="btn btn-ghost" id="eraserBtn">Eraser</button>
 </div>
 <div class="error-msg" id="errorMsg"></div>
 
@@ -769,6 +775,8 @@
   const onesHint = document.getElementById('onesHint');
   const onesCanvas = document.getElementById('onesCanvas');
   const ctx = onesCanvas.getContext('2d');
+  const eraserBtn = document.getElementById('eraserBtn');
+  let erasing = false;
   const SQUARE_SIZE = 22;
   const SQUARE_GAP = 6;
   const onesBoxes = {
@@ -804,6 +812,8 @@
     const p = canvasPoint(e);
     lastX = p.x; lastY = p.y;
     onesCanvas.setPointerCapture(e.pointerId);
+    ctx.globalCompositeOperation = erasing ? 'destination-out' : 'source-over';
+    ctx.lineWidth = erasing ? 18 : 3;
     // draw a dot for a single tap/click
     ctx.beginPath();
     ctx.arc(p.x, p.y, ctx.lineWidth/2, 0, Math.PI*2);
@@ -953,6 +963,12 @@
   }
 
   onesClearBtn.addEventListener('click', clearOnesSquares);
+
+  eraserBtn.addEventListener('click', ()=>{
+    erasing = !erasing;
+    eraserBtn.classList.toggle('active', erasing);
+    onesCanvas.style.cursor = erasing ? 'cell' : 'crosshair';
+  });
 
   dealBtn.addEventListener('click', dealCards);
   clearBtn.addEventListener('click', clearSlotsOnly);
