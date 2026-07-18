@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="km">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <title>ក្រដាសប្រាក់ – Riel Cards</title>
+    <!-- Khmer Battambang font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&display=swap" rel="stylesheet" />
     <style>
         * {
             box-sizing: border-box;
@@ -11,7 +13,7 @@
         body {
             margin: 0;
             overflow: hidden;
-            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            font-family: 'Battambang', 'Segoe UI', Roboto, system-ui, sans-serif;
             background: #eef3ff;
             touch-action: none;
             user-select: none;
@@ -25,11 +27,12 @@
             margin: 8px 0 0;
             z-index: 3000;
             pointer-events: none;
-            font-size: 22px;
-            font-weight: 600;
+            font-size: 24px;
+            font-weight: 700;
             color: #1e2b3c;
             text-shadow: 0 1px 4px rgba(255, 255, 255, 0.6);
             letter-spacing: 0.5px;
+            font-family: 'Battambang', sans-serif;
         }
 
         /* ========== TOOLBAR ========== */
@@ -68,6 +71,11 @@
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
             transition: 0.1s ease;
             letter-spacing: 0.3px;
+            font-family: 'Battambang', sans-serif;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
         button:active {
             transform: scale(0.94);
@@ -170,6 +178,7 @@
             background-repeat: no-repeat;
             transition: box-shadow 0.1s;
             will-change: left, top;
+            font-family: 'Battambang', sans-serif;
         }
         .card:active {
             cursor: grabbing;
@@ -227,6 +236,11 @@
             position: relative;
             z-index: 2;
             letter-spacing: 0.5px;
+        }
+
+        /* small adjustment for home button text */
+        .homeBtn {
+            font-family: 'Battambang', sans-serif;
         }
     </style>
 </head>
@@ -430,7 +444,7 @@
         window.setTool = setTool;
         window.clearCanvas = clearCanvas;
 
-        console.log('✅ Riel Cards – all text labels removed from cards');
+        console.log('✅ Riel Cards – all text labels removed from cards, Khmer Battambang font applied, home button added.');
     </script>
 
 </body>
