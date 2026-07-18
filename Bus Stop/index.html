@@ -62,7 +62,6 @@
     padding:7px 14px;
     border-radius:10px;
     border:2px solid #22262e;
-    margin-bottom:12px;
     transition:background .1s ease, transform .1s ease;
   }
   .homeBtn:hover{ background:#fff; transform:translateY(-1px); }
@@ -413,18 +412,19 @@
   /* ---------- road controls ---------- */
   .road-controls{
     display:flex;
+    align-items:center;
     flex-wrap:wrap;
     gap:10px;
     margin-top:14px;
   }
   .road-btn{
-    flex:1 1 140px;
-    font-size:clamp(.8rem, 2.6vw, 1rem);
+    flex:0 0 auto;
+    font-size:clamp(.9rem, 3vw, 1.15rem);
     font-weight:700;
     background:var(--panel);
     border:2px solid #22262e;
     border-radius:10px;
-    padding:10px 14px;
+    padding:8px 12px;
     cursor:pointer;
     color:#2b2b2b;
     touch-action:none;
@@ -441,10 +441,11 @@
   /* ---------- passenger picker ---------- */
   .passenger-picker{
     display:flex;
+    flex:1 1 auto;
     flex-wrap:wrap;
     align-items:center;
+    justify-content:center;
     gap:8px;
-    margin-top:14px;
   }
   .picker-label{
     color:#cdd6e0;
@@ -474,8 +475,6 @@
 </head>
 <body>
 <div class="wrap">
-  <a class="homeBtn" href="../index.html">🏠 ទំព័រដើម</a>
-
   <div class="scene-clip" id="sceneClip">
   <div class="scene" id="scene">
     <div class="sun">☀️</div>
@@ -527,18 +526,18 @@
   </div>
 
   <div class="road-controls">
-    <button id="roadLeftBtn" class="road-btn">◀️ ទៅក្រោយ</button>
-    <button id="roadRightBtn" class="road-btn">ទៅមុខ ▶️</button>
-  </div>
-
-  <div class="passenger-picker" id="passengerPicker">
-    <span class="picker-label">បន្ថែមអ្នកដំណើរ:</span>
+    <button id="roadLeftBtn" class="road-btn">◀️</button>
+    <div class="passenger-picker" id="passengerPicker">
+      <span class="picker-label">បន្ថែមអ្នកដំណើរ:</span>
+    </div>
+    <button id="roadRightBtn" class="road-btn">▶️</button>
   </div>
 
   <div class="hud">
     <span id="counter">Boarded: 0 / 10</span>
     <span id="busStatus" style="color:#f4d35e; font-weight:700;">🚌 ឡានក្រុងនៅតាមផ្លូវ — ចុចទៅស្តាំ →</span>
     <button id="resetBtn">🔄 សារថ្មី</button>
+    <a class="homeBtn" href="../index.html">🏠 ទំព័រដើម</a>
   </div>
 </div>
 
@@ -573,7 +572,7 @@
     new ResizeObserver(updateSceneScale).observe(sceneClip);
   }
 
-  const PERSON_EMOJIS = ['🧑','👩','🧑‍🌾 ','🧑‍🍳 ','👦','👴','👵','🧕'];
+  const PERSON_EMOJIS = ['🧑','👩','🧕'];
   const SCENERY = ['🌳','🏠','🌲','🏢','🌳','🚲','🏬','🌲','🌳','🏠'];
   const TRACK_WIDTH = 20000; // long road so it never runs out while scrolling
 
