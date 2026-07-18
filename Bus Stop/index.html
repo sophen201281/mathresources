@@ -1,1 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bus Stop</title>
+<style>
+  :root{
+    --sky-top:#bfe7ff;
+    --sky-bot:#eaf8ff;
+    --road:#4a4f57;
+    --road-dark:#3a3e45;
+    --curb:#cdbfa5;
+    --grass:#8fc37d;
+    --bus-yellow:#ffc93c;
+    --bus-red:#e8543e;
+    --ink:#2b2b2b;
+    --panel:#ffffffcc;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#1b2430;
+    font-family:'Trebuchet MS','Segoe UI',sans-serif;
+    padding:16px;
+  }
+  .wrap{
+    width:100%;
+    max-width:920px;
+  }
+  h1{
+    color:#f4f1ea;
+    text-align:center;
+    font-size:clamp(1.1rem, 4vw, 1.5rem);
+    margin:0 0 4px;
+    letter-spacing:.5px;
+  }
+  .sub{
+    color:#aab4c2;
+    text-align:center;
+    font-size:clamp(.72rem, 2.6vw, .9rem);
+    margin:0 0 16px;
+    padding:0 4px;
+  }
+
+  /* ---------- responsive scaling wrapper ---------- */
+  /* The whole scene is built at a fixed 920x480 design resolution, then
+     visually scaled to fit any screen width via a CSS transform. This keeps
+     every internal pixel-based layout intact while still being responsive. */
+  .scene-clip{
+    position:relative;
+    width:100%;
+    max-width:920px;
+    aspect-ratio:920/480;
+    margin:0 auto;
+    overflow:hidden;
+    border-radius:20px;
+    box-shadow:0 20px 50px rgba(0,0,0,.45);
+    border:4px solid #22262e;
+    background:#1b2430;
+  }
+  .scene{
+    position:absolute;
+    top:0; left:0;
+    width:920px;
+    height:480px;
+    transform-origin:top left;
+    overflow:hidden;
+    background:linear-gradient(var(--sky-top), var(--sky-bot) 65%);
+    user-select:none;
+    -webkit-user-select:none;
+  }
+
+  /* ---------- sky decor ---------- */
+  .cloud{
+    position:absolute;
+    font-size:34px;
+    opacity:.85;
+    filter:drop-shadow(0 2px 2px rgba(0,0,0,.05));
+  }
+  .sun{
+    position:absolute; top:18px; right:36px; font-size:46px;
+  }
+
+  /* ---------- sky drawing canvas ---------- */
+  .sky-canvas{
+    position:absolute;
+    top:0; left:0; right:0;
+    height:234px;
+    width:100%;
+    z-index:2;
+    cursor:crosshair;
+    touch-action:none;
+  }
+  .draw-toolbar{
+    position:absolute;
+    top:10px; left:10px;
+    z-index:7;
+    display:flex;
+    gap:6px;
+  }
+  .draw-toolbar button{
+    background:var(--panel);
+    border:2px solid #22262e;
+    border-radius:8px;
+    padding:6px 9px;
+    font-size:16px;
+    line-height:1;
+    cursor:pointer;
+  }
+  .draw-toolbar button:hover{ background:#fff; }
+  .draw-toolbar button.active{
+    background:var(--bus-yellow);
+    border-color:var(--bus-red);
+  }
+
+  /* ---------- sidewalk (fixed, not scrolling) ---------- */
+  .sidewalk{
+    position:absolute;
+    left:0; right:0;
+    bottom:150px;
+    height:96px;
+    background:var(--curb);
+    border-top:4px solid #a89777;
+    z-index:5;
+  }
+  .sidewalk::after{
+    content:"";
+    position:absolute; left:0; right:0; top:0; height:6px;
+    background:repeating-linear-gradient(90deg,#a89777 0 18px, transparent 18px 30px);
+    opacity:.5;
+  }
+  .stop-post{
+    position:absolute;
+    bottom:40px;
+    display:flex; flex-direction:column; align-items:center;
+    pointer-events:none;
+  }
+  .stop-sign{
+    background:#2f6fed;
+    color:#fff;
+    font-size:11px;
+    font-weight:700;
+    padding:6px 8px;
+    border-radius:6px;
+    border:2px solid #fff;
+    text-align:center;
+    line-height:1.2;
+    box-shadow:0 3px 6px rgba(0,0,0,.25);
+  }
+  .stop-pole{
+    width:6px; height:70px;
+    background:#8a8f98;
+    border-radius:2px;
+  }
+
+  .people-row{
+    position:absolute;
+    left:16px; right:16px; bottom:6px;
+    height:80px;
+    display:flex;
+    align-items:flex-end;
+    gap:10px;
+    padding:0 4px;
+    z-index:6;
+  }
+  .people-row:empty::before{
+    content:"Press a button below to add a passenger 👇";
+    color:#6b5e42;
+    font-size:.8rem;
+    padding-bottom:26px;
+    font-style:italic;
+  }
+
+  /* ---------- road viewport (scrolling area) ---------- */
+  .road-viewport{
+    position:absolute;
+    left:0; right:0; bottom:0; height:150px;
+    overflow:hidden;
+    background:var(--grass);
+    cursor:grab;
+    z-index:3;
+    touch-action:none;
+    user-select:none;
+  }
+  .road-viewport.grabbing{ cursor:grabbing; }
+
+  .scenery-layer{
+    position:absolute;
+    top:0; left:0;
+    height:40px;
+    width:4000px;
+    display:flex;
+    align-items:center;
+    gap:60px;
+    font-size:26px;
+    padding-left:20px;
+    will-change:transform;
+  }
+
+  .sign-layer{
+    position:absolute;
+    top:0; left:0;
+    width:4000px;
+    height:150px;
+    pointer-events:none;
+    will-change:transform;
+  }
+
+  .road-track{
+    position:absolute;
+    left:0; bottom:0;
+    width:2500px;
+    height:110px;
+    background:var(--road);
+    will-change:transform;
+    border-top:4px solid #6a6f78;
+  }
+  .road-track::before{
+    content:"";
+    position:absolute;
+    top:0; left:0; right:0; height:4px;
+    background:#6a6f78;
+  }
+  .lane-line{
+    position:absolute;
+    top:50%;
+    left:0;
+    width:2500px;
+    height:6px;
+    transform:translateY(-50%);
+    background:repeating-linear-gradient(90deg,#f4d35e 0 40px, transparent 40px 76px);
+    opacity:.9;
+  }
+
+  /* ---------- bus (fixed in place; the world scrolls past it) ---------- */
+  .bus{
+    position:absolute;
+    left:24px;
+    bottom:14px;
+    width:440px;
+    height:96px;
+    z-index:4;
+  }
+  .bus-body{
+    position:relative;
+    width:100%; height:100%;
+    background:linear-gradient(180deg,#ffd35c, var(--bus-yellow) 40%, #f2b52c 100%);
+    border:2px solid var(--ink);
+    border-radius:16px 18px 8px 8px;
+    box-shadow:0 6px 10px rgba(0,0,0,.35), inset 0 -8px 10px rgba(0,0,0,.08);
+  }
+  .stripe{
+    position:absolute;
+    left:0; right:0; top:52px;
+    height:7px;
+    background:var(--bus-red);
+    border-top:2px solid var(--ink);
+    border-bottom:2px solid var(--ink);
+  }
+  .bus-label{
+    position:absolute;
+    left:10px; top:61px;
+    font-size:8px;
+    font-weight:800;
+    color:#7a2a1e;
+    letter-spacing:.3px;
+  }
+  .windows{
+    position:absolute;
+    left:10px; right:10px; top:9px;
+    height:36px;
+    display:flex;
+    gap:4px;
+  }
+  .window-slot{
+    flex:1;
+    height:100%;
+    background:linear-gradient(160deg, rgba(210,238,255,.85), rgba(150,205,240,.55));
+    border:2px solid var(--ink);
+    border-radius:6px;
+    position:relative;
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+    overflow:hidden;
+    box-shadow:inset 0 4px 6px rgba(255,255,255,.5), inset 0 -4px 6px rgba(0,0,0,.12);
+  }
+  .window-slot.drop-hover{
+    background:linear-gradient(160deg, rgba(255,255,210,.9), rgba(190,230,255,.6));
+    border-color:#e8543e;
+  }
+  .windshield{
+    position:absolute;
+    right:-1px; top:9px;
+    width:18px; height:36px;
+    background:linear-gradient(160deg, rgba(210,238,255,.85), rgba(150,205,240,.55));
+    border:2px solid var(--ink);
+    border-radius:0 10px 10px 0;
+  }
+  .door{
+    position:absolute;
+    right:31px; bottom:4px;
+    width:21px; height:56px;
+    background:linear-gradient(180deg, rgba(210,238,255,.7), rgba(150,205,240,.4));
+    border:2px solid var(--ink);
+    border-radius:4px;
+  }
+  .door::after{
+    content:"";
+    position:absolute; left:50%; top:0; bottom:0; width:2px;
+    background:var(--ink);
+  }
+  .headlight{
+    position:absolute;
+    right:1px; bottom:11px;
+    width:8px; height:7px;
+    background:#fff6c9;
+    border:2px solid var(--ink);
+    border-radius:2px;
+  }
+  .wheel{
+    position:absolute;
+    bottom:-11px;
+    width:26px; height:26px;
+    background:#222;
+    border:2px solid #111;
+    border-radius:50%;
+  }
+  .wheel::after{
+    content:"";
+    position:absolute; inset:6px;
+    background:#9aa0a8;
+    border-radius:50%;
+  }
+  .wheel.left{ left:22px; }
+  .wheel.right{ right:22px; }
+  .wheel.mid1{ left:143px; }
+  .wheel.mid2{ left:257px; }
+
+  /* ---------- people ---------- */
+  .person{
+    font-size:34px;
+    width:42px; height:46px;
+    display:flex; align-items:flex-end; justify-content:center;
+    cursor:grab;
+    user-select:none;
+    touch-action:none;
+    line-height:1;
+    filter:drop-shadow(0 2px 2px rgba(0,0,0,.25));
+    transition:transform .12s ease;
+  }
+  .person:active{ cursor:grabbing; }
+  .person.seated{
+    font-size:20px;
+    width:100%; height:100%;
+    filter:none;
+  }
+  .person.dragging{
+    position:fixed;
+    z-index:9999;
+    pointer-events:none;
+    transform:scale(1.2) rotate(-4deg);
+    filter:drop-shadow(0 6px 8px rgba(0,0,0,.4));
+  }
+
+  .hud{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:space-between;
+    align-items:center;
+    gap:8px;
+    margin-top:12px;
+    color:#cdd6e0;
+    font-size:clamp(.75rem, 2.4vw, .85rem);
+  }
+  .hud button{
+    background:var(--panel);
+    border:none;
+    padding:7px 14px;
+    border-radius:8px;
+    font-weight:700;
+    cursor:pointer;
+    color:#2b2b2b;
+  }
+  .hud button:hover{ background:#fff; }
+
+  /* ---------- road controls ---------- */
+  .road-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:14px;
+  }
+  .road-btn{
+    flex:1 1 140px;
+    font-size:clamp(.8rem, 2.6vw, 1rem);
+    font-weight:700;
+    background:var(--panel);
+    border:2px solid #22262e;
+    border-radius:10px;
+    padding:10px 14px;
+    cursor:pointer;
+    color:#2b2b2b;
+    touch-action:none;
+    user-select:none;
+    transition:background .1s ease, transform .1s ease;
+  }
+  .road-btn:hover{ background:#fff; }
+  .road-btn:active, .road-btn.holding{
+    background:var(--bus-yellow);
+    border-color:var(--bus-red);
+    transform:translateY(1px);
+  }
+
+  /* ---------- passenger picker ---------- */
+  .passenger-picker{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:8px;
+    margin-top:14px;
+  }
+  .picker-label{
+    color:#cdd6e0;
+    font-size:.85rem;
+    margin-right:2px;
+  }
+  .spawn-btn{
+    font-size:22px;
+    background:var(--panel);
+    border:2px solid #22262e;
+    border-radius:10px;
+    padding:5px 10px;
+    cursor:pointer;
+    line-height:1;
+    transition:transform .1s ease, background .1s ease;
+  }
+  .spawn-btn:hover{ background:#fff; transform:translateY(-2px); }
+  .spawn-btn:active{ transform:translateY(0) scale(.95); }
+
+  @keyframes popIn{
+    0%{ transform:scale(.2); opacity:0; }
+    70%{ transform:scale(1.15); opacity:1; }
+    100%{ transform:scale(1); }
+  }
+  .person.pop-in{ animation:popIn .28s ease; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🚏 Waiting for the Bus</h1>
+  <p class="sub">Press a passenger button to add someone · Drag people into the bus windows to board them · Drag the road (or use the ◀️▶️ buttons) to roll the world past the stationary bus · Draw in the sky and erase with the toolbar</p>
+
+  <div class="scene-clip" id="sceneClip">
+  <div class="scene" id="scene">
+    <div class="sun">☀️</div>
+    <div class="cloud" style="top:26px; left:12%;">☁️</div>
+    <div class="cloud" style="top:56px; left:55%; font-size:26px;">☁️</div>
+    <div class="cloud" style="top:20px; left:78%; font-size:22px;">☁️</div>
+
+    <div class="draw-toolbar">
+      <button id="penBtn" class="active" title="Draw">✏️</button>
+      <button id="eraseBtn" title="Erase">🧽</button>
+    </div>
+    <canvas id="skyCanvas" class="sky-canvas"></canvas>
+
+    <div class="sidewalk">
+      <div class="people-row" id="peopleRow"></div>
+    </div>
+
+    <div class="road-viewport" id="roadViewport">
+      <div class="scenery-layer" id="sceneryLayer"></div>
+      <div class="sign-layer" id="signLayer"></div>
+      <div class="road-track" id="roadTrack">
+        <div class="lane-line"></div>
+      </div>
+      <div class="bus" id="bus">
+        <div class="bus-body">
+          <div class="windows" id="windows">
+            <div class="window-slot" data-seat="1"></div>
+            <div class="window-slot" data-seat="2"></div>
+            <div class="window-slot" data-seat="3"></div>
+            <div class="window-slot" data-seat="4"></div>
+            <div class="window-slot" data-seat="5"></div>
+            <div class="window-slot" data-seat="6"></div>
+            <div class="window-slot" data-seat="7"></div>
+            <div class="window-slot" data-seat="8"></div>
+            <div class="window-slot" data-seat="9"></div>
+            <div class="window-slot" data-seat="10"></div>
+          </div>
+          <div class="windshield"></div>
+          <div class="headlight"></div>
+          <div class="stripe"></div>
+          <div class="bus-label">CITY LINE 24</div>
+          <div class="door"></div>
+          <div class="wheel left"></div>
+          <div class="wheel right"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <div class="road-controls">
+    <button id="roadLeftBtn" class="road-btn">◀️ Move Road Left</button>
+    <button id="roadRightBtn" class="road-btn">Move Road Right ▶️</button>
+  </div>
+
+  <div class="passenger-picker" id="passengerPicker">
+    <span class="picker-label">Add a passenger:</span>
+  </div>
+
+  <div class="hud">
+    <span id="counter">Boarded: 0 / 10</span>
+    <span id="busStatus" style="color:#f4d35e; font-weight:700;">🚌 On its way — drag the road right →</span>
+    <button id="resetBtn">🔄 Reset everyone</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  const peopleRow = document.getElementById('peopleRow');
+  const roadViewport = document.getElementById('roadViewport');
+  const roadTrack = document.getElementById('roadTrack');
+  const sceneryLayer = document.getElementById('sceneryLayer');
+  const windowSlots = Array.from(document.querySelectorAll('.window-slot'));
+  const counterEl = document.getElementById('counter');
+  const resetBtn = document.getElementById('resetBtn');
+
+  // ---------- responsive scaling ----------
+  // The scene is laid out at a fixed 920x480 design resolution, then scaled
+  // to fit whatever width is actually available. sceneScale is kept in sync
+  // so drag math (which works in design-space pixels) can compensate.
+  const sceneClip = document.getElementById('sceneClip');
+  const sceneEl = document.getElementById('scene');
+  const DESIGN_WIDTH = 920;
+  let sceneScale = 1;
+
+  function updateSceneScale(){
+    const rect = sceneClip.getBoundingClientRect();
+    sceneScale = rect.width > 0 ? rect.width / DESIGN_WIDTH : 1;
+    sceneEl.style.transform = `scale(${sceneScale})`;
+  }
+  updateSceneScale();
+  window.addEventListener('resize', updateSceneScale);
+  window.addEventListener('orientationchange', updateSceneScale);
+  if(window.ResizeObserver){
+    new ResizeObserver(updateSceneScale).observe(sceneClip);
+  }
+
+  const PERSON_EMOJIS = ['🧑','👩','👨','👧','👦','👴','👵','🧕'];
+  const SCENERY = ['🌳','🏠','🌲','🏢','🌳','🚲','🏬','🌲','🌳','🏠'];
+  const TRACK_WIDTH = 20000; // long road so it never runs out while scrolling
+
+  let personCounter = 0;
+
+  function createPerson(emoji){
+    const p = document.createElement('div');
+    p.className = 'person pop-in';
+    p.textContent = emoji;
+    p.id = 'person-' + (personCounter++);
+    peopleRow.appendChild(p);
+    attachPersonDrag(p);
+    updateCounter();
+    return p;
+  }
+
+  // build passenger picker buttons
+  const passengerPicker = document.getElementById('passengerPicker');
+  PERSON_EMOJIS.forEach(emoji=>{
+    const btn = document.createElement('button');
+    btn.className = 'spawn-btn';
+    btn.type = 'button';
+    btn.textContent = emoji;
+    btn.title = 'Add this passenger';
+    btn.addEventListener('click', ()=>{ createPerson(emoji); });
+    passengerPicker.appendChild(btn);
+  });
+
+  // size the scrolling layers to the full road length
+  roadTrack.style.width = TRACK_WIDTH + 'px';
+  const laneLine = roadTrack.querySelector('.lane-line');
+  if(laneLine) laneLine.style.width = TRACK_WIDTH + 'px';
+  sceneryLayer.style.width = TRACK_WIDTH + 'px';
+  document.getElementById('signLayer').style.width = TRACK_WIDTH + 'px';
+
+  // build scenery layer content, spread across the whole road length
+  const SCENERY_GAP = 60;
+  const sceneryCount = Math.ceil(TRACK_WIDTH / SCENERY_GAP);
+  let sceneryHtml = '';
+  for(let i=0;i<sceneryCount;i++){ sceneryHtml += `<span>${SCENERY[i % SCENERY.length]}</span>`; }
+  sceneryLayer.innerHTML = sceneryHtml;
+
+  function updateCounter(){
+    const occupied = windowSlots.filter(s=>s.dataset.occupied === 'true').length;
+    counterEl.textContent = `Boarded: ${occupied} / ${windowSlots.length}`;
+  }
+
+  function seatPerson(person, slot){
+    // free previous seat if any
+    if(person.dataset.seat){
+      const prevSlot = document.querySelector('.window-slot[data-seat="'+person.dataset.seat+'"]');
+      if(prevSlot) delete prevSlot.dataset.occupied;
+    }
+    slot.dataset.occupied = 'true';
+    slot.appendChild(person);
+    person.classList.add('seated');
+    person.dataset.seat = slot.dataset.seat;
+    updateCounter();
+  }
+
+  function unseatPerson(person){
+    if(person.dataset.seat){
+      const prevSlot = document.querySelector('.window-slot[data-seat="'+person.dataset.seat+'"]');
+      if(prevSlot) delete prevSlot.dataset.occupied;
+      delete person.dataset.seat;
+    }
+    person.classList.remove('seated');
+    peopleRow.appendChild(person);
+    updateCounter();
+  }
+
+  function attachPersonDrag(person){
+    person.addEventListener('pointerdown', (e)=>{
+      e.stopPropagation();
+      e.preventDefault();
+      const rect = person.getBoundingClientRect();
+      const offsetX = e.clientX - rect.left;
+      const offsetY = e.clientY - rect.top;
+      const halfW = rect.width / 2;
+      const halfH = rect.height / 2;
+      const originSeat = person.dataset.seat || null;
+
+      person.classList.add('dragging');
+      person.style.left = rect.left + 'px';
+      person.style.top = rect.top + 'px';
+      person.style.width = rect.width + 'px';
+      person.style.height = rect.height + 'px';
+      person.style.pointerEvents = 'none';
+      document.body.appendChild(person);
+
+      windowSlots.forEach(s=>s.classList.remove('drop-hover'));
+
+      let dragRafId = null;
+      let lastEvent = null;
+
+      // Hit-test using the emoji's visual CENTER, not the raw pointer
+      // position — the pointer can be anywhere over the emoji (top-left,
+      // edge, etc.) depending on where it was grabbed, so using the center
+      // is what actually matches where the emoji looks like it's dropping.
+      // A small forgiving radius is also checked so a near-miss on the
+      // (now fairly small) windows still counts.
+      function centerFromEvent(ev){
+        const left = ev.clientX - offsetX;
+        const top = ev.clientY - offsetY;
+        return { left, top, cx: left + halfW, cy: top + halfH };
+      }
+
+      function findSlotNear(cx, cy){
+        const offsets = [[0,0], [-12,0], [12,0], [0,-12], [0,12]];
+        for(const [dx, dy] of offsets){
+          const el = document.elementFromPoint(cx + dx, cy + dy);
+          const slot = el ? el.closest('.window-slot') : null;
+          if(slot) return slot;
+        }
+        return null;
+      }
+
+      function render(){
+        dragRafId = null;
+        if(!lastEvent) return;
+        const { left, top, cx, cy } = centerFromEvent(lastEvent);
+        person.style.left = left + 'px';
+        person.style.top = top + 'px';
+
+        windowSlots.forEach(s=>s.classList.remove('drop-hover'));
+        const slot = findSlotNear(cx, cy);
+        if(slot && !slot.dataset.occupied){ slot.classList.add('drop-hover'); }
+      }
+
+      function move(ev){
+        lastEvent = ev;
+        if(dragRafId === null) dragRafId = requestAnimationFrame(render);
+      }
+
+      function finish(ev){
+        document.removeEventListener('pointermove', move);
+        document.removeEventListener('pointerup', finish);
+        document.removeEventListener('pointercancel', finish);
+        if(dragRafId !== null){ cancelAnimationFrame(dragRafId); dragRafId = null; }
+        windowSlots.forEach(s=>s.classList.remove('drop-hover'));
+
+        person.classList.remove('dragging');
+        person.style.position = '';
+        person.style.left = '';
+        person.style.top = '';
+        person.style.width = '';
+        person.style.height = '';
+        person.style.pointerEvents = '';
+
+        const { cx, cy } = centerFromEvent(ev);
+        const under = document.elementFromPoint(cx, cy);
+        const slot = findSlotNear(cx, cy);
+        const droppedOnSidewalk = under ? under.closest('#peopleRow, .sidewalk, .stop-post') : null;
+
+        if(slot && !slot.dataset.occupied){
+          seatPerson(person, slot);
+        } else if(droppedOnSidewalk || !under){
+          unseatPerson(person);
+        } else if(originSeat){
+          const origSlot = document.querySelector('.window-slot[data-seat="'+originSeat+'"]');
+          if(origSlot && !origSlot.dataset.occupied) seatPerson(person, origSlot);
+          else unseatPerson(person);
+        } else {
+          unseatPerson(person);
+        }
+      }
+
+      document.addEventListener('pointermove', move);
+      document.addEventListener('pointerup', finish);
+      document.addEventListener('pointercancel', finish);
+    });
+  }
+
+  resetBtn.addEventListener('click', ()=>{
+    windowSlots.forEach(slot=>{
+      const kid = slot.querySelector('.person');
+      if(kid) unseatPerson(kid);
+    });
+  });
+
+  // ---------- road drag ----------
+  // The bus starts far to the right (off-screen), and the bus stop signs are
+  // part of the scrolling world (background parallax layer). Dragging the
+  // road to the RIGHT (or holding the "Move Road Right" button) pulls the
+  // world (road markings + scenery + signs) toward the stationary bus.
+  // Each sign reaches the bus in turn as the road keeps scrolling — it only
+  // stops at the very end of the track.
+  const STOPS = [
+    { distance: 1600,  label: 'Stop 1' },
+    { distance: 5000,  label: 'Stop 2' },
+    { distance: 9000,  label: 'Stop 3' },
+    { distance: 14000, label: 'Stop 4' },
+  ];
+  const SIGN_SCREEN_X = 6;    // where a sign should land once it arrives
+  const PARALLAX = 0.45;
+  const busStatus = document.getElementById('busStatus');
+  const signLayer = document.getElementById('signLayer');
+
+  function buildStops(){
+    signLayer.innerHTML = '';
+    STOPS.forEach(stop=>{
+      const post = document.createElement('div');
+      post.className = 'stop-post';
+      post.innerHTML = `<div class="stop-sign">BUS<br>${stop.label.toUpperCase()}</div><div class="stop-pole"></div>`;
+      // sign moves at PARALLAX speed, so solve for its base position so it
+      // ends up at SIGN_SCREEN_X exactly when currentTranslate = -stop.distance
+      const signX = SIGN_SCREEN_X + stop.distance * PARALLAX;
+      post.style.left = signX + 'px';
+      signLayer.appendChild(post);
+    });
+  }
+  buildStops();
+
+  let viewportWidth = roadViewport.clientWidth;
+  let minTranslate = Math.min(0, viewportWidth - TRACK_WIDTH);
+  let currentTranslate = 0; // start with the world scrolled away, no stop here yet
+
+  function layoutBus(){
+    viewportWidth = roadViewport.clientWidth;
+    minTranslate = Math.min(0, viewportWidth - TRACK_WIDTH);
+    currentTranslate = Math.max(minTranslate, Math.min(0, currentTranslate));
+  }
+  layoutBus();
+
+  function updateStatus(){
+    if(currentTranslate <= minTranslate + 0.5){
+      busStatus.textContent = '🏁 End of the road!';
+      return;
+    }
+    const traveled = -currentTranslate;
+    const atStop = STOPS.find(s => Math.abs(traveled - s.distance) < 15);
+    if(atStop){
+      busStatus.textContent = `🚌 At ${atStop.label} — keep rolling!`;
+      return;
+    }
+    const next = STOPS.find(s => s.distance > traveled);
+    busStatus.textContent = next
+      ? `🚌 Heading to ${next.label} — drag or press ▶️`
+      : '🚌 Cruising — drag or press ▶️';
+  }
+
+  function applyTransform(){
+    roadTrack.style.transform = `translateX(${currentTranslate}px)`;
+    sceneryLayer.style.transform = `translateX(${currentTranslate * PARALLAX}px)`;
+    signLayer.style.transform = `translateX(${currentTranslate * PARALLAX}px)`;
+    updateStatus();
+  }
+  applyTransform();
+
+  window.addEventListener('resize', ()=>{
+    layoutBus();
+    applyTransform();
+  });
+
+  let roadDrag = null;
+  let rafId = null;
+  let pendingClientX = null;
+
+  function scheduleUpdate(){
+    if(rafId !== null) return;
+    rafId = requestAnimationFrame(()=>{
+      rafId = null;
+      if(!roadDrag || pendingClientX === null) return;
+      const dx = (pendingClientX - roadDrag.startX) / (sceneScale || 1);
+      currentTranslate = Math.max(minTranslate, Math.min(0, roadDrag.startTranslate - dx));
+      applyTransform();
+    });
+  }
+
+  roadViewport.addEventListener('pointerdown', (e)=>{
+    if(e.target.closest('.person')) return;
+    e.preventDefault();
+    roadDrag = { startX: e.clientX, startTranslate: currentTranslate, pointerId: e.pointerId };
+    roadViewport.classList.add('grabbing');
+    roadViewport.setPointerCapture(e.pointerId);
+  });
+
+  roadViewport.addEventListener('pointermove', (e)=>{
+    if(!roadDrag || e.pointerId !== roadDrag.pointerId) return;
+    pendingClientX = e.clientX;
+    scheduleUpdate();
+  });
+
+  function endRoadDrag(e){
+    if(!roadDrag || (e.pointerId !== undefined && e.pointerId !== roadDrag.pointerId)) return;
+    try{ roadViewport.releasePointerCapture(roadDrag.pointerId); }catch(err){}
+    roadDrag = null;
+    pendingClientX = null;
+    roadViewport.classList.remove('grabbing');
+  }
+
+  roadViewport.addEventListener('pointerup', endRoadDrag);
+  roadViewport.addEventListener('pointercancel', endRoadDrag);
+
+  // ---------- road control buttons (hold to move) ----------
+  const roadLeftBtn = document.getElementById('roadLeftBtn');
+  const roadRightBtn = document.getElementById('roadRightBtn');
+  const BTN_SPEED = 9; // px per animation frame
+  let heldDirection = null;
+  let holdRafId = null;
+
+  function stepHold(){
+    if(!heldDirection){ holdRafId = null; return; }
+    const delta = heldDirection === 'right' ? -BTN_SPEED : BTN_SPEED;
+    currentTranslate = Math.max(minTranslate, Math.min(0, currentTranslate + delta));
+    applyTransform();
+    holdRafId = requestAnimationFrame(stepHold);
+  }
+
+  function startHold(direction, btn){
+    heldDirection = direction;
+    btn.classList.add('holding');
+    if(holdRafId === null) holdRafId = requestAnimationFrame(stepHold);
+  }
+  function stopHold(){
+    heldDirection = null;
+    roadLeftBtn.classList.remove('holding');
+    roadRightBtn.classList.remove('holding');
+  }
+
+  roadLeftBtn.addEventListener('pointerdown', (e)=>{ e.preventDefault(); startHold('left', roadLeftBtn); });
+  roadRightBtn.addEventListener('pointerdown', (e)=>{ e.preventDefault(); startHold('right', roadRightBtn); });
+  [roadLeftBtn, roadRightBtn].forEach(btn=>{
+    ['pointerup','pointerleave','pointercancel'].forEach(evt=>{
+      btn.addEventListener(evt, stopHold);
+    });
+  });
+  window.addEventListener('blur', stopHold);
+
+  // ---------- sky drawing canvas ----------
+  const canvas = document.getElementById('skyCanvas');
+  const ctx = canvas.getContext('2d');
+  const penBtn = document.getElementById('penBtn');
+  const eraseBtn = document.getElementById('eraseBtn');
+  let isErasing = false;
+  let isDrawing = false;
+  let lastPoint = null;
+
+  function resizeCanvas(){
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    // preserve current drawing while resizing
+    const snapshot = document.createElement('canvas');
+    snapshot.width = canvas.width;
+    snapshot.height = canvas.height;
+    snapshot.getContext('2d').drawImage(canvas, 0, 0);
+
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = '#2b2b2b';
+
+    if(snapshot.width > 0 && snapshot.height > 0){
+      ctx.drawImage(snapshot, 0, 0, snapshot.width, snapshot.height, 0, 0, rect.width, rect.height);
+    }
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+  window.addEventListener('orientationchange', resizeCanvas);
+  if(window.ResizeObserver){
+    new ResizeObserver(resizeCanvas).observe(sceneClip);
+  }
+
+  function getCanvasPoint(e){
+    const rect = canvas.getBoundingClientRect();
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  }
+
+  function setMode(erasing){
+    isErasing = erasing;
+    penBtn.classList.toggle('active', !erasing);
+    eraseBtn.classList.toggle('active', erasing);
+  }
+  penBtn.addEventListener('click', ()=> setMode(false));
+  eraseBtn.addEventListener('click', ()=> setMode(true));
+
+  canvas.addEventListener('pointerdown', (e)=>{
+    isDrawing = true;
+    lastPoint = getCanvasPoint(e);
+    canvas.setPointerCapture(e.pointerId);
+  });
+
+  canvas.addEventListener('pointermove', (e)=>{
+    if(!isDrawing) return;
+    const pt = getCanvasPoint(e);
+    ctx.globalCompositeOperation = isErasing ? 'destination-out' : 'source-over';
+    ctx.lineWidth = isErasing ? 22 : 4;
+    ctx.beginPath();
+    ctx.moveTo(lastPoint.x, lastPoint.y);
+    ctx.lineTo(pt.x, pt.y);
+    ctx.stroke();
+    lastPoint = pt;
+  });
+
+  function stopDrawing(e){
+    isDrawing = false;
+    lastPoint = null;
+    if(e && e.pointerId !== undefined){
+      try{ canvas.releasePointerCapture(e.pointerId); }catch(err){}
+    }
+  }
+  canvas.addEventListener('pointerup', stopDrawing);
+  canvas.addEventListener('pointercancel', stopDrawing);
+
+  updateCounter();
+})();
+</script>
+</body>
+</html>
+
 
