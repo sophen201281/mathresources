@@ -305,7 +305,7 @@
   .door{
     position:absolute;
     right:31px; bottom:4px;
-    width:21px; height:56px;
+    width:21px; height:46px;
     background:linear-gradient(180deg, rgba(210,238,255,.7), rgba(150,205,240,.4));
     border:2px solid var(--ink);
     border-radius:4px;
@@ -595,7 +595,7 @@
 
   function updateCounter(){
     const occupied = windowSlots.filter(s=>s.dataset.occupied === 'true').length;
-    counterEl.textContent = `Boarded: ${occupied} / ${windowSlots.length}`;
+    counterEl.textContent = `ចំនួនអ្នកជិះ: ${occupied} / ${windowSlots.length}`;
   }
 
   function seatPerson(person, slot){
