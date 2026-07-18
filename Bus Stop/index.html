@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bus Stop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --sky-top:#bfe7ff;
@@ -25,7 +28,7 @@
     align-items:center;
     justify-content:center;
     background:#1b2430;
-    font-family:'Trebuchet MS','Segoe UI',sans-serif;
+    font-family:'Battambang','Trebuchet MS','Segoe UI',sans-serif;
     padding:16px;
   }
   .wrap{
@@ -46,6 +49,24 @@
     margin:0 0 16px;
     padding:0 4px;
   }
+
+  .homeBtn{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    background:var(--panel);
+    color:#2b2b2b;
+    text-decoration:none;
+    font-weight:700;
+    font-size:.85rem;
+    padding:7px 14px;
+    border-radius:10px;
+    border:2px solid #22262e;
+    margin-bottom:12px;
+    transition:background .1s ease, transform .1s ease;
+  }
+  .homeBtn:hover{ background:#fff; transform:translateY(-1px); }
+  .homeBtn:active{ transform:translateY(0); }
 
   /* ---------- responsive scaling wrapper ---------- */
   /* The whole scene is built at a fixed 920x480 design resolution, then
@@ -305,7 +326,7 @@
   .door{
     position:absolute;
     right:31px; bottom:4px;
-    width:21px; height:46px;
+    width:21px; height:56px;
     background:linear-gradient(180deg, rgba(210,238,255,.7), rgba(150,205,240,.4));
     border:2px solid var(--ink);
     border-radius:4px;
@@ -453,6 +474,8 @@
 </head>
 <body>
 <div class="wrap">
+  <a class="homeBtn" href="../index.html">🏠 ទំព័រដើម</a>
+
   <div class="scene-clip" id="sceneClip">
   <div class="scene" id="scene">
     <div class="sun">☀️</div>
@@ -595,7 +618,7 @@
 
   function updateCounter(){
     const occupied = windowSlots.filter(s=>s.dataset.occupied === 'true').length;
-    counterEl.textContent = `ចំនួនអ្នកជិះ: ${occupied} / ${windowSlots.length}`;
+    counterEl.textContent = `Boarded: ${occupied} / ${windowSlots.length}`;
   }
 
   function seatPerson(person, slot){
@@ -646,12 +669,6 @@
       let dragRafId = null;
       let lastEvent = null;
 
-      // Hit-test using the emoji's visual CENTER, not the raw pointer
-      // position — the pointer can be anywhere over the emoji (top-left,
-      // edge, etc.) depending on where it was grabbed, so using the center
-      // is what actually matches where the emoji looks like it's dropping.
-      // A small forgiving radius is also checked so a near-miss on the
-      // (now fairly small) windows still counts.
       function centerFromEvent(ev){
         const left = ev.clientX - offsetX;
         const top = ev.clientY - offsetY;
@@ -732,19 +749,13 @@
   });
 
   // ---------- road drag ----------
-  // The bus starts far to the right (off-screen), and the bus stop signs are
-  // part of the scrolling world (background parallax layer). Dragging the
-  // road to the RIGHT (or holding the "Move Road Right" button) pulls the
-  // world (road markings + scenery + signs) toward the stationary bus.
-  // Each sign reaches the bus in turn as the road keeps scrolling — it only
-  // stops at the very end of the track.
   const STOPS = [
     { distance: 1600,  label: 'Stop 1' },
     { distance: 5000,  label: 'Stop 2' },
     { distance: 9000,  label: 'Stop 3' },
     { distance: 14000, label: 'Stop 4' },
   ];
-  const SIGN_SCREEN_X = 6;    // where a sign should land once it arrives
+  const SIGN_SCREEN_X = 6;
   const PARALLAX = 0.45;
   const busStatus = document.getElementById('busStatus');
   const signLayer = document.getElementById('signLayer');
@@ -755,8 +766,6 @@
       const post = document.createElement('div');
       post.className = 'stop-post';
       post.innerHTML = `<div class="stop-sign">BUS<br>${stop.label.toUpperCase()}</div><div class="stop-pole"></div>`;
-      // sign moves at PARALLAX speed, so solve for its base position so it
-      // ends up at SIGN_SCREEN_X exactly when currentTranslate = -stop.distance
       const signX = SIGN_SCREEN_X + stop.distance * PARALLAX;
       post.style.left = signX + 'px';
       signLayer.appendChild(post);
@@ -766,7 +775,7 @@
 
   let viewportWidth = roadViewport.clientWidth;
   let minTranslate = Math.min(0, viewportWidth - TRACK_WIDTH);
-  let currentTranslate = 0; // start with the world scrolled away, no stop here yet
+  let currentTranslate = 0;
 
   function layoutBus(){
     viewportWidth = roadViewport.clientWidth;
@@ -848,7 +857,7 @@
   // ---------- road control buttons (hold to move) ----------
   const roadLeftBtn = document.getElementById('roadLeftBtn');
   const roadRightBtn = document.getElementById('roadRightBtn');
-  const BTN_SPEED = 9; // px per animation frame
+  const BTN_SPEED = 9;
   let heldDirection = null;
   let holdRafId = null;
 
@@ -892,7 +901,6 @@
   function resizeCanvas(){
     const rect = canvas.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
-    // preserve current drawing while resizing
     const snapshot = document.createElement('canvas');
     snapshot.width = canvas.width;
     snapshot.height = canvas.height;
