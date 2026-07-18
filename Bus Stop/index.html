@@ -326,7 +326,7 @@
   .wheel{
     position:absolute;
     bottom:-11px;
-    width:40px; height:40px;
+    width:35px; height:35px;
     background:#222;
     border:2px solid #111;
     border-radius:50%;
@@ -337,7 +337,7 @@
     background:#9aa0a8;
     border-radius:50%;
   }
-  .wheel.left{ left:22px; }
+  .wheel.left{ left:44px; }
   .wheel.right{ right:22px; }
   .wheel.mid1{ left:143px; }
   .wheel.mid2{ left:257px; }
@@ -505,7 +505,7 @@
 
   <div class="road-controls">
     <button id="roadLeftBtn" class="road-btn">◀️ ទៅក្រោយ</button>
-    <button id="roadRightBtn" class="road-btn">Move ទៅមុខ ▶️</button>
+    <button id="roadRightBtn" class="road-btn">ទៅមុខ ▶️</button>
   </div>
 
   <div class="passenger-picker" id="passengerPicker">
@@ -514,8 +514,8 @@
 
   <div class="hud">
     <span id="counter">Boarded: 0 / 10</span>
-    <span id="busStatus" style="color:#f4d35e; font-weight:700;">🚌 On its way — drag the road right →</span>
-    <button id="resetBtn">🔄 Reset everyone</button>
+    <span id="busStatus" style="color:#f4d35e; font-weight:700;">🚌 ឡានក្រុងនៅតាមផ្លូវ — ចុចទៅស្តាំ →</span>
+    <button id="resetBtn">🔄 សារថ្មី</button>
   </div>
 </div>
 
@@ -550,7 +550,7 @@
     new ResizeObserver(updateSceneScale).observe(sceneClip);
   }
 
-  const PERSON_EMOJIS = ['🧑','👩','👨','👧','👦','👴','👵','🧕'];
+  const PERSON_EMOJIS = ['🧑','👩','🧑‍🌾 ','🧑‍🍳 ','👦','👴','👵','🧕'];
   const SCENERY = ['🌳','🏠','🌲','🏢','🌳','🚲','🏬','🌲','🌳','🏠'];
   const TRACK_WIDTH = 20000; // long road so it never runs out while scrolling
 
