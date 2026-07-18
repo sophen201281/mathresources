@@ -169,7 +169,7 @@
     z-index:6;
   }
   .people-row:empty::before{
-    content:"Press a button below to add a passenger 👇";
+    content:"សូមចុចប៊ូតុងអ្នកដំណើរខាងក្រោម 👇";
     color:#6b5e42;
     font-size:.8rem;
     padding-bottom:26px;
@@ -326,7 +326,7 @@
   .wheel{
     position:absolute;
     bottom:-11px;
-    width:26px; height:26px;
+    width:40px; height:40px;
     background:#222;
     border:2px solid #111;
     border-radius:50%;
@@ -453,9 +453,6 @@
 </head>
 <body>
 <div class="wrap">
-  <h1>🚏 Waiting for the Bus</h1>
-  <p class="sub">Press a passenger button to add someone · Drag people into the bus windows to board them · Drag the road (or use the ◀️▶️ buttons) to roll the world past the stationary bus · Draw in the sky and erase with the toolbar</p>
-
   <div class="scene-clip" id="sceneClip">
   <div class="scene" id="scene">
     <div class="sun">☀️</div>
@@ -464,8 +461,8 @@
     <div class="cloud" style="top:20px; left:78%; font-size:22px;">☁️</div>
 
     <div class="draw-toolbar">
-      <button id="penBtn" class="active" title="Draw">✏️</button>
-      <button id="eraseBtn" title="Erase">🧽</button>
+      <button id="penBtn" class="active" title="សរសេរ/គូ">✏️</button>
+      <button id="eraseBtn" title="លុប">🧽</button>
     </div>
     <canvas id="skyCanvas" class="sky-canvas"></canvas>
 
@@ -496,7 +493,7 @@
           <div class="windshield"></div>
           <div class="headlight"></div>
           <div class="stripe"></div>
-          <div class="bus-label">CITY LINE 24</div>
+          <div class="bus-label">ឡានក្រុង២៤ម៉ោង</div>
           <div class="door"></div>
           <div class="wheel left"></div>
           <div class="wheel right"></div>
@@ -507,12 +504,12 @@
   </div>
 
   <div class="road-controls">
-    <button id="roadLeftBtn" class="road-btn">◀️ Move Road Left</button>
-    <button id="roadRightBtn" class="road-btn">Move Road Right ▶️</button>
+    <button id="roadLeftBtn" class="road-btn">◀️ ទៅក្រោយ</button>
+    <button id="roadRightBtn" class="road-btn">Move ទៅមុខ ▶️</button>
   </div>
 
   <div class="passenger-picker" id="passengerPicker">
-    <span class="picker-label">Add a passenger:</span>
+    <span class="picker-label">បន្ថែមអ្នកដំណើរ:</span>
   </div>
 
   <div class="hud">
