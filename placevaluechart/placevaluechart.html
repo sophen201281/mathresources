@@ -2,12 +2,17 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Crocodile Compare + Drawing</title>
 
 <style>
 *{
     box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+    height:100%;
 }
 
 body{
@@ -15,6 +20,7 @@ body{
     font-family:Arial;
     background:#eef3f7;
     overflow:hidden;
+    overscroll-behavior:none;
 }
 
 /* ---------- TOOLBAR (BOTTOM FIXED) ---------- */
@@ -22,6 +28,7 @@ body{
     display:flex;
     gap:8px;
     padding:10px;
+    padding-bottom:calc(10px + env(safe-area-inset-bottom));
     background:white;
 
     position:fixed;
@@ -43,8 +50,16 @@ button, .toolbar a{
     background:#2d89ef;
     color:white;
     text-decoration:none;
-    font-size:14px;
+    font-size:clamp(12px,3vw,14px);
     text-align:center;
+    cursor:pointer;
+    flex:1 1 auto;
+    min-width:60px;
+    white-space:nowrap;
+}
+
+button:active, .toolbar a:active{
+    background:#1c6fd1;
 }
 
 /* ---------- WORKSPACE ---------- */
@@ -52,11 +67,8 @@ button, .toolbar a{
     position:relative;
     width:100vw;
     height:100vh;
+    height:100dvh;
     overflow:hidden;
-}
-
-/* avoid toolbar overlap */
-#workspace{
     padding-bottom:80px;
 }
 
@@ -66,39 +78,44 @@ canvas{
     inset:0;
     z-index:1;
     touch-action:none;
+    width:100%;
+    height:100%;
 }
 
 /* ---------- COUNTERS ---------- */
 .counter{
     position:absolute;
-    width:45px;
-    height:45px;
+    width:clamp(34px,9vw,45px);
+    height:clamp(34px,9vw,45px);
     border-radius:50%;
     background:#ff9800;
     z-index:20;
     touch-action:none;
+    box-shadow:0 2px 6px rgba(0,0,0,0.25);
+    will-change:left,top;
 }
 
 /* ---------- NUMBERS ---------- */
 .numBox{
     position:absolute;
-    top:15px;
-    font-size:70px;
+    top:calc(15px + env(safe-area-inset-top));
+    font-size:clamp(32px,9vw,70px);
     font-weight:bold;
     z-index:50;
     background:white;
-    padding:10px 18px;
+    padding:6px 14px;
     border-radius:12px;
     box-shadow:0 3px 10px rgba(0,0,0,0.2);
+    user-select:none;
 }
 
 #leftNum{
-    left:20px;
+    left:12px;
     color:#2d89ef;
 }
 
 #rightNum{
-    right:20px;
+    right:12px;
     color:#ff5722;
 }
 
@@ -112,16 +129,20 @@ canvas{
     cursor:grab;
     touch-action:none;
     text-align:center;
+    will-change:left,top;
+    user-select:none;
 }
 
 #croc img{
-    width:200px;
+    width:clamp(120px,32vw,200px);
     display:block;
+    pointer-events:none;
 }
 
 #label{
     font-weight:bold;
-    font-size:16px;
+    font-size:clamp(13px,3.5vw,16px);
+    pointer-events:none;
 }
 </style>
 </head>
@@ -169,64 +190,128 @@ const rightNum = document.getElementById("rightNum");
 let counters = [];
 let mode = "draw";
 
-/* ---------- CANVAS ---------- */
+/* ============================================================
+   CANVAS SETUP (crisp on high-DPI screens, keeps drawing on resize)
+   ============================================================ */
+let dpr = Math.max(window.devicePixelRatio || 1, 1);
+
 function resize(){
-    canvas.width = workspace.clientWidth;
-    canvas.height = workspace.clientHeight;
+    const w = workspace.clientWidth;
+    const h = workspace.clientHeight;
+
+    // snapshot current drawing so a resize / orientation change / on-screen
+    // keyboard toggle doesn't wipe out what's already been drawn
+    let snapshot = null;
+    if(canvas.width > 0 && canvas.height > 0){
+        snapshot = document.createElement("canvas");
+        snapshot.width = canvas.width;
+        snapshot.height = canvas.height;
+        snapshot.getContext("2d").drawImage(canvas, 0, 0);
+    }
+
+    dpr = Math.max(window.devicePixelRatio || 1, 1);
+
+    canvas.width = Math.round(w * dpr);
+    canvas.height = Math.round(h * dpr);
+    canvas.style.width = w + "px";
+    canvas.style.height = h + "px";
+
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.lineJoin = "round";
+
+    if(snapshot){
+        ctx.drawImage(snapshot, 0, 0, snapshot.width, snapshot.height, 0, 0, w, h);
+    }
 }
 resize();
-window.addEventListener("resize", resize);
 
+let resizeTimer = null;
+window.addEventListener("resize", ()=>{
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(resize, 100);
+});
+
+/* ---------- DRAWING (pointer events = smooth on mouse, pen & touch) ---------- */
 let drawing = false;
+let lastX = 0, lastY = 0;
 
 function getPos(e){
-    const p = e.touches ? e.touches[0] : e;
     const r = canvas.getBoundingClientRect();
     return {
-        x: p.clientX - r.left,
-        y: p.clientY - r.top
+        x: e.clientX - r.left,
+        y: e.clientY - r.top
     };
 }
 
-canvas.addEventListener("mousedown", startDraw);
-canvas.addEventListener("mousemove", draw);
-document.addEventListener("mouseup", stopDraw);
-
-canvas.addEventListener("touchstart", startDraw, {passive:false});
-canvas.addEventListener("touchmove", draw, {passive:false});
-document.addEventListener("touchend", stopDraw);
-
-function startDraw(e){
-    if(e.target.classList.contains("counter") || e.target.id==="croc") return;
+canvas.addEventListener("pointerdown", (e)=>{
     drawing = true;
+    canvas.setPointerCapture(e.pointerId);
     const p = getPos(e);
+    lastX = p.x;
+    lastY = p.y;
     ctx.beginPath();
     ctx.moveTo(p.x, p.y);
-}
+});
 
-function draw(e){
+canvas.addEventListener("pointermove", (e)=>{
     if(!drawing) return;
-    e.preventDefault();
 
-    const p = getPos(e);
+    // use coalesced events for a smoother, higher-resolution line
+    const events = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+
     ctx.lineCap = "round";
-    ctx.lineWidth = mode==="erase" ? 25 : 3;
-    ctx.strokeStyle = mode==="erase" ? "#eef3f7" : "#000";
+    ctx.lineWidth = mode === "erase" ? 25 : 3;
+    ctx.strokeStyle = mode === "erase" ? "#eef3f7" : "#000";
 
-    ctx.lineTo(p.x, p.y);
+    for(const ev of events){
+        const p = getPos(ev);
+        ctx.lineTo(p.x, p.y);
+    }
     ctx.stroke();
-}
+});
 
-function stopDraw(){
+function stopDraw(e){
+    if(!drawing) return;
     drawing = false;
+    try{ canvas.releasePointerCapture(e.pointerId); }catch(err){}
 }
+canvas.addEventListener("pointerup", stopDraw);
+canvas.addEventListener("pointercancel", stopDraw);
+canvas.addEventListener("pointerleave", stopDraw);
 
 function setMode(m){
     mode = m;
 }
 
 function clearCanvas(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+/* ============================================================
+   COUNTS — throttled with requestAnimationFrame so dragging
+   never triggers layout work more than once per frame
+   ============================================================ */
+let countsQueued = false;
+function updateCounts(){
+    if(countsQueued) return;
+    countsQueued = true;
+    requestAnimationFrame(()=>{
+        countsQueued = false;
+
+        let left = 0;
+        let right = 0;
+        const mid = workspace.clientWidth / 2;
+
+        counters.forEach(c=>{
+            if(c._x < mid) left++;
+            else right++;
+        });
+
+        leftNum.textContent = left;
+        rightNum.textContent = right;
+
+        updateCroc(left, right);
+    });
 }
 
 /* ---------- COUNTERS ---------- */
@@ -234,8 +319,13 @@ function addCounter(){
     const c = document.createElement("div");
     c.className = "counter";
 
-    c.style.left = (100 + Math.random()*300) + "px";
-    c.style.top = (150 + Math.random()*250) + "px";
+    const startX = 100 + Math.random() * 300;
+    const startY = 150 + Math.random() * 250;
+
+    c._x = startX;
+    c._y = startY;
+    c.style.left = startX + "px";
+    c.style.top = startY + "px";
 
     workspace.appendChild(c);
     counters.push(c);
@@ -244,11 +334,13 @@ function addCounter(){
     updateCounts();
 }
 
-/* ---------- DRAG + DELETE ---------- */
+/* ---------- DRAG + DELETE (unified pointer events) ---------- */
 function makeDrag(el){
 
-    let ox=0, oy=0;
+    let ox = 0, oy = 0;
+    let dragging = false;
     let lastTap = 0;
+    let moved = false;
 
     function deleteCounter(){
         counters = counters.filter(x => x !== el);
@@ -256,77 +348,53 @@ function makeDrag(el){
         updateCounts();
     }
 
-    function move(e){
-        const p = e.touches ? e.touches[0] : e;
+    function onMove(e){
+        if(!dragging) return;
+        moved = true;
 
-        el.style.left = (p.clientX - ox) + "px";
-        el.style.top = (p.clientY - oy) + "px";
+        const x = e.clientX - ox;
+        const y = e.clientY - oy;
+
+        el._x = x;
+        el._y = y;
+        el.style.left = x + "px";
+        el.style.top = y + "px";
 
         updateCounts();
     }
 
-    function stop(){
-        document.removeEventListener("mousemove", move);
-        document.removeEventListener("mouseup", stop);
-        document.removeEventListener("touchmove", move);
-        document.removeEventListener("touchend", stop);
+    function onUp(e){
+        dragging = false;
+        try{ el.releasePointerCapture(e.pointerId); }catch(err){}
     }
 
-    el.addEventListener("mousedown", e=>{
+    el.addEventListener("pointerdown", (e)=>{
         const now = Date.now();
         if(now - lastTap < 300){
             deleteCounter();
             return;
         }
         lastTap = now;
-
-        ox = e.offsetX;
-        oy = e.offsetY;
-
-        document.addEventListener("mousemove", move);
-        document.addEventListener("mouseup", stop);
-    });
-
-    el.addEventListener("touchstart", e=>{
-        const now = Date.now();
-        if(now - lastTap < 300){
-            deleteCounter();
-            return;
-        }
-        lastTap = now;
+        moved = false;
 
         const r = el.getBoundingClientRect();
-        ox = e.touches[0].clientX - r.left;
-        oy = e.touches[0].clientY - r.top;
+        ox = e.clientX - r.left;
+        oy = e.clientY - r.top;
 
-        document.addEventListener("touchmove", move, {passive:false});
-        document.addEventListener("touchend", stop);
-    });
-}
-
-/* ---------- COUNTS ---------- */
-function updateCounts(){
-    let left = 0;
-    let right = 0;
-    const mid = window.innerWidth / 2;
-
-    counters.forEach(c=>{
-        const x = c.offsetLeft;
-        if(x < mid) left++;
-        else right++;
+        dragging = true;
+        el.setPointerCapture(e.pointerId);
     });
 
-    leftNum.textContent = left;
-    rightNum.textContent = right;
-
-    updateCroc(left,right);
+    el.addEventListener("pointermove", onMove);
+    el.addEventListener("pointerup", onUp);
+    el.addEventListener("pointercancel", onUp);
 }
 
 /* ---------- CROCODILE ---------- */
-function updateCroc(left,right){
+function updateCroc(left, right){
 
-    const x = croc.offsetLeft;
-    const active = x > window.innerWidth*0.4 && x < window.innerWidth*0.6;
+    const crocX = croc.offsetLeft;
+    const active = crocX > workspace.clientWidth * 0.4 && crocX < workspace.clientWidth * 0.6;
 
     if(!active){
         crocImg.src = "images/a.gif";
@@ -350,29 +418,32 @@ function updateCroc(left,right){
 
 /* ---------- CROCODILE DRAG ---------- */
 let dragCroc = false;
-let ox = 0, oy = 0;
+let cox = 0, coy = 0;
 
 croc.addEventListener("pointerdown", (e)=>{
     dragCroc = true;
 
     const r = croc.getBoundingClientRect();
-    ox = e.clientX - r.left;
-    oy = e.clientY - r.top;
+    cox = e.clientX - r.left;
+    coy = e.clientY - r.top;
 
     croc.setPointerCapture(e.pointerId);
+    croc.style.cursor = "grabbing";
 });
 
 croc.addEventListener("pointermove", (e)=>{
     if(!dragCroc) return;
 
-    croc.style.left = (e.clientX - ox) + "px";
-    croc.style.top = (e.clientY - oy) + "px";
+    croc.style.left = (e.clientX - cox) + "px";
+    croc.style.top = (e.clientY - coy) + "px";
+    croc.style.transform = "none";
 
     updateCounts();
 });
 
 function stopCroc(e){
     dragCroc = false;
+    croc.style.cursor = "grab";
     try{
         croc.releasePointerCapture(e.pointerId);
     }catch(err){}
