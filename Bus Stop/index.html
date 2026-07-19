@@ -75,14 +75,14 @@
   .homeBtn:active{ transform:translateY(0); }
 
   /* ---------- responsive scaling wrapper ---------- */
-  /* The whole scene is built at a fixed 920x480 design resolution, then
+  /* The whole scene is built at a fixed 920x396 design resolution, then
      visually scaled to fit any screen width via a CSS transform. This keeps
      every internal pixel-based layout intact while still being responsive. */
   .scene-clip{
     position:relative;
     width:100%;
     max-width:920px;
-    aspect-ratio:920/480;
+    aspect-ratio:920/396;
     margin:0 auto;
     overflow:hidden;
     border-radius:20px;
@@ -94,7 +94,7 @@
     position:absolute;
     top:0; left:0;
     width:920px;
-    height:480px;
+    height:396px;
     transform-origin:top left;
     overflow:hidden;
     background:linear-gradient(var(--sky-top), var(--sky-bot) 65%);
@@ -117,7 +117,7 @@
   .sky-canvas{
     position:absolute;
     top:0; left:0; right:0;
-    height:234px;
+    height:150px;
     width:100%;
     z-index:2;
     cursor:crosshair;
@@ -585,7 +585,7 @@
   const resetBtn = document.getElementById('resetBtn');
 
   // ---------- responsive scaling ----------
-  // The scene is laid out at a fixed 920x480 design resolution, then scaled
+  // The scene is laid out at a fixed 920x396 design resolution, then scaled
   // to fit whatever width is actually available. sceneScale is kept in sync
   // so drag math (which works in design-space pixels) can compensate.
   const sceneClip = document.getElementById('sceneClip');
