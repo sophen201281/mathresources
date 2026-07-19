@@ -149,7 +149,7 @@
   .sidewalk{
     position:absolute;
     left:0; right:0;
-    bottom:150px;
+    bottom:0;
     height:96px;
     background:var(--curb);
     border-top:4px solid #a89777;
@@ -206,7 +206,7 @@
   /* ---------- road viewport (scrolling area) ---------- */
   .road-viewport{
     position:absolute;
-    left:0; right:0; bottom:0; height:150px;
+    left:0; right:0; bottom:96px; height:150px;
     overflow:hidden;
     background:var(--grass);
     cursor:grab;
@@ -707,35 +707,46 @@
         return best ? { slot: best, dist: bestDist, center: bestCenter } : null;
       }
 
-      function render(){
-        dragRafId = null;
-        if(!lastEvent) return;
-        const { left, top, cx, cy } = centerFromEvent(lastEvent);
+      // Continuous follow-smoothing: instead of snapping straight to each
+      // raw pointer sample, the passenger eases toward it every frame. This
+      // filters out finger/mouse jitter and makes the whole drag feel like a
+      // smooth glide rather than a series of small jumps.
+      let displayLeft = rect.left;
+      let displayTop = rect.top;
+      const FOLLOW_SMOOTH = 0.4;
 
-        windowSlots.forEach(s=>s.classList.remove('drop-hover'));
-        const match = findMagneticSlot(cx, cy, false);
+      function tick(){
+        if(lastEvent){
+          const { left, top, cx, cy } = centerFromEvent(lastEvent);
+          windowSlots.forEach(s=>s.classList.remove('drop-hover'));
+          const match = findMagneticSlot(cx, cy, false);
 
-        if(match){
-          match.slot.classList.add('drop-hover');
-          // Ease-out pull: attraction kicks in as soon as a window is in
-          // range and builds smoothly and continuously the whole way in,
-          // instead of staying weak until the last moment and then jumping.
-          const pull = 1 - (match.dist / MAGNET_RADIUS);
-          const eased = pull * (2 - pull);
-          const targetLeft = match.center.cx - halfW;
-          const targetTop = match.center.cy - halfH;
-          person.style.left = (left + (targetLeft - left) * eased) + 'px';
-          person.style.top = (top + (targetTop - top) * eased) + 'px';
-        } else {
-          person.style.left = left + 'px';
-          person.style.top = top + 'px';
+          let desiredLeft = left, desiredTop = top;
+          if(match){
+            match.slot.classList.add('drop-hover');
+            // Ease-out pull: attraction kicks in as soon as a window is in
+            // range and builds smoothly and continuously the whole way in,
+            // instead of staying weak until the last moment and then jumping.
+            const pull = 1 - (match.dist / MAGNET_RADIUS);
+            const eased = pull * (2 - pull);
+            const targetLeft = match.center.cx - halfW;
+            const targetTop = match.center.cy - halfH;
+            desiredLeft = left + (targetLeft - left) * eased;
+            desiredTop = top + (targetTop - top) * eased;
+          }
+
+          displayLeft += (desiredLeft - displayLeft) * FOLLOW_SMOOTH;
+          displayTop += (desiredTop - displayTop) * FOLLOW_SMOOTH;
+          person.style.left = displayLeft + 'px';
+          person.style.top = displayTop + 'px';
         }
+        dragRafId = requestAnimationFrame(tick);
       }
+      dragRafId = requestAnimationFrame(tick);
 
       function move(ev){
         if(ev.pointerId !== dragPointerId) return;
         lastEvent = ev;
-        if(dragRafId === null) dragRafId = requestAnimationFrame(render);
       }
 
       function finish(ev){
