@@ -674,26 +674,50 @@
         return { left, top, cx: left + halfW, cy: top + halfH };
       }
 
-      function findSlotNear(cx, cy){
-        const offsets = [[0,0], [-12,0], [12,0], [0,-12], [0,12]];
-        for(const [dx, dy] of offsets){
-          const el = document.elementFromPoint(cx + dx, cy + dy);
-          const slot = el ? el.closest('.window-slot') : null;
-          if(slot) return slot;
-        }
-        return null;
+      // Magnetic snapping: measured from the dragged person's center to each
+      // open window's center, in screen space (works at any sceneScale).
+      // A generous radius makes it forgiving to aim on touch screens.
+      const MAGNET_RADIUS = 65;
+
+      function findMagneticSlot(cx, cy, includeOccupied){
+        let best = null, bestDist = Infinity, bestCenter = null;
+        windowSlots.forEach(slot=>{
+          if(!includeOccupied && slot.dataset.occupied === 'true') return;
+          const r = slot.getBoundingClientRect();
+          const scx = r.left + r.width / 2;
+          const scy = r.top + r.height / 2;
+          const dist = Math.hypot(cx - scx, cy - scy);
+          if(dist < MAGNET_RADIUS && dist < bestDist){
+            bestDist = dist;
+            best = slot;
+            bestCenter = { cx: scx, cy: scy };
+          }
+        });
+        return best ? { slot: best, dist: bestDist, center: bestCenter } : null;
       }
 
       function render(){
         dragRafId = null;
         if(!lastEvent) return;
         const { left, top, cx, cy } = centerFromEvent(lastEvent);
-        person.style.left = left + 'px';
-        person.style.top = top + 'px';
 
         windowSlots.forEach(s=>s.classList.remove('drop-hover'));
-        const slot = findSlotNear(cx, cy);
-        if(slot && !slot.dataset.occupied){ slot.classList.add('drop-hover'); }
+        const match = findMagneticSlot(cx, cy, false);
+
+        if(match){
+          match.slot.classList.add('drop-hover');
+          // Pull strength ramps up (eased) the closer the pointer gets, so the
+          // passenger gently glides into the window instead of jumping.
+          const pull = 1 - (match.dist / MAGNET_RADIUS);
+          const eased = pull * pull;
+          const targetLeft = match.center.cx - halfW;
+          const targetTop = match.center.cy - halfH;
+          person.style.left = (left + (targetLeft - left) * eased) + 'px';
+          person.style.top = (top + (targetTop - top) * eased) + 'px';
+        } else {
+          person.style.left = left + 'px';
+          person.style.top = top + 'px';
+        }
       }
 
       function move(ev){
@@ -718,11 +742,11 @@
 
         const { cx, cy } = centerFromEvent(ev);
         const under = document.elementFromPoint(cx, cy);
-        const slot = findSlotNear(cx, cy);
+        const match = findMagneticSlot(cx, cy, false);
         const droppedOnSidewalk = under ? under.closest('#peopleRow, .sidewalk, .stop-post') : null;
 
-        if(slot && !slot.dataset.occupied){
-          seatPerson(person, slot);
+        if(match){
+          seatPerson(person, match.slot);
         } else if(droppedOnSidewalk || !under){
           unseatPerson(person);
         } else if(originSeat){
