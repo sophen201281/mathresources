@@ -1,555 +1,387 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
 <meta charset="UTF-8">
-
 <meta name="viewport"
-
-content="width=device-width, initial-scale=1.0, user-scalable=no">
-
+content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Magnetic Circle Counters</title>
-
 <style>
-
 *{
-
-box-sizing:border-box;
-
-user-select:none;
-
-touch-action:none;
-
+  box-sizing:border-box;
+  user-select:none;
+  -webkit-user-select:none;
+  touch-action:none;
 }
-
-body{
-
-margin:0;
-
-overflow:hidden;
-
-background:#ececec;
-
-font-family:Arial;
-
+html, body{
+  height:100%;
+  margin:0;
+  overscroll-behavior:none;
+  overflow:hidden;
+  background:#ececec;
+  font-family:Arial;
 }
-
 canvas{
-
-position:absolute;
-
-inset:0;
-
-background:white;
-
+  position:absolute;
+  inset:0;
+  background:white;
+  touch-action:none;
 }
-
 /* 🔽 BOTTOM TOOLBAR */
-
 .toolbar{
-
-position:fixed;
-
-bottom:10px;
-
-left:10px;
-
-right:10px;
-
-display:flex;
-
-gap:8px;
-
-flex-wrap:wrap;
-
-z-index:1000;
-
-align-items:center;
-
-justify-content:center;
-
-background:rgba(255,255,255,0.7);
-
-padding:10px;
-
-border-radius:12px;
-
-backdrop-filter: blur(6px);
-
+  position:fixed;
+  bottom:max(10px, env(safe-area-inset-bottom));
+  left:10px;
+  right:10px;
+  display:flex;
+  gap:clamp(4px, 1.2vw, 8px);
+  flex-wrap:wrap;
+  z-index:1000;
+  align-items:center;
+  justify-content:center;
+  background:rgba(255,255,255,0.7);
+  padding:clamp(6px, 1.5vw, 10px);
+  border-radius:12px;
+  backdrop-filter: blur(6px);
 }
-
 .toolbar input{
-
-width:90px;
-
-padding:10px;
-
-font-size:16px;
-
+  width:clamp(60px, 18vw, 90px);
+  padding:clamp(8px, 1.8vw, 10px);
+  font-size:clamp(14px, 3vw, 16px);
 }
-
 button{
-
-padding:10px 14px;
-
-font-size:16px;
-
+  padding:clamp(8px, 1.8vw, 10px) clamp(10px, 2.5vw, 14px);
+  font-size:clamp(14px, 3vw, 16px);
+  white-space:nowrap;
 }
-
 .active{
-
-background:orange;
-
+  background:orange;
 }
-
 .counter{
-
-position:absolute;
-
-width:60px;
-
-height:60px;
-
-border-radius:50%;
-
-background:#4CAF50;
-
-border:4px solid #1B5E20;
-
-transform:translate(-30px,-30px);
-
-z-index:100;
-
+  position:absolute;
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  background:#4CAF50;
+  border:3px solid #1B5E20;
+  transform:translate(-18px,-18px);
+  z-index:100;
+  will-change: left, top;
 }
-
 .selected{
-
-outline:5px solid orange;
-
+  outline:5px solid orange;
 }
 
+@media (max-width: 480px){
+  .toolbar{
+    justify-content:space-between;
+  }
+}
 </style>
-
 </head>
-
 <body>
 
 <div class="toolbar">
-
-<input id="counterCount" type="number" min="1" value="1">
-
-<button id="addCounter">បញ្ចេញវត្ថុសម្រាប់</button>
-
-<button id="deleteCounter">លុបវត្ថសម្រាប់រាប់</button>
-
-<button id="clearDraw">សម្អាត</button>
-
-<button id="eraserBtn">លុប</button>
-
-<button class="homeBtn" onclick="window.location.href='../index.html'">🏡 Home</button>
-
+  <input id="counterCount" type="number" min="1" value="1">
+  <button id="addCounter">បញ្ចេញវត្ថុសម្រាប់</button>
+  <button id="deleteCounter">លុបវត្ថសម្រាប់រាប់</button>
+  <button id="clearDraw">សម្អាត</button>
+  <button id="eraserBtn">លុប</button>
+  <button class="homeBtn" onclick="window.location.href='../index.html'">🏡 Home</button>
 </div>
 
 <canvas id="draw"></canvas>
 
 <script>
-
 const canvas = document.getElementById("draw");
-
 const ctx = canvas.getContext("2d");
 
-function resize(){
-
-canvas.width = innerWidth;
-
-canvas.height = innerHeight;
-
+/* ---------- RESIZE (preserves existing drawing) ---------- */
+let resizeRaf = null;
+function doResize(){
+  const oldW = canvas.width;
+  const oldH = canvas.height;
+  let snapshot = null;
+  if(oldW > 0 && oldH > 0){
+    snapshot = document.createElement("canvas");
+    snapshot.width = oldW;
+    snapshot.height = oldH;
+    snapshot.getContext("2d").drawImage(canvas, 0, 0);
+  }
+  canvas.width = innerWidth;
+  canvas.height = innerHeight;
+  if(snapshot){
+    ctx.drawImage(snapshot, 0, 0);
+  }
 }
-
-resize();
-
+function resize(){
+  if(resizeRaf) cancelAnimationFrame(resizeRaf);
+  resizeRaf = requestAnimationFrame(doResize);
+}
+doResize();
 addEventListener("resize", resize);
+addEventListener("orientationchange", resize);
 
-/* DRAWING */
-
+/* ---------- DRAWING (smoothed with quadratic curves + rAF batching) ---------- */
 let drawing = false;
-
 let eraser = false;
+let lastPoint = null;
+let pendingPoint = null;
+let drawRafPending = false;
 
 const eraserBtn = document.getElementById("eraserBtn");
-
 eraserBtn.onclick = () => {
-
-eraser = !eraser;
-
-eraserBtn.textContent = eraser ? "លុប បើក" : "លុប​ បិទ";
-
-eraserBtn.classList.toggle("active", eraser);
-
+  eraser = !eraser;
+  eraserBtn.textContent = eraser ? "លុប បើក" : "លុប​ បិទ";
+  eraserBtn.classList.toggle("active", eraser);
 };
 
+function getPos(e){
+  const rect = canvas.getBoundingClientRect();
+  return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+}
+
 canvas.addEventListener("pointerdown", e => {
-
-if(e.target !== canvas) return;
-
-drawing = true;
-
-ctx.beginPath();
-
-ctx.moveTo(e.clientX, e.clientY);
-
+  if(e.target !== canvas) return;
+  e.preventDefault();
+  drawing = true;
+  canvas.setPointerCapture(e.pointerId);
+  lastPoint = getPos(e);
+  ctx.beginPath();
+  ctx.moveTo(lastPoint.x, lastPoint.y);
+  ctx.lineTo(lastPoint.x + 0.01, lastPoint.y + 0.01); // draw a dot on tap
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.globalCompositeOperation = eraser ? "destination-out" : "source-over";
+  ctx.lineWidth = eraser ? 28 : 4;
+  ctx.stroke();
 });
 
 canvas.addEventListener("pointermove", e => {
+  if(!drawing) return;
+  e.preventDefault();
+  pendingPoint = getPos(e);
+  if(!drawRafPending){
+    drawRafPending = true;
+    requestAnimationFrame(renderStroke);
+  }
+});
 
-if(!drawing) return;
-
-if(eraser){
-
-ctx.globalCompositeOperation = "destination-out";
-
-ctx.lineWidth = 28;
-
-}else{
-
-ctx.globalCompositeOperation = "source-over";
-
-ctx.lineWidth = 4;
-
+function renderStroke(){
+  drawRafPending = false;
+  if(!drawing || !pendingPoint || !lastPoint) return;
+  const p = pendingPoint;
+  ctx.globalCompositeOperation = eraser ? "destination-out" : "source-over";
+  ctx.lineWidth = eraser ? 28 : 4;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  const mid = { x:(lastPoint.x + p.x)/2, y:(lastPoint.y + p.y)/2 };
+  ctx.quadraticCurveTo(lastPoint.x, lastPoint.y, mid.x, mid.y);
+  ctx.stroke();
+  lastPoint = p;
 }
 
-ctx.lineCap = "round";
+function endDraw(){
+  drawing = false;
+  lastPoint = null;
+  pendingPoint = null;
+  ctx.globalCompositeOperation = "source-over";
+}
+canvas.addEventListener("pointerup", endDraw);
+canvas.addEventListener("pointercancel", endDraw);
+canvas.addEventListener("pointerleave", () => { /* keep drawing via pointer capture */ });
 
-ctx.lineTo(e.clientX, e.clientY);
-
-ctx.stroke();
-
-});
-
-window.addEventListener("pointerup", () => {
-
-drawing = false;
-
-ctx.globalCompositeOperation = "source-over";
-
-});
-
-/* COUNTERS */
-
+/* ---------- COUNTERS ---------- */
 let selected = null;
-
 const connections = new Map();
 
 function createCounter(x,y){
-
-const c = document.createElement("div");
-
-c.className = "counter";
-
-c.dataset.id = crypto.randomUUID();
-
-c.style.left = x + "px";
-
-c.style.top = y + "px";
-
-document.body.appendChild(c);
-
-connections.set(c.dataset.id, new Set());
-
-setupCounter(c);
-
+  const c = document.createElement("div");
+  c.className = "counter";
+  c.dataset.id = crypto.randomUUID();
+  c.style.left = x + "px";
+  c.style.top = y + "px";
+  document.body.appendChild(c);
+  connections.set(c.dataset.id, new Set());
+  setupCounter(c);
 }
 
 document.getElementById("addCounter").onclick = () => {
-
-const count = parseInt(document.getElementById("counterCount").value || "1");
-
-for(let i = 0; i < count; i++){
-
-createCounter(
-
-innerWidth/2 + (i * 10),
-
-innerHeight/2 + (i * 10)
-
-);
-
-}
-
+  const count = parseInt(document.getElementById("counterCount").value || "1");
+  for(let i = 0; i < count; i++){
+    createCounter(
+      innerWidth/2 + (i * 10),
+      innerHeight/2 + (i * 10)
+    );
+  }
 };
 
 document.getElementById("deleteCounter").onclick = () => {
-
-if(!selected) return;
-
-removeConnections(selected.dataset.id);
-
-selected.remove();
-
-selected = null;
-
+  if(!selected) return;
+  removeConnections(selected.dataset.id);
+  selected.remove();
+  selected = null;
 };
 
 document.getElementById("clearDraw").onclick = () => {
-
-ctx.clearRect(0,0,canvas.width,canvas.height);
-
+  ctx.clearRect(0,0,canvas.width,canvas.height);
 };
 
 function getCounters(){
-
-return [...document.querySelectorAll(".counter")];
-
+  return [...document.querySelectorAll(".counter")];
 }
-
 function getCounter(id){
-
-return document.querySelector(`[data-id="${id}"]`);
-
+  return document.querySelector(`[data-id="${id}"]`);
 }
-
 function selectCounter(c){
-
-getCounters().forEach(x => x.classList.remove("selected"));
-
-selected = c;
-
-c.classList.add("selected");
-
+  getCounters().forEach(x => x.classList.remove("selected"));
+  selected = c;
+  c.classList.add("selected");
 }
 
-/* CONNECTIONS */
-
+/* ---------- CONNECTIONS ---------- */
 function connectedGroup(id){
-
-const visited = new Set();
-
-const queue = [id];
-
-while(queue.length){
-
-const current = queue.shift();
-
-if(visited.has(current)) continue;
-
-visited.add(current);
-
-connections.get(current)?.forEach(n => {
-
-if(!visited.has(n)) queue.push(n);
-
-});
-
+  const visited = new Set();
+  const queue = [id];
+  while(queue.length){
+    const current = queue.shift();
+    if(visited.has(current)) continue;
+    visited.add(current);
+    connections.get(current)?.forEach(n => {
+      if(!visited.has(n)) queue.push(n);
+    });
+  }
+  return [...visited];
 }
-
-return [...visited];
-
-}
-
 function connect(a,b){
-
-connections.get(a).add(b);
-
-connections.get(b).add(a);
-
+  connections.get(a).add(b);
+  connections.get(b).add(a);
 }
-
 function detach(counter){
-
-const id = counter.dataset.id;
-
-connections.get(id).clear();
-
-connections.forEach(set => set.delete(id));
-
-counter.style.left = (counter.offsetLeft + 45) + "px";
-
-counter.style.top = (counter.offsetTop + 45) + "px";
-
+  const id = counter.dataset.id;
+  connections.get(id).clear();
+  connections.forEach(set => set.delete(id));
+  counter.style.left = (counter.offsetLeft + 45) + "px";
+  counter.style.top = (counter.offsetTop + 45) + "px";
 }
-
 function removeConnections(id){
-
-connections.delete(id);
-
-connections.forEach(set => set.delete(id));
-
+  connections.delete(id);
+  connections.forEach(set => set.delete(id));
 }
 
-/* DRAG + DOUBLE TAP FEATURE */
-
+/* ---------- DRAG + DOUBLE TAP (rAF batched for smoothness) ---------- */
 function setupCounter(counter){
+  let dragging = false;
+  let members = [];
+  let starts = [];
+  let sx = 0;
+  let sy = 0;
+  let lastTap = 0;
+  let dragRafPending = false;
+  let pendingDx = 0;
+  let pendingDy = 0;
 
-let dragging = false;
+  function applyDrag(){
+    dragRafPending = false;
+    starts.forEach(obj => {
+      obj.el.style.left = (obj.x + pendingDx) + "px";
+      obj.el.style.top = (obj.y + pendingDy) + "px";
+    });
+  }
 
-let members = [];
+  counter.addEventListener("pointerdown", e => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragging = true;
+    selectCounter(counter);
+    sx = e.clientX;
+    sy = e.clientY;
+    members = connectedGroup(counter.dataset.id);
+    starts = members.map(id => {
+      const c = getCounter(id);
+      return {
+        el: c,
+        x: c.offsetLeft,
+        y: c.offsetTop
+      };
+    });
 
-let starts = [];
+    const now = Date.now();
+    if(now - lastTap < 300){
+      if(selected === counter){
+        removeConnections(counter.dataset.id);
+      } else {
+        detach(counter);
+        members = [counter.dataset.id];
+      }
+      starts = members.map(id => {
+        const c = getCounter(id);
+        return { el: c, x: c.offsetLeft, y: c.offsetTop };
+      });
+    }
+    lastTap = now;
 
-let sx = 0;
+    counter.setPointerCapture(e.pointerId);
+  });
 
-let sy = 0;
+  counter.addEventListener("pointermove", e => {
+    if(!dragging) return;
+    e.preventDefault();
+    pendingDx = e.clientX - sx;
+    pendingDy = e.clientY - sy;
+    if(!dragRafPending){
+      dragRafPending = true;
+      requestAnimationFrame(applyDrag);
+    }
+  });
 
-let lastTap = 0;
-
-counter.addEventListener("pointerdown", e => {
-
-dragging = true;
-
-selectCounter(counter);
-
-sx = e.clientX;
-
-sy = e.clientY;
-
-members = connectedGroup(counter.dataset.id);
-
-starts = members.map(id => {
-
-const c = getCounter(id);
-
-return {
-
-el: c,
-
-x: c.offsetLeft,
-
-y: c.offsetTop
-
-};
-
-});
-
-const now = Date.now();
-
-/* ⭐ UPDATED DOUBLE TAP BEHAVIOR */
-
-if(now - lastTap < 300){
-
-if(selected === counter){
-
-/* break connections for selected counter */
-
-removeConnections(counter.dataset.id);
-
+  function endDrag(){
+    if(!dragging) return;
+    dragging = false;
+    snap(counter);
+  }
+  counter.addEventListener("pointerup", endDrag);
+  counter.addEventListener("pointercancel", endDrag);
 }
 
-else{
-
-/* original behavior preserved */
-
-detach(counter);
-
-members = [counter.dataset.id];
-
-}
-
-}
-
-lastTap = now;
-
-counter.setPointerCapture(e.pointerId);
-
-});
-
-counter.addEventListener("pointermove", e => {
-
-if(!dragging) return;
-
-const dx = e.clientX - sx;
-
-const dy = e.clientY - sy;
-
-starts.forEach(obj => {
-
-obj.el.style.left = (obj.x + dx) + "px";
-
-obj.el.style.top = (obj.y + dy) + "px";
-
-});
-
-});
-
-counter.addEventListener("pointerup", () => {
-
-dragging = false;
-
-snap(counter);
-
-});
-
-}
-
-/* SNAP */
-
+/* ---------- SNAP ---------- */
 function snap(active){
+  const SNAP = 55;
+  const DIST = 38;
+  const myGroup = connectedGroup(active.dataset.id);
+  const all = getCounters();
 
-const SNAP = 80;
+  for(let id of myGroup){
+    const me = getCounter(id);
+    for(let other of all){
+      if(myGroup.includes(other.dataset.id)) continue;
 
-const DIST = 62;
+      const dx = me.offsetLeft - other.offsetLeft;
+      const dy = me.offsetTop - other.offsetTop;
+      const d = Math.hypot(dx,dy);
 
-const myGroup = connectedGroup(active.dataset.id);
+      if(d < SNAP){
+        const angle = Math.atan2(dy, dx);
+        const targetX = other.offsetLeft + Math.cos(angle) * DIST;
+        const targetY = other.offsetTop + Math.sin(angle) * DIST;
+        const moveX = targetX - me.offsetLeft;
+        const moveY = targetY - me.offsetTop;
 
-const all = getCounters();
+        myGroup.forEach(g => {
+          const c = getCounter(g);
+          c.style.left = (c.offsetLeft + moveX) + "px";
+          c.style.top = (c.offsetTop + moveY) + "px";
+        });
 
-for(let id of myGroup){
-
-const me = getCounter(id);
-
-for(let other of all){
-
-if(myGroup.includes(other.dataset.id)) continue;
-
-const dx = me.offsetLeft - other.offsetLeft;
-
-const dy = me.offsetTop - other.offsetTop;
-
-const d = Math.hypot(dx,dy);
-
-if(d < SNAP){
-
-const angle = Math.atan2(dy, dx);
-
-const targetX = other.offsetLeft + Math.cos(angle) * DIST;
-
-const targetY = other.offsetTop + Math.sin(angle) * DIST;
-
-const moveX = targetX - me.offsetLeft;
-
-const moveY = targetY - me.offsetTop;
-
-myGroup.forEach(g => {
-
-const c = getCounter(g);
-
-c.style.left = (c.offsetLeft + moveX) + "px";
-
-c.style.top = (c.offsetTop + moveY) + "px";
-
-});
-
-connect(me.dataset.id, other.dataset.id);
-
-return;
-
+        connect(me.dataset.id, other.dataset.id);
+        return;
+      }
+    }
+  }
 }
 
-}
-
-}
-
-}
-
-/* INITIAL COUNTERS */
-
+/* ---------- INITIAL COUNTERS ---------- */
 createCounter(250,250);
-
 createCounter(400,250);
-
 </script>
-
 </body>
-
 </html>
