@@ -161,6 +161,31 @@
     background:repeating-linear-gradient(90deg,#a89777 0 18px, transparent 18px 30px);
     opacity:.5;
   }
+  .sidewalk-auto-btn{
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+    z-index:7;
+    font-size:24px;
+    line-height:1;
+    font-weight:700;
+    background:var(--panel);
+    border:2px solid #22262e;
+    border-radius:10px;
+    padding:10px 12px;
+    cursor:pointer;
+    color:#2b2b2b;
+    touch-action:manipulation;
+    user-select:none;
+    transition:background .1s ease;
+  }
+  .sidewalk-auto-btn:hover{ background:#fff; }
+  .sidewalk-auto-btn.holding{
+    background:#8fe0a0;
+    border-color:#2f8f4e;
+  }
+  .sidewalk-auto-btn.left{ left:8px; }
+  .sidewalk-auto-btn.right{ right:8px; }
   .stop-post{
     position:absolute;
     bottom:40px;
@@ -187,7 +212,7 @@
 
   .people-row{
     position:absolute;
-    left:16px; right:16px; bottom:6px;
+    left:72px; right:72px; bottom:6px;
     height:80px;
     display:flex;
     align-items:flex-end;
@@ -497,7 +522,9 @@
     <canvas id="skyCanvas" class="sky-canvas"></canvas>
 
     <div class="sidewalk">
+      <button id="autoBackBtn" class="sidewalk-auto-btn left" title="Auto reverse">⏪</button>
       <div class="people-row" id="peopleRow"></div>
+      <button id="autoForwardBtn" class="sidewalk-auto-btn right" title="Auto drive">⏩</button>
     </div>
 
     <div class="road-viewport" id="roadViewport">
@@ -533,17 +560,15 @@
   </div>
 
   <div class="road-controls">
-    <button id="autoBackBtn" class="road-btn auto-btn" title="Auto reverse">⏪R</button>
     <div class="passenger-picker" id="passengerPicker">
-      <span class="picker-label"></span>
+      <span class="picker-label">បន្ថែមអ្នកដំណើរ:</span>
     </div>
-    <button id="brakeBtn" class="road-btn brake-btn" title="Brake"ហ្វ្រាំង</button>
-    <button id="autoForwardBtn" class="road-btn auto-btn" title="Auto drive">D⏩</button>
+    <button id="brakeBtn" class="road-btn brake-btn" title="Brake">🛑 Brake</button>
   </div>
 
   <div class="hud">
-    <span id="counter">ចំនួនអ្នកជិះ: 0 / 10</span>
-    <span id="busStatus" style="color:#f4d35e; font-weight:700;">🚌 ឡានក្រុងនៅតាមផ្លូវ — អូសឬចុច R</span>
+    <span id="counter">Boarded: 0 / 10</span>
+    <span id="busStatus" style="color:#f4d35e; font-weight:700;">🚌 ឡានក្រុងនៅតាមផ្លូវ — អូសឬចុច Auto ⏩</span>
     <button id="resetBtn">🔄 សារថ្មី</button>
     <a class="homeBtn" href="../index.html">🏠 ទំព័រដើម</a>
   </div>
