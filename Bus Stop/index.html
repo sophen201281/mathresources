@@ -710,9 +710,6 @@
         return { left, top, cx: left + halfW, cy: top + halfH };
       }
 
-      // Magnetic snapping: measured from the dragged person's center to each
-      // open window's center, in screen space (works at any sceneScale).
-      // A generous radius makes it forgiving to aim on touch screens.
       const MAGNET_RADIUS = 60;
 
       function findMagneticSlot(cx, cy, includeOccupied){
@@ -732,10 +729,6 @@
         return best ? { slot: best, dist: bestDist, center: bestCenter } : null;
       }
 
-      // Continuous follow-smoothing: instead of snapping straight to each
-      // raw pointer sample, the passenger eases toward it every frame. This
-      // filters out finger/mouse jitter and makes the whole drag feel like a
-      // smooth glide rather than a series of small jumps.
       let displayLeft = rect.left;
       let displayTop = rect.top;
       const FOLLOW_SMOOTH = 0.4;
@@ -749,9 +742,6 @@
           let desiredLeft = left, desiredTop = top;
           if(match){
             match.slot.classList.add('drop-hover');
-            // Ease-out pull: attraction kicks in as soon as a window is in
-            // range and builds smoothly and continuously the whole way in,
-            // instead of staying weak until the last moment and then jumping.
             const pull = 1 - (match.dist / MAGNET_RADIUS);
             const eased = pull * (2 - pull);
             const targetLeft = match.center.cx - halfW;
@@ -911,6 +901,7 @@
   roadViewport.addEventListener('pointerdown', (e)=>{
     if(e.target.closest('.person')) return;
     e.preventDefault();
+    stopMovement();
     roadDrag = { startX: e.clientX, startTranslate: currentTranslate, pointerId: e.pointerId };
     roadViewport.classList.add('grabbing');
     roadViewport.setPointerCapture(e.pointerId);
@@ -962,10 +953,18 @@
   }
 
   // Full stop: used by the brake button, and whenever auto-drive ends.
+  // Also cancels/clears any pending animation frame so a fresh one can
+  // always be scheduled next time toggleAuto() runs — without this,
+  // holdRafId stayed non-null forever after the first stop and the auto
+  // buttons would silently stop doing anything.
   function stopMovement(){
     heldDirection = null;
     autoActive = null;
     setActiveButton(null);
+    if(holdRafId !== null){
+      cancelAnimationFrame(holdRafId);
+      holdRafId = null;
+    }
   }
 
   // Auto-drive toggle: click once to start rolling in that direction without
