@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Symmetry Wing — drag a spot, meet its mirror</title>
 <style>
   :root{
-    --ink: #f2ecdf;
+    --ink: #2e2138;
     --dusk-1: #241733;
     --dusk-2: #150d21;
     --wing: #a68bc2;
@@ -21,8 +21,7 @@
   html, body {
     height: 100%;
     margin: 0;
-    background:
-      radial-gradient(ellipse at 50% 20%, #3a2650 0%, var(--dusk-1) 45%, var(--dusk-2) 100%);
+    background: #ffffff;
     font-family: 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
     color: var(--ink);
     overflow: hidden;
@@ -39,20 +38,28 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 1rem;
+    justify-content: space-between;
+    padding: max(1rem, env(safe-area-inset-top)) 1rem max(1rem, env(safe-area-inset-bottom));
+    gap: 0.5rem;
+  }
+
+  .top-content {
+    width: 100%;
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
     gap: 0.4rem;
   }
 
   .heading {
-    position: absolute;
-    top: 6%;
-    left: 50%;
-    transform: translateX(-50%);
     text-align: center;
     letter-spacing: 0.04em;
     width: 100%;
     padding: 0 1rem;
+    flex: 0 0 auto;
   }
 
   .eyebrow {
@@ -61,8 +68,8 @@
     font-size: 0.68rem;
     letter-spacing: 0.3em;
     text-transform: uppercase;
-    color: var(--gold-soft);
-    opacity: 0.75;
+    color: var(--wing-dark);
+    opacity: 0.85;
     margin-bottom: 0.4rem;
   }
 
@@ -77,25 +84,29 @@
   .sub {
     margin-top: 0.5rem;
     font-size: 0.82rem;
-    color: #cbb9de;
+    color: #7a6a8c;
     font-style: normal;
   }
 
   .field {
     position: relative;
-    width: min(88vw, 620px);
-    height: min(58vh, 440px);
+    flex: 1 1 auto;
+    width: min(92vw, 620px);
     max-width: 100%;
-    margin-top: -6vh;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    max-height: 100%;
+    min-height: 0;
+    margin: 0 auto;
   }
 
   svg { position: absolute; inset: 0; overflow: visible; }
 
   .axis {
-    stroke: var(--gold-soft);
+    stroke: var(--wing-dark);
     stroke-width: 1;
     stroke-dasharray: 2 8;
-    opacity: 0.28;
+    opacity: 0.35;
   }
 
   .wing {
@@ -162,9 +173,9 @@
     gap: 0.5rem;
     padding: 0.55rem 1.3rem;
     border-radius: 999px;
-    border: 1px solid rgba(240, 201, 138, 0.45);
-    background: linear-gradient(180deg, rgba(224,168,86,0.18), rgba(224,168,86,0.05));
-    color: var(--gold-soft);
+    border: 1px solid rgba(122, 95, 156, 0.4);
+    background: linear-gradient(180deg, rgba(224,168,86,0.16), rgba(224,168,86,0.04));
+    color: #6b4a1e;
     font-family: inherit;
     font-size: 0.82rem;
     letter-spacing: 0.04em;
@@ -175,8 +186,8 @@
   }
 
   .release-btn:hover {
-    background: linear-gradient(180deg, rgba(224,168,86,0.28), rgba(224,168,86,0.08));
-    border-color: rgba(240, 201, 138, 0.7);
+    background: linear-gradient(180deg, rgba(224,168,86,0.26), rgba(224,168,86,0.08));
+    border-color: rgba(122, 95, 156, 0.65);
   }
 
   .release-btn:active {
@@ -208,12 +219,15 @@
   }
 
   .tool-row {
-    margin-top: 0.7rem;
+    flex: 0 0 auto;
+    width: 100%;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     gap: 0.5rem;
     max-width: 90vw;
+    margin: 0 auto;
+    padding-bottom: 0.2rem;
   }
 
   .tool-btn {
@@ -222,9 +236,9 @@
     gap: 0.4rem;
     padding: 0.4rem 0.9rem;
     border-radius: 999px;
-    border: 1px solid rgba(203, 185, 222, 0.3);
-    background: rgba(255, 255, 255, 0.03);
-    color: #cbb9de;
+    border: 1px solid rgba(122, 95, 156, 0.3);
+    background: rgba(0, 0, 0, 0.03);
+    color: #6b5b82;
     font-family: inherit;
     font-size: 0.76rem;
     letter-spacing: 0.03em;
@@ -234,7 +248,7 @@
   }
 
   .tool-btn:hover {
-    border-color: rgba(203, 185, 222, 0.55);
+    border-color: rgba(122, 95, 156, 0.55);
     color: var(--ink);
   }
 
@@ -245,7 +259,7 @@
   .tool-btn.active {
     background: linear-gradient(180deg, rgba(224,168,86,0.28), rgba(224,168,86,0.1));
     border-color: rgba(240, 201, 138, 0.7);
-    color: var(--gold-soft);
+    color: #6b4a1e;
   }
 
   .spot.dragging {
@@ -281,19 +295,49 @@
   .hint {
     margin-top: 0.7rem;
     font-size: 0.78rem;
-    color: #cbb9de;
-    opacity: 0.7;
+    color: #7a6a8c;
+    opacity: 0.85;
     text-align: center;
     max-width: 320px;
   }
 
-  .hint b { color: var(--gold-soft); font-weight: 600; }
+  .hint b { color: #6b4a1e; font-weight: 600; }
+
+  .homeBtn {
+    position: fixed;
+    top: max(0.8rem, env(safe-area-inset-top));
+    left: max(0.8rem, env(safe-area-inset-left));
+    z-index: 20;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.85rem;
+    border-radius: 999px;
+    border: 1px solid rgba(122, 95, 156, 0.3);
+    background: rgba(0, 0, 0, 0.03);
+    color: #6b5b82;
+    font-family: inherit;
+    font-size: 0.76rem;
+    letter-spacing: 0.03em;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .homeBtn:hover {
+    border-color: rgba(122, 95, 156, 0.55);
+    color: var(--ink);
+  }
+
+  .homeBtn:active {
+    transform: scale(0.96);
+  }
 
   /* Responsive tweaks */
   @media (max-width: 480px) {
     .field {
       width: 94vw;
-      height: 52vh;
     }
     .release-btn, .tool-btn {
       padding: 0.4rem 0.8rem;
@@ -305,75 +349,140 @@
   }
 
   @media (max-height: 560px) {
-    .field {
-      height: 46vh;
-    }
     .heading {
-      top: 3%;
+      padding: 0 1rem;
+    }
+    .eyebrow {
+      margin-bottom: 0.2rem;
+    }
+  }
+
+  @media (max-height: 420px) {
+    .heading .eyebrow {
+      font-size: 0.6rem;
+    }
+  }
+
+  /* Landscape: shrink the butterfly and move the toolbar to the right */
+  @media (orientation: landscape) {
+    .stage {
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.75rem max(1rem, env(safe-area-inset-right)) 0.75rem max(1rem, env(safe-area-inset-left));
+    }
+
+    .top-content {
+      flex: 0 1 auto;
+      height: 100%;
+      justify-content: center;
+    }
+
+    .heading {
+      flex: 0 0 auto;
+    }
+
+    .field {
+      width: auto;
+      height: min(78vh, 420px);
+      max-height: 100%;
+      aspect-ratio: 1 / 1;
+    }
+
+    .tool-row {
+      flex: 0 0 auto;
+      flex-direction: column;
+      width: auto;
+      max-width: 160px;
+      justify-content: center;
+    }
+  }
+
+  @media (orientation: landscape) and (max-height: 480px) {
+    .field {
+      height: min(70vh, 320px);
+    }
+
+    .heading {
+      display: none;
+    }
+
+    .tool-row {
+      max-width: 140px;
+    }
+
+    .release-btn, .tool-btn {
+      padding: 0.35rem 0.7rem;
+      font-size: 0.68rem;
     }
   }
 </style>
 </head>
 <body>
 
+<a class="homeBtn" href="../index.html">🏠 ទំព័រដើម</a>
+
 <div class="stage">
-  <div class="heading">
-    <span class="eyebrow">Bilateral Symmetry</span>
-  </div>
+  <div class="top-content">
+    <div class="heading">
+      <span class="eyebrow">Bilateral Symmetry</span>
+    </div>
 
-  <div class="field" id="field">
-    <canvas class="draw-canvas" id="drawCanvas"></canvas>
-    <svg viewBox="0 0 400 400" preserveAspectRatio="xMidYMid meet">
-      <line class="axis" x1="200" y1="20" x2="200" y2="380"></line>
+    <div class="field" id="field">
+      <canvas class="draw-canvas" id="drawCanvas"></canvas>
+      <svg viewBox="0 0 400 400" preserveAspectRatio="xMidYMid meet">
+        <line class="axis" x1="200" y1="20" x2="200" y2="380"></line>
 
-      <!-- left wing pair -->
-      <path class="wing" d="M197,140
-               C150,70 60,55 30,110
-               C5,155 20,210 70,235
-               C110,255 165,235 197,190 Z" />
-      <path class="wing wing-inner" d="M190,150
-               C155,105 90,95 65,130
-               C45,160 55,195 95,208
-               C125,218 160,200 190,175 Z" />
+        <!-- left wing pair -->
+        <path class="wing" d="M197,140
+                 C150,70 60,55 30,110
+                 C5,155 20,210 70,235
+                 C110,255 165,235 197,190 Z" />
+        <path class="wing wing-inner" d="M190,150
+                 C155,105 90,95 65,130
+                 C45,160 55,195 95,208
+                 C125,218 160,200 190,175 Z" />
 
-      <path class="wing" d="M197,205
-               C165,190 110,190 78,225
-               C55,250 60,290 100,300
-               C135,308 175,275 197,235 Z" />
-      <path class="wing wing-inner" d="M190,215
-               C165,205 125,206 100,230
-               C82,248 86,272 112,278
-               C135,282 165,258 190,235 Z" />
+        <path class="wing" d="M197,205
+                 C165,190 110,190 78,225
+                 C55,250 60,290 100,300
+                 C135,308 175,275 197,235 Z" />
+        <path class="wing wing-inner" d="M190,215
+                 C165,205 125,206 100,230
+                 C82,248 86,272 112,278
+                 C135,282 165,258 190,235 Z" />
 
-      <!-- right wing pair (mirrored) -->
-      <path class="wing" d="M203,140
-               C250,70 340,55 370,110
-               C395,155 380,210 330,235
-               C290,255 235,235 203,190 Z" />
-      <path class="wing wing-inner" d="M210,150
-               C245,105 310,95 335,130
-               C355,160 345,195 305,208
-               C275,218 240,200 210,175 Z" />
+        <!-- right wing pair (mirrored) -->
+        <path class="wing" d="M203,140
+                 C250,70 340,55 370,110
+                 C395,155 380,210 330,235
+                 C290,255 235,235 203,190 Z" />
+        <path class="wing wing-inner" d="M210,150
+                 C245,105 310,95 335,130
+                 C355,160 345,195 305,208
+                 C275,218 240,200 210,175 Z" />
 
-      <path class="wing" d="M203,205
-               C235,190 290,190 322,225
-               C345,250 340,290 300,300
-               C265,308 225,275 203,235 Z" />
-      <path class="wing wing-inner" d="M210,215
-               C235,205 275,206 300,230
-               C318,248 314,272 288,278
-               C265,282 235,258 210,235 Z" />
+        <path class="wing" d="M203,205
+                 C235,190 290,190 322,225
+                 C345,250 340,290 300,300
+                 C265,308 225,275 203,235 Z" />
+        <path class="wing wing-inner" d="M210,215
+                 C235,205 275,206 300,230
+                 C318,248 314,272 288,278
+                 C265,282 235,258 210,235 Z" />
 
-      <!-- body -->
-      <path class="antenna" d="M198,70 C190,55 178,48 168,44"></path>
-      <path class="antenna" d="M202,70 C210,55 222,48 232,44"></path>
-      <ellipse class="body-shape" cx="200" cy="70" rx="6" ry="6"></ellipse>
-      <path class="body-shape" d="M192,75 C185,140 185,240 192,320
-               C195,335 205,335 208,320
-               C215,240 215,140 208,75
-               C205,68 195,68 192,75 Z" />
-    </svg>
+        <!-- body -->
+        <path class="antenna" d="M198,70 C190,55 178,48 168,44"></path>
+        <path class="antenna" d="M202,70 C210,55 222,48 232,44"></path>
+        <ellipse class="body-shape" cx="200" cy="70" rx="6" ry="6"></ellipse>
+        <path class="body-shape" d="M192,75 C185,140 185,240 192,320
+                 C195,335 205,335 208,320
+                 C215,240 215,140 208,75
+                 C205,68 195,68 192,75 Z" />
+      </svg>
 
+    </div>
   </div>
 
   <div class="tool-row">
@@ -581,7 +690,7 @@
       ctx.lineWidth = 26;
     } else {
       ctx.globalCompositeOperation = 'source-over';
-      ctx.strokeStyle = 'rgba(240, 201, 138, 0.85)';
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.88)';
       ctx.lineWidth = 3.5;
     }
     ctx.moveTo(lastPoint[0], lastPoint[1]);
