@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Pour &amp; Measure — Water Bottle Bench</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0f1b2b;
+    --panel:#16273c;
+    --panel-2:#1c3049;
+    --line: rgba(232,238,244,0.12);
+    --ink:#e8eef4;
+    --ink-dim:#93a5ba;
+    --water-1:#54c2ff;
+    --water-2:#0b6fb8;
+    --amber:#f2a541;
+    --amber-dim:#8a6329;
+    --glass-border: rgba(232,238,244,0.35);
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1100px 600px at 15% -10%, #16283f 0%, transparent 60%),
+      radial-gradient(900px 500px at 110% 10%, #14243a 0%, transparent 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:'IBM Plex Mono', monospace;
+    min-height:100vh;
+    -webkit-user-select:none;
+    user-select:none;
+  }
+  header{
+    padding:22px 28px 10px;
+    border-bottom:1px solid var(--line);
+  }
+  header h1{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:26px;
+    margin:0 0 4px;
+    letter-spacing:0.2px;
+  }
+  header h1 span{color:var(--amber);}
+  header p{
+    margin:0;
+    color:var(--ink-dim);
+    font-size:13px;
+    line-height:1.6;
+    max-width:820px;
+  }
+  header p b{color:var(--ink);font-weight:600;}
+
+  .layout{
+    display:flex;
+    gap:0;
+    height:calc(100vh - 96px);
+    min-height:520px;
+  }
+
+  /* ---------- shelf (palette) ---------- */
+  .shelf{
+    width:200px;
+    flex:0 0 200px;
+    background:var(--panel);
+    border-right:1px solid var(--line);
+    padding:18px 14px;
+    overflow-y:auto;
+  }
+  .shelf-title{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:11px;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:var(--ink-dim);
+    margin:0 0 14px 4px;
+  }
+  .palette-item{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:10px 8px;
+    margin-bottom:6px;
+    border-radius:10px;
+    cursor:grab;
+    border:1px solid transparent;
+    transition:background .15s, border-color .15s;
+    touch-action:none;
+  }
+  .palette-item:hover{
+    background:var(--panel-2);
+    border-color:var(--line);
+  }
+  .palette-item:active{cursor:grabbing;}
+  .mini-bottle{
+    flex:0 0 auto;
+    width:22px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+  .mini-bottle .neck{width:9px;height:6px;background:transparent;border:1.5px solid var(--glass-border);border-bottom:none;}
+  .mini-bottle .body{
+    width:22px;
+    border:1.5px solid var(--glass-border);
+    border-radius:3px 3px 6px 6px;
+    background:rgba(232,238,244,0.03);
+  }
+  .palette-item .meta{display:flex;flex-direction:column;}
+  .palette-item .cap-label{font-size:13px;font-weight:600;color:var(--ink);}
+  .palette-item .hint{font-size:10px;color:var(--ink-dim);}
+
+  .shelf-foot{
+    margin-top:18px;
+    padding-top:14px;
+    border-top:1px dashed var(--line);
+  }
+  #resetBtn{
+    width:100%;
+    padding:9px 10px;
+    background:transparent;
+    border:1px solid var(--amber-dim);
+    color:var(--amber);
+    border-radius:8px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.5px;
+    cursor:pointer;
+    transition:background .15s, color .15s;
+  }
+  #resetBtn:hover{background:var(--amber);color:#1a1200;}
+
+  /* ---------- workbench (canvas) ---------- */
+  .bench-wrap{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    min-width:0;
+  }
+  #canvas{
+    flex:1;
+    position:relative;
+    background:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:28px 28px;
+    background-position:-1px -1px;
+    overflow:hidden;
+  }
+  .ticker{
+    flex:0 0 auto;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:10px 20px;
+    background:var(--panel);
+    border-top:1px solid var(--line);
+    font-size:12px;
+    color:var(--ink-dim);
+  }
+  .ticker b{color:var(--water-1);font-weight:600;}
+  .toast{
+    position:absolute;
+    left:50%;
+    top:16px;
+    transform:translateX(-50%);
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    padding:7px 14px;
+    border-radius:20px;
+    font-size:12px;
+    color:var(--ink);
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .25s, transform .25s;
+    z-index:250;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(4px);}
+
+  /* ---------- bottle ---------- */
+  .bottle{
+    position:absolute;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    width:var(--w);
+    cursor:grab;
+    touch-action:none;
+    transform-origin:50% 100%;
+    transition:transform .32s cubic-bezier(.4,0,.2,1);
+    will-change:transform,left,top;
+  }
+  .bottle.dragging{
+    cursor:grabbing;
+    transform:scale(1.06);
+    filter:drop-shadow(0 14px 18px rgba(0,0,0,.5));
+    transition:transform .12s ease;
+  }
+  .bottle.target .body{
+    box-shadow:0 0 0 3px var(--amber);
+  }
+  .bottle .cap{
+    width:calc(var(--w) * 0.22);
+    height:6px;
+    background:var(--amber-dim);
+    border-radius:2px 2px 0 0;
+  }
+  .bottle .neck{
+    width:calc(var(--w) * 0.4);
+    height:14px;
+    border:2px solid var(--glass-border);
+    border-bottom:none;
+    background:rgba(232,238,244,0.04);
+  }
+  .bottle .body{
+    position:relative;
+    width:var(--w);
+    height:var(--h);
+    border:2px solid var(--glass-border);
+    border-radius:10px 10px 16px 16px;
+    background:linear-gradient(160deg, rgba(232,238,244,0.08), rgba(232,238,244,0.02));
+    overflow:hidden;
+    transition:box-shadow .15s;
+  }
+  .bottle .water{
+    position:absolute;
+    left:0; right:0; bottom:0;
+    height:0%;
+    background:linear-gradient(180deg, var(--water-1), var(--water-2));
+    transition:height .55s cubic-bezier(.4,0,.2,1);
+  }
+  .bottle .water::before{
+    content:"";
+    position:absolute;
+    top:-3px; left:0; right:0; height:6px;
+    background:rgba(255,255,255,0.35);
+    border-radius:50%;
+  }
+  .bottle .label{
+    position:relative;
+    z-index:2;
+    text-align:center;
+    font-size:11px;
+    font-weight:600;
+    padding:6px 2px 0;
+    color:var(--ink);
+    text-shadow:0 1px 2px rgba(0,0,0,0.5);
+  }
+  .bottle.big .label{font-size:13px;}
+  .del{
+    position:absolute;
+    top:-10px;
+    right:-8px;
+    width:18px;
+    height:18px;
+    border-radius:50%;
+    border:1px solid var(--line);
+    background:var(--panel-2);
+    color:var(--ink-dim);
+    font-size:12px;
+    line-height:1;
+    cursor:pointer;
+    z-index:3;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .del:hover{color:#ff8a8a;border-color:#ff8a8a;}
+  .bottle.big .del{display:none;}
+
+  @keyframes splashPulse{
+    0%{ box-shadow:inset 0 0 0 rgba(84,194,255,0); }
+    35%{ box-shadow:inset 0 16px 20px -6px rgba(120,210,255,0.95); }
+    100%{ box-shadow:inset 0 0 0 rgba(84,194,255,0); }
+  }
+  .body.splash{ animation:splashPulse .4s ease-out; }
+
+  /* ---------- pour stream (fixed overlay) ---------- */
+  .stream{
+    position:fixed;
+    width:5px;
+    height:0;
+    background:linear-gradient(180deg, rgba(255,255,255,.95), var(--water-1) 35%, var(--water-2));
+    border-radius:3px;
+    transform-origin:top center;
+    z-index:220;
+    pointer-events:none;
+    box-shadow:0 0 8px rgba(84,194,255,0.65);
+    transition:height .22s cubic-bezier(.3,.6,.4,1), opacity .2s linear;
+  }
+  .drip{
+    position:fixed;
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:var(--water-1);
+    z-index:220;
+    pointer-events:none;
+    box-shadow:0 0 6px rgba(84,194,255,0.7);
+  }
+
+  /* ---------- ghost preview while dragging from shelf ---------- */
+  .ghost-drag{
+    position:fixed;
+    z-index:300;
+    pointer-events:none;
+    opacity:.85;
+    transition:none;
+  }
+
+  ::-webkit-scrollbar{width:8px;}
+  ::-webkit-scrollbar-thumb{background:var(--panel-2);border-radius:4px;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Pour &amp; Measure <span>· Bench</span></h1>
+  <p>Drag a bottle from the <b>shelf</b> onto the bench to add a copy. Drag any bottle on the bench and drop it <b>onto another bottle</b> to pour — it tips over and streams water across until the source is empty or the target is full.</p>
+</header>
+
+<div class="layout">
+  <aside class="shelf">
+    <p class="shelf-title">Shelf</p>
+    <div class="palette-item" data-capacity="1">
+      <div class="mini-bottle"><div class="neck"></div><div class="body" style="height:14px"></div></div>
+      <div class="meta"><span class="cap-label">1 L</span><span class="hint">drag to bench</span></div>
+    </div>
+    <div class="palette-item" data-capacity="2">
+      <div class="mini-bottle"><div class="neck"></div><div class="body" style="height:18px"></div></div>
+      <div class="meta"><span class="cap-label">2 L</span><span class="hint">drag to bench</span></div>
+    </div>
+    <div class="palette-item" data-capacity="3">
+      <div class="mini-bottle"><div class="neck"></div><div class="body" style="height:22px"></div></div>
+      <div class="meta"><span class="cap-label">3 L</span><span class="hint">drag to bench</span></div>
+    </div>
+    <div class="palette-item" data-capacity="4">
+      <div class="mini-bottle"><div class="neck"></div><div class="body" style="height:26px"></div></div>
+      <div class="meta"><span class="cap-label">4 L</span><span class="hint">drag to bench</span></div>
+    </div>
+    <div class="palette-item" data-capacity="5">
+      <div class="mini-bottle"><div class="neck"></div><div class="body" style="height:30px"></div></div>
+      <div class="meta"><span class="cap-label">5 L</span><span class="hint">drag to bench</span></div>
+    </div>
+    <div class="shelf-foot">
+      <button id="resetBtn">↺ reset bench</button>
+    </div>
+  </aside>
+
+  <div class="bench-wrap">
+    <div id="canvas">
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="ticker">
+      <span>Tip: drag a small bottle onto the big one to pour it back.</span>
+      <span>Total water in system: <b id="totalLabel">20.0</b> L</span>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const canvas = document.getElementById('canvas');
+  const toastEl = document.getElementById('toast');
+  const totalLabel = document.getElementById('totalLabel');
+
+  let idCounter = 1;
+  let pouring = false;
+  let drag = null;
+
+  let bottles = [
+    { id:'big', capacity:20, amount:20, x:40, y:40, big:true }
+  ];
+
+  const bottleWidth = cap => cap >= 10 ? 100 : 60;
+  const bottleHeight = cap => Math.round(58 + cap * 9);
+  const round1 = n => Math.round(n * 10) / 10;
+  const clamp = (n,min,max) => Math.max(min, Math.min(max, n));
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+  function showToast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(()=>toastEl.classList.remove('show'), 1400);
+  }
+
+  function updateTotal(){
+    const total = bottles.reduce((s,b)=>s+b.amount,0);
+    totalLabel.textContent = round1(total).toFixed(1);
+  }
+
+  function render(){
+    const existing = [...canvas.querySelectorAll('.bottle')];
+    const currentIds = new Set(bottles.map(b=>b.id));
+    existing.forEach(el=>{ if(!currentIds.has(el.dataset.id)) el.remove(); });
+
+    bottles.forEach(b=>{
+      let el = canvas.querySelector('.bottle[data-id="'+b.id+'"]');
+      if(!el){
+        el = document.createElement('div');
+        el.className = 'bottle' + (b.big ? ' big' : '');
+        el.dataset.id = b.id;
+        el.innerHTML =
+          '<button class="del" data-id="'+b.id+'" title="Remove">&times;</button>' +
+          '<div class="cap"></div>' +
+          '<div class="neck"></div>' +
+          '<div class="body"><div class="water"></div><div class="label"></div></div>';
+        canvas.appendChild(el);
+      }
+      const w = bottleWidth(b.capacity), h = bottleHeight(b.capacity);
+      el.style.left = b.x + 'px';
+      el.style.top = b.y + 'px';
+      el.style.setProperty('--w', w + 'px');
+      el.style.setProperty('--h', h + 'px');
+      const pct = b.capacity ? (b.amount / b.capacity * 100) : 0;
+      el.querySelector('.water').style.height = pct + '%';
+      el.querySelector('.label').textContent = round1(b.amount) + ' / ' + b.capacity + ' L';
+    });
+
+    updateTotal();
+  }
+
+  function splash(tEl){
+    const body = tEl.querySelector('.body');
+    body.classList.remove('splash');
+    void body.offsetWidth;
+    body.classList.add('splash');
+    setTimeout(()=>body.classList.remove('splash'), 400);
+  }
+
+  /* ---------- realistic tilt + stream pour ---------- */
+  async function animatedPour(sourceId, targetId){
+    if(pouring || sourceId === targetId) return;
+    const s = bottles.find(b=>b.id===sourceId);
+    const t = bottles.find(b=>b.id===targetId);
+    if(!s || !t) return;
+    const amt = round1(Math.min(s.amount, t.capacity - t.amount));
+    if(amt <= 0){
+      showToast(s.amount <= 0 ? 'Nothing left to pour' : 'Target is already full');
+      return;
+    }
+    const sEl = canvas.querySelector('.bottle[data-id="'+sourceId+'"]');
+    const tEl = canvas.querySelector('.bottle[data-id="'+targetId+'"]');
+    if(!sEl || !tEl) return;
+
+    pouring = true;
+    sEl.style.zIndex = 90;
+
+    const sBox = sEl.getBoundingClientRect();
+    const tBox = tEl.getBoundingClientRect();
+    const tiltRight = (sBox.left + sBox.width/2) < (tBox.left + tBox.width/2);
+    const angle = tiltRight ? 78 : -78;
+
+    sEl.style.transform = 'rotate(' + angle + 'deg)';
+    await sleep(340);
+
+    const neckRect = sEl.querySelector('.neck').getBoundingClientRect();
+    const originX = neckRect.left + neckRect.width * (tiltRight ? 0.9 : 0.1);
+    const originY = neckRect.top + neckRect.height * 0.5;
+    const destBox = tEl.querySelector('.body').getBoundingClientRect();
+    const destX = destBox.left + destBox.width/2;
+    const destY = destBox.top + 6;
+
+    const dx = destX - originX, dy = destY - originY;
+    const dist = Math.max(8, Math.hypot(dx,dy));
+    const streamAngle = Math.atan2(dy,dx) * 180/Math.PI - 90;
+
+    const stream = document.createElement('div');
+    stream.className = 'stream';
+    stream.style.left = originX + 'px';
+    stream.style.top = originY + 'px';
+    stream.style.transform = 'rotate(' + streamAngle + 'deg)';
+    document.body.appendChild(stream);
+    await sleep(20);
+    stream.style.height = dist + 'px';
+
+    await sleep(220);
+
+    s.amount = round1(s.amount - amt);
+    t.amount = round1(t.amount + amt);
+    render();
+    splash(tEl);
+
+    await sleep(600);
+
+    stream.style.opacity = '0';
+    await sleep(200);
+    stream.remove();
+
+    sEl.style.transform = 'rotate(0deg)';
+    await sleep(340);
+
+    sEl.style.zIndex = '';
+    pouring = false;
+    showToast('Poured ' + amt + ' L');
+  }
+
+  /* ---------- pointer-based dragging: bottles already on the bench ---------- */
+  canvas.addEventListener('pointerdown', e=>{
+    if(pouring) return;
+    if(e.target.closest('.del')) return;
+    const bEl = e.target.closest('.bottle');
+    if(!bEl) return;
+    e.preventDefault();
+    bEl.setPointerCapture(e.pointerId);
+    const rect = bEl.getBoundingClientRect();
+    drag = {
+      type:'bottle',
+      id: bEl.dataset.id,
+      el: bEl,
+      offsetX: e.clientX - rect.left,
+      offsetY: e.clientY - rect.top,
+      pointerId: e.pointerId
+    };
+    bEl.classList.add('dragging');
+  });
+
+  function moveBottle(e){
+    const canvasRect = canvas.getBoundingClientRect();
+    const w = drag.el.offsetWidth, h = drag.el.offsetHeight;
+    let x = e.clientX - canvasRect.left - drag.offsetX;
+    let y = e.clientY - canvasRect.top - drag.offsetY;
+    x = clamp(x, -12, canvasRect.width - w + 12);
+    y = clamp(y, -12, canvasRect.height - h + 12);
+    drag.el.style.left = x + 'px';
+    drag.el.style.top = y + 'px';
+
+    drag.el.style.pointerEvents = 'none';
+    const under = document.elementFromPoint(e.clientX, e.clientY);
+    drag.el.style.pointerEvents = '';
+    const targetBottle = under ? under.closest('.bottle') : null;
+    document.querySelectorAll('.bottle.target').forEach(el=>{
+      if(el !== targetBottle) el.classList.remove('target');
+    });
+    if(targetBottle && targetBottle !== drag.el) targetBottle.classList.add('target');
+  }
+
+  function dropBottle(e){
+    const d = drag;
+    d.el.classList.remove('dragging');
+    document.querySelectorAll('.bottle.target').forEach(el=>el.classList.remove('target'));
+
+    const canvasRect = canvas.getBoundingClientRect();
+    const b = bottles.find(bb=>bb.id===d.id);
+    if(b){
+      b.x = parseFloat(d.el.style.left);
+      b.y = parseFloat(d.el.style.top);
+    }
+
+    d.el.style.pointerEvents = 'none';
+    const under = document.elementFromPoint(e.clientX, e.clientY);
+    d.el.style.pointerEvents = '';
+    const targetBottle = under ? under.closest('.bottle') : null;
+
+    if(targetBottle && targetBottle !== d.el){
+      animatedPour(d.id, targetBottle.dataset.id);
+    }
+  }
+
+  /* ---------- pointer-based dragging: new bottle from the shelf ---------- */
+  document.querySelectorAll('.palette-item').forEach(item=>{
+    item.addEventListener('pointerdown', e=>{
+      if(pouring) return;
+      e.preventDefault();
+      item.setPointerCapture(e.pointerId);
+      const cap = +item.dataset.capacity;
+      const w = bottleWidth(cap), h = bottleHeight(cap);
+      const ghost = document.createElement('div');
+      ghost.className = 'bottle ghost-drag';
+      ghost.style.setProperty('--w', w + 'px');
+      ghost.style.setProperty('--h', h + 'px');
+      ghost.innerHTML =
+        '<div class="cap"></div><div class="neck"></div>' +
+        '<div class="body"><div class="water" style="height:0%"></div><div class="label">0 / ' + cap + ' L</div></div>';
+      ghost.style.left = (e.clientX - w/2) + 'px';
+      ghost.style.top = (e.clientY - 14) + 'px';
+      document.body.appendChild(ghost);
+      drag = { type:'palette', capacity:cap, ghost, pointerId:e.pointerId };
+    });
+  });
+
+  function moveGhost(e){
+    const w = parseFloat(drag.ghost.style.getPropertyValue('--w'));
+    drag.ghost.style.left = (e.clientX - w/2) + 'px';
+    drag.ghost.style.top = (e.clientY - 14) + 'px';
+  }
+
+  function dropGhost(e){
+    const canvasRect = canvas.getBoundingClientRect();
+    if(e.clientX > canvasRect.left && e.clientX < canvasRect.right &&
+       e.clientY > canvasRect.top && e.clientY < canvasRect.bottom){
+      const cap = drag.capacity;
+      const w = bottleWidth(cap), h = bottleHeight(cap);
+      let x = e.clientX - canvasRect.left - w/2;
+      let y = e.clientY - canvasRect.top - 14;
+      x = clamp(x, 4, canvasRect.width - w - 4);
+      y = clamp(y, 4, canvasRect.height - h - 4);
+      bottles.push({ id:'b'+(idCounter++), capacity:cap, amount:0, x, y, big:false });
+      render();
+    }
+    drag.ghost.remove();
+  }
+
+  /* ---------- unified pointer move / up ---------- */
+  window.addEventListener('pointermove', e=>{
+    if(!drag || e.pointerId !== drag.pointerId) return;
+    if(drag.type === 'bottle') moveBottle(e);
+    else if(drag.type === 'palette') moveGhost(e);
+  });
+  window.addEventListener('pointerup', e=>{
+    if(!drag || e.pointerId !== drag.pointerId) return;
+    if(drag.type === 'bottle') dropBottle(e);
+    else if(drag.type === 'palette') dropGhost(e);
+    drag = null;
+  });
+  window.addEventListener('pointercancel', e=>{
+    if(!drag || e.pointerId !== drag.pointerId) return;
+    if(drag.type === 'bottle') drag.el.classList.remove('dragging');
+    if(drag.type === 'palette') drag.ghost.remove();
+    drag = null;
+  });
+
+  /* ---------- delete ---------- */
+  canvas.addEventListener('click', e=>{
+    const del = e.target.closest('.del');
+    if(!del) return;
+    const id = del.dataset.id;
+    bottles = bottles.filter(b=>b.id !== id);
+    render();
+  });
+
+  /* ---------- reset ---------- */
+  document.getElementById('resetBtn').addEventListener('click', ()=>{
+    if(pouring) return;
+    bottles = [{ id:'big', capacity:20, amount:20, x:40, y:40, big:true }];
+    render();
+    showToast('Bench reset');
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
