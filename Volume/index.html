@@ -241,14 +241,12 @@
     border-radius:50%;
   }
   .bottle .label{
-    position:relative;
-    z-index:2;
     text-align:center;
-    font-size:11px;
+    font-size:10.5px;
     font-weight:600;
-    padding:6px 2px 0;
+    margin-top:5px;
     color:var(--ink);
-    text-shadow:0 1px 2px rgba(0,0,0,0.5);
+    white-space:nowrap;
   }
   .bottle.big .label{font-size:13px;}
   .del{
@@ -327,19 +325,19 @@
   <aside class="shelf">
     <p class="shelf-title">Shelf</p>
     <div class="palette-item" data-capacity="1">
-      <div class="mini-bottle"><div class="neck"></div><div class="body" style="height:14px"></div></div>
+      <div class="mini-bottle"><div class="neck"></div><div class="body" style="height:6px"></div></div>
       <div class="meta"><span class="cap-label">1 L</span><span class="hint">drag to bench</span></div>
     </div>
     <div class="palette-item" data-capacity="2">
-      <div class="mini-bottle"><div class="neck"></div><div class="body" style="height:18px"></div></div>
+      <div class="mini-bottle"><div class="neck"></div><div class="body" style="height:12px"></div></div>
       <div class="meta"><span class="cap-label">2 L</span><span class="hint">drag to bench</span></div>
     </div>
     <div class="palette-item" data-capacity="3">
-      <div class="mini-bottle"><div class="neck"></div><div class="body" style="height:22px"></div></div>
+      <div class="mini-bottle"><div class="neck"></div><div class="body" style="height:18px"></div></div>
       <div class="meta"><span class="cap-label">3 L</span><span class="hint">drag to bench</span></div>
     </div>
     <div class="palette-item" data-capacity="4">
-      <div class="mini-bottle"><div class="neck"></div><div class="body" style="height:26px"></div></div>
+      <div class="mini-bottle"><div class="neck"></div><div class="body" style="height:24px"></div></div>
       <div class="meta"><span class="cap-label">4 L</span><span class="hint">drag to bench</span></div>
     </div>
     <div class="palette-item" data-capacity="5">
@@ -376,8 +374,14 @@
     { id:'big', capacity:20, amount:20, x:40, y:40, big:true }
   ];
 
-  const bottleWidth = cap => cap >= 10 ? 100 : 60;
-  const bottleHeight = cap => Math.round(58 + cap * 9);
+  // Every bottle shares the same cross-section (constant width), and body
+  // height is exactly capacity * PX_PER_LITER. Because volume = width * height
+  // and width never changes, height (and drawn area) is exactly proportional
+  // to liters — five 1 L bodies stacked equal one 5 L body, to the pixel.
+  const PX_PER_LITER = 14;
+  const BOTTLE_WIDTH = 46;
+  const bottleWidth = () => BOTTLE_WIDTH;
+  const bottleHeight = cap => cap * PX_PER_LITER;
   const round1 = n => Math.round(n * 10) / 10;
   const clamp = (n,min,max) => Math.max(min, Math.min(max, n));
   const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -409,7 +413,8 @@
           '<button class="del" data-id="'+b.id+'" title="Remove">&times;</button>' +
           '<div class="cap"></div>' +
           '<div class="neck"></div>' +
-          '<div class="body"><div class="water"></div><div class="label"></div></div>';
+          '<div class="body"><div class="water"></div></div>' +
+          '<div class="label"></div>';
         canvas.appendChild(el);
       }
       const w = bottleWidth(b.capacity), h = bottleHeight(b.capacity);
@@ -576,7 +581,8 @@
       ghost.style.setProperty('--h', h + 'px');
       ghost.innerHTML =
         '<div class="cap"></div><div class="neck"></div>' +
-        '<div class="body"><div class="water" style="height:0%"></div><div class="label">0 / ' + cap + ' L</div></div>';
+        '<div class="body"><div class="water" style="height:0%"></div></div>' +
+        '<div class="label">0 / ' + cap + ' L</div>';
       ghost.style.left = (e.clientX - w/2) + 'px';
       ghost.style.top = (e.clientY - 14) + 'px';
       document.body.appendChild(ghost);
