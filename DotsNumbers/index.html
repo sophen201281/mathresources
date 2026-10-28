@@ -208,7 +208,7 @@ canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-in
       b.addEventListener('click',function(){pick(b,n);});
       board.appendChild(b);
     });
-    msg.textContent='Count the dots, then tap the matching number.';
+    msg.textContent='ចូររាប់ចំណុច រួចហើយចុចលើ រង្វង់លេខដែលត្រូវគ្នានឹងចំនួនចំណុច។';
     again.classList.remove('show');
   }
 
@@ -216,7 +216,7 @@ canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-in
     if(locked) return;
     if(n!==target){
       b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake');
-      msg.textContent='Not '+n+'. Count the dots again.';
+      msg.textContent='អត់ត្រូវ'+n+'. ចូររាប់ម្តងទៀត។';
       return;
     }
     locked=true; score++;
@@ -226,7 +226,7 @@ canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-in
     Array.prototype.slice.call(board.querySelectorAll('.coin')).forEach(function(c){ if(c!==b) c.style.opacity='.55'; });
     b.classList.add('go');
     unlock(); setTimeout(celebrate,950);
-    msg.textContent='យ៉េ! '+n+' ត្រូវបាន. Folding to the middle…';
+    msg.textContent='យ៉េ! '+n+' ត្រូវ. Folding to the middle…';
     setTimeout(function(){
       var s=document.createElement('div'); s.className='slot'; s.style.left=b.style.left; s.style.top=b.style.top; board.insertBefore(s,board.firstChild);
       b.remove();
