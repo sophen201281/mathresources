@@ -105,20 +105,20 @@ canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-in
 <div class="board" id="board"><div class="center" id="center"></div></div>
 <div class="panel">
   <div class="msg" id="msg" aria-live="polite"></div>
-  <div class="range">Numbers from
+  <div class="range">ពីលេខ
     <input id="min" type="number" inputmode="numeric" min="1" max="19" value="1" aria-label="Lowest number">
     to
     <input id="max" type="number" inputmode="numeric" min="2" max="20" value="6" aria-label="Highest number">
   </div>
-  <button class="again" id="again">Play again</button>
+  <button class="again" id="again">លេងម្តងទៀត</button>
 </div>
 <canvas id="fx" aria-hidden="true"></canvas>
 
 <script>
 (function(){
-  var PATTERNS={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
+  var PATTERNS={១:[៤],២:[០,៨],៣:[០,៤,៨],៤:[០,២,៦,៨],៥:[០,២,៤,៦,៨],៦:[០,២,៣,៥,៦,៨]};
   var board=document.getElementById('board'), center=document.getElementById('center'),
-      msg=document.getElementById('msg'), again=document.getElementById('again');
+      msg=document.getElementById('msg'), again=document.getElementById('ម្តងទៀត');
   var target, locked, score=0, lo=1, hi=6;
 
   /* ---- sound + fireworks ---- */
@@ -226,7 +226,7 @@ canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-in
     Array.prototype.slice.call(board.querySelectorAll('.coin')).forEach(function(c){ if(c!==b) c.style.opacity='.55'; });
     b.classList.add('go');
     unlock(); setTimeout(celebrate,950);
-    msg.textContent='យ៉េ! '+n+' ត្រូវ. Folding to the middle…';
+    msg.textContent='យ៉េ! '+n+' ត្រូវ.ដាក់វាចូលទៅកណ្តាល…';
     setTimeout(function(){
       var s=document.createElement('div'); s.className='slot'; s.style.left=b.style.left; s.style.top=b.style.top; board.insertBefore(s,board.firstChild);
       b.remove();
@@ -234,7 +234,7 @@ canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-in
       left.forEach(function(c){c.style.opacity='';});
       if(left.length){
         target=next; locked=false;
-        msg.textContent='Matched: '+score+'. ចូរស្វែងរកលេខ ដែលត្រូវនឹងចំនួនចំណុចនេះ។';
+        msg.textContent='ត្រូវបាន: '+score+'. ចូរស្វែងរកលេខ ដែលត្រូវនឹងចំនួនចំណុចនេះ។';
       }else{
         msg.textContent='All '+score+' ត្រឹមត្រូវ​​ ពូកែរាប់មែន!';
         again.classList.add('show'); celebrate();
